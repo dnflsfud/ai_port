@@ -1,0 +1,71 @@
+{
+  "penalty": 5.0,
+  "axes": [
+    "value",
+    "quality",
+    "lowvol"
+  ],
+  "loading_cols": [
+    "best_peg_ratio_level_z",
+    "best_roe_level_z",
+    "idio_vol_63d"
+  ],
+  "applied_dates": {
+    "off": 94,
+    "on": 94
+  },
+  "impute_frac": {
+    "off": 0.0,
+    "on": 0.0
+  },
+  "mean_abs_active_exposure": {
+    "off": {
+      "value": 0.07016826174366438,
+      "quality": 0.03447241103378658,
+      "lowvol": 0.12024226000081195
+    },
+    "on": {
+      "value": 0.031552977797537636,
+      "quality": 0.01561258778366227,
+      "lowvol": 0.0408356542848693
+    }
+  },
+  "exposure_drop_pct": {
+    "value": 55.03240779598389,
+    "quality": 54.70990477468983,
+    "lowvol": 66.03884999783475
+  },
+  "active_share": {
+    "off": 0.10337093711211452,
+    "on": 0.09702078736928041
+  },
+  "metrics": {
+    "off": {
+      "information_ratio": 1.485246625159628,
+      "active_return": 0.04603754145329808,
+      "tracking_error": 0.030996563583068345,
+      "avg_annual_turnover": 1.143655633357165,
+      "realized_beta": 1.0241841436641572,
+      "sub_periods": {
+        "P1_ir": 1.6070908944337474,
+        "P2_ir": 0.5781993545603639,
+        "P3_ir": 2.0014992344830413
+      },
+      "optimizer_failure_rate": 0.06382978723404255
+    },
+    "on": {
+      "information_ratio": 1.200338975994229,
+      "active_return": 0.029508319203097377,
+      "tracking_error": 0.024583321705983867,
+      "avg_annual_turnover": 1.1484577228858985,
+      "realized_beta": 1.008643260333485,
+      "sub_periods": {
+        "P1_ir": 1.5594922920750922,
+        "P2_ir": 0.22535867087899455,
+        "P3_ir": 1.6065344749549062
+      },
+      "optimizer_failure_rate": 0.06382978723404255
+    }
+  },
+  "roundtrip_off_vs_s0_abs_diff": 0.0
+}

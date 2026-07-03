@@ -1,0 +1,108 @@
+{
+  "stage0_baseline": {
+    "information_ratio": 1.481437507913232,
+    "tracking_error": 0.031069189048318836,
+    "avg_annual_turnover": 1.1440214379781009,
+    "realized_beta": 1.0243885664115702,
+    "realized_active_beta": 0.024388566411570372,
+    "P2_beta_neutral_gate": "SHELVED"
+  },
+  "stage1_attribution": {
+    "linear_share": 0.4824097137651483,
+    "nonlinear_share_upper_bound": 0.5175902862348517,
+    "legC_construction_active_delta": 0.011474110809293059,
+    "roundtrip_full_vs_s0_abs_diff": 0.0,
+    "roundtrip_ok": true,
+    "weight_invariant": true,
+    "production": "OFF-default, on-demand (EXPENSIVE SHAP) - no weight change"
+  },
+  "stage2_overlay": {
+    "on_baseline_IR": 1.485246625159628,
+    "all_off_IR": 1.1290365121133394,
+    "leave_one_out": {
+      "vtg": {
+        "marginal_dIR": -0.038877638957969474,
+        "dsub": [
+          0.06964726653301812,
+          -0.2210583344705045,
+          -0.008485839059046985
+        ]
+      },
+      "growth": {
+        "marginal_dIR": 0.32638435220592754,
+        "dsub": [
+          0.046738370479376234,
+          0.3719214977973926,
+          0.5761700270032188
+        ]
+      },
+      "pead": {
+        "marginal_dIR": -0.10694059590863625,
+        "dsub": [
+          -0.08304906372591447,
+          -0.0026496309833257126,
+          -0.0617668337009567
+        ]
+      }
+    },
+    "decisions": {
+      "vtg": "KEEP",
+      "growth": "KEEP",
+      "pead": "KEEP"
+    },
+    "summary": "no overlay shows clear (>1SE) sign-consistent harm => keep all"
+  },
+  "stage3_factor": {
+    "applied_dates": {
+      "off": 94,
+      "on": 94
+    },
+    "impute_frac": {
+      "off": 0.0,
+      "on": 0.0
+    },
+    "exposure_drop_pct": {
+      "value": 55.03240779598389,
+      "quality": 54.70990477468983,
+      "lowvol": 66.03884999783475
+    },
+    "binds": true,
+    "collapsed": false,
+    "active_share_off_on": [
+      0.10337093711211452,
+      0.09702078736928041
+    ],
+    "fallback_rate_off_on": [
+      0.06382978723404255,
+      0.06382978723404255
+    ],
+    "IR_cost_off_minus_on": 0.284907649165399,
+    "TE_drop_off_minus_on": 0.006413241877084478,
+    "off_IR": 1.485246625159628,
+    "on_IR": 1.200338975994229,
+    "roundtrip_off_vs_s0_abs_diff": 0.0,
+    "decision": "CONFIRMED LEVER - keep OFF-default. Binds (style exposure down) but trades IR/TE; activate only under an explicit style-risk-budget mandate (sec.8, sec.2-5)."
+  },
+  "selection_bias": {
+    "observed_sr": 1.463992926217465,
+    "deflated_sr": 0.7481316640899212,
+    "dsr_p_value": 0.22719037230204764,
+    "n_trials": 403,
+    "adjusted_sr": 0.26003766256727157,
+    "grid_haircut": 1.2039552636501933,
+    "min_trl_years": 1.1980100692994933,
+    "available_years": 7.829365079365079,
+    "late_entrants": 0,
+    "sub_period_ir": {
+      "P1_ir": 1.629,
+      "P2_ir": 0.536,
+      "P3_ir": 1.975
+    },
+    "verdict": "FAIL",
+    "gate": "FAIL",
+    "report_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\c2\\ai_port\\outputs\\reports\\selection_bias_report.md"
+  },
+  "solver": "ECOS (single-protocol, sec.2-2 - do not compare to legacy SCS)",
+  "project_root": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\c2\\ai_port",
+  "engine": "vendored ./src (self-contained; see ENGINE_PROVENANCE.md)"
+}

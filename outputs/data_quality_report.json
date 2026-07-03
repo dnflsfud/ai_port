@@ -1,0 +1,327 @@
+{
+  "coverage": {
+    "n_date_sheets": 27,
+    "n_non_date_sheets": 3,
+    "intersection_dates": 3056,
+    "longest_sheet_dates": 4894,
+    "intersection_pct_of_longest": 62.4,
+    "shortest_date_sheets": [
+      {
+        "sheet": "BusinessDays",
+        "first": "2014-01-02",
+        "last": "2026-06-10",
+        "n_dates": 3128,
+        "n_cols": 0,
+        "nan_frac": null
+      },
+      {
+        "sheet": "Factor_PX_LAST",
+        "first": "2014-01-02",
+        "last": "2026-06-10",
+        "n_dates": 3128,
+        "n_cols": 49,
+        "nan_frac": 0.0
+      },
+      {
+        "sheet": "Factor_Returns",
+        "first": "2014-01-02",
+        "last": "2026-06-10",
+        "n_dates": 3128,
+        "n_cols": 49,
+        "nan_frac": 0.0003
+      },
+      {
+        "sheet": "Earnings_Timeline",
+        "first": "2014-01-01",
+        "last": "2026-03-20",
+        "n_dates": 3188,
+        "n_cols": 63,
+        "nan_frac": 0.0
+      },
+      {
+        "sheet": "Earnings_Date",
+        "first": "2014-01-01",
+        "last": "2026-06-11",
+        "n_dates": 3247,
+        "n_cols": 65,
+        "nan_frac": 0.0
+      },
+      {
+        "sheet": "Sent_Trend_Momentum_Timeseries",
+        "first": "2013-01-03",
+        "last": "2026-06-11",
+        "n_dates": 4204,
+        "n_cols": 65,
+        "nan_frac": 0.0258
+      }
+    ],
+    "non_date_sheets": [
+      {
+        "sheet": "Universe_Meta",
+        "n_rows": 65,
+        "n_cols": 3
+      },
+      {
+        "sheet": "Summary_Stats",
+        "n_rows": 65,
+        "n_cols": 9
+      },
+      {
+        "sheet": "Factor_Meta",
+        "n_rows": 49,
+        "n_cols": 3
+      }
+    ],
+    "per_sheet": {
+      "BusinessDays": {
+        "first": "2014-01-02",
+        "last": "2026-06-10",
+        "n_dates": 3128,
+        "n_cols": 0,
+        "nan_frac": null
+      },
+      "PX_LAST": {
+        "first": "2014-01-02",
+        "last": "2026-06-11",
+        "n_dates": 4544,
+        "n_cols": 65,
+        "nan_frac": 0.0
+      },
+      "BEST_EPS": {
+        "first": "2014-01-01",
+        "last": "2026-06-11",
+        "n_dates": 4545,
+        "n_cols": 65,
+        "nan_frac": 0.0
+      },
+      "BEST_SALES": {
+        "first": "2014-01-01",
+        "last": "2026-06-11",
+        "n_dates": 4545,
+        "n_cols": 65,
+        "nan_frac": 0.0
+      },
+      "BEST_PE_RATIO": {
+        "first": "2014-01-02",
+        "last": "2026-06-11",
+        "n_dates": 4544,
+        "n_cols": 65,
+        "nan_frac": 0.0
+      },
+      "BEST_PEG_RATIO": {
+        "first": "2014-01-02",
+        "last": "2026-06-11",
+        "n_dates": 4544,
+        "n_cols": 64,
+        "nan_frac": 0.0
+      },
+      "BEST_CALCULATED_FCF": {
+        "first": "2014-01-01",
+        "last": "2026-06-11",
+        "n_dates": 4545,
+        "n_cols": 60,
+        "nan_frac": 0.0
+      },
+      "BEST_GROSS_MARGIN": {
+        "first": "2014-01-01",
+        "last": "2026-06-11",
+        "n_dates": 4545,
+        "n_cols": 63,
+        "nan_frac": 0.0
+      },
+      "CUR_MKT_CAP": {
+        "first": "2014-01-02",
+        "last": "2026-06-11",
+        "n_dates": 4544,
+        "n_cols": 65,
+        "nan_frac": 0.0
+      },
+      "OPER_MARGIN": {
+        "first": "2014-01-25",
+        "last": "2026-06-11",
+        "n_dates": 4521,
+        "n_cols": 65,
+        "nan_frac": 0.0
+      },
+      "BEST_CAPEX": {
+        "first": "2014-01-01",
+        "last": "2026-06-11",
+        "n_dates": 4545,
+        "n_cols": 61,
+        "nan_frac": 0.0
+      },
+      "BEST_ROE": {
+        "first": "2014-01-01",
+        "last": "2026-06-11",
+        "n_dates": 4545,
+        "n_cols": 65,
+        "nan_frac": 0.0
+      },
+      "BEST_PX_BPS_RATIO": {
+        "first": "2014-01-02",
+        "last": "2026-06-11",
+        "n_dates": 4544,
+        "n_cols": 65,
+        "nan_frac": 0.0
+      },
+      "BEST_EV_TO_BEST_EBITDA": {
+        "first": "2014-01-02",
+        "last": "2026-06-11",
+        "n_dates": 4544,
+        "n_cols": 62,
+        "nan_frac": 0.0
+      },
+      "NEWS_SENTIMENT_DAILY_AVG": {
+        "first": "2014-01-01",
+        "last": "2026-06-11",
+        "n_dates": 4545,
+        "n_cols": 65,
+        "nan_frac": 0.0
+      },
+      "EQY_REC_CONS": {
+        "first": "2014-01-01",
+        "last": "2026-06-11",
+        "n_dates": 4545,
+        "n_cols": 65,
+        "nan_frac": 0.0
+      },
+      "SHORT_INT_RATIO": {
+        "first": "2014-01-15",
+        "last": "2026-06-11",
+        "n_dates": 4531,
+        "n_cols": 63,
+        "nan_frac": 0.0
+      },
+      "Earnings_Date": {
+        "first": "2014-01-01",
+        "last": "2026-06-11",
+        "n_dates": 3247,
+        "n_cols": 65,
+        "nan_frac": 0.0
+      },
+      "Daily_Returns": {
+        "first": "2014-01-02",
+        "last": "2026-06-11",
+        "n_dates": 4544,
+        "n_cols": 65,
+        "nan_frac": 0.0002
+      },
+      "Sent_Trend_Momentum_Timeseries": {
+        "first": "2013-01-03",
+        "last": "2026-06-11",
+        "n_dates": 4204,
+        "n_cols": 65,
+        "nan_frac": 0.0258
+      },
+      "Sent_Trend_21d_Timeseries": {
+        "first": "2013-01-02",
+        "last": "2026-06-11",
+        "n_dates": 4205,
+        "n_cols": 65,
+        "nan_frac": 0.0258
+      },
+      "Factset_EPS_Revision": {
+        "first": "2013-01-01",
+        "last": "2026-05-26",
+        "n_dates": 4894,
+        "n_cols": 65,
+        "nan_frac": 0.0396
+      },
+      "Factset_Sales_Revision": {
+        "first": "2013-01-01",
+        "last": "2026-05-26",
+        "n_dates": 4894,
+        "n_cols": 65,
+        "nan_frac": 0.0403
+      },
+      "Factset_TG_Price": {
+        "first": "2013-01-01",
+        "last": "2026-05-26",
+        "n_dates": 4894,
+        "n_cols": 65,
+        "nan_frac": 0.0395
+      },
+      "Earnings_Timeline": {
+        "first": "2014-01-01",
+        "last": "2026-03-20",
+        "n_dates": 3188,
+        "n_cols": 63,
+        "nan_frac": 0.0
+      },
+      "Factor_PX_LAST": {
+        "first": "2014-01-02",
+        "last": "2026-06-10",
+        "n_dates": 3128,
+        "n_cols": 49,
+        "nan_frac": 0.0
+      },
+      "Factor_Returns": {
+        "first": "2014-01-02",
+        "last": "2026-06-10",
+        "n_dates": 3128,
+        "n_cols": 49,
+        "nan_frac": 0.0003
+      }
+    },
+    "engine_logged": {
+      "intersection_dates": 3217,
+      "pct_of_longest": 66,
+      "longest_dates": 4894,
+      "tail_ffill_days": 16,
+      "tail_from": "2026-05-26",
+      "tail_to": "2026-06-11"
+    }
+  },
+  "degenerate_models": {
+    "log": "stage0.log",
+    "total_retrains": 32,
+    "degenerate_retrains": 16,
+    "degenerate_rate_pct": 50.0,
+    "by_year": {
+      "2018": {
+        "retrains": 1,
+        "degenerate": 1
+      },
+      "2019": {
+        "retrains": 4,
+        "degenerate": 4
+      },
+      "2020": {
+        "retrains": 4,
+        "degenerate": 1
+      },
+      "2021": {
+        "retrains": 4,
+        "degenerate": 3
+      },
+      "2022": {
+        "retrains": 4,
+        "degenerate": 2
+      },
+      "2023": {
+        "retrains": 5,
+        "degenerate": 0
+      },
+      "2024": {
+        "retrains": 4,
+        "degenerate": 3
+      },
+      "2025": {
+        "retrains": 4,
+        "degenerate": 2
+      },
+      "2026": {
+        "retrains": 2,
+        "degenerate": 0
+      }
+    },
+    "degenerate_tree_count_dist": {
+      "1": 9,
+      "2": 2,
+      "4": 1,
+      "6": 2,
+      "7": 1,
+      "8": 1
+    }
+  }
+}

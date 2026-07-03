@@ -1,0 +1,19 @@
+label: exp_revision_symmetric
+description: >
+  Phase 2.4 — blunt-instrument symmetric revision-spike cleaning.
+  Masks ANY daily move with |diff| > 15, regardless of prior level.
+  This is deliberately aggressive: useful as an UPPER BOUND on how much
+  the up-side artifact is costing IR. If this variant underperforms the
+  reversion_gated variant, it means we're filtering genuine analyst
+  upgrades and the gated approach is preferable. If both underperform
+  baseline, the artifact isn't material enough to warrant the fix.
+  See docs/ROADMAP.md § Phase 2.4 for context.
+out_dir: outputs/exp_revision_symmetric
+# See exp_revision_reversion_gated.yaml for why production mode is used
+# for the first-look comparison. Re-run with tuning_mode=tuning for the
+# selection-bias-safe evaluation if this is a promotion candidate.
+tuning_mode: production
+overrides:
+  rebalance_freq: 10
+  revision_clean_mode: "symmetric"
+  revision_clean_threshold: 15.0

@@ -1,0 +1,453 @@
+{
+  "as_of": "2026-05-21",
+  "prev_rebalance": "2026-04-22",
+  "rebalance_freq_days": 21,
+  "n_trades": 64,
+  "trade_list": [
+    {
+      "ticker": "ORCL",
+      "prev": 0.04448,
+      "target": 0.01178,
+      "delta": -0.0327
+    },
+    {
+      "ticker": "GOOGL",
+      "prev": 0.08304,
+      "target": 0.10081,
+      "delta": 0.01777
+    },
+    {
+      "ticker": "005930",
+      "prev": 0.04258,
+      "target": 0.0579,
+      "delta": 0.01532
+    },
+    {
+      "ticker": "ABBV",
+      "prev": 0.01923,
+      "target": 0.00818,
+      "delta": -0.01105
+    },
+    {
+      "ticker": "MPC",
+      "prev": 0.00834,
+      "target": 0.01706,
+      "delta": 0.00873
+    },
+    {
+      "ticker": "MU",
+      "prev": 0.01967,
+      "target": 0.02827,
+      "delta": 0.00861
+    },
+    {
+      "ticker": "000660",
+      "prev": 0.01977,
+      "target": 0.02829,
+      "delta": 0.00852
+    },
+    {
+      "ticker": "NVDA",
+      "prev": 0.10635,
+      "target": 0.11462,
+      "delta": 0.00827
+    },
+    {
+      "ticker": "MSFT",
+      "prev": 0.07445,
+      "target": 0.06657,
+      "delta": -0.00788
+    },
+    {
+      "ticker": "META",
+      "prev": 0.03846,
+      "target": 0.03192,
+      "delta": -0.00654
+    },
+    {
+      "ticker": "PLTR",
+      "prev": 0.00793,
+      "target": 0.01361,
+      "delta": 0.00568
+    },
+    {
+      "ticker": "HD",
+      "prev": 0.00741,
+      "target": 0.01209,
+      "delta": 0.00468
+    },
+    {
+      "ticker": "WMT",
+      "prev": 0.0231,
+      "target": 0.01993,
+      "delta": -0.00317
+    },
+    {
+      "ticker": "AVGO",
+      "prev": 0.03251,
+      "target": 0.0294,
+      "delta": -0.00311
+    },
+    {
+      "ticker": "AAPL",
+      "prev": 0.09288,
+      "target": 0.09566,
+      "delta": 0.00277
+    },
+    {
+      "ticker": "LIN",
+      "prev": 0.00491,
+      "target": 0.00242,
+      "delta": -0.00249
+    },
+    {
+      "ticker": "BE",
+      "prev": 0.0125,
+      "target": 0.0104,
+      "delta": -0.0021
+    },
+    {
+      "ticker": "JPM",
+      "prev": 0.01897,
+      "target": 0.01694,
+      "delta": -0.00203
+    },
+    {
+      "ticker": "CSCO",
+      "prev": 0.00775,
+      "target": 0.00941,
+      "delta": 0.00167
+    },
+    {
+      "ticker": "AMZN",
+      "prev": 0.06359,
+      "target": 0.06231,
+      "delta": -0.00128
+    },
+    {
+      "ticker": "INTC",
+      "prev": 0.00159,
+      "target": 0.00266,
+      "delta": 0.00107
+    },
+    {
+      "ticker": "AMD",
+      "prev": 0.00272,
+      "target": 0.00376,
+      "delta": 0.00103
+    },
+    {
+      "ticker": "NFLX",
+      "prev": 0.00861,
+      "target": 0.00763,
+      "delta": -0.00098
+    },
+    {
+      "ticker": "TSM",
+      "prev": 0.04654,
+      "target": 0.04556,
+      "delta": -0.00098
+    },
+    {
+      "ticker": "GEV",
+      "prev": 0.0065,
+      "target": 0.00554,
+      "delta": -0.00096
+    },
+    {
+      "ticker": "MA",
+      "prev": 0.01006,
+      "target": 0.0091,
+      "delta": -0.00096
+    },
+    {
+      "ticker": "BAC",
+      "prev": 0.00852,
+      "target": 0.00763,
+      "delta": -0.00089
+    },
+    {
+      "ticker": "LLY",
+      "prev": 0.01936,
+      "target": 0.02021,
+      "delta": 0.00085
+    },
+    {
+      "ticker": "PANW",
+      "prev": 0.00256,
+      "target": 0.00173,
+      "delta": -0.00083
+    },
+    {
+      "ticker": "WFC",
+      "prev": 0.00543,
+      "target": 0.00476,
+      "delta": -0.00067
+    },
+    {
+      "ticker": "JNJ",
+      "prev": 0.01201,
+      "target": 0.01136,
+      "delta": -0.00066
+    },
+    {
+      "ticker": "MCD",
+      "prev": 0.00456,
+      "target": 0.004,
+      "delta": -0.00056
+    },
+    {
+      "ticker": "LITE",
+      "prev": 0.03971,
+      "target": 0.04021,
+      "delta": 0.0005
+    },
+    {
+      "ticker": "DE",
+      "prev": 0.00321,
+      "target": 0.00271,
+      "delta": -0.00049
+    },
+    {
+      "ticker": "CRM",
+      "prev": 0.0036,
+      "target": 0.00312,
+      "delta": -0.00048
+    },
+    {
+      "ticker": "PG",
+      "prev": 0.00726,
+      "target": 0.00679,
+      "delta": -0.00047
+    },
+    {
+      "ticker": "SPGI",
+      "prev": 0.00298,
+      "target": 0.00258,
+      "delta": -0.0004
+    },
+    {
+      "ticker": "XOM",
+      "prev": 0.01088,
+      "target": 0.01049,
+      "delta": -0.00039
+    },
+    {
+      "ticker": "FCX",
+      "prev": 0.00193,
+      "target": 0.00158,
+      "delta": -0.00035
+    },
+    {
+      "ticker": "LMT",
+      "prev": 0.00261,
+      "target": 0.00228,
+      "delta": -0.00033
+    },
+    {
+      "ticker": "COST",
+      "prev": 0.00972,
+      "target": 0.00941,
+      "delta": -0.00031
+    },
+    {
+      "ticker": "REGN",
+      "prev": 0.00146,
+      "target": 0.00117,
+      "delta": -0.00029
+    },
+    {
+      "ticker": "TMUS",
+      "prev": 0.00447,
+      "target": 0.00418,
+      "delta": -0.00029
+    },
+    {
+      "ticker": "BLK",
+      "prev": 0.00365,
+      "target": 0.00339,
+      "delta": -0.00026
+    },
+    {
+      "ticker": "ETN",
+      "prev": 0.00159,
+      "target": 0.00135,
+      "delta": -0.00025
+    },
+    {
+      "ticker": "ISRG",
+      "prev": 0.00168,
+      "target": 0.00144,
+      "delta": -0.00024
+    },
+    {
+      "ticker": "V",
+      "prev": 0.01347,
+      "target": 0.01324,
+      "delta": -0.00022
+    },
+    {
+      "ticker": "EQIX",
+      "prev": 0.00208,
+      "target": 0.0019,
+      "delta": -0.00019
+    },
+    {
+      "ticker": "TER",
+      "prev": 0.00093,
+      "target": 0.00078,
+      "delta": -0.00016
+    },
+    {
+      "ticker": "LNG",
+      "prev": 0.00093,
+      "target": 0.0008,
+      "delta": -0.00013
+    },
+    {
+      "ticker": "NEE",
+      "prev": 0.00184,
+      "target": 0.00171,
+      "delta": -0.00013
+    },
+    {
+      "ticker": "VRT",
+      "prev": 0.00222,
+      "target": 0.00214,
+      "delta": -8e-05
+    },
+    {
+      "ticker": "GLW",
+      "prev": 0.00282,
+      "target": 0.0029,
+      "delta": 8e-05
+    },
+    {
+      "ticker": "LRCX",
+      "prev": 0.00171,
+      "target": 0.00179,
+      "delta": 8e-05
+    },
+    {
+      "ticker": "MPWR",
+      "prev": 0.00126,
+      "target": 0.00119,
+      "delta": -7e-05
+    },
+    {
+      "ticker": "HON",
+      "prev": 0.00132,
+      "target": 0.00127,
+      "delta": -6e-05
+    },
+    {
+      "ticker": "PLD",
+      "prev": 0.00124,
+      "target": 0.00118,
+      "delta": -5e-05
+    },
+    {
+      "ticker": "FN",
+      "prev": 0.00018,
+      "target": 0.00013,
+      "delta": -5e-05
+    },
+    {
+      "ticker": "UNP",
+      "prev": 0.00304,
+      "target": 0.003,
+      "delta": -4e-05
+    },
+    {
+      "ticker": "AMT",
+      "prev": 0.00158,
+      "target": 0.00154,
+      "delta": -4e-05
+    },
+    {
+      "ticker": "AMAT",
+      "prev": 0.0016,
+      "target": 0.00157,
+      "delta": -4e-05
+    },
+    {
+      "ticker": "TSLA",
+      "prev": 0.00221,
+      "target": 0.00224,
+      "delta": 3e-05
+    },
+    {
+      "ticker": "GS",
+      "prev": 0.00148,
+      "target": 0.00146,
+      "delta": -2e-05
+    },
+    {
+      "ticker": "CAT",
+      "prev": 0.00194,
+      "target": 0.00193,
+      "delta": -2e-05
+    }
+  ],
+  "sector_exposure": {
+    "Technology": {
+      "portfolio": 0.6936,
+      "benchmark": 0.6523,
+      "active": 0.0414
+    },
+    "Consumer Discretionary": {
+      "portfolio": 0.0806,
+      "benchmark": 0.1073,
+      "active": -0.0266
+    },
+    "Financials": {
+      "portfolio": 0.0591,
+      "benchmark": 0.0667,
+      "active": -0.0076
+    },
+    "Healthcare": {
+      "portfolio": 0.0494,
+      "benchmark": 0.0537,
+      "active": -0.0043
+    },
+    "Consumer Staples": {
+      "portfolio": 0.0361,
+      "benchmark": 0.0381,
+      "active": -0.002
+    },
+    "Industrials": {
+      "portfolio": 0.0306,
+      "benchmark": 0.0346,
+      "active": -0.004
+    },
+    "Energy": {
+      "portfolio": 0.0284,
+      "benchmark": 0.0165,
+      "active": 0.0118
+    },
+    "Communication Services": {
+      "portfolio": 0.0118,
+      "benchmark": 0.0126,
+      "active": -0.0008
+    },
+    "Real Estate": {
+      "portfolio": 0.0046,
+      "benchmark": 0.0071,
+      "active": -0.0025
+    },
+    "Materials": {
+      "portfolio": 0.004,
+      "benchmark": 0.0071,
+      "active": -0.0031
+    },
+    "Utilities": {
+      "portfolio": 0.0017,
+      "benchmark": 0.004,
+      "active": -0.0023
+    }
+  },
+  "turnover_two_way_latest": 0.1713,
+  "optimizer_failure_rate": 0.06382978723404255,
+  "optimizer_failures": 6,
+  "solver": "ECOS (single-protocol, sec.2-2)"
+}

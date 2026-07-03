@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+*.stackdump
+.claude/
+logs/
+# heavy run artifacts (keep metrics.json / *.md)
+outputs/**/*.pkl
+outputs/**/*.pkl.sig
+outputs/checkpoints/
+outputs/csv/
+Pictet_Quest*.pdf

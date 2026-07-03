@@ -1,0 +1,105 @@
+{
+  "description": "Conservative inventory of distinct strategy configurations that were backtested during the research phase of ai_signal_cc2_harness. Used by run_selection_bias.py --auto to pass a realistic N_trials into the Deflated Sharpe Ratio / Haircut calculation. Update this file whenever you run a new comparison / grid / experiment.",
+  "references": "Bailey & Lopez de Prado (2014) The Deflated Sharpe Ratio. N should count every distinct strategy configuration whose backtest was inspected, not just the single final choice.",
+  "scripts": [
+    {
+      "script": "grid_search.py",
+      "phase": "coarse",
+      "param_space": "risk_aversion(7) * turnover_penalty(5) * max_te_annual(1) * max_single_turnover(2) * sector_deviation(2)",
+      "trials": 140
+    },
+    {
+      "script": "grid_search.py",
+      "phase": "fine",
+      "param_space": "ra(5) * tp(5) * mst(3) * sd(3) centered on Phase 1 best (minus ~5 overlaps with coarse)",
+      "trials": 220
+    },
+    {
+      "script": "compare_improvements.py",
+      "phase": "pca x sector_interactions",
+      "param_space": "{A_Baseline, B_PartialPCA, C_SectorIX, D_Combined}",
+      "trials": 4
+    },
+    {
+      "script": "compare_pca.py",
+      "phase": "pca_n_remove sweep",
+      "param_space": "{5, 3, 2}",
+      "trials": 3
+    },
+    {
+      "script": "compare_max_weight.py",
+      "phase": "max_weight sweep",
+      "param_space": "[0.20, 0.25, 0.30, 0.35]",
+      "trials": 4
+    },
+    {
+      "script": "experiment_te_sensitivity.py",
+      "phase": "TE sensitivity",
+      "param_space": "te_values=[0.125, 0.15, 0.175, 0.20] iterated across multiple sub-experiments",
+      "trials": 8
+    },
+    {
+      "script": "experiment_monthly_rebal.py",
+      "phase": "monthly vs 10d rebalance",
+      "param_space": "{monthly, current}",
+      "trials": 2
+    },
+    {
+      "script": "manual_config_tuning",
+      "phase": "LightGBM hyperparameter tuning (lr, leaves, depth, child_samples, subsample, colsample, alpha, lambda, n_est)",
+      "param_space": "estimated from git log / memory - conservative lower bound",
+      "trials": 15
+    },
+    {
+      "script": "redesign_2026_04_ACDE",
+      "phase": "structural redesign: cap-weighted BM (A), lean feature set 239 (C), LightGBM stabilisation (D), optimiser re-tuning (E)",
+      "param_space": "single coordinated change set, not a grid",
+      "trials": 1
+    },
+    {
+      "script": "redesign_2026_04_11_growth_balance",
+      "phase": "C+ follow-up: restore multi-horizon EPS/Sales/FCF growth + add 17 growth composite features (new 'Growth' group) to balance Quality vs Growth style representation",
+      "param_space": "single coordinated change set, not a grid",
+      "trials": 1,
+      "result": "FAILED: IR 0.62 -> 0.23, rolled back to A+C+D+E"
+    },
+    {
+      "script": "redesign_2026_04_11_PM_core_satellite",
+      "phase": "F: reduce to 81 hand-picked core features + enable core-satellite portfolio style (max_active_share 0.40 L1, max_active_per_stock 0.06)",
+      "param_space": "single coordinated change set, not a grid",
+      "trials": 1
+    },
+    {
+      "script": "redesign_2026_04_11_PM_score_gated_ow",
+      "phase": "G: block OW on stocks with z-score < 0 (prevent MVO diversification quirk from overweighting negative signals)",
+      "param_space": "single coordinated change set, not a grid",
+      "trials": 1
+    },
+    {
+      "script": "redesign_2026_04_12_core_v2",
+      "phase": "H: further pruned core features 81 -> 46 based on feature_importance ranking from previous run",
+      "param_space": "single coordinated change set, not a grid",
+      "trials": 1
+    },
+    {
+      "script": "redesign_2026_04_12_financials_universe",
+      "phase": "I: restore JPM/GS by switching from all-sheet intersection to essential-sheet intersection. Optional sheets (FCF/CAPEX/EV_EBITDA) have NaN for banks, filled by per-date median. Universe 48 -> 50.",
+      "param_space": "single coordinated change set, not a grid",
+      "trials": 1
+    },
+    {
+      "script": "rl_hybrid_v1",
+      "phase": "ai_signal_cc2_rl Meta-Controller(4) + Signal Overlay(7 feature groups) PPO. Pretrain cutoff 2024-12-31, walk-forward fine-tune every ~63d (2 episodes). Base config = iter15_65tkr_reb21_vtg.",
+      "param_space": "single coordinated RL configuration (rl_enabled=true, rl_mode=hybrid, rl_overlay_clip=0.30)",
+      "trials": 1
+    }
+  ],
+  "n_trials_total": 403,
+  "notes": [
+    "396 is a conservative lower bound. Actual N is likely higher once",
+    "ad-hoc config.py tweaks over the research period are counted.",
+    "If in doubt, pass a larger --n_trials to run_selection_bias.py.",
+    "The DSR penalty grows as sqrt(2*ln N), so going from 1 to 396 multiplies",
+    "the haircut by sqrt(2*ln(396)) ~ 3.45, not by 396 itself."
+  ]
+}

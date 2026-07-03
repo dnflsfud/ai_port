@@ -1,0 +1,16 @@
+label: _cmp_baseline
+description: >
+  LightGBM baseline anchor (CS-DR-Alpha OFF) for comparison against the
+  production variant iter15_65tkr_reb21_vtg. Identical overrides EXCEPT it does
+  NOT enable dr_alpha_*, so the only difference from production is the DR layer.
+  Run both under the same single-thread BLAS env for an apples-to-apples
+  DR-vs-baseline comparison.
+out_dir: outputs/_cmp_baseline
+tuning_mode: production
+overrides:
+  rebalance_freq: 21
+  value_trap_gate_enabled: true
+  vtg_pe_z_threshold: -0.5
+  vtg_momentum_threshold: -0.5
+  vtg_accel_threshold: 0.5
+  vtg_scale: 0.0

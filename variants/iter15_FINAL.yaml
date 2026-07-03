@@ -1,0 +1,14 @@
+label: iter15_FINAL
+description: >
+  Canonical baseline as of 2026-04-20. Reproduces outputs/iter15_FINAL/metrics.json
+  (IR 1.156, P1 +1.526, P2 +0.107, P3 +1.711, turnover 115.6% two-way).
+  All destructive levers from iter16-iter22 are removed from the codebase,
+  so this manifest is the minimal override set vs the cleaned DEFAULT_CONFIG.
+  See docs/BASELINE.md for promotion rules.
+out_dir: outputs/iter15_FINAL
+tuning_mode: production
+overrides:
+  # iter15 used 10d rebalance; current DEFAULT_CONFIG is 21d (post-iter15).
+  # Keep 10 here to make this manifest bitwise-compatible with the stored
+  # iter15_FINAL artifacts.
+  rebalance_freq: 10

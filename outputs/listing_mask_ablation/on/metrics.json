@@ -1,0 +1,249 @@
+{
+  "label": "exp_listing_mask_on",
+  "tuning_mode": "production",
+  "manifest_path": "variants\\exp_listing_mask_on.yaml",
+  "overrides": {
+    "train_window": 1260,
+    "retrain_freq": 63,
+    "val_window": 126,
+    "prediction_ema_alpha": 0.5,
+    "early_stopping_rounds": 100,
+    "lgbm_params": {
+      "objective": "regression",
+      "metric": "mse",
+      "learning_rate": 0.02,
+      "num_leaves": 31,
+      "max_depth": 5,
+      "min_child_samples": 60,
+      "subsample": 0.8,
+      "colsample_bytree": 0.8,
+      "reg_alpha": 0.3,
+      "reg_lambda": 2.0,
+      "n_estimators": 800,
+      "verbose": -1,
+      "random_state": 42
+    },
+    "ewma_enabled": true,
+    "ewma_alpha": 0.3,
+    "ewma_min_retrains": 2,
+    "ewma_drop_pct": 0.05,
+    "ewma_min_features": 60,
+    "feature_mode": "core",
+    "min_model_trees": 10,
+    "max_degenerate_model_rate": 0.25,
+    "fail_on_degenerate_model_rate": false,
+    "max_tail_ffill_days": 10,
+    "fail_on_stale_tail_ffill": false,
+    "benchmark_type": "cap_weighted",
+    "risk_aversion": 1.0,
+    "turnover_penalty": 0.03,
+    "max_te_annual": 0.045,
+    "max_single_turnover": 0.15,
+    "sector_deviation": 0.1,
+    "cov_lookback": 126,
+    "bm_weight_floor": 0.02,
+    "max_active_share": 0.45,
+    "max_active_share_ceiling": null,
+    "max_weight": 0.15,
+    "max_active_per_stock": 0.04,
+    "use_score_based": false,
+    "portfolio_style": "core_satellite",
+    "satellite_budget": 0.225,
+    "satellite_max_per_stock": 0.04,
+    "enforce_score_gated_ow": true,
+    "score_threshold_for_ow": 0.0,
+    "no_trade_band": 0.003,
+    "partial_rebalance_eta": 0.5,
+    "trailing_ic_window": 6,
+    "one_way_tc": 0.001,
+    "rebalance_freq": 21,
+    "mega_cap_protection_enabled": true,
+    "mega_cap_bm_threshold": 0.04,
+    "mega_cap_wide_uw_cap": 0.1,
+    "mega_cap_funding_mode": true,
+    "mega_cap_funding_k": 4,
+    "mega_cap_funding_score_max": 0.0,
+    "bm_proportional_cap_enabled": false,
+    "bm_proportional_cap_bm_scale_at_top": 1.5,
+    "bm_proportional_cap_vol_scale_floor": 0.5,
+    "bm_proportional_cap_vol_lookback": 63,
+    "pead_boost_enabled": true,
+    "pead_boost_weight": 0.3,
+    "pead_decay_days": 7.0,
+    "pead_max_days": 21,
+    "growth_tilt_enabled": true,
+    "growth_tilt_weight": 0.25,
+    "growth_tilt_rev_weight": 0.5,
+    "growth_tilt_fundamental_weight": 0.5,
+    "growth_tilt_eps_skew": 0.5,
+    "growth_tilt_rev_eps_share": 0.5,
+    "growth_tilt_rev_sales_share": 0.5,
+    "growth_tilt_rev_tg_share": 0.0,
+    "signal_stability_lambda": 0.0,
+    "value_trap_gate_enabled": true,
+    "vtg_pe_z_threshold": -0.5,
+    "vtg_momentum_threshold": -0.5,
+    "vtg_accel_threshold": 0.5,
+    "vtg_scale": 0.0,
+    "allow_scs_on_ecos_exception": false,
+    "max_name_active_risk_share": 0.35,
+    "max_sector_active_risk_share": 0.75,
+    "dr_alpha_enabled": false,
+    "listing_mask_enabled": true
+  },
+  "metrics": {
+    "annual_return": 0.27034234207677166,
+    "annual_vol": 0.2245068162179725,
+    "sharpe_ratio": 1.2041609543573843,
+    "active_return": 0.026213222124053193,
+    "tracking_error": 0.02782874874646411,
+    "information_ratio": 0.9419475651913317,
+    "max_drawdown": -0.3054365274990485,
+    "avg_annual_turnover": 1.1672392161820941,
+    "avg_annual_turnover_one_way": 0.5836196080910471,
+    "avg_ic": 0.04299831409038159,
+    "annual_tc": 0.0011672392161820942,
+    "spx_annual_return": 0.13847468314625422,
+    "spx_annual_vol": 0.1936692067168222,
+    "spx_sharpe": 0.7150061979069708,
+    "realized_beta": 1.0216466443923924,
+    "realized_active_beta": 0.021646644392392604,
+    "sub_periods": {
+      "P1_ir": 1.1772557936424228,
+      "P2_ir": -0.19403532101858398,
+      "P3_ir": 1.6968893052932423
+    }
+  },
+  "model_quality": {
+    "source": "walk_forward_train",
+    "total_retrains": 32,
+    "degenerate_retrains": 15,
+    "degenerate_rate": 0.46875,
+    "min_model_trees": 10,
+    "max_degenerate_model_rate": 0.25,
+    "fail_on_degenerate_model_rate": false,
+    "events": [
+      {
+        "date": "2019-02-21",
+        "n_trees": 1,
+        "min_model_trees": 10,
+        "candidate_features": 61,
+        "reused_prev_model": true
+      },
+      {
+        "date": "2019-05-21",
+        "n_trees": 1,
+        "min_model_trees": 10,
+        "candidate_features": 61,
+        "reused_prev_model": true
+      },
+      {
+        "date": "2019-08-16",
+        "n_trees": 1,
+        "min_model_trees": 10,
+        "candidate_features": 61,
+        "reused_prev_model": true
+      },
+      {
+        "date": "2019-11-13",
+        "n_trees": 1,
+        "min_model_trees": 10,
+        "candidate_features": 61,
+        "reused_prev_model": true
+      },
+      {
+        "date": "2020-02-10",
+        "n_trees": 3,
+        "min_model_trees": 10,
+        "candidate_features": 61,
+        "reused_prev_model": true
+      },
+      {
+        "date": "2020-05-07",
+        "n_trees": 2,
+        "min_model_trees": 10,
+        "candidate_features": 61,
+        "reused_prev_model": true
+      },
+      {
+        "date": "2021-07-22",
+        "n_trees": 4,
+        "min_model_trees": 10,
+        "candidate_features": 60,
+        "reused_prev_model": true
+      },
+      {
+        "date": "2021-10-19",
+        "n_trees": 1,
+        "min_model_trees": 10,
+        "candidate_features": 60,
+        "reused_prev_model": true
+      },
+      {
+        "date": "2022-01-14",
+        "n_trees": 6,
+        "min_model_trees": 10,
+        "candidate_features": 60,
+        "reused_prev_model": true
+      },
+      {
+        "date": "2022-04-13",
+        "n_trees": 8,
+        "min_model_trees": 10,
+        "candidate_features": 60,
+        "reused_prev_model": true
+      },
+      {
+        "date": "2022-07-11",
+        "n_trees": 6,
+        "min_model_trees": 10,
+        "candidate_features": 60,
+        "reused_prev_model": true
+      },
+      {
+        "date": "2024-09-11",
+        "n_trees": 1,
+        "min_model_trees": 10,
+        "candidate_features": 60,
+        "reused_prev_model": true
+      },
+      {
+        "date": "2024-12-09",
+        "n_trees": 1,
+        "min_model_trees": 10,
+        "candidate_features": 60,
+        "reused_prev_model": true
+      },
+      {
+        "date": "2025-06-03",
+        "n_trees": 8,
+        "min_model_trees": 10,
+        "candidate_features": 60,
+        "reused_prev_model": true
+      },
+      {
+        "date": "2025-11-26",
+        "n_trees": 1,
+        "min_model_trees": 10,
+        "candidate_features": 60,
+        "reused_prev_model": true
+      }
+    ]
+  },
+  "data_quality": {
+    "intersection_dates": 3217,
+    "longest_sheet_dates": 4894,
+    "intersection_pct_of_longest": 0.6573355128729056,
+    "tail_ffill_days": 16,
+    "tail_from": "2026-05-26",
+    "tail_to": "2026-06-11",
+    "tail_extended_dates": 16,
+    "max_tail_ffill_days": 10,
+    "fail_on_stale_tail_ffill": false
+  },
+  "optimizer_solver_counts": {
+    "ECOS": 188
+  },
+  "optimizer_solver_fallback_rate": 0.0,
+  "elapsed_sec": 214.9
+}

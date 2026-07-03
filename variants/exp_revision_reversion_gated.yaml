@@ -1,0 +1,25 @@
+label: exp_revision_reversion_gated
+description: >
+  Phase 2.4 — symmetric revision-spike cleaning via reversion-gated detector.
+  Masks large daily moves (|diff| > 15) only when the PREVIOUS level was
+  extreme (|prev| > 50) AND today's level collapses toward neutral
+  (|today| < |prev| * 0.5). Catches Factset window-rollover artifacts in
+  BOTH directions while preserving genuine moves into extremes.
+  Gate: IR ≥ 1.156, P2 ≥ 0.107, P1 & P3 within −0.10 of baseline.
+  See docs/ROADMAP.md § Phase 2.4 and rollback_log.md for context.
+out_dir: outputs/exp_revision_reversion_gated
+# Use production mode for the FIRST quick-look comparison so the run covers
+# the full window iter15_FINAL was scored on (2018-11 ~ 2026-04). Once we
+# confirm this variant is not catastrophic vs baseline, re-run with
+# tuning_mode=tuning + train_cutoff_date=2024-12-31 for selection-bias-safe
+# evaluation before any promotion.
+tuning_mode: production
+overrides:
+  # Match iter15 baseline on everything except the revision cleaner.
+  rebalance_freq: 10
+
+  # --- The actual experiment lever -------------------------------------------
+  revision_clean_mode: "reversion_gated"
+  revision_clean_threshold: 15.0
+  revision_clean_extreme_threshold: 50.0
+  revision_clean_reversion_ratio: 0.5
