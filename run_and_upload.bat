@@ -42,7 +42,7 @@ if errorlevel 1 (
   echo No changes to commit - skipping commit.
 )
 
-echo [5/5] Upload to GitHub...
+echo [5/6] Upload to GitHub...
 git remote get-url origin >nul 2>&1
 if errorlevel 1 (
   where gh >nul 2>&1
@@ -66,7 +66,11 @@ if errorlevel 1 (
   echo   1. Not authenticated: run "gh auth login" once, then re-run this bat.
   echo   2. Repo does not exist yet: run "gh repo create %GH_REPO% --private"
   echo      or create it at https://github.com/new and re-run this bat.
-  exit /b 1
+  set "PUSH_FAIL=1"
 )
-echo DONE: run + upload complete.
+
+echo [6/6] Launching Streamlit dashboard...
+start "ai_port dashboard" cmd /c ""%PY%" -m streamlit run streamlit_app.py"
+if defined PUSH_FAIL exit /b 1
+echo DONE: run + upload + dashboard complete.
 endlocal
