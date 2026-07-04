@@ -13,20 +13,24 @@ set "PYTHONPATH=."
 set "GH_REPO=dnflsfud/ai_port"
 set "GH_URL=https://github.com/dnflsfud/ai_port.git"
 
-echo [1/5] Environment check...
+echo [1/7] Environment check...
 if not exist "%PY%" (echo ERROR: python not found: %PY% & exit /b 1)
 "%PY%" -c "import cvxpy; assert 'ECOS' in cvxpy.installed_solvers(), 'ECOS missing'"
 if errorlevel 1 (echo ERROR: cvxpy/ECOS check failed & exit /b 1)
 
-echo [2/5] Running test suite...
+echo [2/7] Running test suite...
 "%PY%" -m pytest tests/ -q
 if errorlevel 1 (echo ERROR: tests failed - aborting before backtest/upload & exit /b 1)
 
-echo [3/5] Running S0 production backtest - full pipeline, about 4 min...
+echo [3/7] Running S0 production backtest - full pipeline, about 4 min...
 "%PY%" run_variant.py --variant variants\iter15_65tkr_reb21_vtg.yaml --no-cache
 if errorlevel 1 (echo ERROR: backtest failed - aborting before upload & exit /b 1)
 
-echo [4/5] Git commit - ai_port standalone repo...
+echo [4/7] Refreshing operating dashboard data...
+"%PY%" scripts\export_operating_data.py
+if errorlevel 1 echo WARNING: operating data export failed - dashboard will show stale data.
+
+echo [5/7] Git commit - ai_port standalone repo...
 if not exist ".git" (
   git init -b main
   if errorlevel 1 (echo ERROR: git init failed & exit /b 1)
@@ -42,7 +46,7 @@ if errorlevel 1 (
   echo No changes to commit - skipping commit.
 )
 
-echo [5/6] Upload to GitHub...
+echo [6/7] Upload to GitHub...
 git remote get-url origin >nul 2>&1
 if errorlevel 1 (
   where gh >nul 2>&1
@@ -69,7 +73,7 @@ if errorlevel 1 (
   set "PUSH_FAIL=1"
 )
 
-echo [6/6] Launching Streamlit dashboard...
+echo [7/7] Launching Streamlit dashboard...
 start "ai_port dashboard" cmd /c ""%PY%" -m streamlit run streamlit_app.py"
 if defined PUSH_FAIL exit /b 1
 echo DONE: run + upload + dashboard complete.
