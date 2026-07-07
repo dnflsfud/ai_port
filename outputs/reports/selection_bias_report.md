@@ -1,16 +1,16 @@
 # Selection Bias Analysis Report
 
-Generated: 2026-06-23 16:19:02
+Generated: 2026-07-07 10:06:37
 
 ## 1. Summary Verdict
-- **FAIL** -- DSR p=0.2272, Adjusted SR=0.26, MinTRL=1.2yr
+- **FAIL** -- DSR p=0.2281, Adjusted SR=0.26, MinTRL=1.2yr
 
 ## 2. Deflated Sharpe Ratio (Bailey & Lopez de Prado, 2014)
 - Observed SR: 1.464
-- Number of trials (N): 403
-- Expected max SR under null: 1.204
+- Number of trials (N): 407
+- Expected max SR under null: 1.205
 - sigma(SR): 0.3476
-- Deflated SR: 0.748 (p-value: 0.2272)
+- Deflated SR: 0.745 (p-value: 0.2281)
 - Skewness: 0.807, Kurtosis: 10.535
 - Observations: 1973 trading days
 - Verdict: **FAIL -- 다중 비교 보정 후 유의하지 않음**
@@ -21,10 +21,10 @@ Generated: 2026-06-23 16:19:02
 - Verdict: **SUFFICIENT**
 
 ## 4. Grid Search Bias (Haircut)
-- Combinations tested: 403
+- Combinations tested: 407
 - Observed SR: 1.464
-- Haircut: 1.204
-- Adjusted SR: 0.260
+- Haircut: 1.205
+- Adjusted SR: 0.259
 - Verdict: **PASS**
 
 ## 5. Universe Survivorship

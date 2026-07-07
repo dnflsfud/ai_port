@@ -92,14 +92,46 @@
       "phase": "ai_signal_cc2_rl Meta-Controller(4) + Signal Overlay(7 feature groups) PPO. Pretrain cutoff 2024-12-31, walk-forward fine-tune every ~63d (2 episodes). Base config = iter15_65tkr_reb21_vtg.",
       "param_space": "single coordinated RL configuration (rl_enabled=true, rl_mode=hybrid, rl_overlay_clip=0.30)",
       "trials": 1
+    },
+    {
+      "script": "exp_S7_A1_mu_vol_scaling",
+      "phase": "S7 AI-logic arm (2026-07-06): Grinold variance-scaling mu_i = z_i * sigma_i / median_CS(sigma). Single pre-registered parameter-free transform, no sweep.",
+      "param_space": "mu_vol_scaling_enabled=true (single pre-registered form)",
+      "trials": 1,
+      "result": "IR 1.552503 (dIR +0.0711 < +0.36 SE, subperiod sign inconsistent: P1/P2 down, P3 up) -> gate not met, OFF-default, no flip"
+    },
+    {
+      "script": "exp_S7_A2_confidence_spread_recal",
+      "phase": "S7 AI-logic arm (2026-07-06): confidence spread_scale recalibrated from default 0.20 to D0 raw_spread median. Single pre-registered value, no sweep.",
+      "param_space": "confidence_spread_scale=3.57587 (single pre-registered value)",
+      "trials": 1,
+      "result": "IR 1.483625 (dIR +0.0022, subperiod P2 sign inconsistent -0.112) -> gate not met, OFF-default, no flip"
+    },
+    {
+      "script": "exp_S7_A3_adaptive_ema",
+      "phase": "S7 AI-logic arm (2026-07-06): trailing-IC adaptive prediction EMA, alpha_t=clip(0.5+(tIC-m)/(2*IQR),0.25,0.75) with m/IQR anchored to D0 trailing_ic_dist. Single pre-registered functional form, no sweep. 2-pass injection, src/ untouched.",
+      "param_space": "adaptive-EMA single pre-registered functional form (D0-anchored constants, zero free params)",
+      "trials": 1,
+      "result": "IR 1.484346 (dIR +0.0029, subperiod P2 -0.432 sign inconsistent) -> gate not met, OFF-default, no flip"
+    },
+    {
+      "script": "exp_S7_A4_seed_ensemble",
+      "phase": "S7 AI-logic arm (2026-07-06): LGBM seed ensemble k=5, seeds {42,43,44,45,46}, finite-mean of pre-EMA z-panels + per-date CS restandardize + EMA(0.5). Single pre-registered config, no k sweep. 2-pass injection, src/ untouched.",
+      "param_space": "seed ensemble k=5 (single pre-registered config, no k sweep)",
+      "trials": 1,
+      "result": "IR 1.317520 (dIR -0.1639) -> gate not met, OFF-default, no flip. NOTE: seed 43-46 full harvests = per-seed diagnostics 4 runs (non-selection input to A4, NOT counted as trials); per-seed IR 42=1.481/43=1.184/44=1.057/45=1.110/46=1.406 quantifies seed-luck variance."
     }
   ],
-  "n_trials_total": 403,
+  "n_trials_total": 407,
   "notes": [
     "396 is a conservative lower bound. Actual N is likely higher once",
     "ad-hoc config.py tweaks over the research period are counted.",
     "If in doubt, pass a larger --n_trials to run_selection_bias.py.",
     "The DSR penalty grows as sqrt(2*ln N), so going from 1 to 396 multiplies",
-    "the haircut by sqrt(2*ln(396)) ~ 3.45, not by 396 itself."
+    "the haircut by sqrt(2*ln(396)) ~ 3.45, not by 396 itself.",
+    "2026-07-06: +4 S7 AI-logic arms (A1 mu_vol_scaling, A2 confidence_spread_recal,",
+    "A3 adaptive_ema, A4 seed_ensemble), all evaluated and OFF-default (no production flip).",
+    "N 403 -> 407. A4's seed 43-46 harvests are non-selection diagnostic inputs, NOT counted",
+    "as trials (they feed the single A4 ensemble config)."
   ]
 }

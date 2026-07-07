@@ -235,3 +235,247 @@ OFF `backtest_result.pkl`(daily_weights 1973일×65종목, 2018-11-26→2026-06-
 - 적용: `src/backtest.py` simulate_portfolio IC 블록의 `elif t_idx+20<len(all_dates): realized=returns...sum()` 분기 제거 → targets 미커버 시 `realized=None`(IC skip). 합격 테스트 `tests/acceptance/test_ic_single_definition.py` 4건(선작성 TDD) 통과, 전체 71 pass.
 - **S0 재검증** (`variants/exp_s0_recheck_d2.yaml` → `outputs/s0_recheck_d2/metrics.json`, ECOS 188·fallback 0): IR/active/TE/turnover/realized_beta/**avg_ic**/P1·P2·P3/solver-fallback-rate **10개 항목 전부 부동소수점 동일** (IR 1.481437507913232, avg_ic 0.04864921465993589). 롤백 = elif 복원 한 조각(자명).
 - 효과: `avg_ic` 게이트 메트릭이 단일 정의(targets 컨벤션)로 통일. 향후 targets 커버리지가 줄어드는 데이터 상황에서도 이중정의 혼합이 원천 차단됨.
+
+---
+
+## S7 AI-logic arms (2026-07-06)
+
+Pictet 채택 이후 AI-로직 후보 arm들(A1~A4)의 사전등록·측정 로그. 모든 arm은 동일 ECOS 프로토콜(§2-2), default-OFF 인프라(§2-1), 후보당 단일 사전등록 파라미터(§2-4)를 따른다. 각 arm 소절은 독립.
+
+### S7.A1 mu-vol-scaling (z→mu 변동성 스케일링) — **사전등록 (2026-07-06)**
+
+- **가설**: 오버레이 후 CS z-score가 무단위 그대로 MVO objective(`mu @ w`, `portfolio_optimizer.py`)에 투입된다. Grinold식 α = σ·z(변동성 스케일링)가 부재 — 동일 z라도 변동성이 큰 종목의 기대 초과수익이 더 크다는 표준 정식화가 빠짐. 이 변환을 사전등록 단일 형태로 평가.
+- **사전등록 변환 (이 형태 외 변형·스윕 금지)**: 각 날짜 t, 종목 i에 대해
+
+      mu_i(t) = z_i(t) · σ_i(t) / median_CS{ σ_j(t) : j valid }
+
+  - z = 오버레이 체인(listing mask → pead → growth_tilt → vtg) **완료 후** 예측값. 변환은 체인의 **마지막 단계**(`src/backtest.py`, signal-stability 이후·`result.predictions` 이전).
+  - σ_i(t) = 비보간 raw returns(`data.raw_returns`, 공분산 추정과 동일 risk_source)의 trailing `cov_lookback`(=126d) 표준편차, 위치 k의 **strictly-before** 윈도우 `iloc[max(0,k-126):k]`(t 배제, 룩어헤드 금지 — 공분산 윈도우 관례와 동일).
+  - median_CS 정규화로 스케일 중립(중앙값 σ 종목의 mu==z), 실효 risk_aversion 변화 최소화. 파라미터-프리, 클리핑 없음.
+  - 가드(전부 inert 지향): 유효 관측 <63 또는 비유한 σ → 해당 종목 σ=CS median(스케일 1); 날짜 전체 무valid → 항등; NaN 예측 → NaN 유지.
+- **구현**: `PipelineConfig.mu_vol_scaling_enabled: bool = False`(config.py), 순수함수 `apply_mu_vol_scaling(predictions, risk_returns, config)`(backtest.py, 기존 오버레이 관용구), 오버레이 체인 마지막 배선. 합격 테스트 `tests/acceptance/test_mu_vol_scaling.py` 13/13 통과, 전체 스위트 114 pass(무관: A3 `test_adaptive_ema.py` 수집 오류 별개).
+- **OFF 파리티**: 프로덕션 variant(`iter15_65tkr_reb21_vtg`) 풀 런 재실행 → 정본 `metrics.json`과 **바이트동일**(sha256 일치, `elapsed_sec` 제외 전 필드 동일). OFF 경로 완전 inert 증명. 정본 artifact 백업·복원 완료.
+- **실행 예정 variant**: `variants/exp_mu_vol_scaling.yaml` → `outputs/exp_mu_vol_scaling/` (단일 foreground, 풀 경로).
+- **판정 게이트 (사전등록)**: ① ΔIR > **+0.36**(=1 SE) **& 서브기간(P1/P2/P3) 부호 일관** ② 캐릭터 보존(TE ≤4.5%·active share 붕괴 없음, §2-5) ③ fallback 급증 없음 ④ DSR/selection-bias 비액션 유지(단일 사전등록 파라미터라 스윕 p-hacking 없음). 셋 다 충족 시에만 IR 근거 채택 후보; 미달 시 OFF 유지. **게이트 통과 여부가 아니라 정직한 측정이 성공 기준.**
+- **S0 기준(동일 ECOS)**: IR 1.481437507913232 · TE 0.031069 · turnover 1.14402 · realized_beta 1.02439 · P1 1.591/P2 0.575/P3 2.005.
+- **결과 (2026-07-06, `variants/exp_mu_vol_scaling.yaml` → `outputs/exp_mu_vol_scaling/`, 풀 경로 233.4s, ECOS 188·fallback 0/94)**:
+
+  | metric | S0 (OFF) | A1 (ON) | Δ |
+  |---|---:|---:|---:|
+  | information_ratio | 1.481438 | 1.552503 | **+0.071066** |
+  | tracking_error | 0.031069 | 0.032067 | +0.000998 |
+  | active_return | 0.046027 | 0.049784 | +0.003757 |
+  | avg_annual_turnover | 1.144021 | 1.103708 | −0.040314 |
+  | realized_beta | 1.024389 | 1.022823 | −0.001566 |
+  | avg_ic | 0.048649 | 0.049543 | +0.000894 |
+  | sharpe_ratio | 1.307645 | 1.329896 | +0.022251 |
+  | max_drawdown | −0.299887 | −0.295704 | +0.004183 |
+  | P1_ir | 1.591390 | 1.451754 | −0.139636 |
+  | P2_ir | 0.574884 | 0.453726 | −0.121158 |
+  | P3_ir | 2.004814 | 2.330639 | +0.325825 |
+
+- **스케일 팩터 분포 (mu/z, arm.predictions÷S0.predictions — 동일 harvest이므로 정확히 σ/median; 126,981 유한·z≠0 셀)**: min **0.000** · p05 0.576 · **median 1.000**(median 정규화 정상) · mean 1.123 · p95 2.108 · max **5.158**. 스케일==1(±1e-9) 셀 1,963/126,981(1.55%, 가드·항등·중앙σ 종목). 활성 날짜 1,973/1,973. **우측 왜도**(mean 1.123>median 1.0): 고변동 종목 mu 증폭, 저변동 종목 mu 축소. min≈0은 초저변동 종목이 mu≈0으로 눌린 것 — 사전등록대로 **클리핑 없음**의 귀결(기록).
+- **게이트 판정**:
+  - ① ΔIR **+0.0711 < +0.36**(1 SE) → **노이즈 대역**. 게다가 서브기간 부호 **불일치**(P1 −0.140 · P2 −0.121 · P3 **+0.326**): 개선이 전량 P3(2023-)에 집중, P1·P2는 소폭 악화. 사전등록 채택 조건(ΔIR>1SE & 부호 일관) **미충족**.
+  - ② 캐릭터 보존 **PASS**: TE 3.21%(≤4.5% 가드, S0 3.11% 대비 +0.10%p) · active_return +0.38%p(붕괴 아님·오히려 상승) · turnover −4.0%p · realized_beta 사실상 불변. 벤치마크 붕괴 없음.
+  - ③ fallback 급증 없음 **PASS**: ECOS 188·fallback_rate 0.0 (S0와 동일).
+  - ④ 단일 사전등록 파라미터·스윕 없음 → DSR/selection-bias **비액션 유지**(§2-7).
+- **결정**: `mu_vol_scaling_enabled` **OFF-default 유지, 프로덕션 무변경**(§8). |ΔIR|=0.071<0.36이라 **IR 근거 채택 불가(노이즈)** — §2-4에 따라 기각도 아니고 "설명력 근거로만 판단". Grinold식 변환은 이론적 동기는 타당하나 본 데이터에서 full-period 이득이 노이즈 대역이고 P3 단일 레짐 집중이라 프로덕션 승격 근거 부족. 인프라(플래그·순수함수·테스트 13건)는 향후 재평가·다른 데이터 vintage 대비로 유지. 롤백 불요(default-OFF, 바이트동일 parity 증명됨).
+- **미해결/이관**: 캐시 안전성(SAFE_FOR_CACHE_REUSE) 등록은 **보류·이관** — run_variant.py가 다른 arm(E1b) 수정 중이라 편집 금지 지침에 따름. 본 arm은 캐시 미사용 풀 경로로 실행됨(플래그는 예측-후 변환이라 harvest 무영향, 향후 등록 시 재사용 안전).
+
+### S7.A2 confidence-spread-recal (confidence spread 재보정) — **사전등록 (2026-07-06)**
+
+- **가설**: `compute_signal_confidence`(`src/backtest.py:897-920`)의 spread_score = clip(raw_spread/spread_scale, 0.20, 1.00)에서 default `spread_scale=0.20` vs D0 실측 raw_spread median **3.575873473877061**(`outputs/degenerate_retrain_report.json` `raw_spread_dist.median`, verifier 재계산 일치) → 약 18배 차이로 **상시 1.0 포화**. 동적 실행(`apply_dynamic_execution`, eta = 0.5·√confidence·clip, no-trade band = 0.003/max(conf,0.15))의 spread 채널이 죽어 confidence가 사실상 ic_score 항으로 붕괴. spread_scale을 median으로 재보정하면 spread_score가 처음으로 [0.20,1.00) 대역에서 변동. **`confidence_spread_scale`은 2026-07-02 구조 리뷰 #2에서 이미 config에 노출된 §8 승인 대기 레버**(`src/config.py:596-602`) — 값 변경만, 코드 변경 0.
+- **사전등록 (이 값 외 변형·스윕 금지)**: `confidence_spread_scale = 3.57587`(= D0 `raw_spread_dist.median` 6-sig-fig, `outputs/degenerate_retrain_report.json` 정본 인용). 의미: 중앙값 스프레드 날짜의 spread_score=1.0, 그보다 무딘 신호의 날짜는 비례 감소(clip 하한 0.20). ic 상수 재보정(A3 인접 가설)은 **본 arm 범위 밖**(단일 파라미터 규율 §2-4). 정본 iter15_65tkr_reb21_vtg + 이 오버라이드만.
+- **구현 (코드 변경 0)**: `variants/exp_confidence_spread_recal.yaml`(정본 전체 복사 + `confidence_spread_scale: 3.57587`). src/·run_variant.py·tests/ 무수정. config 반영 확인: run_variant.load_manifest→compose_config로 로드 시 `cfg.confidence_spread_scale == 3.57587` **ASSERT PASS**(DEFAULT 0.20 대비). 배선 경로: `src/backtest.py:1247-1249`가 `spread_scale=float(getattr(config,"confidence_spread_scale",0.20))`로 실제 주입 확인.
+- **OFF 파리티 (N/A 근거)**: 신규 동작·신규 플래그 없음(기존 레버 값 변경). baseline 코드 무접촉이므로 OFF 파리티 풀 런 불필요 — default 0.20이 정본 S0 그 자체다. run_variant.py 무수정이라 회귀 가드 대상 없음.
+- **캐시/격리**: `confidence_spread_scale`은 SAFE_FOR_CACHE_REUSE **미포함**(확인만, 등록 보류·이관 — 체크포인트 격리 상태, 전 arm 풀 경로 비교 유지 지침). 오버라이드 중 유일한 unsafe 키 → 캐시 DISABLED·풀 파이프라인 재실행(비교 가능성 확보). arm 자체 출력 디렉터리(`outputs/exp_confidence_spread_recal/`), 정본 무접촉.
+- **S0 기준(동일 ECOS)**: IR 1.481437507913232 · TE 0.031069 · turnover 1.14402 · realized_beta 1.02439 · P1 1.591/P2 0.575/P3 2.005.
+- **판정 게이트 (사전등록, §2-4/§2-5/§2-7)**: ① ΔIR > **+0.36**(=1 SE) **& 서브기간(P1/P2/P3) 부호 일관** ② 캐릭터 보존(TE ≤4.5%·active share 붕괴 없음) ③ fallback 급증 없음 ④ 단일 사전등록 파라미터라 DSR/selection-bias 비액션. 셋 다 충족 시에만 IR 근거 채택 후보; 미달 시 OFF 유지. **게이트 통과 여부가 아니라 정직한 측정이 성공 기준.** (참고: A1 ΔIR +0.071·A3 +0.003 둘 다 미충족·OFF 종결.)
+- **실행 예정**: `<PY> run_variant.py --variant variants/exp_confidence_spread_recal.yaml` → `outputs/exp_confidence_spread_recal/`(단일 foreground, 풀 경로).
+- **격리 무접촉 검증 (2026-07-06)**: arm pkl vs 정본 S0 pkl — `raw_predictions`·`predictions`·`ic_series`(값+인덱스)·`turnover` 인덱스 **전부 바이트동일**. `avg_ic` 0.048649 동일. → `confidence_spread_scale`이 harvest(Phase 1~4)·예측·IC를 무접촉, **오직 실행(eta·no-trade band)만** 변경함을 실증(§4.2 confound 부재).
+- **결과 (2026-07-06, `outputs/exp_confidence_spread_recal/`, 풀 경로 305.7s, ECOS 188·solver fallback 0.0%·optimizer TE-relax fallback 5/94)**:
+
+  | metric | S0 (OFF, scale 0.20) | A2 (ON, scale 3.57587) | Δ |
+  |---|---:|---:|---:|
+  | information_ratio | 1.481438 | 1.483625 | **+0.002188** |
+  | tracking_error | 0.031069 | 0.030582 | −0.000487 |
+  | active_return | 0.046027 | 0.045372 | −0.000655 |
+  | avg_annual_turnover | 1.144021 | 1.106629 | −0.037392 |
+  | realized_beta | 1.024389 | 1.022090 | −0.002299 |
+  | avg_ic | 0.048649 | 0.048649 | +0.000000 |
+  | sharpe_ratio | 1.307645 | 1.307881 | +0.000236 |
+  | max_drawdown | −0.299887 | −0.299906 | −0.000019 |
+  | P1_ir | 1.591390 | 1.677451 | +0.086062 |
+  | P2_ir | 0.574884 | 0.463195 | **−0.111689** |
+  | P3_ir | 2.004814 | 2.016578 | +0.011764 |
+
+- **confidence·eta 분포 변화 (94 리밸런스, 실 `compute_signal_confidence` 재실행 — pred_row·raw_pred_row + trailing_ic_mean(ic_series prior≥2, last-6 윈도) 재구성, eta=clip(0.5·√conf,0.05,0.95))**:
+
+  | 채널 | S0 (0.20) min/median/mean/max | A2 (3.57587) min/median/mean/max |
+  |---|---|---|
+  | confidence | 0.2000 / **1.0000** / 0.7509 / 1.0000 | 0.1510 / **0.8263** / 0.7042 / 1.0000 |
+  | eta | 0.2236 / **0.5000** / 0.4193 / 0.5000 | 0.1943 / **0.4545** / 0.4056 / 0.5000 |
+  | spread_score(단독) | 1.0000 / 1.0000 / 1.0000 / 1.0000 | 0.5807 / 0.9959 / 0.9395 / 1.0000 |
+
+  - **spread_score < 1.0 리밸런스 비율: S0 0.0%(상시 포화) → A2 52.1%** (사전등록 예측대로: median raw_spread 3.58/3.58=1.0, 절반이 그 아래). spread 채널이 처음으로 활성화(inert 탈출).
+  - eta가 실제로 바뀐 리밸런스 52.1%(나머지 47.9%는 conf 포화/clip 동일), 평균 |Δeta| 0.0137. eta median 0.50→0.45 하향 → 트레이딩 강도 감소 → turnover −3.7%p·TE −0.05%p와 정합. confidence median이 1.0(포화)→0.826으로 내려오며 동적 실행이 실제로 반응.
+- **게이트 판정**:
+  - ① ΔIR **+0.0022 ≪ +0.36**(1 SE) → **노이즈 대역**(A1 +0.071·A3 +0.003과 동류, 사실상 0). 서브기간 부호 **불일치**: P1 **+0.086** · P2 **−0.112** · P3 **+0.012**. P2(2021-05..2023-10) 악화. 사전등록 채택 조건(ΔIR>1SE & 부호 일관) **양쪽 미충족**.
+  - ② 캐릭터 보존 **PASS**: TE 3.06%(≤4.5% 가드, S0 3.11%→오히려 감소) · active_return +4.54%(S0 +4.60% 대비 소폭↓·붕괴 아님) · turnover −3.7%p · realized_beta 사실상 불변(1.022). 벤치마크 붕괴 없음.
+  - ③ fallback 급증 없음 **PASS**: solver ECOS 188·fallback_rate 0.0(S0 동일); optimizer TE-relax fallback 5/94(S0 6/94, 오히려 감소).
+  - ④ 단일 사전등록 파라미터·스윕 없음 → DSR/selection-bias **비액션 유지**(§2-7).
+- **결정**: `confidence_spread_scale` **default 0.20 유지(OFF-default), 프로덕션 무변경**(§8). |ΔIR|=0.0022<0.36이라 **IR 근거 채택 불가(노이즈)** — §2-4에 따라 기각도 채택도 아닌 "설명력 근거로만 판단". 재보정은 spread 채널을 확실히 되살렸으나(spread_score<1.0 52.1%·eta median 0.50→0.45·confidence median 1.0→0.826) full-period 순효과가 0에 수렴하고 레짐 셔플(P1·P3 소폭↑ vs P2 −0.11)에 그침 — 순 edge 없음. turnover −3.7%p·TE 소폭 개선은 IR 개선을 동반하지 않아 승격 근거 부족. 인프라(config 레버는 이미 노출됨, 코드 변경 0)는 향후 재평가·다른 데이터 vintage 대비로 유지. src/·run_variant 무접촉이라 롤백 불요(variant yaml만, default 0.20이 곧 S0).
+- **미해결/이관**: SAFE_FOR_CACHE_REUSE 등록은 **보류·이관**(체크포인트 격리·전 arm 풀 경로 비교 유지 지침 — run_variant.py 무수정). `confidence_spread_scale`은 Phase 5 실행 전용이라 향후 등록 시 캐시 재사용 안전(단, 현 사이클은 풀 경로). 인접 미평가 가설: ic_score 상수 재보정(median IC 0.0404 포화, D0) — 단일 파라미터 규율상 본 arm 범위 밖, 별도 arm 필요. 커밋 보류(사용자 승인 대기).
+
+### S7.A3 adaptive-EMA (trailing-IC 적응형 예측 EMA) — **사전등록 (2026-07-06)**
+
+- **가설**: 예측 EMA 블렌딩이 고정 α=0.5(`src/model_trainer.py` `apply_prediction_ema`, walk_forward_train 내부 블렌드 재현). 고정 α의 regime-lag이 문제의식(D0: 재훈련 degenerate 50%, trailing IC median 0.0404). 최근 IC가 좋을 때 새 신호 가중을 높이고 나쁠 때 스무딩을 강화하는 시변 α를 **사전등록 단일 함수형**으로 평가. src/ 프로덕션 코드 무수정 — 2-pass 주입 평가.
+- **사전등록 함수형 (이 형태 외 변형·스윕 금지, D0 분포 앵커)**: 각 예측일 t에 대해
+
+      α_t = clip( 0.5 + (tIC_t − m) / (2·IQR), 0.25, 0.75 )
+
+  - **앵커(D0 정본, 하드코딩 금지·리포트 로드)**: `outputs/degenerate_retrain_report.json` `report.trailing_ic_dist` → m(median)=**0.04035956534962617**, IQR=**0.07403856582239399**. 상수 전부 D0 분포에서 유도, 자유 파라미터 0. clip은 대칭 [0.25, 0.75].
+  - **tIC_t (인과성 필수)**: 각 IC 이벤트를 **실현완료일**(= 리밸런스/예측일 + forward_horizon 20 거래일)로 타임스탬프. tIC_t = 트레일링 63 거래일 윈도 `[dates[max(0,i−63)], dates[i−1]]`(상한 dates[i−1]은 t보다 **엄격히 과거**) 내 실현 이벤트 평균. i==0 또는 무이벤트 → α_t=0.5. 미래정보 유입 없음(실현일 인덱싱으로 by construction 인과).
+  - 블렌딩 재귀는 `apply_prediction_ema`와 동일 구조에 α만 시변: blended_t = α_t·raw_t + (1−α_t)·blended_{t−1}. **α_t≡0.5이면 apply_prediction_ema(raw,0.5)와 바이트동일**(합격 A3-5).
+- **구현**: `scripts/run_adaptive_ema_arm.py`(순수함수 2개 + main, src/ 무수정·플래그 없음). 합격 테스트 `tests/acceptance/test_adaptive_ema.py` **13/13 통과**, 전체 스위트 129 pass(무관: A1 mu_vol_scaling 경고 6건은 비실패). 주입: pkl `raw_predictions`(pre-EMA·pre-overlay)에 시변 α EMA 적용 → `run_backtest(precomputed_predictions=…)`로 프로덕션 MVO(오버레이는 정상 1회 적용, 이중오버레이 금지). 데이터: `outputs/iter15_65tkr_reb21_vtg/backtest_result.pkl`.
+- **ic_events 구성**: ic_series(93, 리밸런스일 인덱싱) → calendar(raw_predictions.index, 3233 거래일)에서 get_indexer → pos+20 시프트 → 실현일. 93개 전부 온-캘린더·오버플로 0 → **93개 실현일 이벤트, span 2018-12-24..2026-05-20**.
+- **identity 게이트 (α≡0.5, on-baseline 재현, 2026-07-06)**: `--identity-only` 풀 주입 백테스트 49s, ECOS 188·fallback 6/94(6.4%, S0와 동일 경로). vs 정본 S0(`outputs/iter15_65tkr_reb21_vtg/metrics.json`): IR **1.481437507913232**(Δ **0.0**) · TE **0.031069189048318836**(Δ 0.0) · turnover **1.1440214379781009**(Δ 0.0) · active_return **0.04602706199662654**(Δ 0.0). **max|Δ|=0.000e+00 → 바이트 재현 PASS**. apply_prediction_ema(raw,0.5)가 S0 내부 pre-overlay 패널을 정확히 복원함을 실증(pre-EMA 의미·주입경로·EMA-confound 부재 확인, §4.2/E1b).
+- **S0 기준(동일 ECOS)**: IR 1.481437507913232 · TE 0.031069 · turnover 1.14402 · realized_beta 1.02439 · P1 1.591/P2 0.575/P3 2.005.
+- **판정 게이트 (사전등록, §2-4/§2-5/§2-7)**: ① ΔIR > **+0.36**(=1 SE) **& 서브기간(P1/P2/P3) 부호 일관** ② 캐릭터 보존(TE ≤4.5%·active share 붕괴 없음) ③ fallback 급증 없음 ④ 단일 사전등록 파라미터라 DSR/selection-bias 비액션. 셋 다 충족 시에만 IR 근거 채택 후보; 미달 시 OFF 유지. **게이트 통과 여부가 아니라 정직한 측정이 성공 기준.**
+- **실행**: `<PY> scripts/run_adaptive_ema_arm.py` → `outputs/exp_adaptive_ema/{identity,arm}/`(단일 foreground). identity 재현 49s + arm 45s.
+- **결과 (2026-07-06, `outputs/exp_adaptive_ema/arm/`, arm 백테스트 45s, ECOS 188·solver fallback 0.0%·optimizer TE-relax fallback 5/94)**:
+
+  | metric | S0 (OFF) | A3 (ON, 시변 α) | Δ |
+  |---|---:|---:|---:|
+  | information_ratio | 1.481438 | 1.484346 | **+0.002908** |
+  | tracking_error | 0.031069 | 0.029288 | −0.001781 |
+  | active_return | 0.046027 | 0.043473 | −0.002554 |
+  | avg_annual_turnover | 1.144021 | 1.133318 | −0.010704 |
+  | realized_beta | 1.024389 | 1.022951 | −0.001438 |
+  | avg_ic | 0.048649 | 0.048794 | +0.000145 |
+  | sharpe_ratio | 1.307645 | 1.297159 | −0.010485 |
+  | max_drawdown | −0.299887 | −0.300085 | −0.000198 |
+  | P1_ir | 1.591390 | 1.724103 | +0.132713 |
+  | P2_ir | 0.574884 | 0.142670 | **−0.432214** |
+  | P3_ir | 2.004814 | 2.134329 | +0.129515 |
+
+- **α_t 분포 (n=3233 예측일)**: min **0.250** · median **0.500** · max **0.750** · mean **0.51005**. 0.5 이탈 빈도 **60.38%**(frac_off_half), 상한 clip(0.75) **22.05%** · 하한 clip(0.25) **13.64%**. → 함수형이 활발히 작동(inert 아님), mean≈0.51로 순평균은 거의 중립이나 레짐별로 크게 재분배.
+- **게이트 판정**:
+  - ① ΔIR **+0.0029 ≪ +0.36**(1 SE) → **노이즈 대역**(A1 +0.071보다도 작아 사실상 0). 게다가 서브기간 부호 **불일치**: P1 **+0.133** · P2 **−0.432** · P3 **+0.130**. P2(2021-05..2023-10)가 크게 악화. 사전등록 채택 조건(ΔIR>1SE & 부호 일관) **양쪽 모두 미충족**.
+  - ② 캐릭터 보존 **PASS**: TE 2.93%(≤4.5% 가드, S0 3.11%→오히려 감소) · active_return +4.35%(S0 +4.60% 대비 소폭↓이나 붕괴 아님) · realized_beta 사실상 불변(1.023). 벤치마크 붕괴 없음.
+  - ③ fallback 급증 없음 **PASS**: solver ECOS 188·fallback_rate 0.0(S0 동일); optimizer TE-relax fallback 5/94(S0 6/94, 오히려 감소).
+  - ④ 단일 사전등록 파라미터·스윕 없음 → DSR/selection-bias **비액션 유지**(§2-7).
+- **결정**: adaptive-EMA **OFF-default 유지, 프로덕션 무변경**(§8). |ΔIR|=0.0029<0.36이라 **IR 근거 채택 불가(노이즈)** — §2-4에 따라 기각도 채택도 아닌 "설명력 근거로만 판단". 시변 α는 활발히 작동(60% 이탈, 양쪽 clip)했으나 full-period 순효과가 0에 수렴하고 레짐 셔플(P1·P3 +0.13 vs P2 −0.43)에 그침 — 순 edge 없음. TE/turnover 소폭 개선은 있으나 IR 개선을 동반하지 않아 승격 근거 부족. 인프라(`scripts/run_adaptive_ema_arm.py` + 순수함수 2개 + 합격 테스트 13건)는 향후 재평가·다른 데이터 vintage 대비로 유지. src/ 무접촉이라 롤백 자체가 불요(프로덕션에 아무것도 배선 안 됨).
+- **미해결/이관**: 없음. src/·run_variant·variants 무수정(2-pass 주입 평가), 정본 S0 무접촉(identity Δ=0.0 재현으로 격리 확인). 커밋 보류(사용자 승인 대기).
+
+### S7.A4 seed-ensemble (LGBM 시드 앙상블 k=5) — **사전등록 (2026-07-06)**
+
+- **가설**: 예측 엔진이 LightGBM 단일 시드(random_state=42, `src/config.py:158-172`)로만 학습된다. 단일 시드 예측에는 추정 노이즈가 있고 D0(재훈련 degenerate 50%)상 시드별 walk-forward 궤적이 상이할 수 있다. k=5 시드 평균은 (a) 예측 분산 축소, (b) 시드 운(luck)의 정량화(per-seed IR 분산)를 동시에 제공. src/ 프로덕션 코드 무수정 — 2-pass 주입 평가. DR/A1~A3 전례상 기대는 보수적.
+- **사전등록 (이 구성 외 변형·스윕 금지, k 스윕 금지)**: 시드 **{42, 43, 44, 45, 46}** 고정(k=5). 42는 정본 S0 harvest 재사용(동일 시드 재실행 낭비 금지), 43~46은 정본 variant + `lgbm_params.random_state`만 변경한 full harvest. 결합 규칙(파라미터-프리):
+  1. 시드별 **pre-EMA raw z-패널**(`backtest_result.pkl.raw_predictions`) → **셀 단위 유한값 평균**(NaN skip, 전부 NaN → NaN).
+  2. **per-date CS 재표준화**(`src/model_trainer.py:240-245` z 관용구와 동일: mean skipna, std ddof=1 skipna, `if std>0`일 때만 (row−mean)/std; 상수행·단일유한값행·전NaN행은 불변, 0나눗셈 없음).
+  3. 표준 EMA **α=0.5**(`apply_prediction_ema`, 정본 고정값 — 시변 아님).
+  4. pre-overlay 패널로 `run_backtest(precomputed_predictions=…)` 주입(오버레이 런타임 1회 — 이중오버레이 금지).
+  - **NaN 마스크 게이트**: 시드 간 NaN 마스크는 데이터 가용성 기반이라 동일해야 정상. 불일치율(≥1 NaN & ≥1 유한 셀 / 전체 셀) **> 0.1%면 중단·보고**(§9 구조 가정 위반). 자유 파라미터 0(finite mean·z·고정 EMA 모두 파라미터-프리).
+- **기각한 대안**: 시드별 z 평균 후 재표준화 생략(CS 분산 수축으로 mu 스케일 왜곡), rank 평균(정보 손실), k 스윕(사전등록 위반), post-EMA 패널 평균(EMA 체인 비선형성으로 의미 불명).
+- **구현**: `scripts/run_seed_ensemble_arm.py`(순수함수 `combine_seed_panels`·`nan_mask_mismatch_rate` + main, src/·run_variant.py 무수정·플래그 없음). 합격 테스트 `tests/acceptance/test_seed_ensemble.py` **15/15 통과**, co-located smoke `tests/test_run_seed_ensemble_arm.py` 3/3, 전체 스위트 **147 pass**(무관: `test_mu_vol_scaling.py` 경고 6건은 비실패). 시드 variant는 `variants/exp_seed{43,44,45,46}.yaml`(main의 `write_seed_variant`가 정본 manifest deepcopy → label/out_dir/`lgbm_params.random_state`만 변경해 생성; harvest 시 `--no-cache` 풀 경로).
+- **seed 전달 경로 확인 (정적, harvest 전)**: `build_override_config`=`dataclasses.replace(**overrides)`라 `lgbm_params`가 **통째 교체**(deep-merge 아님) → 시드 yaml은 FULL lgbm_params 블록 필요, helper가 정본 파생으로 보장. compose 검증: exp_seed43~46 각 `random_state`=43~46·keys_intact=True·n_estimators=800. yaml `lgbm_params` → `model_trainer.py:192` `lgb.LGBMRegressor(**config.lgbm_params)` 직결. 캐시: `lgbm_params`∉`SAFE_FOR_CACHE_REUSE`(`run_variant.py:289-339`) + `--no-cache` ⇒ full 재실행 이중보장. 결정성 사전확인(경험적, 합성데이터): DEFAULT lgbm_params로 seed42 vs 43 예측 max|Δ|=0.1215·mean|Δ|=0.0463, seed42 재fit 완전재현(==True). 근거: subsample=0.8은 bagging_freq=0(sklearn 기본 subsample_freq=0)이라 무효이나 colsample_bytree=0.8(feature_fraction)이 시드 구동 → random_state 변경이 실제 예측차 생성. (실 harvest의 시드별 IR·예측차는 결과 절에 기재.)
+- **S0 기준(동일 ECOS)**: IR 1.481437507913232 · TE 0.031069 · turnover 1.14402 · realized_beta 1.02439 · P1 1.591/P2 0.575/P3 2.005.
+- **판정 게이트 (사전등록, §2-4/§2-5/§2-7)**: ① ΔIR > **+0.36**(=1 SE) **& 서브기간(P1/P2/P3) 부호 일관** ② 캐릭터 보존(TE ≤4.5%·active share 붕괴 없음) ③ fallback 급증 없음 ④ 단일 사전등록 구성·k 스윕 없음 → DSR/selection-bias 비액션. 셋 다 충족 시에만 IR 근거 채택 후보; 미달 시 OFF 유지. **게이트 통과 여부가 아니라 정직한 측정이 성공 기준.** (참고: A1 +0.071·A2 +0.002·A3 +0.003 전부 미충족·OFF 종결.)
+- **실행 예정**: (1) `<PY> scripts/run_seed_ensemble_arm.py --identity-only` — identity 게이트(α≡0.5 on seed42 → S0 재현, Δ>1e-6이면 중단) → (2) `<PY> scripts/run_seed_ensemble_arm.py` — seed 43~46 harvest 순차 4회 + NaN 게이트 + combine → EMA(0.5) → arm 주입. → `outputs/exp_seed_ensemble/{identity,arm}/` + `outputs/exp_seed{43..46}/`(단일 foreground, 병렬 spawn 금지).
+- **identity 게이트 (α≡0.5 on seed42, 2026-07-06)**: `--identity-only` 풀 주입 백테스트 45s, ECOS 188·fallback 6/94. vs 정본 S0: IR **1.481437507913232**(Δ **0.0**)·TE **0.031069189048318836**(Δ 0.0)·turnover **1.1440214379781009**(Δ 0.0)·active_return **0.04602706199662654**(Δ 0.0). **max|Δ|=0.000e+00 → 바이트 재현 PASS**(A3와 동일). seed42 raw_predictions가 S0 pre-overlay 패널을 정확 복원함을 실증.
+- **harvest 완료 (2026-07-06→07, 단일 프로세스 순차, 병렬 spawn 없음·전부 `--no-cache` 풀 파이프라인)**: seed43 225s·seed44 211s·seed45 451s·seed46 617s(재훈련 부하 편차). 각 `outputs/exp_seed{n}/`. NaN 마스크 불일치율 **0.00000**(게이트 0.1% 통과 — 5시드 데이터 가용성 격자 완전 동일).
+- **per-seed full-run IR (시드 운 정량화, k=5)**:
+
+  | seed | 42(prod/S0) | 43 | 44 | 45 | 46 | mean | std(ddof=1) | min | max | spread |
+  |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+  | full-run IR | **1.4814** | 1.1843 | 1.0565 | 1.1103 | 1.4058 | 1.2477 | 0.1865 | 1.0565 | 1.4814 | 0.4249 |
+
+  - **핵심 발견**: 프로덕션 시드 42가 5시드 중 **IR 최고(rank 5/5)**. S0 헤드라인 IR 1.481은 **호의적 시드 운**을 포함 — 5시드 평균 1.248 대비 **+0.234**(≈1.25 SE_seed) 위. 시드-IR std 0.187로, 단일 시드 IR의 시드 노이즈가 상당(스프레드 0.42). 앙상블 arm IR 1.318은 **평균 시드 IR(1.248)보다는 높음**(앙상블이 무작위 단일 시드 대비로는 denoise) but S0(=최고 시드)보다는 낮음.
+- **앙상블 진단**: 시드 간 평균 쌍상관 **0.8355**(10쌍) — 시드들이 고상관(feature sub-sampling만 교란, ~16%만 idiosyncratic). pre-재표준화 CS 분산 축소 **13.16%**(finite-mean 패널 0.855 vs 평균 per-seed 0.985; 이론 avg-var(ρ=0.836,k=5)=0.868과 정합). **단, STEP2 per-date 재표준화가 단위분산으로 재정규화하므로 최종 combined CS 분산 축소율=0.0(by construction)** — 유의미 지표는 쌍상관 0.836과 pre-restd 13% 축소. 고상관 탓에 유효 다양성이 작아 앙상블 이득 제한적.
+- **결과 (2026-07-06→07, `outputs/exp_seed_ensemble/arm/`, arm 백테스트 122s, ECOS 188·solver fallback 0.0%·optimizer TE-relax fallback 8/94)**:
+
+  | metric | S0 (OFF, seed42) | A4 (ON, k=5 앙상블) | Δ |
+  |---|---:|---:|---:|
+  | information_ratio | 1.481438 | 1.317520 | **−0.163917** |
+  | tracking_error | 0.031069 | 0.028991 | −0.002078 |
+  | active_return | 0.046027 | 0.038197 | −0.007830 |
+  | avg_annual_turnover | 1.144021 | 1.166345 | +0.022323 |
+  | realized_beta | 1.024389 | 1.012491 | −0.011898 |
+  | avg_ic | 0.048649 | 0.044719 | −0.003930 |
+  | sharpe_ratio | 1.307645 | 1.283830 | −0.023815 |
+  | max_drawdown | −0.299887 | −0.295614 | +0.004273 |
+  | P1_ir | 1.591390 | 1.156285 | **−0.435105** |
+  | P2_ir | 0.574884 | 0.415762 | **−0.159122** |
+  | P3_ir | 2.004814 | 2.186175 | **+0.181361** |
+
+- **게이트 판정**:
+  - ① ΔIR **−0.1639**. |ΔIR|=0.164 < +0.36(1 SE)라 **여전히 노이즈 대역**(통계적으로 0과 구분 불가)이나 점추정이 **음(−)**이고 서브기간 부호 **불일치**(P1 −0.435·P2 −0.159·P3 +0.181, P1/P2 악화·P3만 개선). 사전등록 채택 조건(ΔIR>+0.36 & 부호 일관) **양쪽 완전 미충족**. A1~A3 중 유일하게 점추정 음수(A1 +0.071·A2 +0.002·A3 +0.003 vs A4 **−0.164**).
+  - ② 캐릭터 보존 **PASS**: TE 2.90%(≤4.5% 가드, S0 3.11%→감소)·active_return +3.82%(S0 +4.60% 대비 −0.78%p, 벤치마크 붕괴 아님·集中 성격 유지)·realized_beta 1.012(사실상 불변). active share 붕괴 없음.
+  - ③ fallback 급증 없음 **PASS**: solver ECOS 188·fallback 0.0%(S0 동일); optimizer TE-relax fallback 8/94 vs S0 6/94(+2, 급증 아님).
+  - ④ 단일 사전등록 구성·k 스윕 없음 → DSR/selection-bias **비액션 유지**(§2-7).
+- **결정**: seed-ensemble **OFF-default 유지, 프로덕션 무변경**(§8). ΔIR **−0.164**(음)·서브기간 부호 불일치로 승격 근거 전무 — |ΔIR|<0.36이라 §2-4상 "노이즈, 설명력으로만 판단"이되 점추정이 음이라 채택 가치 없음. src/ 무접촉·플래그 없음(2-pass 주입 평가)이라 롤백 자체 불요. 인프라(`scripts/run_seed_ensemble_arm.py`·순수함수 2·합격 테스트 15·variant 4개)는 유지.
+- **설명력·DSR 함의(마감 입력)**: 본 arm의 진짜 산출은 IR 개선이 아니라 **S0 헤드라인의 시드 운 정량화**다. S0 IR 1.481은 5시드 분포(1.057~1.481, mean 1.248, std 0.187)의 **최상단**이며, 시드-강건 추정치는 mean 1.248 또는 앙상블 1.318 수준. 즉 S0가 보고하는 edge의 약 **0.16~0.23 IR가 시드 운**에 기인(안정 edge 아님). DSR/최종 판정표 작성 시 S0 IR를 시드 노이즈 밴드(±0.19)와 함께 보고할 것. 재훈련 degenerate 50%(D0)와 정합: 시드가 walk-forward 궤적을 실질 교란.
+- **미해결/이관**: 없음. src/·run_variant·tests/acceptance 무수정, 정본 S0 무접촉(identity Δ=0.0). 커밋 보류(사용자 승인 대기). 참고: `variants/exp_seed{43..46}.yaml`·`outputs/exp_seed{43..46}/`는 arm 산출물(정본 아님).
+
+### S7.infra Phase 3 체크포인트 + 캐시 경로 S0 재현 수정 (E1/E1b, 2026-07-06)
+
+**(c) Phase 3 (targets) 체크포인트 도입 [E1]**
+- 문제: `run_variant` 캐시-재사용 브랜치가 매 실행 `build_targets()`의 ~2,650 sklearn PCA fit을 재계산(`run_variant.py:289` 부근).
+- 구현: `run_variant.py`에 `phase3_cache_token` / `save_phase3_checkpoint` / `load_phase3_checkpoint` 추가 — Phase 1/2/4 HMAC-pickle 패턴 미러(`src.backtest.save_checkpoint`/`_sign_file` 재사용). 로드는 graceful(토큰불일치·서명없음·서명불일치·손상pickle·부재 → `None`, 예외 없음; Phase 3 재계산은 항상 정확하므로 폴백 안전).
+- 토큰 필드(`build_targets` 실제 의존만): `pca_n_remove, pca_components, pca_lookback, forward_horizon, multi_horizon_targets_enabled, multi_horizon_weights, regime_pca_weighted_enabled` + upstream(`phase1|phase2` .sig 다이제스트 체이닝). 옵티마이저·Phase5/6 필드(`risk_aversion` 등)에는 **불변** → 옵티마이저 스윕에도 캐시 생존.
+- 테스트: `tests/acceptance/test_phase3_checkpoint.py` 9/9 + `tests/test_run_variant.py` 3/3(후자는 repo TDD 가드가 `run_variant.py` 편집 전 동명 테스트를 요구해 추가; tests/acceptance 미접촉).
+
+**(a) build_targets config-less 호출 정리**
+- `run_variant.py`의 재계산 브랜치 `build_targets(data)` → `build_targets(data, config=cfg)`.
+- 바이트동일 근거: 프로덕션 variant의 target/PCA 7필드가 전부 `DEFAULT_CONFIG`와 동일(n_remove=2·components=5·lookback=252·horizon=20·mh_enabled=False·mh_weights={}·regime=False). target 필드 오버라이드는 `SAFE_FOR_CACHE_REUSE` 밖이라 캐시 자체가 비활성(full pipeline)되어 캐시 브랜치는 diverging target을 볼 수 없음. `phase3_cache_token(DEFAULT)==token(prod cfg)` 확인.
+
+**(b) cache≠full 근인·수정·파리티 [E1b]**
+- 최초 증상: 캐시런 IR 1.463 / P2_ir 0.082 vs full·정본 S0 1.481 / 0.575.
+- 근인(실측, 팀리드 EMA 가설과 상이): `walk_forward_train` 반환 `predictions`는 이미 **post-EMA**(`model_trainer.py:292`), `raw_predictions`는 pre-EMA(:458) — EMA는 원인이 아님. 실제 근인은 **이중 오버레이**: `result.predictions`는 post-overlay(`backtest.py:1507`, PEAD/growth_tilt/VTG 적용 후)인데 캐시 경로가 `precomputed_predictions`에 오버레이를 재적용(`:1477-1507`). E1 프라이밍이 post-overlay 패널을 저장해 오버레이가 2회 적용됨. 실측 overlay effect: post vs pre 패널 127,636/128,243 셀 상이(max|Δ|=7.07). `scripts/run_overlay_ablation.py:5-8` 계약("harvest overlays-OFF → base.predictions = overlay-free EMA base")과 정합.
+- 수정: `src/backtest.py`에 `result.pre_overlay_predictions` 노출(§4.2 `pre_overlay_ema_predictions` = post-EMA·pre-listing-mask·pre-overlay; `walk_forward` 직후 캡처). Phase 4 체크포인트는 `result.predictions`(post-overlay)가 아니라 이 패널을 저장 → 캐시 경로가 오버레이를 정확히 1회 적용. 신규 속성 캡처만이라 `run_backtest` 동작·기존 메트릭 불변(OFF-invariant).
+- 파리티 증거(바이트동일): pre-overlay 프라이밍 후 **캐시 런 metrics == full 런 metrics == 정본 S0 metrics 전부 sha256 일치**(IR 1.481437507913232 완전정밀도, sub_periods 포함). 캐시 build(A) vs reuse(B)도 바이트동일(`elapsed_sec`만 상이). **E1b 게이트 통과.**
+- 시간: full ~255s vs 캐시 재사용 ~41s(~6x). 
+- 상태·안전: 게이트 통과. 프라이밍 체크포인트(`outputs/checkpoints/`)는 동시 실행 레이스·스테일 방지 위해 **삭제(격리)**; 재프라이밍은 `scratchpad/prime_checkpoints.py`로 결정론적 재현 가능. 캐시 경로의 arm 평가 실사용 여부는 오케스트레이터 결정. 회귀: 전체 스위트 129 pass(blast radius `test_backtest`+`test_run_variant`+phase3 acceptance 13/13). 정본 `metrics.json` 내용 무접촉(IR 1.481437507913232, elapsed 223.0).
+
+### S7.summary 4-arm 평가 프로그램 마감 (2026-07-06)
+
+S7 AI-로직 후보 4개(A1~A4) 사전등록·측정 **완료**. **4개 전부 채택 게이트 미충족 → OFF-default 유지, 프로덕션 무변경.** 정본 S0 기준(동일 ECOS): IR 1.481437507913232 · TE 0.031069 · P1 1.591/P2 0.575/P3 2.005. 채택 바(§2-4): full-period ΔIR > **+0.36**(=1 SE) **& 서브기간 부호 일관**. 아래 수치는 전부 파일 로드(암산 없음).
+
+- **4-arm 판정 요약표** (전부 후보당 단일 사전등록 파라미터, 스윕 없음):
+
+  | arm | 사전등록 파라미터(단일값) | IR | ΔIR vs S0 | 서브기간 부호 Δ(P1/P2/P3) | 캐릭터 보존 | 판정 |
+  |---|---|---:|---:|:---:|:---:|---|
+  | A1 mu-vol-scaling | mu=z·σ/median_CS(σ) (param-free) | 1.552503 | **+0.0711** | −/−/+ 불일치 | PASS | 미충족·**OFF** |
+  | A2 confidence-spread-recal | confidence_spread_scale=3.57587 | 1.483625 | **+0.0022** | +/−/+ 불일치 | PASS | 미충족·**OFF** |
+  | A3 adaptive-EMA | α_t=clip(0.5+(tIC−m)/2IQR, .25,.75) | 1.484346 | **+0.0029** | +/−/+ 불일치 (P2 −0.432) | PASS | 미충족·**OFF** |
+  | A4 seed-ensemble k=5 | seeds {42,43,44,45,46} | 1.317520 | **−0.1639** | −/−/+ 악화 | PASS | 미충족·**OFF** |
+
+  - A1~A3: |ΔIR| 전부 노이즈 대역(<+0.36 1 SE) **&** 서브기간 부호 불일치 → 채택 조건 양쪽 미충족. A4: 점추정 **음수**. 4개 모두 캐릭터 보존(TE ≤4.5%·active share 붕괴 없음)은 통과 — **붕괴 FAIL이 아니라 edge 부재로 인한 미채택**(§2-5는 OK, §2-4가 게이트).
+
+- **DSR / selection-bias 재산출** (S0 프로덕션 baseline gating, `run_selection_bias.py --auto --label iter15_65tkr_reb21_vtg`; `outputs/reports/selection_bias_report.md`·`outputs/csv/selection_bias_metrics.csv`):
+
+  | 지표 | S7 전 (N=403) | S7 후 (N=407) |
+  |---|---:|---:|
+  | N_trials | 403 | 407 |
+  | Observed SR | 1.463993 | 1.463993 (불변, S0) |
+  | Deflated SR | 0.748132 | 0.745281 |
+  | DSR p-value | 0.227190 | 0.228051 |
+  | Grid haircut | 1.203955 | 1.204946 |
+  | Adjusted SR | 0.260038 | 0.259047 |
+  | Gate verdict | FAIL | FAIL |
+
+  - inventory 갱신(`experiment_inventory.json`): A1/A2/A3/A4 각 **1 trial** 추가(+4). A4의 seed 43~46 harvest 4회는 **비선택 진단 입력**(단일 A4 앙상블 구성으로 수렴)이라 **trial 미계상**(항목 노트에 "per-seed diagnostics 4 runs (non-selection)" 명시). N 403→407.
+  - 4 arm 추가가 sqrt(2·ln N) 페널티를 미세 이동(haircut **+0.0010** / DSR **−0.0029**) — **S0 selection-bias 판정을 실질적으로 바꾸지 않음**. Gate FAIL은 DSR p>0.10(다중비교 후 유의성 미달)에서 발생하며 나머지 4항목은 통과(adjusted SR>0 · MinTRL 7.8yr>1.2yr · survivorship CLEAN · sub-period all-positive STABLE). **전 arm OFF이므로 이 gating은 활성화 후보가 아니라 S0 자체의 다중비교 유의성 정보**로만 소용(§2-7 비액션 일관).
+
+- **핵심 발견 2건**:
+  1. **단일 런 ΔIR의 노이즈 대역 실증 (A4 부산물)**: per-seed full-run IR 42=1.4814 / 43=1.1843 / 44=1.0565 / 45=1.1103 / 46=1.4058 (범위 **1.057~1.481**, spread 0.425, std(ddof=1) 0.187). 정본 S0=**seed42가 5개 중 최상위**(rank 5/5) — S0 헤드라인 IR은 호의적 시드 운을 포함(5시드 mean 1.248 대비 +0.234). 즉 단일 런 IR의 시드 노이즈(±≈0.19)가 사전등록 채택 바(+0.36=1 SE)와 동급 크기 → A1~A3의 소폭 ΔIR(+0.07/+0.002/+0.003)이 전부 이 노이즈 대역 안이라는 **게이트 논리를 사후 실증**(seed 상관 0.836).
+  2. **D0 degenerate 50%의 구조적 근인**: 재훈련 32윈도 중 16 degenerate(**50%**, `outputs/degenerate_retrain_report.json`). H1(즉시 early-stop: degenerate best_iteration median **1.0** vs healthy 92.0) **supported** — 검증손실 즉시 정체, 재훈련이 일반화 신호 미발견(incumbent 미개선). H2(P2 레짐 집중) **refuted** → **국면 무관**(P1 6·P2 5·P3 5로 균등). degeneracy는 특정 시기가 아니라 구조적. **후속 후보로만 기재**(본 사이클 미실행).
+
+- **Production flips: 전부 no-flip.** `PipelineConfig` 기본은 4개 arm 모두 **OFF 불변**(A1 `mu_vol_scaling_enabled=False`, A2 `confidence_spread_scale=0.20` default, A3·A4는 src/ 배선 없음 — 2-pass 주입 평가). §8 프로덕션 규칙에 따른 활성화 후보 **0건**. 정본 `variants/iter15_65tkr_reb21_vtg.yaml` 무접촉. 롤백 불요(전부 default-OFF·바이트동일 parity 또는 src/ 무배선).
+
+- **이관 백로그**:
+  1. `mu_vol_scaling_enabled`·`confidence_spread_scale`의 `SAFE_FOR_CACHE_REUSE` 등록 **보류**(체크포인트 격리·전 arm 풀 경로 비교 유지 지침 — run_variant.py 무수정). 향후 등록 시 둘 다 예측-후/실행-전용이라 캐시 재사용 안전.
+  2. Phase 4 체크포인트 harvester 부재로 캐시 경로 **dormant**. 프라이밍은 스크래치패드 스크립트(`scratchpad/prime_checkpoints.py`)에만 존재, src/ 미배선.
+  3. 미실행 후속 후보(각각 **별도 사전등록 arm** 필요): (a) ic_score 상수 재보정(median trailing IC 0.0404 포화, D0), (b) degenerate early-stop 완화(재훈련 50%·best_iteration median 1, 국면 무관·구조적).
