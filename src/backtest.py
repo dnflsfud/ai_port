@@ -101,6 +101,61 @@ def apply_value_trap_gate(
     return adjusted
 
 
+def apply_mu_vol_scaling(
+    predictions: pd.DataFrame,
+    risk_returns: pd.DataFrame,
+    config: PipelineConfig,
+) -> pd.DataFrame:
+    """A1 (2026-07-06): z→mu volatility scaling (Grinold α = σ·z).
+
+    Converts the post-overlay unit-free CS z-score into an expected-return
+    (mu) panel so the MVO objective (`mu @ w`) sees vol-aware expected excess
+    returns. Per date t, ticker i:
+
+        mu_i(t) = z_i(t) · σ_i(t) / median_CS{ σ_j(t) : j valid }
+
+    where σ_i(t) is the trailing std of `risk_returns` (the same non-
+    interpolated raw returns the covariance estimator uses) over the
+    `cov_lookback` rows STRICTLY BEFORE t — matching the covariance window
+    convention (exclusive of t, look-ahead-free). Median-normalised so the
+    median-σ name is unchanged (implicit risk_aversion held ~constant).
+    Parameter-free; no clipping.
+
+    Guards (all inert-leaning): a ticker with < 63 valid window obs OR a
+    non-finite σ takes the CS median σ (scale 1); a date with no valid
+    ticker is identity (mu = z); NaN predictions stay NaN.
+    """
+    if not getattr(config, "mu_vol_scaling_enabled", False):
+        return predictions
+
+    lookback = int(getattr(config, "cov_lookback", 126))
+    min_obs = 63
+
+    # Align the risk panel to the prediction universe once (missing names ->
+    # all-NaN column -> guarded to scale 1).
+    risk = risk_returns.reindex(columns=predictions.columns)
+    rvals = risk.to_numpy()
+    ridx = risk.index
+
+    out = predictions.copy()
+    for t in predictions.index:
+        k = ridx.get_loc(t)
+        win = rvals[max(0, k - lookback):k]      # rows strictly before t
+        if win.shape[0] == 0:
+            continue                             # identity (no history)
+        counts = np.sum(~np.isnan(win), axis=0)
+        with np.errstate(invalid="ignore"):
+            sig = np.nanstd(win, axis=0, ddof=1)
+        valid = (counts >= min_obs) & np.isfinite(sig)
+        if not valid.any():
+            continue                             # identity for this date
+        med = float(np.median(sig[valid]))
+        sig_eff = np.where(valid, sig, med)      # guarded tickers -> median
+        scale = sig_eff / med
+        out.loc[t] = predictions.loc[t].to_numpy() * scale  # NaN z stays NaN
+    return out
+
+
 def apply_growth_tilt(
     predictions: pd.DataFrame,
     data: "UniverseData",
@@ -541,6 +596,7 @@ class BacktestResult:
         self.turnover: pd.Series = pd.Series(dtype=float)
         self.predictions: Optional[pd.DataFrame] = None
         self.raw_predictions: Optional[pd.DataFrame] = None
+        self.pre_overlay_predictions: Optional[pd.DataFrame] = None
         self.targets: Optional[pd.DataFrame] = None
         self.models: Dict = {}
         self.ic_series: pd.Series = pd.Series(dtype=float)
@@ -1438,6 +1494,15 @@ def run_backtest(
 
     result.models = models
     result.raw_predictions = raw_predictions
+    # pre_overlay_ema_predictions (§4.2): the post-EMA, pre-listing-mask,
+    # pre-overlay prediction panel. This is the canonical object to persist in a
+    # Phase 4 checkpoint: a cache-reuse run feeds it back as
+    # precomputed_predictions and re-applies the listing mask + PEAD/tilt/VTG
+    # overlays below exactly once, reproducing the full run. Persisting
+    # result.predictions instead (post-overlay) double-applies the overlays.
+    result.pre_overlay_predictions = (
+        predictions.copy() if isinstance(predictions, pd.DataFrame) else predictions
+    )
     result.targets = targets
     result.panel = panel
     result.feature_names = feature_names
@@ -1503,6 +1568,21 @@ def run_backtest(
         print(f"[Backtest] signal-stability shrinkage applied "
               f"(lambda={config.signal_stability_lambda}, "
               f"retrain_freq={config.retrain_freq})")
+
+    # A1 (2026-07-06): z→mu volatility scaling — FINAL overlay step.
+    # Rescales the post-overlay z into a vol-aware expected-return (mu) panel
+    # before it feeds the MVO objective. Risk vol uses the same non-
+    # interpolated raw_returns as the covariance estimator, on the full daily
+    # grid (predictions dates ⊆ this grid). OFF by default -> byte-identical.
+    if getattr(config, "mu_vol_scaling_enabled", False):
+        _mvs_risk = getattr(data, "raw_returns", None)
+        if _mvs_risk is not None:
+            _mvs_risk = _mvs_risk.reindex(index=data.returns.index)
+            predictions = apply_mu_vol_scaling(predictions, _mvs_risk, config)
+            print(f"[Backtest] A1: z→mu vol scaling applied "
+                  f"(cov_lookback={config.cov_lookback})")
+        else:
+            print("[Backtest] A1: z→mu vol scaling SKIPPED (raw_returns unavailable)")
 
     result.predictions = predictions  # save POST-gate predictions for downstream
 

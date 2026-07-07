@@ -36,6 +36,7 @@ This script preserves the iter15 reproduction path used by
 from __future__ import annotations
 
 import argparse
+import hashlib
 import io
 import json
 import logging
@@ -170,6 +171,88 @@ def _summarize(metrics: Dict[str, Any], baseline_path: Path) -> None:
     print("=" * 60 + "\n")
 
 
+# ---------------------------------------------------------------------------
+# Phase 3 (targets) checkpoint — mirrors the Phase 1/2/4 HMAC-pickle pattern
+# (src.backtest.save_checkpoint / _sign_file) so the cache-reuse path stops
+# recomputing the ~2,650 sklearn PCA fits behind build_targets() every run.
+# ---------------------------------------------------------------------------
+# Config fields build_targets() actually reads (src/target_engine.py). Any
+# change to one of these must invalidate the Phase 3 cache; optimizer / Phase
+# 5/6 fields (risk_aversion, max_weight, ...) MUST NOT — the PCA specific-return
+# targets are independent of the MVO stage.
+_PHASE3_TOKEN_FIELDS = (
+    "pca_n_remove",
+    "pca_components",
+    "pca_lookback",
+    "forward_horizon",
+    "multi_horizon_targets_enabled",
+    "multi_horizon_weights",
+    "regime_pca_weighted_enabled",
+)
+
+
+def phase3_cache_token(config: PipelineConfig, upstream_token: str = "") -> str:
+    """Deterministic hash of the target/PCA config fields + the upstream (Phase
+    1/2) checkpoint hash. Same (config, upstream) -> identical string; any
+    target/PCA field change OR a different upstream_token -> different string."""
+    payload = {name: getattr(config, name, None) for name in _PHASE3_TOKEN_FIELDS}
+    blob = json.dumps(payload, sort_keys=True, default=str)
+    h = hashlib.sha256()
+    h.update(blob.encode("utf-8"))
+    h.update(b"\x00")
+    h.update(str(upstream_token).encode("utf-8"))
+    return h.hexdigest()
+
+
+def save_phase3_checkpoint(
+    targets: "pd.DataFrame", token: str, output_dir: str = "outputs"
+) -> None:
+    """HMAC-sign + persist the targets panel tagged with `token` (reuses the
+    Phase 1/2/4 machinery -> outputs/checkpoints/checkpoint_phase3.pkl[.sig])."""
+    from src.backtest import save_checkpoint
+    save_checkpoint("phase3", {"token": token, "targets": targets}, output_dir=output_dir)
+
+
+def load_phase3_checkpoint(token: str, output_dir: str = "outputs"):
+    """Return the bit-identical targets panel iff a checkpoint exists whose
+    stored token matches AND whose signature verifies; otherwise return None.
+
+    Unlike src.backtest.load_checkpoint (which RAISES on a missing/mismatched
+    signature) this degrades gracefully — absent file, missing .sig, HMAC
+    mismatch, token mismatch, or a corrupted pickle all fall back to None so
+    the caller recomputes (Phase 3 recompute is always exact + cheap)."""
+    try:
+        from src.backtest import _sign_file
+        path = Path(output_dir) / "checkpoints" / "checkpoint_phase3.pkl"
+        if not path.exists():
+            return None
+        sig_path = path.with_suffix(".pkl.sig")
+        if not sig_path.exists():
+            return None
+        if _sign_file(path) != sig_path.read_text().strip():
+            return None
+        with open(path, "rb") as fh:
+            payload = pickle.load(fh)
+        if not isinstance(payload, dict) or payload.get("token") != token:
+            return None
+        return payload.get("targets")
+    except Exception:
+        return None
+
+
+def _phase12_upstream_token(output_dir: str = "outputs") -> str:
+    """Upstream chaining hash: the HMAC digests of the Phase 1/2 checkpoints.
+    When either input panel is rebuilt its checkpoint is re-signed, so the
+    digest changes and the Phase 3 token changes -> forced recompute. Missing
+    signatures degrade to "" (chaining unavailable; the token still varies with
+    config, and a changed pickle still fails HMAC verification on load)."""
+    parts = []
+    for phase in ("phase1", "phase2"):
+        sig = Path(output_dir) / "checkpoints" / f"checkpoint_{phase}.pkl.sig"
+        parts.append(sig.read_text().strip() if sig.exists() else "")
+    return "|".join(parts)
+
+
 def run(manifest_path: Path, no_cache: bool = False) -> int:
     manifest = load_manifest(manifest_path)
     label = manifest["label"]
@@ -286,8 +369,22 @@ def run(manifest_path: Path, no_cache: bool = False) -> int:
         models = cp4["models"]
         predictions = cp4["predictions"]
         raw_predictions = cp4.get("raw_predictions")
-        result_targets = build_targets(data)
-        targets = result_targets[0] if isinstance(result_targets, tuple) else result_targets
+
+        # Phase 3 (targets) checkpoint. In this branch the variant's overrides
+        # are all SAFE_FOR_CACHE_REUSE, so its target/PCA fields equal
+        # DEFAULT_CONFIG's — build_targets(data, config=cfg) is byte-identical
+        # to the historical build_targets(data). Reuse the cached PCA targets
+        # when the token (target/PCA config + upstream Phase 1/2 hash) matches;
+        # otherwise recompute (always exact) and re-checkpoint.
+        p3_token = phase3_cache_token(cfg, upstream_token=_phase12_upstream_token())
+        targets = load_phase3_checkpoint(p3_token)
+        if targets is None:
+            result_targets = build_targets(data, config=cfg)
+            targets = result_targets[0] if isinstance(result_targets, tuple) else result_targets
+            save_phase3_checkpoint(targets, p3_token)
+        else:
+            print("[run_variant] reusing Phase 3 targets checkpoint "
+                  "(target/PCA config + upstream unchanged)")
 
         result = run_backtest(
             data,

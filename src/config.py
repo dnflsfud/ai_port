@@ -445,6 +445,16 @@ class PipelineConfig:
     vtg_scale: float = 0.0        # 0.0 = zero score, 1.0 = no effect
 
     # ------------------------------------------------------------------
+    # A1 (2026-07-06) — z→mu volatility scaling (Grinold α = σ·z)
+    # ------------------------------------------------------------------
+    # Final overlay step: rescales the post-overlay unit-free CS z into an
+    # expected-return (mu) panel by each ticker's trailing realized vol,
+    # median-normalised so the median-σ name is unchanged (parameter-free).
+    # Uses the same non-interpolated raw returns / trailing `cov_lookback`
+    # window as the covariance estimator. OFF by default (byte-identical).
+    mu_vol_scaling_enabled: bool = False
+
+    # ------------------------------------------------------------------
     # Data freshness guardrail
     # ------------------------------------------------------------------
     max_tail_ffill_days: int = 10
