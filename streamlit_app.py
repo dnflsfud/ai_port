@@ -16,6 +16,7 @@ effects. Every Streamlit call lives inside ``main()``, guarded by ``__main__``.
 """
 from __future__ import annotations
 
+import itertools
 import json
 import pickle
 from pathlib import Path
@@ -257,8 +258,11 @@ def apply_theme(fig: go.Figure, height: Optional[int] = None) -> go.Figure:
     return fig
 
 
+_chart_seq = itertools.count()
+
+
 def render_chart(fig: go.Figure) -> None:
-    st.plotly_chart(fig, width="stretch", theme=None)
+    st.plotly_chart(fig, width="stretch", theme=None, key=f"chart_{next(_chart_seq)}")
 
 
 def line_fig(df: pd.DataFrame, cols: list, title: str, y_title: str = "") -> go.Figure:
