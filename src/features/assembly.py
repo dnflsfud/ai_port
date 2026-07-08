@@ -232,16 +232,21 @@ CORE_FEATURE_WHITELIST: set = {
 
 
 def apply_core_filter(features: Dict[str, pd.DataFrame],
-                      feature_groups: Dict[str, List[str]]) -> None:
+                      feature_groups: Dict[str, List[str]],
+                      extra_whitelist: set | None = None) -> None:
     """In-place prune features to CORE_FEATURE_WHITELIST only.
 
     Features in the whitelist that don't actually exist in the panel are
     silently ignored (e.g. if a sheet was missing). After the filter, each
     feature_group entry is updated to reflect the survivors. If a group ends
     up empty it is removed from feature_groups entirely.
+
+    `extra_whitelist` (S8) conditionally admits additional feature keys on top
+    of CORE_FEATURE_WHITELIST; None (default) is inert and byte-identical to
+    the legacy filter.
     """
     before = len(features)
-    survivors = set(features.keys()) & CORE_FEATURE_WHITELIST
+    survivors = set(features.keys()) & (CORE_FEATURE_WHITELIST | (extra_whitelist or set()))
     dropped_here = [n for n in list(features.keys()) if n not in survivors]
     for name in dropped_here:
         features.pop(name, None)
@@ -589,7 +594,8 @@ def build_all_features(
     # A+C+D+E run's feature importance ranking. This drops 239 -> 85 while
     # preserving the top features per style axis.
     if feature_mode == "core":
-        apply_core_filter(all_features, feature_groups)
+        extra = {"news_trend"} if getattr(config, "news_trend_feature_enabled", False) else None
+        apply_core_filter(all_features, feature_groups, extra_whitelist=extra)
 
     # CS Z-score: conditioning / factor / regime(broadcast)는 제외
     skip_zscore = (set(feature_groups.get("Conditioning", []))

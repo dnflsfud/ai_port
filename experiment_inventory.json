@@ -120,9 +120,16 @@
       "param_space": "seed ensemble k=5 (single pre-registered config, no k sweep)",
       "trials": 1,
       "result": "IR 1.317520 (dIR -0.1639) -> gate not met, OFF-default, no flip. NOTE: seed 43-46 full harvests = per-seed diagnostics 4 runs (non-selection input to A4, NOT counted as trials); per-seed IR 42=1.481/43=1.184/44=1.057/45=1.110/46=1.406 quantifies seed-luck variance."
+    },
+    {
+      "script": "exp_S8_news_trend_feature",
+      "phase": "S8 sentiment feature arm (2026-07-07): single pre-registered feature `news_trend` (NEWS_SENTIMENT_DAILY_AVG 5d-21d rolling-mean spread) conditionally added to the core whitelist via the news_trend_feature_enabled flag. default-OFF, no sweep. Feature-panel change forces a full pipeline re-run (not cache-safe); ECOS solver, src feature code untouched.",
+      "param_space": "news_trend_feature_enabled=true (single pre-registered feature)",
+      "trials": 1,
+      "result": "IR 1.272249 (dIR -0.2092, subperiod P1/P2/P3 dIR all negative -0.053/-0.309/-0.180) -> gate not met, OFF-default, no flip. Feature injection confirmed (model features 61->62, exactly +news_trend). TE 0.030094 (<=0.045, character preserved), ECOS 188 / fallback 0.0%."
     }
   ],
-  "n_trials_total": 407,
+  "n_trials_total": 408,
   "notes": [
     "396 is a conservative lower bound. Actual N is likely higher once",
     "ad-hoc config.py tweaks over the research period are counted.",
@@ -132,6 +139,8 @@
     "2026-07-06: +4 S7 AI-logic arms (A1 mu_vol_scaling, A2 confidence_spread_recal,",
     "A3 adaptive_ema, A4 seed_ensemble), all evaluated and OFF-default (no production flip).",
     "N 403 -> 407. A4's seed 43-46 harvests are non-selection diagnostic inputs, NOT counted",
-    "as trials (they feed the single A4 ensemble config)."
+    "as trials (they feed the single A4 ensemble config).",
+    "2026-07-07: +1 S8 arm (news_trend sentiment feature), evaluated and OFF-default (no flip).",
+    "N 407 -> 408."
   ]
 }

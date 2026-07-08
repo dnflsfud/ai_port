@@ -455,6 +455,15 @@ class PipelineConfig:
     mu_vol_scaling_enabled: bool = False
 
     # ------------------------------------------------------------------
+    # S8 (2026-07-07) — news_trend sentiment feature arm
+    # ------------------------------------------------------------------
+    # Single pre-registered feature `news_trend` conditionally added to the
+    # core whitelist (assembly.apply_core_filter). OFF by default: byte-
+    # identical panel. Do NOT flip before the gate passes
+    # (ΔIR > +0.36 & sub-period sign consistency).
+    news_trend_feature_enabled: bool = False
+
+    # ------------------------------------------------------------------
     # Data freshness guardrail
     # ------------------------------------------------------------------
     max_tail_ffill_days: int = 10
