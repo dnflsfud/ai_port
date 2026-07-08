@@ -63,18 +63,34 @@ if errorlevel 1 (
   echo Adding remote origin %GH_URL% - repo must already exist on GitHub
   git remote add origin %GH_URL%
 )
-git push -u origin main
-if errorlevel 1 (
-  echo.
-  echo ERROR: push failed. Most likely causes:
-  echo   1. Not authenticated: run "gh auth login" once, then re-run this bat.
-  echo   2. Repo does not exist yet: run "gh repo create %GH_REPO% --private"
-  echo      or create it at https://github.com/new and re-run this bat.
-  set "PUSH_FAIL=1"
+git fetch origin main >nul 2>&1
+if not errorlevel 1 (
+  echo Syncing with remote - git pull --rebase origin main...
+  git pull --rebase origin main
+  if errorlevel 1 (
+    echo ERROR: rebase conflict - resolve manually, push skipped
+    git rebase --abort
+    set "PUSH_FAIL=1"
+  )
+)
+if not defined PUSH_FAIL (
+  git push -u origin main
+  if errorlevel 1 (
+    echo.
+    echo ERROR: push failed. Most likely causes:
+    echo   1. Not authenticated: run "gh auth login" once, then re-run this bat.
+    echo   2. Repo does not exist yet: run "gh repo create %GH_REPO% --private"
+    echo      or create it at https://github.com/new and re-run this bat.
+    set "PUSH_FAIL=1"
+  )
 )
 
-echo [7/7] Launching Streamlit dashboard...
-start "ai_port dashboard" cmd /c ""%PY%" -m streamlit run streamlit_app.py"
+if defined AI_PORT_NO_DASHBOARD (
+  echo [7/7] Dashboard launch skipped ^(AI_PORT_NO_DASHBOARD^).
+) else (
+  echo [7/7] Launching Streamlit dashboard...
+  start "ai_port dashboard" cmd /c ""%PY%" -m streamlit run streamlit_app.py"
+)
 if defined PUSH_FAIL exit /b 1
 echo DONE: run + upload + dashboard complete.
 endlocal
