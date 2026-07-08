@@ -203,6 +203,38 @@ def load_csv(rel: str) -> pd.DataFrame:
         return pd.DataFrame()
 
 
+def prepare_stock_drivers(attr, ticker=None):
+    """Shape the feature_attribution JSON for the Stock Drivers tab (no Streamlit).
+
+    ``attr`` is the parsed ``operating/feature_attribution.json`` (``{}`` when the
+    file is absent). Returns ``None`` when there is nothing to show, else
+    ``{"options", "default", "selected", "top_features", "metrics"}`` where
+    ``options`` is [(ticker, active), ...] active-DESC, ``default`` is the max-OW
+    ticker, ``top_features`` is [(feat, group, shap), ...] |shap|-DESC capped at 12
+    for the selected (or default) stock, and ``metrics`` is that stock's
+    weight/bm_weight/active/mu.
+    """
+    if not attr:
+        return None
+    tickers = attr.get("tickers") or {}
+    if not tickers:
+        return None
+    groups = attr.get("feature_groups") or {}
+    options = sorted(
+        ((t, float(rec.get("active", 0.0))) for t, rec in tickers.items()),
+        key=lambda ta: ta[1], reverse=True,
+    )
+    default = options[0][0]
+    selected = ticker if ticker in tickers else default
+    rec = tickers[selected]
+    shap = rec.get("shap") or {}
+    top = sorted(shap.items(), key=lambda kv: abs(kv[1]), reverse=True)[:12]
+    top_features = [(f, groups.get(f, "?"), float(v)) for f, v in top]
+    metrics = {k: float(rec.get(k, 0.0)) for k in ("weight", "bm_weight", "active", "mu")}
+    return {"options": options, "default": default, "selected": selected,
+            "top_features": top_features, "metrics": metrics}
+
+
 # ---------------------------------------------------------------------------
 # Formatting / chart helpers.
 # ---------------------------------------------------------------------------
@@ -363,6 +395,7 @@ def main() -> None:
             "contribution": load_json("operating/contribution.json"),
             "risk": load_json("operating/risk.json"),
             "monitoring": load_json("operating/monitoring.json"),
+            "feature_attribution": load_json("operating/feature_attribution.json"),
             "returns": load_csv("operating/returns.csv"),
         }
 
@@ -447,7 +480,7 @@ def main() -> None:
     top_cols[5].metric("Active Share", pct(holdings.get("active_share_one_way"), 2))
 
     tabs = st.tabs(
-        ["Overview", "Performance", "Contribution", "Risk", "Turnover", "Signals & Gates", "Backtest Runs"]
+        ["Overview", "Performance", "Contribution", "Risk", "Turnover", "Signals & Gates", "Backtest Runs", "Stock Drivers"]
     )
 
     with tabs[0]:
@@ -775,6 +808,67 @@ def main() -> None:
 
             with st.expander("Raw metrics.json"):
                 st.json(load_metrics(run["dir"] / "metrics.json"), expanded=False)
+
+    with tabs[7]:
+        st.subheader("Stock drivers")
+        attr = data["feature_attribution"]
+        base = prepare_stock_drivers(attr, None)
+        if base is None:
+            st.info("Run export_operating_data.py to generate feature attribution.")
+        else:
+            st.markdown(
+                "<div class='note'>Per-stock SHAP attribution of the model return "
+                "forecast (mu) at the latest rebalance.</div>",
+                unsafe_allow_html=True,
+            )
+            tickers_map = attr.get("tickers") or {}
+            ow_rows = []
+            for t, a in base["options"]:
+                if a <= 0:
+                    continue
+                shap_t = (tickers_map.get(t) or {}).get("shap") or {}
+                top_drv = max(shap_t, key=lambda k: abs(shap_t[k])) if shap_t else "n/a"
+                ow_rows.append({"ticker": t, "active": a, "top_driver": top_drv})
+            st.subheader("Top overweights and their lead driver")
+            if ow_rows:
+                st.dataframe(fmt_table(pd.DataFrame(ow_rows[:10]), ["active"]),
+                             width="stretch", hide_index=True)
+            else:
+                st.info("No overweight names at the latest rebalance.")
+
+            options = base["options"]
+            labels = [f"{t} · active {a:+.1%}" for t, a in options]
+            default_idx = next((i for i, (t, _a) in enumerate(options) if t == base["default"]), 0)
+            choice = st.selectbox("Stock", labels, index=default_idx, key="stock_drivers_select")
+            selected = options[labels.index(choice)][0]
+            view = prepare_stock_drivers(attr, selected)
+
+            m = view["metrics"]
+            mc = st.columns(4)
+            mc[0].metric("Weight", pct(m["weight"], 2))
+            mc[1].metric("BM Weight", pct(m["bm_weight"], 2))
+            mc[2].metric("Active", pct(m["active"], 2, signed=True))
+            mc[3].metric("Model mu", num(m["mu"], 4))
+
+            top = view["top_features"]
+            drv = pd.DataFrame({
+                "feature": [f"{f} ({g})" for f, g, _v in top],
+                "shap": [v for _f, _g, v in top],
+            })
+            drv["direction"] = np.where(drv["shap"] >= 0, "pos", "neg")
+            fig = px.bar(
+                drv, x="shap", y="feature", orientation="h",
+                color="direction", color_discrete_map={"pos": COLOR_POS, "neg": COLOR_NEG},
+                title="Top feature drivers of model forecast", template="plotly_white",
+            )
+            fig.update_layout(yaxis={"categoryorder": "total ascending"},
+                              xaxis_title="SHAP", yaxis_title="", showlegend=False)
+            render_chart(apply_theme(fig, height=max(320, min(620, 30 * max(len(drv), 7)))))
+
+            st.caption(
+                "SHAP는 모델 수익률 예측(mu)에 대한 귀속이다. 실제 OW/UW는 mu에 더해 "
+                "리스크 모델·제약(TE·캡·섹터)을 거친 최적화 결과다."
+            )
 
 
 if __name__ == "__main__":

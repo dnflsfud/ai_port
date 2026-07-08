@@ -121,6 +121,72 @@ def _serialize_records(df: pd.DataFrame, date_col: str = "date") -> list[dict]:
     return rows
 
 
+def build_feature_attribution(result) -> dict:
+    """Per-stock SHAP feature attribution at the latest rebalance (§2 schema).
+
+    Pure builder over a duck-typed ``result`` carrying ``models`` (each with
+    ``_active_features``), ``panel`` (MultiIndex[date, ticker]), ``portfolio_weights``,
+    ``feature_groups`` (group -> [feat]), ``sector_map`` and ``bm_weights``. File
+    I/O / pkl load stay in ``main``. SHAP comes from
+    ``src.attribution.compute_shap_values``; ``base_value`` is the TreeExplainer
+    expected value, so ``base_value + sum(shap) == mu`` is a genuine local-accuracy
+    check (not a tautology). Missing model columns raise (no silent reindex-NaN).
+    """
+    import shap
+    from src.attribution import compute_shap_values
+
+    as_of = max(result.portfolio_weights.keys())
+    model_dates = [d for d in result.models if d <= as_of]
+    if not model_dates:
+        raise ValueError(f"no model retrain on/before as_of {as_of}")
+    model_date = max(model_dates)
+    model = result.models[model_date]
+    feats = list(model._active_features)
+
+    at = result.panel.xs(as_of, level="date")
+    missing = [f for f in feats if f not in at.columns]
+    if missing:
+        raise KeyError(f"panel@{as_of} missing model features: {missing}")
+    X = at[feats]
+    tickers = list(X.index)
+
+    mu = np.asarray(model.predict(X), dtype=float)
+    shap_matrix = np.asarray(compute_shap_values(model, X.to_numpy(dtype=float), feats), dtype=float)
+    base_value = float(np.ravel(shap.TreeExplainer(model).expected_value)[0])
+
+    feat_to_group = {}
+    for grp, group_feats in (result.feature_groups or {}).items():
+        for fn in group_feats:
+            feat_to_group[fn] = grp
+
+    weights = result.portfolio_weights[as_of]
+    additivity_ok = True
+    out_tickers = {}
+    for i, t in enumerate(tickers):
+        shap_i = {f: float(shap_matrix[i, j]) for j, f in enumerate(feats)}
+        mu_i = float(mu[i])
+        if abs(base_value + sum(shap_i.values()) - mu_i) > 1e-3 * abs(mu_i) + 1e-9:
+            additivity_ok = False
+        w = float(weights.get(t, 0.0))
+        bm = float(result.bm_weights.get(t, 0.0))
+        out_tickers[t] = {
+            "weight": w, "bm_weight": bm, "active": w - bm,
+            "sector": result.sector_map.get(t, "Unknown"),
+            "mu": mu_i, "base_value": base_value, "shap": shap_i,
+        }
+    if not additivity_ok:
+        print("[export] WARNING: SHAP additivity gate failed (base+sum(shap) != mu)",
+              file=sys.stderr)
+
+    return {
+        "as_of": str(as_of)[:10],
+        "model_date": str(model_date)[:10],
+        "feature_groups": feat_to_group,
+        "additivity_ok": additivity_ok,
+        "tickers": out_tickers,
+    }
+
+
 def main() -> int:
     import yaml
     from src.harness import build_override_config, inject_config, sub_period_irs
@@ -530,6 +596,18 @@ def main() -> int:
     }
     json.dump(ops, open(OUT / "operations.json", "w", encoding="utf-8"), indent=2, default=str)
 
+    # ---- feature_attribution.json (per-stock SHAP drivers, latest rebalance) --
+    from types import SimpleNamespace
+    fa = build_feature_attribution(SimpleNamespace(
+        models=res.models,
+        panel=res.panel,
+        portfolio_weights=res.portfolio_weights,
+        feature_groups=res.feature_groups,
+        sector_map=sector_map,
+        bm_weights={t: float(bm_w[t]) for t in tickers},
+    ))
+    json.dump(fa, open(OUT / "feature_attribution.json", "w", encoding="utf-8"), indent=2, default=str)
+
     print(f"\n=== export summary ===")
     print(f"  perf: annual {perf['annual_return']*100:.1f}% | active {perf['active_return']*100:.1f}% | "
           f"IR {perf['information_ratio']:.3f} | maxDD {perf['max_drawdown']*100:.1f}%")
@@ -548,6 +626,8 @@ def main() -> int:
     print(f"  features({features['n_models']} models) top: " +
           ", ".join(f"{f['feature']}" for f in features['top_features'][:5]))
     print(f"  ops: {ops['n_trades']} trades at next rebalance, wrote {OUT}")
+    print(f"  feature_attribution: {len(fa['tickers'])} names, additivity_ok={fa['additivity_ok']}, "
+          f"as_of {fa['as_of']}, model_date {fa['model_date']}")
     return 0
 
 
