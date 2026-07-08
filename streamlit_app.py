@@ -32,21 +32,39 @@ HERE = Path(__file__).resolve().parent
 OUT = HERE / "outputs"
 PROD_LABEL = "iter15_65tkr_reb21_vtg"
 
-COLOR_PORT = "#183B56"
-COLOR_BM = "#829AB1"
-COLOR_ACTIVE = "#0B7285"
-COLOR_POS = "#147D64"
-COLOR_NEG = "#C92A2A"
-COLOR_GRID = "#D9E2EC"
+# Validated light-mode palette (dataviz skill references/palette.md).
+# Categorical slots keep their fixed CVD-safe order; benchmark is neutral grey
+# (never a categorical hue); pos/neg are status tokens (never themed); axis/ink
+# use text tokens, not series colors.
+COLOR_PORT = "#2a78d6"        # categorical slot 1 (blue) — portfolio
+COLOR_BM = "#898781"          # neutral grey — benchmark
+COLOR_ACTIVE = "#1baf7a"      # categorical slot 2 (aqua) — active
+COLOR_CAT3 = "#eda100"        # categorical slot 3 (yellow)
+COLOR_CAT4 = "#008300"        # categorical slot 4 (green)
+COLOR_CAT5 = "#4a3aa7"        # categorical slot 5 (violet)
+COLOR_POS = "#0ca30c"         # status good
+COLOR_NEG = "#d03b3b"         # status critical
+COLOR_DIVERGE_MID = "#f0efec" # diverging neutral gray midpoint
+COLOR_INK = "#0b0b0b"         # primary ink
+COLOR_INK_SECONDARY = "#52514e"  # secondary ink
+COLOR_INK_MUTED = "#898781"   # muted ink (axis/labels)
+COLOR_GRID = "#e1e0d9"        # gridline hairline
+COLOR_AXIS = "#c3c2b7"        # baseline / axis (one step darker than grid)
+COLOR_SURFACE = "#fcfcfb"     # chart surface
 
 CSS = """
 <style>
-.stApp {
-  background: #f5f7fb;
-  color: #102a43;
+:root {
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --ink-muted: #898781;
+  --surface: #fcfcfb;
+  --page: #f9f9f7;
+  --border: rgba(11, 11, 11, 0.10);
 }
-.stApp p, .stApp label, .stApp span, .stApp div {
-  color: #102a43;
+.stApp {
+  background: var(--page);
+  color: var(--ink);
 }
 .block-container {
   max-width: 1500px;
@@ -54,40 +72,31 @@ CSS = """
   padding-bottom: 2.5rem;
 }
 section[data-testid="stSidebar"] {
-  background: #ffffff;
-  border-right: 1px solid #d9e2ec;
-}
-section[data-testid="stSidebar"] * {
-  color: #102a43 !important;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
 }
 div[data-testid="stMetric"] {
-  background: #ffffff;
-  border: 1px solid #d9e2ec;
-  border-radius: 8px;
-  padding: 0.75rem 0.85rem;
-  box-shadow: 0 1px 2px rgba(16, 42, 67, 0.05);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem 0.9rem;
+  box-shadow: 0 1px 2px rgba(11, 11, 11, 0.04);
 }
 div[data-testid="stMetricLabel"] *, div[data-testid="stMetricLabel"] p {
-  color: #52606d !important;
+  color: var(--ink-2);
   font-size: 0.78rem;
 }
 div[data-testid="stMetricValue"] {
-  color: #102a43 !important;
+  color: var(--ink);
   font-size: 1.45rem;
 }
 div[data-testid="stTabs"] button p {
-  color: #627d98 !important;
+  color: var(--ink-muted);
   font-size: 0.9rem;
 }
 div[data-testid="stTabs"] button[aria-selected="true"] p {
-  color: #c92a2a !important;
+  color: var(--ink);
   font-weight: 700;
-}
-div[data-baseweb="input"] input,
-div[data-baseweb="select"] > div {
-  background: #ffffff !important;
-  color: #102a43 !important;
-  border-color: #d9e2ec !important;
 }
 .status-row {
   display: flex;
@@ -96,23 +105,23 @@ div[data-baseweb="select"] > div {
   margin: 0.5rem 0 1.0rem 0;
 }
 .chip {
-  background: #ffffff;
-  border: 1px solid #d9e2ec;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 999px;
   padding: 0.28rem 0.62rem;
   font-size: 0.78rem;
-  color: #102a43;
+  color: var(--ink-2);
 }
 .chip-ok {
-  background: #e6fcf5;
-  border-color: #96f2d7;
+  background: rgba(12, 163, 12, 0.10);
+  border-color: rgba(12, 163, 12, 0.35);
 }
 .chip-warn {
-  background: #fff5f5;
-  border-color: #ffc9c9;
+  background: rgba(208, 59, 59, 0.10);
+  border-color: rgba(208, 59, 59, 0.35);
 }
 .note {
-  color: #627d98;
+  color: var(--ink-muted);
   font-size: 0.84rem;
   margin: -0.25rem 0 0.7rem 0;
 }
@@ -233,27 +242,27 @@ def rows_df(rows: Any) -> pd.DataFrame:
 def apply_theme(fig: go.Figure, height: Optional[int] = None) -> go.Figure:
     fig.update_layout(
         template="plotly_white",
-        paper_bgcolor="#ffffff",
-        plot_bgcolor="#ffffff",
-        font={"color": COLOR_PORT, "family": "Arial, sans-serif"},
-        title_font={"color": COLOR_PORT, "size": 15},
-        legend_font={"color": COLOR_PORT},
+        paper_bgcolor=COLOR_SURFACE,
+        plot_bgcolor=COLOR_SURFACE,
+        font={"color": COLOR_INK_SECONDARY, "family": "system-ui, -apple-system, 'Segoe UI', sans-serif"},
+        title_font={"color": COLOR_INK, "size": 15},
+        legend_font={"color": COLOR_INK_SECONDARY},
         margin={"l": 10, "r": 10, "t": 48, "b": 24},
         height=height,
     )
     fig.update_xaxes(
-        color=COLOR_PORT,
-        tickfont={"color": COLOR_PORT},
-        title_font={"color": COLOR_PORT},
+        color=COLOR_INK_SECONDARY,
+        tickfont={"color": COLOR_INK_MUTED},
+        title_font={"color": COLOR_INK_SECONDARY},
         gridcolor=COLOR_GRID,
-        zerolinecolor="#BCCCDC",
+        zerolinecolor=COLOR_AXIS,
     )
     fig.update_yaxes(
-        color=COLOR_PORT,
-        tickfont={"color": COLOR_PORT},
-        title_font={"color": COLOR_PORT},
+        color=COLOR_INK_SECONDARY,
+        tickfont={"color": COLOR_INK_MUTED},
+        title_font={"color": COLOR_INK_SECONDARY},
         gridcolor=COLOR_GRID,
-        zerolinecolor="#BCCCDC",
+        zerolinecolor=COLOR_AXIS,
     )
     return fig
 
@@ -267,7 +276,9 @@ def render_chart(fig: go.Figure) -> None:
 
 def line_fig(df: pd.DataFrame, cols: list, title: str, y_title: str = "") -> go.Figure:
     fig = go.Figure()
-    colors = [COLOR_PORT, COLOR_BM, COLOR_ACTIVE, "#7048E8", "#E67700"]
+    # Fixed-order slots (never cycled): portfolio, benchmark, active, cat3, cat4.
+    colors = [COLOR_PORT, COLOR_BM, COLOR_ACTIVE, COLOR_CAT3, COLOR_CAT4]
+    assert len(cols) <= len(colors), "line_fig: more series than fixed palette slots"
     for i, col in enumerate(cols):
         if col in df.columns:
             fig.add_trace(
@@ -276,10 +287,10 @@ def line_fig(df: pd.DataFrame, cols: list, title: str, y_title: str = "") -> go.
                     y=df[col],
                     mode="lines",
                     name=col,
-                    line={"width": 2.2, "color": colors[i % len(colors)]},
+                    line={"width": 2, "color": colors[i]},
                 )
             )
-    fig.update_layout(title=title, yaxis_title=y_title, xaxis_title="")
+    fig.update_layout(title=title, yaxis_title=y_title, xaxis_title="", hovermode="x unified")
     return apply_theme(fig, height=360)
 
 
@@ -290,7 +301,7 @@ def hbar_fig(df: pd.DataFrame, y: str, x: str, title: str, color: Optional[str] 
         y=y,
         orientation="h",
         color=color,
-        color_discrete_sequence=[COLOR_ACTIVE, COLOR_POS, COLOR_NEG, COLOR_BM, "#7048E8"],
+        color_discrete_sequence=[COLOR_ACTIVE, COLOR_CAT3, COLOR_CAT4, COLOR_CAT5, COLOR_PORT],
         title=title,
         template="plotly_white",
     )
@@ -510,7 +521,7 @@ def main() -> None:
                 heat = px.imshow(
                     pivot,
                     title="Monthly active return heatmap",
-                    color_continuous_scale=["#C92A2A", "#FFFFFF", "#147D64"],
+                    color_continuous_scale=[COLOR_NEG, COLOR_DIVERGE_MID, COLOR_PORT],
                     color_continuous_midpoint=0,
                     aspect="auto",
                     template="plotly_white",
