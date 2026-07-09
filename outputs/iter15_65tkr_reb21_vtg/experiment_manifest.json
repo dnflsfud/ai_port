@@ -101,9 +101,11 @@
     "mega_cap_protection_enabled": true,
     "mega_cap_wide_uw_cap": 0.1,
     "min_model_trees": 10,
+    "mu_vol_scaling_enabled": false,
     "multi_horizon_targets_enabled": false,
     "multi_horizon_weights": {},
     "n_grid_points": 30,
+    "news_trend_feature_enabled": false,
     "no_trade_band": 0.003,
     "one_way_tc": 0.001,
     "output_dir": "./outputs",
@@ -158,6 +160,6 @@
     "variant_label": "iter15_65tkr_reb21_vtg"
   },
   "git_dirty": true,
-  "git_hash": "265f1d8839860e5690c38c1b5fdab4d364361137",
-  "timestamp_utc": "2026-07-02T07:52:42Z"
+  "git_hash": "52aa4fd0a6c9622753bcca00350f3fccab8e70c7",
+  "timestamp_utc": "2026-07-09T02:37:51Z"
 }
