@@ -107,7 +107,10 @@
 ### 2026-07-10 causal discipline flip (사용자 지시)
 - 대상: variants/iter15_65tkr_reb21_vtg.yaml — causal_validation_enabled: true, execution_signal_lag_days: 1 (동시 flip, 사용자 직접 지시로 §8 1개씩 규칙 예외)
 - 근거: 기존 val 구간 [t-126, t)의 21d 포워드 라벨이 예측일 t 이후 실현 → early stopping이 미래 정보에 노출. 실행은 t종가 신호로 t종가 체결(낙관 편향). GPT-5.6 챌린저(codex_causal_rank_65)가 도입한 default-OFF 인프라 재사용, 회귀 경로 배선 확인 완료(model_trainer.py causal split는 objective 무관).
-- 재인증(S0'): PENDING — run_and_upload.bat 체인으로 동일 ECOS 재실행 후 이 항목에 IR/TE/turnover/realized_beta 기입.
+- 재인증(S0', ECOS, --no-cache): IR 0.902 (기존 pre-causal 1.481 대비 -0.579), active ret 2.59%, TE 2.87%, turnover 106.8%, realized_beta 0.993, MDD -29.5%. 서브기간 P1 0.137 / P2 0.220 / P3 2.094 (기존 1.59/0.58/2.00).
+- 해석: 기존 S0 성과의 상당분이 val-라벨 누수(early stopping)와 동일종가 체결 낙관에 기인했음이 확인됨. 특히 P1이 1.59→0.14로 붕괴. pre-causal 1.481은 이후 비교 기준으로 사용 금지 — 인과 규율 하 수치만 유효.
+- 챌린저 재비교(동일 규율): codex_causal_rank_65 IR 1.695 (P1 0.752/P2 0.772/P3 3.080), ΔIR +0.79 > 0.36(1SE) & 서브기간 3/3 승 — §2-4 채택 바 충족. comparison_gate PASS(7/7 체크, subperiod_wins 3).
+- 잔여 과제: 두 플래그(val 누수 vs 실행 지연)의 기여 분해는 미실시 — 필요 시 단일 플래그 arm으로 분해 가능.
 - 롤백: variant 2줄 revert = 기존 S0 경로 바이트 동일 복원.
 
 ## 재현 실행 (2026-06-19)

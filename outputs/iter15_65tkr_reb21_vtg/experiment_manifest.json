@@ -9,7 +9,7 @@
     "bm_proportional_cap_vol_lookback": 63,
     "bm_proportional_cap_vol_scale_floor": 0.5,
     "bm_weight_floor": 0.02,
-    "causal_validation_enabled": false,
+    "causal_validation_enabled": true,
     "confidence_spread_scale": 0.2,
     "cov_lookback": 126,
     "cov_megacap_vol_shrink_enabled": true,
@@ -38,7 +38,7 @@
     "ewma_enabled": true,
     "ewma_min_features": 60,
     "ewma_min_retrains": 2,
-    "execution_signal_lag_days": 0,
+    "execution_signal_lag_days": 1,
     "factor_neutral_axes": [
       "value",
       "quality",
@@ -168,6 +168,6 @@
     "variant_label": "iter15_65tkr_reb21_vtg"
   },
   "git_dirty": true,
-  "git_hash": "b5019368bb356294c93810da26f760f997733e10",
-  "timestamp_utc": "2026-07-10T05:09:06Z"
+  "git_hash": "5d9dc18b759716d2c1210eff5b4e216d583d6349",
+  "timestamp_utc": "2026-07-10T07:26:03Z"
 }

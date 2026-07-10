@@ -1,70 +1,70 @@
 {
   "as_of": "2026-06-11",
-  "annual_return": 0.2941868424658214,
-  "annual_vol": 0.2249746005810904,
-  "sharpe_ratio": 1.3076446928051506,
-  "active_return": 0.04602706199662654,
-  "tracking_error": 0.031069189048318836,
-  "information_ratio": 1.481437507913232,
-  "realized_beta": 1.0243885664115702,
-  "avg_annual_turnover": 1.1440214379781009,
-  "avg_ic": 0.04864921465993589,
-  "total_return": 6.531218464066381,
-  "bm_total_return": 4.345128092457569,
-  "max_drawdown": -0.29988704097123386,
+  "annual_return": 0.26793643744292406,
+  "annual_vol": 0.21787522839534498,
+  "sharpe_ratio": 1.229770081786171,
+  "active_return": 0.025927293830202425,
+  "tracking_error": 0.028747560384826634,
+  "information_ratio": 0.9018954472354883,
+  "realized_beta": 0.9929216796582416,
+  "avg_annual_turnover": 1.067760428709303,
+  "avg_ic": 0.03964079871537493,
+  "total_return": 5.408829429755107,
+  "bm_total_return": 4.232898568053338,
+  "max_drawdown": -0.2952375824748794,
   "sub_period_ir": {
-    "P1_ir": 1.5913898072844228,
-    "P2_ir": 0.5748840368901712,
-    "P3_ir": 2.0048140252090008
+    "P1_ir": 0.13698284455780327,
+    "P2_ir": 0.22045769188235118,
+    "P3_ir": 2.093582292657692
   },
   "by_year_returns": {
     "2018": {
-      "portfolio": -0.0314,
-      "benchmark": -0.0284,
-      "active": -0.003
+      "portfolio": -0.0493,
+      "benchmark": -0.0485,
+      "active": -0.0008
     },
     "2019": {
-      "portfolio": 0.4334,
+      "portfolio": 0.4274,
       "benchmark": 0.3917,
-      "active": 0.0417
+      "active": 0.0357
     },
     "2020": {
-      "portfolio": 0.5423,
-      "benchmark": 0.3946,
-      "active": 0.1477
+      "portfolio": 0.3718,
+      "benchmark": 0.3947,
+      "active": -0.0229
     },
     "2021": {
-      "portfolio": 0.3261,
-      "benchmark": 0.3242,
-      "active": 0.0018
+      "portfolio": 0.2932,
+      "benchmark": 0.3241,
+      "active": -0.0309
     },
     "2022": {
-      "portfolio": -0.2672,
-      "benchmark": -0.262,
-      "active": -0.0052
+      "portfolio": -0.2245,
+      "benchmark": -0.2621,
+      "active": 0.0375
     },
     "2023": {
-      "portfolio": 0.5162,
-      "benchmark": 0.4702,
-      "active": 0.046
+      "portfolio": 0.4891,
+      "benchmark": 0.4701,
+      "active": 0.0191
     },
     "2024": {
-      "portfolio": 0.3935,
-      "benchmark": 0.3874,
-      "active": 0.0061
+      "portfolio": 0.3813,
+      "benchmark": 0.3873,
+      "active": -0.006
     },
     "2025": {
-      "portfolio": 0.4664,
+      "portfolio": 0.4445,
       "benchmark": 0.2631,
-      "active": 0.2032
+      "active": 0.1814
     },
     "2026": {
-      "portfolio": 0.1682,
-      "benchmark": 0.1256,
-      "active": 0.0425
+      "portfolio": 0.1554,
+      "benchmark": 0.1257,
+      "active": 0.0297
     }
   },
-  "optimizer_failure_rate": 0.06382978723404255,
+  "optimizer_failure_rate": 0.05319148936170213,
   "optimizer_solver_counts": {
     "ECOS": 188
   },
@@ -72,64 +72,71 @@
   "model_quality": {
     "source": "walk_forward_train",
     "total_retrains": 32,
-    "degenerate_retrains": 16,
-    "degenerate_rate": 0.5,
+    "degenerate_retrains": 18,
+    "degenerate_rate": 0.5625,
     "min_model_trees": 10,
     "max_degenerate_model_rate": 0.25,
     "fail_on_degenerate_model_rate": false,
     "events": [
       {
-        "date": "2019-02-21",
-        "n_trees": 4,
-        "min_model_trees": 10,
-        "candidate_features": 61,
-        "reused_prev_model": true
-      },
-      {
         "date": "2019-05-21",
-        "n_trees": 1,
-        "min_model_trees": 10,
-        "candidate_features": 61,
-        "reused_prev_model": true
-      },
-      {
-        "date": "2019-08-16",
-        "n_trees": 1,
-        "min_model_trees": 10,
-        "candidate_features": 61,
-        "reused_prev_model": true
-      },
-      {
-        "date": "2019-11-13",
-        "n_trees": 1,
-        "min_model_trees": 10,
-        "candidate_features": 61,
-        "reused_prev_model": true
-      },
-      {
-        "date": "2020-02-10",
-        "n_trees": 2,
-        "min_model_trees": 10,
-        "candidate_features": 61,
-        "reused_prev_model": true
-      },
-      {
-        "date": "2020-05-07",
-        "n_trees": 6,
-        "min_model_trees": 10,
-        "candidate_features": 61,
-        "reused_prev_model": true
-      },
-      {
-        "date": "2021-07-22",
         "n_trees": 1,
         "min_model_trees": 10,
         "candidate_features": 60,
         "reused_prev_model": true
       },
       {
-        "date": "2021-10-19",
+        "date": "2019-08-16",
         "n_trees": 1,
+        "min_model_trees": 10,
+        "candidate_features": 60,
+        "reused_prev_model": true
+      },
+      {
+        "date": "2019-11-13",
+        "n_trees": 2,
+        "min_model_trees": 10,
+        "candidate_features": 60,
+        "reused_prev_model": true
+      },
+      {
+        "date": "2020-02-10",
+        "n_trees": 2,
+        "min_model_trees": 10,
+        "candidate_features": 60,
+        "reused_prev_model": true
+      },
+      {
+        "date": "2020-05-07",
+        "n_trees": 1,
+        "min_model_trees": 10,
+        "candidate_features": 60,
+        "reused_prev_model": true
+      },
+      {
+        "date": "2020-08-04",
+        "n_trees": 9,
+        "min_model_trees": 10,
+        "candidate_features": 60,
+        "reused_prev_model": true
+      },
+      {
+        "date": "2020-10-30",
+        "n_trees": 1,
+        "min_model_trees": 10,
+        "candidate_features": 60,
+        "reused_prev_model": true
+      },
+      {
+        "date": "2021-07-22",
+        "n_trees": 6,
+        "min_model_trees": 10,
+        "candidate_features": 60,
+        "reused_prev_model": true
+      },
+      {
+        "date": "2021-10-19",
+        "n_trees": 4,
         "min_model_trees": 10,
         "candidate_features": 60,
         "reused_prev_model": true
@@ -143,7 +150,7 @@
       },
       {
         "date": "2022-04-13",
-        "n_trees": 2,
+        "n_trees": 1,
         "min_model_trees": 10,
         "candidate_features": 60,
         "reused_prev_model": true
@@ -156,15 +163,22 @@
         "reused_prev_model": true
       },
       {
-        "date": "2024-06-14",
-        "n_trees": 7,
+        "date": "2022-10-06",
+        "n_trees": 6,
         "min_model_trees": 10,
         "candidate_features": 60,
         "reused_prev_model": true
       },
       {
-        "date": "2024-09-11",
+        "date": "2024-03-19",
         "n_trees": 1,
+        "min_model_trees": 10,
+        "candidate_features": 60,
+        "reused_prev_model": true
+      },
+      {
+        "date": "2024-06-14",
+        "n_trees": 3,
         "min_model_trees": 10,
         "candidate_features": 60,
         "reused_prev_model": true
@@ -177,18 +191,471 @@
         "reused_prev_model": true
       },
       {
-        "date": "2025-06-03",
-        "n_trees": 8,
+        "date": "2025-11-26",
+        "n_trees": 3,
         "min_model_trees": 10,
         "candidate_features": 60,
         "reused_prev_model": true
       },
       {
-        "date": "2025-11-26",
-        "n_trees": 1,
+        "date": "2026-02-23",
+        "n_trees": 3,
         "min_model_trees": 10,
         "candidate_features": 60,
         "reused_prev_model": true
+      }
+    ],
+    "model_objective": "regression",
+    "causal_validation_enabled": true,
+    "causal_validation_ok": true,
+    "split_audit": [
+      {
+        "prediction_date": "2018-11-26",
+        "train_start": "2014-01-27",
+        "train_end": "2018-04-06",
+        "embargo_start": "2018-04-09",
+        "embargo_end": "2018-05-04",
+        "validation_start": "2018-05-07",
+        "validation_end": "2018-10-29",
+        "latest_train_label_realization": "2018-05-04",
+        "latest_validation_label_realization": "2018-11-26",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2019-02-21",
+        "train_start": "2014-04-24",
+        "train_end": "2018-07-04",
+        "embargo_start": "2018-07-05",
+        "embargo_end": "2018-08-01",
+        "validation_start": "2018-08-02",
+        "validation_end": "2019-01-24",
+        "latest_train_label_realization": "2018-08-01",
+        "latest_validation_label_realization": "2019-02-21",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2019-05-21",
+        "train_start": "2014-07-22",
+        "train_end": "2018-10-01",
+        "embargo_start": "2018-10-02",
+        "embargo_end": "2018-10-29",
+        "validation_start": "2018-10-30",
+        "validation_end": "2019-04-23",
+        "latest_train_label_realization": "2018-10-29",
+        "latest_validation_label_realization": "2019-05-21",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2019-08-16",
+        "train_start": "2014-10-17",
+        "train_end": "2018-12-27",
+        "embargo_start": "2018-12-28",
+        "embargo_end": "2019-01-24",
+        "validation_start": "2019-01-25",
+        "validation_end": "2019-07-19",
+        "latest_train_label_realization": "2019-01-24",
+        "latest_validation_label_realization": "2019-08-16",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2019-11-13",
+        "train_start": "2015-01-14",
+        "train_end": "2019-03-26",
+        "embargo_start": "2019-03-27",
+        "embargo_end": "2019-04-23",
+        "validation_start": "2019-04-24",
+        "validation_end": "2019-10-16",
+        "latest_train_label_realization": "2019-04-23",
+        "latest_validation_label_realization": "2019-11-13",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2020-02-10",
+        "train_start": "2015-04-13",
+        "train_end": "2019-06-21",
+        "embargo_start": "2019-06-24",
+        "embargo_end": "2019-07-19",
+        "validation_start": "2019-07-22",
+        "validation_end": "2020-01-13",
+        "latest_train_label_realization": "2019-07-19",
+        "latest_validation_label_realization": "2020-02-10",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2020-05-07",
+        "train_start": "2015-07-09",
+        "train_end": "2019-09-18",
+        "embargo_start": "2019-09-19",
+        "embargo_end": "2019-10-16",
+        "validation_start": "2019-10-17",
+        "validation_end": "2020-04-09",
+        "latest_train_label_realization": "2019-10-16",
+        "latest_validation_label_realization": "2020-05-07",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2020-08-04",
+        "train_start": "2015-10-06",
+        "train_end": "2019-12-16",
+        "embargo_start": "2019-12-17",
+        "embargo_end": "2020-01-13",
+        "validation_start": "2020-01-14",
+        "validation_end": "2020-07-07",
+        "latest_train_label_realization": "2020-01-13",
+        "latest_validation_label_realization": "2020-08-04",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2020-10-30",
+        "train_start": "2016-01-01",
+        "train_end": "2020-03-12",
+        "embargo_start": "2020-03-13",
+        "embargo_end": "2020-04-09",
+        "validation_start": "2020-04-10",
+        "validation_end": "2020-10-02",
+        "latest_train_label_realization": "2020-04-09",
+        "latest_validation_label_realization": "2020-10-30",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2021-01-27",
+        "train_start": "2016-03-30",
+        "train_end": "2020-06-09",
+        "embargo_start": "2020-06-10",
+        "embargo_end": "2020-07-07",
+        "validation_start": "2020-07-08",
+        "validation_end": "2020-12-30",
+        "latest_train_label_realization": "2020-07-07",
+        "latest_validation_label_realization": "2021-01-27",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2021-04-26",
+        "train_start": "2016-06-27",
+        "train_end": "2020-09-04",
+        "embargo_start": "2020-09-07",
+        "embargo_end": "2020-10-02",
+        "validation_start": "2020-10-05",
+        "validation_end": "2021-03-29",
+        "latest_train_label_realization": "2020-10-02",
+        "latest_validation_label_realization": "2021-04-26",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2021-07-22",
+        "train_start": "2016-09-22",
+        "train_end": "2020-12-02",
+        "embargo_start": "2020-12-03",
+        "embargo_end": "2020-12-30",
+        "validation_start": "2020-12-31",
+        "validation_end": "2021-06-24",
+        "latest_train_label_realization": "2020-12-30",
+        "latest_validation_label_realization": "2021-07-22",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2021-10-19",
+        "train_start": "2016-12-20",
+        "train_end": "2021-03-01",
+        "embargo_start": "2021-03-02",
+        "embargo_end": "2021-03-29",
+        "validation_start": "2021-03-30",
+        "validation_end": "2021-09-21",
+        "latest_train_label_realization": "2021-03-29",
+        "latest_validation_label_realization": "2021-10-19",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2022-01-14",
+        "train_start": "2017-03-17",
+        "train_end": "2021-05-27",
+        "embargo_start": "2021-05-28",
+        "embargo_end": "2021-06-24",
+        "validation_start": "2021-06-25",
+        "validation_end": "2021-12-17",
+        "latest_train_label_realization": "2021-06-24",
+        "latest_validation_label_realization": "2022-01-14",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2022-04-13",
+        "train_start": "2017-06-14",
+        "train_end": "2021-08-24",
+        "embargo_start": "2021-08-25",
+        "embargo_end": "2021-09-21",
+        "validation_start": "2021-09-22",
+        "validation_end": "2022-03-16",
+        "latest_train_label_realization": "2021-09-21",
+        "latest_validation_label_realization": "2022-04-13",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2022-07-11",
+        "train_start": "2017-09-11",
+        "train_end": "2021-11-19",
+        "embargo_start": "2021-11-22",
+        "embargo_end": "2021-12-17",
+        "validation_start": "2021-12-20",
+        "validation_end": "2022-06-13",
+        "latest_train_label_realization": "2021-12-17",
+        "latest_validation_label_realization": "2022-07-11",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2022-10-06",
+        "train_start": "2017-12-07",
+        "train_end": "2022-02-16",
+        "embargo_start": "2022-02-17",
+        "embargo_end": "2022-03-16",
+        "validation_start": "2022-03-17",
+        "validation_end": "2022-09-08",
+        "latest_train_label_realization": "2022-03-16",
+        "latest_validation_label_realization": "2022-10-06",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2023-01-03",
+        "train_start": "2018-03-06",
+        "train_end": "2022-05-16",
+        "embargo_start": "2022-05-17",
+        "embargo_end": "2022-06-13",
+        "validation_start": "2022-06-14",
+        "validation_end": "2022-12-06",
+        "latest_train_label_realization": "2022-06-13",
+        "latest_validation_label_realization": "2023-01-03",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2023-03-31",
+        "train_start": "2018-06-01",
+        "train_end": "2022-08-11",
+        "embargo_start": "2022-08-12",
+        "embargo_end": "2022-09-08",
+        "validation_start": "2022-09-09",
+        "validation_end": "2023-03-03",
+        "latest_train_label_realization": "2022-09-08",
+        "latest_validation_label_realization": "2023-03-31",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2023-06-28",
+        "train_start": "2018-08-29",
+        "train_end": "2022-11-08",
+        "embargo_start": "2022-11-09",
+        "embargo_end": "2022-12-06",
+        "validation_start": "2022-12-07",
+        "validation_end": "2023-05-31",
+        "latest_train_label_realization": "2022-12-06",
+        "latest_validation_label_realization": "2023-06-28",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2023-09-25",
+        "train_start": "2018-11-26",
+        "train_end": "2023-02-03",
+        "embargo_start": "2023-02-06",
+        "embargo_end": "2023-03-03",
+        "validation_start": "2023-03-06",
+        "validation_end": "2023-08-28",
+        "latest_train_label_realization": "2023-03-03",
+        "latest_validation_label_realization": "2023-09-25",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2023-12-21",
+        "train_start": "2019-02-21",
+        "train_end": "2023-05-03",
+        "embargo_start": "2023-05-04",
+        "embargo_end": "2023-05-31",
+        "validation_start": "2023-06-01",
+        "validation_end": "2023-11-23",
+        "latest_train_label_realization": "2023-05-31",
+        "latest_validation_label_realization": "2023-12-21",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2024-03-19",
+        "train_start": "2019-05-21",
+        "train_end": "2023-07-31",
+        "embargo_start": "2023-08-01",
+        "embargo_end": "2023-08-28",
+        "validation_start": "2023-08-29",
+        "validation_end": "2024-02-20",
+        "latest_train_label_realization": "2023-08-28",
+        "latest_validation_label_realization": "2024-03-19",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2024-06-14",
+        "train_start": "2019-08-16",
+        "train_end": "2023-10-26",
+        "embargo_start": "2023-10-27",
+        "embargo_end": "2023-11-23",
+        "validation_start": "2023-11-24",
+        "validation_end": "2024-05-17",
+        "latest_train_label_realization": "2023-11-23",
+        "latest_validation_label_realization": "2024-06-14",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2024-09-11",
+        "train_start": "2019-11-13",
+        "train_end": "2024-01-23",
+        "embargo_start": "2024-01-24",
+        "embargo_end": "2024-02-20",
+        "validation_start": "2024-02-21",
+        "validation_end": "2024-08-14",
+        "latest_train_label_realization": "2024-02-20",
+        "latest_validation_label_realization": "2024-09-11",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2024-12-09",
+        "train_start": "2020-02-10",
+        "train_end": "2024-04-19",
+        "embargo_start": "2024-04-22",
+        "embargo_end": "2024-05-17",
+        "validation_start": "2024-05-20",
+        "validation_end": "2024-11-11",
+        "latest_train_label_realization": "2024-05-17",
+        "latest_validation_label_realization": "2024-12-09",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2025-03-06",
+        "train_start": "2020-05-07",
+        "train_end": "2024-07-17",
+        "embargo_start": "2024-07-18",
+        "embargo_end": "2024-08-14",
+        "validation_start": "2024-08-15",
+        "validation_end": "2025-02-06",
+        "latest_train_label_realization": "2024-08-14",
+        "latest_validation_label_realization": "2025-03-06",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2025-06-03",
+        "train_start": "2020-08-04",
+        "train_end": "2024-10-14",
+        "embargo_start": "2024-10-15",
+        "embargo_end": "2024-11-11",
+        "validation_start": "2024-11-12",
+        "validation_end": "2025-05-06",
+        "latest_train_label_realization": "2024-11-11",
+        "latest_validation_label_realization": "2025-06-03",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2025-08-29",
+        "train_start": "2020-10-30",
+        "train_end": "2025-01-09",
+        "embargo_start": "2025-01-10",
+        "embargo_end": "2025-02-06",
+        "validation_start": "2025-02-07",
+        "validation_end": "2025-08-01",
+        "latest_train_label_realization": "2025-02-06",
+        "latest_validation_label_realization": "2025-08-29",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2025-11-26",
+        "train_start": "2021-01-27",
+        "train_end": "2025-04-08",
+        "embargo_start": "2025-04-09",
+        "embargo_end": "2025-05-06",
+        "validation_start": "2025-05-07",
+        "validation_end": "2025-10-29",
+        "latest_train_label_realization": "2025-05-06",
+        "latest_validation_label_realization": "2025-11-26",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2026-02-23",
+        "train_start": "2021-04-26",
+        "train_end": "2025-07-04",
+        "embargo_start": "2025-07-07",
+        "embargo_end": "2025-08-01",
+        "validation_start": "2025-08-04",
+        "validation_end": "2026-01-26",
+        "latest_train_label_realization": "2025-08-01",
+        "latest_validation_label_realization": "2026-02-23",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
+      },
+      {
+        "prediction_date": "2026-05-21",
+        "train_start": "2021-07-22",
+        "train_end": "2025-10-01",
+        "embargo_start": "2025-10-02",
+        "embargo_end": "2025-10-29",
+        "validation_start": "2025-10-30",
+        "validation_end": "2026-04-23",
+        "latest_train_label_realization": "2025-10-29",
+        "latest_validation_label_realization": "2026-05-21",
+        "embargo_days": 20,
+        "forward_horizon": 20,
+        "causal_validation_ok": true
       }
     ]
   },

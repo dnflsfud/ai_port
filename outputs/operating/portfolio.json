@@ -78,10 +78,10 @@
   ],
   "universe_hash": "8629381407b7902634f1886fffc12d8ef950a2c92415edc4bfe5261fe99c5f1d",
   "data_as_of": "2026-06-11",
-  "exported_at_utc": "2026-07-10T05:10:34.096922+00:00",
-  "source_metrics_sha256": "8171635aeac84fd091fa280fc0c31552e21e5a3438fedec46dfc065b2850fb70",
-  "source_metrics_mtime_utc": "2026-07-10T05:09:04.893624+00:00",
-  "causal_validation_enabled": false,
-  "causal_validation_ok": null,
-  "execution_signal_lag_days": 0
+  "exported_at_utc": "2026-07-10T07:27:44.317116+00:00",
+  "source_metrics_sha256": "f0f5d923665bccefae6f5fc49c97e71151817e56ee9c62247d049f3a5dc17c3d",
+  "source_metrics_mtime_utc": "2026-07-10T07:26:02.364630+00:00",
+  "causal_validation_enabled": true,
+  "causal_validation_ok": true,
+  "execution_signal_lag_days": 1
 }
