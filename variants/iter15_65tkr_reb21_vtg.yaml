@@ -104,6 +104,12 @@ overrides:
   vtg_accel_threshold: 0.5
   vtg_scale: 0.0
 
+  # Causal discipline flip (2026-07-10): fix val-label leakage past the
+  # prediction date (early-stopping) and same-close execution optimism.
+  # See decision log "Production flips". Rollback = revert these two lines.
+  causal_validation_enabled: true
+  execution_signal_lag_days: 1
+
   # Operating guardrails / solver protocol.
   allow_scs_on_ecos_exception: false
   max_name_active_risk_share: 0.35

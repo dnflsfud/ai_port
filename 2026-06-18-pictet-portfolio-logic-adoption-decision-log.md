@@ -104,6 +104,12 @@
 - **factor-neutral (P3)**: 바인딩하나 IR 비용(리스크 축소 트레이드오프) → **OFF-default 유지**, 명시적 스타일-리스크 예산 지시 시에만.
 - **순결론**: Pictet식 리스크 규율 관점에서 현 프로덕션 책은 이미 잘 행동함(beta≈1.0, overlay do-no-harm, 스타일 베팅=의도적 alpha). **가중치 변경 불필요**. 본 작업의 산출물 = crystal-box 진단(attribution) + 검증된 OFF-default 레버(factor-neutral) + S0 ECOS 재인증.
 
+### 2026-07-10 causal discipline flip (사용자 지시)
+- 대상: variants/iter15_65tkr_reb21_vtg.yaml — causal_validation_enabled: true, execution_signal_lag_days: 1 (동시 flip, 사용자 직접 지시로 §8 1개씩 규칙 예외)
+- 근거: 기존 val 구간 [t-126, t)의 21d 포워드 라벨이 예측일 t 이후 실현 → early stopping이 미래 정보에 노출. 실행은 t종가 신호로 t종가 체결(낙관 편향). GPT-5.6 챌린저(codex_causal_rank_65)가 도입한 default-OFF 인프라 재사용, 회귀 경로 배선 확인 완료(model_trainer.py causal split는 objective 무관).
+- 재인증(S0'): PENDING — run_and_upload.bat 체인으로 동일 ECOS 재실행 후 이 항목에 IR/TE/turnover/realized_beta 기입.
+- 롤백: variant 2줄 revert = 기존 S0 경로 바이트 동일 복원.
+
 ## 재현 실행 (2026-06-19)
 - `ai_port/run_pictet_adoption.py` — 전 스테이지(S0→attribution→overlay→factor) from-scratch 재현 + 게이트 자동판정 → `outputs/adoption_summary.json`. ai_port CWD, 단일 foreground/스테이지, ⚑**로컬 경로 + `PYTHONPATH=.`(벤더링 엔진, 2026-06-19~)**.
 
