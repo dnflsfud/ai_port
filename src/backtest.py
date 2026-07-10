@@ -1004,6 +1004,31 @@ def _drift_weights(weights: np.ndarray, daily_ret: np.ndarray) -> np.ndarray:
     return new
 
 
+def apply_execution_signal_lag(
+    predictions: pd.DataFrame,
+    raw_predictions: Optional[pd.DataFrame],
+    lag_days: int,
+) -> Tuple[pd.DataFrame, Optional[pd.DataFrame]]:
+    """Delay tradable signals by trading rows without changing their index.
+
+    A lag of one means the optimizer acting at close ``t`` can only consume a
+    signal produced at close ``t-1``.  The raw signal is shifted identically
+    so IC/confidence diagnostics describe the executable information set.
+    """
+    lag_days = int(lag_days)
+    if lag_days < 0:
+        raise ValueError("lag_days must be >= 0")
+    if lag_days == 0:
+        return predictions, raw_predictions
+    delayed = predictions.shift(lag_days)
+    delayed_raw = (
+        raw_predictions.shift(lag_days)
+        if isinstance(raw_predictions, pd.DataFrame)
+        else raw_predictions
+    )
+    return delayed, delayed_raw
+
+
 def simulate_portfolio(
     predictions: pd.DataFrame,
     returns: pd.DataFrame,
@@ -1583,6 +1608,19 @@ def run_backtest(
                   f"(cov_lookback={config.cov_lookback})")
         else:
             print("[Backtest] A1: z→mu vol scaling SKIPPED (raw_returns unavailable)")
+
+    # Causal challenger execution: delay the fully formed signal (including
+    # overlays) and its raw counterpart together.  Default zero keeps the S0
+    # path unchanged.
+    execution_lag = int(getattr(config, "execution_signal_lag_days", 0))
+    if execution_lag > 0:
+        result.pre_execution_predictions = predictions.copy()
+        predictions, raw_predictions = apply_execution_signal_lag(
+            predictions, raw_predictions, execution_lag
+        )
+        result.raw_predictions = raw_predictions
+        result.execution_signal_lag_days = execution_lag
+        print(f"[Backtest] execution signal lag applied ({execution_lag} trading day(s))")
 
     result.predictions = predictions  # save POST-gate predictions for downstream
 

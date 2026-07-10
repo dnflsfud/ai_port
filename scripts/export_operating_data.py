@@ -29,9 +29,12 @@ for _v in ("OPENBLAS_NUM_THREADS", "OMP_NUM_THREADS", "MKL_NUM_THREADS",
            "NUMEXPR_NUM_THREADS", "VECLIB_MAXIMUM_THREADS"):
     os.environ.setdefault(_v, "1")
 
+import argparse
+import hashlib
 import json
 import sys
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
@@ -48,7 +51,23 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-OUT = ROOT / "outputs" / "operating"
+DEFAULT_VARIANT = ROOT / "variants" / "iter15_65tkr_reb21_vtg.yaml"
+DEFAULT_OPERATING_DIR = ROOT / "outputs" / "operating"
+
+
+def _rooted(path: Path) -> Path:
+    path = Path(path)
+    return path if path.is_absolute() else ROOT / path
+
+
+def _sha256(path: Path) -> Optional[str]:
+    if not path.exists():
+        return None
+    h = hashlib.sha256()
+    with path.open("rb") as fh:
+        for chunk in iter(lambda: fh.read(1024 * 1024), b""):
+            h.update(chunk)
+    return h.hexdigest()
 
 
 def _safe_float(x, ndigits: Optional[int] = 6):
@@ -187,7 +206,7 @@ def build_feature_attribution(result) -> dict:
     }
 
 
-def main() -> int:
+def main(argv=None) -> int:
     import yaml
     from src.harness import build_override_config, inject_config, sub_period_irs
     from src.backtest import run_backtest, get_benchmark_fn, get_sector_map
@@ -195,8 +214,15 @@ def main() -> int:
     from src.attribution import compute_feature_importance
     from src.portfolio_optimizer import estimate_covariance
 
-    variant = ROOT / "variants" / "iter15_65tkr_reb21_vtg.yaml"
-    overrides = (yaml.safe_load(open(variant, encoding="utf-8")) or {}).get("overrides", {})
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--variant", type=Path, default=DEFAULT_VARIANT)
+    parser.add_argument("--operating-dir", type=Path, default=DEFAULT_OPERATING_DIR)
+    args = parser.parse_args(argv)
+
+    variant = _rooted(args.variant).resolve()
+    out = _rooted(args.operating_dir).resolve()
+    manifest = yaml.safe_load(variant.read_text(encoding="utf-8")) or {}
+    overrides = manifest.get("overrides", {})
     cfg = build_override_config(dict(overrides))
     inject_config(cfg)
 
@@ -204,7 +230,10 @@ def main() -> int:
     # ~1GB vs a fresh walk-forward backtest's ~3-4GB peak, so the export still
     # runs under a tight commit limit. Falls back to a fresh backtest if absent.
     t0 = time.time()
-    pkl = ROOT / "outputs" / "iter15_65tkr_reb21_vtg" / "backtest_result.pkl"
+    label = str(manifest.get("label") or variant.stem)
+    run_dir = _rooted(Path(manifest.get("out_dir") or f"outputs/{label}")).resolve()
+    pkl = run_dir / "backtest_result.pkl"
+    metrics_path = run_dir / "metrics.json"
     data = UniverseData(cfg.data_path, config=cfg)   # needed for sector map + benchmark weights
     if pkl.exists():
         import pickle
@@ -217,7 +246,7 @@ def main() -> int:
         res = run_backtest(data, config=cfg)
         print(f"[export] backtest done in {time.time()-t0:.0f}s")
 
-    OUT.mkdir(parents=True, exist_ok=True)
+    out.mkdir(parents=True, exist_ok=True)
     tickers = list(data.tickers)
     sector_map = get_sector_map(data)
     bm_fn = get_benchmark_fn(data, tickers, config=cfg)
@@ -233,7 +262,7 @@ def main() -> int:
         "portfolio_cum": cum_p, "benchmark_cum": cum_b, "drawdown": dd,
     })
     ret_df.index.name = "date"
-    ret_df.to_csv(OUT / "returns.csv")
+    ret_df.to_csv(out / "returns.csv")
 
     m = res.compute_metrics()
     by_year = {}
@@ -259,7 +288,7 @@ def main() -> int:
         "model_quality": getattr(res, "model_quality", None),
         "data_quality": getattr(res, "data_quality", None) or getattr(data, "data_quality", None),
     }
-    json.dump(perf, open(OUT / "performance.json", "w", encoding="utf-8"), indent=2, default=str)
+    json.dump(perf, open(out / "performance.json", "w", encoding="utf-8"), indent=2, default=str)
 
     # ---- holdings.json (latest rebalance OW/UW) ---------------------------
     reb_dates = sorted(res.portfolio_weights.keys())
@@ -293,7 +322,7 @@ def main() -> int:
         "concentration": concentration,
         "top_ow": rows[:12], "top_uw": rows[-12:][::-1], "all": rows,
     }
-    json.dump(holdings, open(OUT / "holdings.json", "w", encoding="utf-8"), indent=2, default=str)
+    json.dump(holdings, open(out / "holdings.json", "w", encoding="utf-8"), indent=2, default=str)
 
     # ---- contribution.json (name/sector contribution) ---------------------
     # Entering-day weights are previous day's recorded end-of-day weights.
@@ -369,7 +398,7 @@ def main() -> int:
         "by_ticker": contrib_rows,
         "by_sector": _serialize_records(sector_contrib, date_col="sector"),
     }
-    json.dump(contribution, open(OUT / "contribution.json", "w", encoding="utf-8"), indent=2, default=str)
+    json.dump(contribution, open(out / "contribution.json", "w", encoding="utf-8"), indent=2, default=str)
 
     # ---- risk.json (latest total/active risk contribution) ----------------
     risk = {"as_of": str(last)[:10], "method": "Latest rebalance, Ledoit-Wolf covariance, annualized."}
@@ -451,7 +480,7 @@ def main() -> int:
         })
     except Exception as exc:
         risk["error"] = str(exc)
-    json.dump(risk, open(OUT / "risk.json", "w", encoding="utf-8"), indent=2, default=str)
+    json.dump(risk, open(out / "risk.json", "w", encoding="utf-8"), indent=2, default=str)
 
     # ---- monitoring.json (trend/guardrail diagnostics) --------------------
     turnover = res.turnover.sort_index()
@@ -535,7 +564,7 @@ def main() -> int:
             ),
         },
     }
-    json.dump(monitoring, open(OUT / "monitoring.json", "w", encoding="utf-8"), indent=2, default=str)
+    json.dump(monitoring, open(out / "monitoring.json", "w", encoding="utf-8"), indent=2, default=str)
 
     # ---- features.json (gain importance across walk-forward models) --------
     feat_to_group = {}
@@ -560,7 +589,7 @@ def main() -> int:
             for f, v in avg.head(30).items()]
         grp = avg.groupby(avg.index.map(lambda f: feat_to_group.get(f, "?"))).sum().sort_values(ascending=False)
         features["group_importance"] = {g: round(float(v) / total * 100, 2) for g, v in grp.items()}
-    json.dump(features, open(OUT / "features.json", "w", encoding="utf-8"), indent=2, default=str)
+    json.dump(features, open(out / "features.json", "w", encoding="utf-8"), indent=2, default=str)
 
     # ---- operations.json (next target + trade list + sector exposure) -----
     prev = reb_dates[-2] if len(reb_dates) >= 2 else last
@@ -594,7 +623,7 @@ def main() -> int:
         "optimizer_solver_fallbacks": getattr(res, "optimizer_solver_fallbacks", None),
         "optimizer_solver_fallback_rate": getattr(res, "optimizer_solver_fallback_rate", None),
     }
-    json.dump(ops, open(OUT / "operations.json", "w", encoding="utf-8"), indent=2, default=str)
+    json.dump(ops, open(out / "operations.json", "w", encoding="utf-8"), indent=2, default=str)
 
     # ---- feature_attribution.json (per-stock SHAP drivers, latest rebalance) --
     from types import SimpleNamespace
@@ -606,7 +635,35 @@ def main() -> int:
         sector_map=sector_map,
         bm_weights={t: float(bm_w[t]) for t in tickers},
     ))
-    json.dump(fa, open(OUT / "feature_attribution.json", "w", encoding="utf-8"), indent=2, default=str)
+    json.dump(fa, open(out / "feature_attribution.json", "w", encoding="utf-8"), indent=2, default=str)
+
+    universe_hash = hashlib.sha256("\n".join(tickers).encode("utf-8")).hexdigest()
+    model_quality = getattr(res, "model_quality", None) or {}
+    portfolio_meta = {
+        "schema_version": 1,
+        "id": label,
+        "display_name": manifest.get("display_name", "Production S0" if label == "iter15_65tkr_reb21_vtg" else label),
+        "portfolio_role": manifest.get("portfolio_role", "production" if label == "iter15_65tkr_reb21_vtg" else "challenger"),
+        "model_type": getattr(cfg, "model_objective", "regression"),
+        "variant_path": str(variant.relative_to(ROOT)).replace("\\", "/"),
+        "run_dir": str(run_dir.relative_to(ROOT)).replace("\\", "/"),
+        "operating_dir": str(out.relative_to(ROOT)).replace("\\", "/"),
+        "benchmark_type": getattr(cfg, "benchmark_type", "cap_weighted"),
+        "universe_size": len(tickers),
+        "universe": tickers,
+        "universe_hash": universe_hash,
+        "data_as_of": perf["as_of"],
+        "exported_at_utc": datetime.now(timezone.utc).isoformat(),
+        "source_metrics_sha256": _sha256(metrics_path),
+        "source_metrics_mtime_utc": (
+            datetime.fromtimestamp(metrics_path.stat().st_mtime, timezone.utc).isoformat()
+            if metrics_path.exists() else None
+        ),
+        "causal_validation_enabled": bool(getattr(cfg, "causal_validation_enabled", False)),
+        "causal_validation_ok": model_quality.get("causal_validation_ok"),
+        "execution_signal_lag_days": int(getattr(cfg, "execution_signal_lag_days", 0)),
+    }
+    json.dump(portfolio_meta, open(out / "portfolio.json", "w", encoding="utf-8"), indent=2, default=str)
 
     print(f"\n=== export summary ===")
     print(f"  perf: annual {perf['annual_return']*100:.1f}% | active {perf['active_return']*100:.1f}% | "
@@ -625,7 +682,7 @@ def main() -> int:
     print(f"  monitoring: turnover points {len(turnover)} | rolling rows {len(rolling_df)}")
     print(f"  features({features['n_models']} models) top: " +
           ", ".join(f"{f['feature']}" for f in features['top_features'][:5]))
-    print(f"  ops: {ops['n_trades']} trades at next rebalance, wrote {OUT}")
+    print(f"  ops: {ops['n_trades']} trades at next rebalance, wrote {out}")
     print(f"  feature_attribution: {len(fa['tickers'])} names, additivity_ok={fa['additivity_ok']}, "
           f"as_of {fa['as_of']}, model_date {fa['model_date']}")
     return 0

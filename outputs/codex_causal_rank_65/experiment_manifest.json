@@ -9,7 +9,7 @@
     "bm_proportional_cap_vol_lookback": 63,
     "bm_proportional_cap_vol_scale_floor": 0.5,
     "bm_weight_floor": 0.02,
-    "causal_validation_enabled": false,
+    "causal_validation_enabled": true,
     "confidence_spread_scale": 0.2,
     "cov_lookback": 126,
     "cov_megacap_vol_shrink_enabled": true,
@@ -38,7 +38,7 @@
     "ewma_enabled": true,
     "ewma_min_features": 60,
     "ewma_min_retrains": 2,
-    "execution_signal_lag_days": 0,
+    "execution_signal_lag_days": 1,
     "factor_neutral_axes": [
       "value",
       "quality",
@@ -67,11 +67,11 @@
       "colsample_bytree": 0.8,
       "learning_rate": 0.02,
       "max_depth": 5,
-      "metric": "mse",
+      "metric": "ndcg",
       "min_child_samples": 60,
       "n_estimators": 800,
       "num_leaves": 31,
-      "objective": "regression",
+      "objective": "rank_xendcg",
       "random_state": 42,
       "reg_alpha": 0.3,
       "reg_lambda": 2.0,
@@ -103,7 +103,7 @@
     "mega_cap_protection_enabled": true,
     "mega_cap_wide_uw_cap": 0.1,
     "min_model_trees": 10,
-    "model_objective": "regression",
+    "model_objective": "cross_sectional_rank",
     "mu_vol_scaling_enabled": false,
     "multi_horizon_targets_enabled": false,
     "multi_horizon_weights": {},
@@ -162,12 +162,12 @@
     "vtg_scale": 0.0
   },
   "extra": {
-    "description": "PRODUCTION. iter15_65tkr_reb21 + post-prediction value-trap gate. The value-trap gate zeroes score for (cheap PE z<-0.5) & (momentum_252d<-0.5) & (oper_margin_accel>+0.5). CS-DR-Alpha is OFF (2026-06-10): the original validation had two confounds (walk-forward fold-skip kept DR inactive for the first ~5y of the backtest; the 2-pass path skipped the prediction EMA, so passthrough regions traded the un-smoothed raw LGBM signal). After fixing both, the honest 2x2 ablation (outputs/dr_ablation_2x2, data vintage 2026-06-05) shows DR's marginal contribution is decisively negative: dIR -0.71 (no-EMA pair) / -0.58 (EMA pair) vs the matching baseline, in every sub-period including fully-trained P3. Lower turnover (-0.16~-0.23) does not compensate. See docs/RL_DR_ALPHA_RESULTS.md (2026-06-10 re-validation) before re-enabling.\n",
-    "manifest_path": "variants\\iter15_65tkr_reb21_vtg.yaml",
+    "description": "Fixed-65 causal challenger. Uses date-grouped LightGBM rank_xendcg, purged/embargoed validation, and a one-trading-day execution signal lag. Universe, benchmark, overlays, optimizer and transaction-cost assumptions are pinned to the canonical iter15_65tkr_reb21_vtg production portfolio.\n",
+    "manifest_path": "variants\\codex_causal_rank_65.yaml",
     "tuning_mode": "production",
-    "variant_label": "iter15_65tkr_reb21_vtg"
+    "variant_label": "codex_causal_rank_65"
   },
   "git_dirty": true,
   "git_hash": "b5019368bb356294c93810da26f760f997733e10",
-  "timestamp_utc": "2026-07-10T05:09:06Z"
+  "timestamp_utc": "2026-07-10T05:15:56Z"
 }

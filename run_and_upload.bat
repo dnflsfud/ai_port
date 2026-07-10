@@ -1,7 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
 REM ============================================================
-REM run_and_upload.bat - env check, tests, S0 backtest, then
+REM run_and_upload.bat - env check, tests, S0 + Causal Rank backtests, then
 REM commit and upload ai_port (standalone repo) to GitHub.
 REM Usage: run_and_upload.bat [commit message]
 REM Target repo: https://github.com/dnflsfud/ai_port (private)
@@ -13,24 +13,36 @@ set "PYTHONPATH=."
 set "GH_REPO=dnflsfud/ai_port"
 set "GH_URL=https://github.com/dnflsfud/ai_port.git"
 
-echo [1/7] Environment check...
+echo [1/10] Environment check...
 if not exist "%PY%" (echo ERROR: python not found: %PY% & exit /b 1)
 "%PY%" -c "import cvxpy; assert 'ECOS' in cvxpy.installed_solvers(), 'ECOS missing'"
 if errorlevel 1 (echo ERROR: cvxpy/ECOS check failed & exit /b 1)
 
-echo [2/7] Running test suite...
+echo [2/10] Running test suite...
 "%PY%" -m pytest tests/ -q
 if errorlevel 1 (echo ERROR: tests failed - aborting before backtest/upload & exit /b 1)
 
-echo [3/7] Running S0 production backtest - full pipeline, about 4 min...
+echo [3/10] Running S0 production backtest - full pipeline, about 4 min...
 "%PY%" run_variant.py --variant variants\iter15_65tkr_reb21_vtg.yaml --no-cache
 if errorlevel 1 (echo ERROR: backtest failed - aborting before upload & exit /b 1)
 
-echo [4/7] Refreshing operating dashboard data...
+echo [4/10] Refreshing S0 operating dashboard data...
 "%PY%" scripts\export_operating_data.py
-if errorlevel 1 echo WARNING: operating data export failed - dashboard will show stale data.
+if errorlevel 1 (echo ERROR: S0 operating data export failed - aborting before upload & exit /b 1)
 
-echo [5/7] Git commit - ai_port standalone repo...
+echo [5/10] Running Causal Rank 65 challenger - full pipeline...
+"%PY%" run_variant.py --variant variants\codex_causal_rank_65.yaml --no-cache
+if errorlevel 1 (echo ERROR: Causal Rank backtest failed - aborting before upload & exit /b 1)
+
+echo [6/10] Refreshing Causal Rank operating dashboard data...
+"%PY%" scripts\export_operating_data.py --variant variants\codex_causal_rank_65.yaml --operating-dir outputs\operating_codex_causal_rank_65
+if errorlevel 1 (echo ERROR: Causal Rank operating export failed - aborting before upload & exit /b 1)
+
+echo [7/10] Validating both portfolio bundles and publishing registry...
+"%PY%" scripts\validate_portfolio_bundles.py --bundle outputs\operating --bundle outputs\operating_codex_causal_rank_65
+if errorlevel 1 (echo ERROR: portfolio bundle validation failed - aborting before upload & exit /b 1)
+
+echo [8/10] Git commit - ai_port standalone repo...
 if not exist ".git" (
   git init -b main
   if errorlevel 1 (echo ERROR: git init failed & exit /b 1)
@@ -46,7 +58,7 @@ if errorlevel 1 (
   echo No changes to commit - skipping commit.
 )
 
-echo [6/7] Upload to GitHub...
+echo [9/10] Upload to GitHub...
 git remote get-url origin >nul 2>&1
 if errorlevel 1 (
   where gh >nul 2>&1
@@ -86,9 +98,9 @@ if not defined PUSH_FAIL (
 )
 
 if defined AI_PORT_NO_DASHBOARD (
-  echo [7/7] Dashboard launch skipped ^(AI_PORT_NO_DASHBOARD^).
+  echo [10/10] Dashboard launch skipped ^(AI_PORT_NO_DASHBOARD^).
 ) else (
-  echo [7/7] Launching Streamlit dashboard...
+  echo [10/10] Launching Streamlit dashboard...
   start "ai_port dashboard" cmd /c ""%PY%" -m streamlit run streamlit_app.py"
 )
 if defined PUSH_FAIL exit /b 1

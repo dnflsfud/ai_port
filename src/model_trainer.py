@@ -169,6 +169,107 @@ def _prepare_train_data(
     return X, y
 
 
+def prepare_rank_data(
+    panel: pd.DataFrame,
+    targets: pd.DataFrame,
+    feature_names: List[str],
+    dates: pd.DatetimeIndex,
+    relevance_levels: int = 10,
+) -> Tuple[np.ndarray, np.ndarray, List[int]]:
+    """Build deterministic date-grouped data for ``LGBMRanker``.
+
+    Each date is one ranking query.  Continuous forward returns are converted
+    to integer cross-sectional relevance labels in ``[0, levels - 1]``.  The
+    stable date/ticker ordering makes the group vector auditable and keeps
+    repeated runs deterministic.
+    """
+    mask = panel.index.get_level_values("date").isin(dates)
+    X_panel = panel.loc[mask, feature_names].sort_index()
+    target_stacked = targets.stack()
+    target_stacked.index.names = ["date", "ticker"]
+    y_panel = target_stacked.reindex(X_panel.index)
+    valid = y_panel.notna() & X_panel.notna().all(axis=1)
+    X_valid = X_panel.loc[valid]
+    y_valid = y_panel.loc[valid]
+
+    x_parts: List[np.ndarray] = []
+    y_parts: List[np.ndarray] = []
+    groups: List[int] = []
+    for _date, x_group in X_valid.groupby(level="date", sort=True):
+        if len(x_group) < 2:
+            continue
+        y_group = y_valid.reindex(x_group.index).astype(float)
+        # ``method='first'`` is deterministic because X_valid is ticker-sorted.
+        ranks = y_group.rank(method="first", ascending=True).to_numpy() - 1.0
+        relevance = np.floor(ranks * relevance_levels / len(x_group))
+        relevance = np.clip(relevance, 0, relevance_levels - 1).astype(np.int32)
+        x_parts.append(x_group.to_numpy())
+        y_parts.append(relevance)
+        groups.append(int(len(x_group)))
+
+    if not x_parts:
+        return (
+            np.empty((0, len(feature_names)), dtype=float),
+            np.empty((0,), dtype=np.int32),
+            [],
+        )
+    return np.vstack(x_parts), np.concatenate(y_parts), groups
+
+
+def build_walk_forward_split(
+    all_dates: pd.DatetimeIndex,
+    prediction_idx: int,
+    train_window: int,
+    val_window: int,
+    forward_horizon: int,
+) -> dict:
+    """Return a purged, embargoed train/validation split for one prediction.
+
+    The last validation label may finish on the prediction date, never after
+    it.  The last training label finishes strictly before validation features
+    begin, eliminating overlapping realization windows.
+    """
+    val_end = prediction_idx - forward_horizon + 1
+    val_start = val_end - val_window
+    train_start = max(0, prediction_idx - train_window)
+    train_end = val_start - forward_horizon
+    if min(val_start, train_end) < 0 or train_end <= train_start:
+        raise ValueError(
+            "insufficient history for causal validation split: "
+            f"t={prediction_idx}, train=[{train_start},{train_end}), "
+            f"val=[{val_start},{val_end}), H={forward_horizon}"
+        )
+
+    latest_val_realization_idx = val_end - 1 + forward_horizon
+    latest_train_realization_idx = train_end - 1 + forward_horizon
+    causal_ok = (
+        latest_val_realization_idx <= prediction_idx
+        and latest_train_realization_idx < val_start
+    )
+    return {
+        "train_dates": all_dates[train_start:train_end],
+        "val_dates": all_dates[val_start:val_end],
+        "audit": {
+            "prediction_date": str(all_dates[prediction_idx].date()),
+            "train_start": str(all_dates[train_start].date()),
+            "train_end": str(all_dates[train_end - 1].date()),
+            "embargo_start": str(all_dates[train_end].date()),
+            "embargo_end": str(all_dates[val_start - 1].date()),
+            "validation_start": str(all_dates[val_start].date()),
+            "validation_end": str(all_dates[val_end - 1].date()),
+            "latest_train_label_realization": str(
+                all_dates[latest_train_realization_idx].date()
+            ),
+            "latest_validation_label_realization": str(
+                all_dates[latest_val_realization_idx].date()
+            ),
+            "embargo_days": int(val_start - train_end),
+            "forward_horizon": int(forward_horizon),
+            "causal_validation_ok": bool(causal_ok),
+        },
+    }
+
+
 def train_model(
     panel: pd.DataFrame,
     targets: pd.DataFrame,
@@ -177,11 +278,25 @@ def train_model(
     val_dates: pd.DatetimeIndex,
     config: PipelineConfig = None,
     feature_scale: Optional[np.ndarray] = None,
-) -> lgb.LGBMRegressor:
+) -> lgb.LGBMModel:
     """단일 모델 훈련 (early stopping with validation)."""
     config = config or DEFAULT_CONFIG
-    X_train, y_train = _prepare_train_data(panel, targets, feature_names, train_dates)
-    X_val, y_val = _prepare_train_data(panel, targets, feature_names, val_dates)
+    objective = getattr(config, "model_objective", "regression")
+    if objective == "cross_sectional_rank":
+        levels = int(getattr(config, "rank_relevance_levels", 10))
+        X_train, y_train, train_groups = prepare_rank_data(
+            panel, targets, feature_names, train_dates, levels
+        )
+        X_val, y_val, val_groups = prepare_rank_data(
+            panel, targets, feature_names, val_dates, levels
+        )
+    else:
+        X_train, y_train = _prepare_train_data(panel, targets, feature_names, train_dates)
+        X_val, y_val = _prepare_train_data(panel, targets, feature_names, val_dates)
+        train_groups = val_groups = None
+
+    if len(X_train) == 0:
+        raise ValueError("no valid training observations after filtering")
 
     # EWMA feature scaling (numpy 레벨 — panel 복사 불필요)
     if feature_scale is not None:
@@ -189,13 +304,32 @@ def train_model(
         if len(X_val) > 0:
             X_val = X_val * feature_scale[np.newaxis, :]
 
-    model = lgb.LGBMRegressor(**config.lgbm_params)
+    if objective == "cross_sectional_rank":
+        params = dict(config.lgbm_params)
+        params["objective"] = "rank_xendcg"
+        params["metric"] = "ndcg"
+        model = lgb.LGBMRanker(**params)
+    else:
+        # Keep the canonical construction unchanged on the default path.
+        model = lgb.LGBMRegressor(**config.lgbm_params)
 
     # REDESIGN D: looser early stopping (default 100 rounds, configurable)
     # to avoid degenerate 10-20 tree models when val loss plateaus briefly.
     es_rounds = getattr(config, "early_stopping_rounds", 100)
 
-    if len(X_val) > 0:
+    if len(X_val) > 0 and objective == "cross_sectional_rank":
+        model.fit(
+            X_train, y_train,
+            group=train_groups,
+            eval_set=[(X_val, y_val)],
+            eval_group=[val_groups],
+            eval_at=tuple(int(k) for k in config.rank_eval_at),
+            callbacks=[lgb.early_stopping(es_rounds, verbose=False),
+                       lgb.log_evaluation(0)],
+        )
+    elif objective == "cross_sectional_rank":
+        model.fit(X_train, y_train, group=train_groups)
+    elif len(X_val) > 0:
         model.fit(
             X_train, y_train,
             eval_set=[(X_val, y_val)],
@@ -344,6 +478,7 @@ def walk_forward_train(
     total_retrains = 0
     degenerate_retrains = 0
     degenerate_events = []
+    split_audit = []
 
     # EWMA Feature Importance Tracker
     ewma_tracker = EWMAFeatureTracker(config)
@@ -359,18 +494,30 @@ def walk_forward_train(
 
         # 재훈련 시점인지 확인
         if t_idx - last_train_idx >= retrain_freq or current_model is None:
-            train_start = max(0, t_idx - train_window)
-            train_end = t_idx - val_window
-            val_start = t_idx - val_window
-            val_end = t_idx
-
-            if train_end <= train_start:
-                train_end = t_idx
-                val_start = t_idx
+            if getattr(config, "causal_validation_enabled", False):
+                split = build_walk_forward_split(
+                    all_dates=all_dates,
+                    prediction_idx=t_idx,
+                    train_window=train_window,
+                    val_window=val_window,
+                    forward_horizon=int(config.forward_horizon),
+                )
+                train_dates = split["train_dates"]
+                val_dates = split["val_dates"]
+                split_audit.append(split["audit"])
+            else:
+                train_start = max(0, t_idx - train_window)
+                train_end = t_idx - val_window
+                val_start = t_idx - val_window
                 val_end = t_idx
 
-            train_dates = all_dates[train_start:train_end]
-            val_dates = all_dates[val_start:val_end]
+                if train_end <= train_start:
+                    train_end = t_idx
+                    val_start = t_idx
+                    val_end = t_idx
+
+                train_dates = all_dates[train_start:train_end]
+                val_dates = all_dates[val_start:val_end]
 
             # EWMA: 이전 재훈련 결과 기반으로 active feature 선택 (candidate)
             candidate_features = ewma_tracker.get_active_features(feature_names)
@@ -498,6 +645,15 @@ def walk_forward_train(
         ),
         "events": degenerate_events,
     }
+    if getattr(config, "causal_validation_enabled", False):
+        ewma_tracker.model_quality.update({
+            "model_objective": getattr(config, "model_objective", "regression"),
+            "causal_validation_enabled": True,
+            "causal_validation_ok": bool(split_audit) and all(
+                row["causal_validation_ok"] for row in split_audit
+            ),
+            "split_audit": split_audit,
+        })
     max_rate = float(getattr(config, "max_degenerate_model_rate", 0.25))
     if degenerate_rate > max_rate:
         msg = (

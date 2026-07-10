@@ -13,6 +13,26 @@ def test_forward_horizon_default_is_20():
     assert PipelineConfig().forward_horizon == 20
 
 
+def test_causal_rank_defaults_preserve_legacy_path():
+    c = PipelineConfig()
+    assert c.model_objective == "regression"
+    assert c.causal_validation_enabled is False
+    assert c.execution_signal_lag_days == 0
+    assert c.rank_relevance_levels == 10
+    assert c.rank_eval_at == [5, 10]
+
+
+def test_causal_rank_config_validation():
+    with pytest.raises(ValueError):
+        PipelineConfig(model_objective="classifier")
+    with pytest.raises(ValueError):
+        PipelineConfig(execution_signal_lag_days=-1)
+    with pytest.raises(ValueError):
+        PipelineConfig(rank_relevance_levels=1)
+    with pytest.raises(ValueError):
+        PipelineConfig(rank_eval_at=[])
+
+
 def test_max_active_share_ceiling_default_none():
     assert PipelineConfig().max_active_share_ceiling is None
 

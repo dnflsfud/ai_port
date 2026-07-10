@@ -151,6 +151,14 @@ class PipelineConfig:
     train_window: int = 1260          # 5 years (was 756 / 3 years)
     retrain_freq: int = 63
     val_window: int = 126
+    # Alternative cross-sectional ranking model.  All switches are OFF by
+    # default so the canonical regression portfolio remains byte-for-byte on
+    # its historical execution path.
+    model_objective: str = "regression"  # regression | cross_sectional_rank
+    causal_validation_enabled: bool = False
+    execution_signal_lag_days: int = 0
+    rank_relevance_levels: int = 10
+    rank_eval_at: List[int] = field(default_factory=lambda: [5, 10])
     # REDESIGN R-9 (2026-04-14): 0.8 → 0.5 — P2 IR -0.343 회복 시도.
     # 2021-2023 금리급등기에서 model이 regime shift에 느리게 적응 (ema가 옛 signal 끌어안음).
     # alpha 0.5는 50% 새 signal + 50% prior. Forensics 권장.
@@ -538,6 +546,17 @@ class PipelineConfig:
             raise ValueError("min_model_trees must be >= 1")
         if not (0.0 <= self.max_degenerate_model_rate <= 1.0):
             raise ValueError("max_degenerate_model_rate must be in [0, 1]")
+        if self.model_objective not in ("regression", "cross_sectional_rank"):
+            raise ValueError(
+                "model_objective must be 'regression' or "
+                f"'cross_sectional_rank', got {self.model_objective!r}"
+            )
+        if self.execution_signal_lag_days < 0:
+            raise ValueError("execution_signal_lag_days must be >= 0")
+        if not (2 <= self.rank_relevance_levels <= 31):
+            raise ValueError("rank_relevance_levels must be in [2, 31]")
+        if not self.rank_eval_at or any(int(k) <= 0 for k in self.rank_eval_at):
+            raise ValueError("rank_eval_at must contain positive integers")
         if self.max_tail_ffill_days < 0:
             raise ValueError("max_tail_ffill_days must be >= 0")
         if self.max_name_active_risk_share <= 0:

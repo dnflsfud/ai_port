@@ -19,6 +19,7 @@ from __future__ import annotations
 import itertools
 import json
 import pickle
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
@@ -203,6 +204,82 @@ def load_csv(rel: str) -> pd.DataFrame:
         return pd.DataFrame()
 
 
+def load_portfolio_registry(outputs_dir=OUT) -> dict:
+    """Load the validated registry or return a legacy-only compatibility view."""
+    outputs_dir = Path(outputs_dir)
+    path = outputs_dir / "portfolio_registry.json"
+    if path.exists():
+        try:
+            value = json.loads(path.read_text(encoding="utf-8"))
+            if isinstance(value, dict) and value.get("portfolios"):
+                return value
+        except Exception:
+            pass
+    return {
+        "schema_version": 0,
+        "generated_at_utc": None,
+        "stale_after_hours": 96,
+        "portfolios": [{
+            "id": PROD_LABEL,
+            "display_name": "Production S0",
+            "portfolio_role": "production",
+            "operating_dir": "outputs/operating",
+            "run_dir": f"outputs/{PROD_LABEL}",
+            "status": "PRODUCTION",
+        }],
+    }
+
+
+def load_operating_bundle(meta: dict, project_root=HERE) -> dict:
+    """Read one registry-described operating bundle with a stable schema."""
+    root = Path(project_root)
+    operating = Path(meta.get("operating_dir", "outputs/operating"))
+    operating = operating if operating.is_absolute() else root / operating
+
+    def read_json(name: str) -> dict:
+        path = operating / name
+        if not path.exists():
+            return {}
+        try:
+            value = json.loads(path.read_text(encoding="utf-8"))
+            return value if isinstance(value, dict) else {}
+        except Exception as exc:
+            return {"_error": str(exc)}
+
+    returns_path = operating / "returns.csv"
+    try:
+        returns = pd.read_csv(returns_path, index_col=0, parse_dates=True)
+    except Exception:
+        returns = pd.DataFrame()
+    return {
+        "meta": {**meta, **read_json("portfolio.json")},
+        "perf": read_json("performance.json"),
+        "holdings": read_json("holdings.json"),
+        "features": read_json("features.json"),
+        "ops": read_json("operations.json"),
+        "contribution": read_json("contribution.json"),
+        "risk": read_json("risk.json"),
+        "monitoring": read_json("monitoring.json"),
+        "feature_attribution": read_json("feature_attribution.json"),
+        "returns": returns,
+    }
+
+
+def build_comparison_returns(production: pd.DataFrame, challenger: pd.DataFrame) -> pd.DataFrame:
+    """Align the two portfolio curves and retain one common benchmark curve."""
+    if production.empty:
+        return pd.DataFrame()
+    out = production[[c for c in ("portfolio_cum", "benchmark_cum") if c in production]].rename(
+        columns={"portfolio_cum": "Production S0", "benchmark_cum": "Benchmark"}
+    )
+    if not challenger.empty and "portfolio_cum" in challenger:
+        out = out.join(
+            challenger[["portfolio_cum"]].rename(columns={"portfolio_cum": "Causal Rank 65"}),
+            how="inner",
+        )
+    return out.sort_index()
+
+
 def prepare_stock_drivers(attr, ticker=None):
     """Shape the feature_attribution JSON for the Stock Drivers tab (no Streamlit).
 
@@ -380,23 +457,39 @@ def main() -> None:
 
     @st.cache_data(show_spinner=False)
     def load_data() -> dict:
+        registry = load_portfolio_registry(OUT)
+        bundles = {
+            meta["id"]: load_operating_bundle(meta, HERE)
+            for meta in registry.get("portfolios", [])
+        }
+        production = next(
+            (b for b in bundles.values() if b["meta"].get("portfolio_role") == "production"),
+            load_operating_bundle({"id": PROD_LABEL, "operating_dir": "outputs/operating"}, HERE),
+        )
+        challenger = next(
+            (b for b in bundles.values() if b["meta"].get("portfolio_role") == "challenger"),
+            None,
+        )
         s0_raw = load_json("iter15_65tkr_reb21_vtg/metrics.json")
         return {
+            "registry": registry,
+            "production": production,
+            "challenger": challenger,
             "summary": load_json("adoption_summary.json"),
             "s0": s0_raw.get("metrics", s0_raw),
             "attr": load_json("alpha_attribution/summary.json"),
             "overlay": load_json("overlay_ablation/summary.json"),
             "factor": load_json("factor_ablation/summary.json"),
             "dq": load_json("data_quality_report.json"),
-            "perf": load_json("operating/performance.json"),
-            "holdings": load_json("operating/holdings.json"),
-            "features": load_json("operating/features.json"),
-            "ops": load_json("operating/operations.json"),
-            "contribution": load_json("operating/contribution.json"),
-            "risk": load_json("operating/risk.json"),
-            "monitoring": load_json("operating/monitoring.json"),
-            "feature_attribution": load_json("operating/feature_attribution.json"),
-            "returns": load_csv("operating/returns.csv"),
+            "perf": production["perf"],
+            "holdings": production["holdings"],
+            "features": production["features"],
+            "ops": production["ops"],
+            "contribution": production["contribution"],
+            "risk": production["risk"],
+            "monitoring": production["monitoring"],
+            "feature_attribution": production["feature_attribution"],
+            "returns": production["returns"],
         }
 
     @st.cache_resource(show_spinner=False)
@@ -416,6 +509,14 @@ def main() -> None:
     contribution = data["contribution"]
     risk = data["risk"]
     monitoring = data["monitoring"]
+    challenger = data.get("challenger") or {}
+    challenger_meta = challenger.get("meta") or {}
+    challenger_perf = challenger.get("perf") or {}
+    challenger_holdings = challenger.get("holdings") or {}
+    challenger_returns = challenger.get("returns")
+    if not isinstance(challenger_returns, pd.DataFrame):
+        challenger_returns = pd.DataFrame()
+    comparison_returns = build_comparison_returns(returns, challenger_returns)
 
     stage0 = summary.get("stage0_baseline", {})
     stage2 = summary.get("stage2_overlay", {})
@@ -437,6 +538,8 @@ def main() -> None:
         f"<span class='chip {'chip-ok' if overlay_ok else 'chip-warn'}'>Overlay {'KEEP all' if overlay_ok else 'Review'}</span>"
         f"<span class='chip {'chip-ok' if factor_ok else 'chip-warn'}'>Factor collapsed={stage3.get('collapsed')}</span>"
         "<span class='chip chip-ok'>Production weights unchanged</span>"
+        + (f"<span class='chip {'chip-ok' if challenger_meta.get('status') == 'PASS' else 'chip-warn'}'>"
+           f"Causal Rank {challenger_meta.get('status', 'not built')}</span>" if challenger else "") +
         "</div>",
         unsafe_allow_html=True,
     )
@@ -445,7 +548,21 @@ def main() -> None:
         st.subheader("Scope")
         st.metric("Performance as of", perf.get("as_of", "n/a"))
         st.metric("Holdings as of", holdings.get("as_of", "n/a"))
+        if challenger:
+            st.metric("Causal data as of", challenger_perf.get("as_of", "n/a"))
+            st.metric("Causal holdings as of", challenger_holdings.get("as_of", "n/a"))
         st.metric("Solver", "ECOS")
+
+        generated = data["registry"].get("generated_at_utc")
+        if generated:
+            try:
+                generated_dt = datetime.fromisoformat(str(generated).replace("Z", "+00:00"))
+                age_hours = (datetime.now(timezone.utc) - generated_dt).total_seconds() / 3600.0
+                st.caption(f"Bundle generated: {generated_dt.astimezone().strftime('%Y-%m-%d %H:%M')}")
+                if age_hours > float(data["registry"].get("stale_after_hours", 96)):
+                    st.warning(f"Portfolio bundle is stale ({age_hours / 24:.1f} days old).")
+            except Exception:
+                st.warning("Portfolio registry timestamp is invalid.")
 
         date_range = None
         if not returns.empty:
@@ -461,10 +578,16 @@ def main() -> None:
             st.warning("Run scripts/export_operating_data.py to enable all sections.")
 
     filtered_returns = returns.copy()
+    filtered_challenger_returns = challenger_returns.copy()
     if date_range and len(date_range) == 2 and not returns.empty:
         start = pd.to_datetime(date_range[0])
         end = pd.to_datetime(date_range[1])
         filtered_returns = returns.loc[(returns.index >= start) & (returns.index <= end)].copy()
+        if not challenger_returns.empty:
+            filtered_challenger_returns = challenger_returns.loc[
+                (challenger_returns.index >= start) & (challenger_returns.index <= end)
+            ].copy()
+    comparison_returns = build_comparison_returns(filtered_returns, filtered_challenger_returns)
 
     def sector_filter(df: pd.DataFrame) -> pd.DataFrame:
         if df.empty or sector == "All sectors" or "sector" not in df.columns:
@@ -479,15 +602,25 @@ def main() -> None:
     top_cols[4].metric("Max Drawdown", pct(perf.get("max_drawdown"), 1))
     top_cols[5].metric("Active Share", pct(holdings.get("active_share_one_way"), 2))
 
+    if challenger:
+        st.caption("Causal Rank 65 challenger")
+        challenger_cols = st.columns(6)
+        challenger_cols[0].metric("Annual Return", pct(challenger_perf.get("annual_return"), 1))
+        challenger_cols[1].metric("Active Return", pct(challenger_perf.get("active_return"), 2, signed=True))
+        challenger_cols[2].metric("Information Ratio", num(challenger_perf.get("information_ratio"), 3))
+        challenger_cols[3].metric("Tracking Error", pct(challenger_perf.get("tracking_error"), 2))
+        challenger_cols[4].metric("Max Drawdown", pct(challenger_perf.get("max_drawdown"), 1))
+        challenger_cols[5].metric("Active Share", pct(challenger_holdings.get("active_share_one_way"), 2))
+
     tabs = st.tabs(
-        ["Overview", "Performance", "Contribution", "Risk", "Turnover", "Signals & Gates", "Backtest Runs", "Stock Drivers"]
+        ["Overview", "Performance", "Contribution", "Risk", "Turnover", "Signals & Gates", "Backtest Runs", "Stock Drivers", "Comparison"]
     )
 
     with tabs[0]:
         left, right = st.columns([1.45, 1.0])
         with left:
-            if not filtered_returns.empty:
-                render_chart(line_fig(filtered_returns, ["portfolio_cum", "benchmark_cum"], "Cumulative return", "Growth of $1"))
+            if not comparison_returns.empty:
+                render_chart(line_fig(comparison_returns, list(comparison_returns.columns), "Cumulative return", "Growth of $1"))
             else:
                 st.info("No returns data found.")
 
@@ -529,8 +662,8 @@ def main() -> None:
     with tabs[1]:
         col_l, col_r = st.columns([1.2, 1.0])
         with col_l:
-            if not filtered_returns.empty:
-                render_chart(line_fig(filtered_returns, ["portfolio_cum", "benchmark_cum"], "Cumulative return", "Growth of $1"))
+            if not comparison_returns.empty:
+                render_chart(line_fig(comparison_returns, list(comparison_returns.columns), "Cumulative return", "Growth of $1"))
                 dd_fig = px.area(
                     filtered_returns,
                     x=filtered_returns.index,
@@ -577,6 +710,26 @@ def main() -> None:
             "<div class='note'>Arithmetic contribution uses entering-day weights. Cost/timing residual is shown separately.</div>",
             unsafe_allow_html=True,
         )
+        if challenger:
+            st.caption("Latest active contribution leaders — production vs challenger")
+            pc1, pc2 = st.columns(2)
+            prod_leaders = rows_df(contribution.get("by_ticker"))
+            causal_leaders = rows_df((challenger.get("contribution") or {}).get("by_ticker"))
+            with pc1:
+                st.markdown("**Production S0**")
+                if not prod_leaders.empty:
+                    st.dataframe(
+                        fmt_table(prod_leaders.nlargest(8, "active_contribution")[["ticker", "sector", "active_contribution"]], ["active_contribution"]),
+                        width="stretch", hide_index=True,
+                    )
+            with pc2:
+                st.markdown("**Causal Rank 65**")
+                if not causal_leaders.empty:
+                    st.dataframe(
+                        fmt_table(causal_leaders.nlargest(8, "active_contribution")[["ticker", "sector", "active_contribution"]], ["active_contribution"]),
+                        width="stretch", hide_index=True,
+                    )
+            st.divider()
         contrib = sector_filter(rows_df(contribution.get("by_ticker")))
         sector_contrib = sector_filter(rows_df(contribution.get("by_sector")).rename(columns={"name": "sector"}))
         if contrib.empty:
@@ -607,6 +760,64 @@ def main() -> None:
 
     with tabs[3]:
         st.subheader("Risk contribution and holdings")
+        if challenger:
+            st.markdown(
+                "<div class='note'>The same sector filter is applied to both funds. "
+                "Position weights and risk contributions are shown from each fund's latest rebalance.</div>",
+                unsafe_allow_html=True,
+            )
+            pr1, pr2 = st.columns(2)
+            for col, label, bundle in (
+                (pr1, "Production S0", data["production"]),
+                (pr2, "Causal Rank 65", challenger),
+            ):
+                with col:
+                    rmeta = bundle.get("risk") or {}
+                    hmeta = bundle.get("holdings") or {}
+                    fund_risk = sector_filter(rows_df(rmeta.get("by_ticker")))
+                    fund_sector_risk = sector_filter(
+                        rows_df(rmeta.get("by_sector")).rename(columns={"name": "sector"})
+                    )
+                    st.markdown(f"### {label}")
+                    st.caption(f"Risk/positions as of {rmeta.get('as_of', hmeta.get('as_of', 'n/a'))}")
+                    q1, q2, q3, q4 = st.columns(4)
+                    q1.metric("Est. Vol", pct(rmeta.get("estimated_portfolio_vol"), 2))
+                    q2.metric("Est. TE", pct(rmeta.get("estimated_tracking_error"), 2))
+                    q3.metric("Active Share", pct(hmeta.get("active_share_one_way"), 2))
+                    q4.metric("Holdings", hmeta.get("n_holdings", "n/a"))
+                    if not fund_risk.empty:
+                        fund_risk = fund_risk.copy()
+                        fund_risk["abs_active_risk"] = fund_risk["active_te_contribution"].abs()
+                        top_fund_risk = fund_risk.nlargest(12, "abs_active_risk").sort_values("active_te_contribution")
+                        render_chart(hbar_fig(
+                            top_fund_risk, "ticker", "active_te_contribution",
+                            f"{label} — active TE contributors",
+                        ))
+                        position_cols = [
+                            "ticker", "sector", "weight", "bm_weight", "active_weight",
+                            "active_te_contribution", "active_risk_pct", "total_vol_contribution",
+                        ]
+                        st.markdown("**Position weights and risk decomposition**")
+                        st.dataframe(
+                            fmt_table(
+                                fund_risk.sort_values("abs_active_risk", ascending=False)[position_cols],
+                                [
+                                    "weight", "bm_weight", "active_weight",
+                                    "active_te_contribution", "active_risk_pct", "total_vol_contribution",
+                                ],
+                            ),
+                            width="stretch", hide_index=True, height=420,
+                        )
+                    else:
+                        st.info(f"No {label} risk detail is available.")
+                    if not fund_sector_risk.empty:
+                        render_chart(hbar_fig(
+                            fund_sector_risk.sort_values("active_te_contribution"),
+                            "sector", "active_te_contribution",
+                            f"{label} — sector active TE",
+                        ))
+            st.divider()
+            st.subheader("Production S0 legacy detail")
         risk_df = sector_filter(rows_df(risk.get("by_ticker")))
         sector_risk = sector_filter(rows_df(risk.get("by_sector")).rename(columns={"name": "sector"}))
         if risk.get("error"):
@@ -641,6 +852,23 @@ def main() -> None:
 
     with tabs[4]:
         st.subheader("Turnover, active share and trade list")
+        if challenger:
+            prod_turn = rows_df(monitoring.get("turnover"))
+            causal_turn = rows_df((challenger.get("monitoring") or {}).get("turnover"))
+            if not prod_turn.empty and not causal_turn.empty:
+                prod_turn["date"] = pd.to_datetime(prod_turn["date"])
+                causal_turn["date"] = pd.to_datetime(causal_turn["date"])
+                turn_compare = (
+                    prod_turn.set_index("date")[["turnover_two_way"]]
+                    .rename(columns={"turnover_two_way": "Production S0"})
+                    .join(
+                        causal_turn.set_index("date")[["turnover_two_way"]]
+                        .rename(columns={"turnover_two_way": "Causal Rank 65"}),
+                        how="outer",
+                    )
+                    .sort_index()
+                )
+                render_chart(line_fig(turn_compare, list(turn_compare.columns), "Rebalance turnover comparison", "Two-way turnover"))
         turnover = rows_df(monitoring.get("turnover"))
         active_share = rows_df(monitoring.get("active_share"))
         c1, c2 = st.columns(2)
@@ -676,6 +904,66 @@ def main() -> None:
 
     with tabs[5]:
         st.subheader("Signals and adoption gates")
+        if challenger:
+            gate = data["registry"].get("comparison_gate") or {}
+            cmq = challenger_perf.get("model_quality") or {}
+            gc = st.columns(5)
+            gc[0].metric("Challenger", gate.get("status", challenger_meta.get("status", "n/a")))
+            gc[1].metric("Model", challenger_meta.get("model_type", "n/a"))
+            gc[2].metric("Causal Split", "PASS" if challenger_meta.get("causal_validation_ok") else "FAIL")
+            gc[3].metric("Signal Lag", f"{challenger_meta.get('execution_signal_lag_days', 'n/a')}d")
+            gc[4].metric("Degenerate Folds", f"{cmq.get('degenerate_retrains', 'n/a')}/{cmq.get('total_retrains', 'n/a')}")
+            checks = gate.get("checks") or {}
+            if checks:
+                gate_rows = pd.DataFrame(
+                    [{"criterion": k.replace("_", " "), "passed": bool(v)} for k, v in checks.items()]
+                )
+                st.dataframe(gate_rows, width="stretch", hide_index=True)
+            st.divider()
+            st.subheader("Feature score decomposition by fund")
+            st.markdown(
+                "<div class='note'>Gain importance is normalized within each walk-forward model set. "
+                "Compare shares within a fund; raw gain scales are not cross-model return forecasts.</div>",
+                unsafe_allow_html=True,
+            )
+            feature_cols = st.columns(2)
+            for feature_col, feature_label, feature_bundle in (
+                (feature_cols[0], "Production S0", data["production"]),
+                (feature_cols[1], "Causal Rank 65", challenger),
+            ):
+                with feature_col:
+                    fund_features = feature_bundle.get("features") or {}
+                    fund_groups = rows_df(fund_features.get("group_importance"))
+                    fund_top = rows_df(fund_features.get("top_features"))
+                    st.markdown(f"### {feature_label}")
+                    st.caption(
+                        f"{fund_features.get('n_models', 'n/a')} walk-forward models | "
+                        f"{len(fund_top)} scored features shown"
+                    )
+                    if not fund_groups.empty:
+                        fund_groups = fund_groups.rename(columns={"name": "group", "value": "share_pct"})
+                        render_chart(hbar_fig(
+                            fund_groups.sort_values("share_pct"), "group", "share_pct",
+                            f"{feature_label} — feature group share (%)",
+                        ))
+                    if not fund_top.empty:
+                        display_top = fund_top.head(20).copy()
+                        render_chart(hbar_fig(
+                            display_top.sort_values("share_pct"), "feature", "share_pct",
+                            f"{feature_label} — top feature score share (%)", color="group",
+                        ))
+                        st.dataframe(
+                            fmt_table(
+                                display_top[["feature", "group", "importance", "share_pct"]],
+                                [], digits=2,
+                            ),
+                            width="stretch", hide_index=True, height=420,
+                        )
+                    else:
+                        st.info(f"No {feature_label} feature scores are available.")
+            st.divider()
+            st.subheader("Production S0 adoption diagnostics")
+            st.caption("The attribution, overlay and factor-ablation diagnostics below remain S0-specific research artifacts.")
         features = data["features"]
         fg = rows_df(features.get("group_importance"))
         if not fg.empty:
@@ -812,6 +1100,67 @@ def main() -> None:
     with tabs[7]:
         st.subheader("Stock drivers")
         attr = data["feature_attribution"]
+        challenger_attr = (challenger.get("feature_attribution") or {}) if challenger else {}
+        shared_tickers = sorted(
+            set((attr.get("tickers") or {}).keys())
+            & set((challenger_attr.get("tickers") or {}).keys())
+        )
+        if shared_tickers:
+            st.markdown(
+                "<div class='note'>Select one stock to compare its portfolio weight, active weight, "
+                "model score and local SHAP drivers in both funds. SHAP scales are model-specific.</div>",
+                unsafe_allow_html=True,
+            )
+            challenger_default = prepare_stock_drivers(challenger_attr, None)["default"]
+            shared_default_idx = (
+                shared_tickers.index(challenger_default)
+                if challenger_default in shared_tickers else 0
+            )
+            shared_selected = st.selectbox(
+                "Stock", shared_tickers, index=shared_default_idx,
+                key="shared_stock_drivers_select",
+            )
+            pair_cols = st.columns(2)
+            for pair_col, pair_label, pair_attr in (
+                (pair_cols[0], "Production S0", attr),
+                (pair_cols[1], "Causal Rank 65", challenger_attr),
+            ):
+                pair_view = prepare_stock_drivers(pair_attr, shared_selected)
+                with pair_col:
+                    st.markdown(f"### {pair_label}")
+                    st.caption(
+                        f"Position as of {pair_attr.get('as_of', 'n/a')} | "
+                        f"model {pair_attr.get('model_date', 'n/a')}"
+                    )
+                    pm = pair_view["metrics"]
+                    pmetrics = st.columns(4)
+                    pmetrics[0].metric("Weight", pct(pm["weight"], 2))
+                    pmetrics[1].metric("BM Weight", pct(pm["bm_weight"], 2))
+                    pmetrics[2].metric("Active", pct(pm["active"], 2, signed=True))
+                    pmetrics[3].metric("Model score", num(pm["mu"], 4))
+                    pdrv = pd.DataFrame({
+                        "feature": [f"{f} ({g})" for f, g, _v in pair_view["top_features"]],
+                        "shap": [v for _f, _g, v in pair_view["top_features"]],
+                    })
+                    pdrv["direction"] = np.where(pdrv["shap"] >= 0, "pos", "neg")
+                    pfig = px.bar(
+                        pdrv, x="shap", y="feature", orientation="h",
+                        color="direction", color_discrete_map={"pos": COLOR_POS, "neg": COLOR_NEG},
+                        title=f"{pair_label} — {shared_selected} drivers", template="plotly_white",
+                    )
+                    pfig.update_layout(
+                        yaxis={"categoryorder": "total ascending"},
+                        xaxis_title="SHAP contribution", yaxis_title="", showlegend=False,
+                    )
+                    render_chart(apply_theme(
+                        pfig, height=max(360, min(620, 30 * max(len(pdrv), 7)))
+                    ))
+                    st.dataframe(
+                        fmt_table(pdrv[["feature", "shap"]], [], digits=5),
+                        width="stretch", hide_index=True, height=380,
+                    )
+            st.divider()
+            st.subheader("Production S0 legacy detail")
         base = prepare_stock_drivers(attr, None)
         if base is None:
             st.info("Run export_operating_data.py to generate feature attribution.")
@@ -869,6 +1218,80 @@ def main() -> None:
                 "SHAP는 모델 수익률 예측(mu)에 대한 귀속이다. 실제 OW/UW는 mu에 더해 "
                 "리스크 모델·제약(TE·캡·섹터)을 거친 최적화 결과다."
             )
+    with tabs[8]:
+        st.subheader("Portfolio comparison")
+        if not challenger:
+            st.info("Causal Rank 65 bundle is not available yet. The dashboard is in legacy compatibility mode.")
+        else:
+            metric_defs = [
+                ("Annual Return", "annual_return"),
+                ("Active Return", "active_return"),
+                ("Information Ratio", "information_ratio"),
+                ("Tracking Error", "tracking_error"),
+                ("Realized Beta", "realized_beta"),
+                ("Annual Turnover", "avg_annual_turnover"),
+                ("Max Drawdown", "max_drawdown"),
+                ("Average IC", "avg_ic"),
+            ]
+            comparison_rows = []
+            for label, key in metric_defs:
+                base_value = perf.get(key)
+                challenger_value = challenger_perf.get(key)
+                comparison_rows.append({
+                    "metric": label,
+                    "Production S0": base_value,
+                    "Causal Rank 65": challenger_value,
+                    "delta": (
+                        float(challenger_value) - float(base_value)
+                        if base_value is not None and challenger_value is not None else None
+                    ),
+                })
+            st.dataframe(pd.DataFrame(comparison_rows), width="stretch", hide_index=True)
+            if not comparison_returns.empty:
+                render_chart(line_fig(
+                    comparison_returns, list(comparison_returns.columns),
+                    "Cumulative wealth comparison", "Growth of $1",
+                ))
+
+            prod_roll = rows_df(monitoring.get("rolling"))
+            causal_roll = rows_df((challenger.get("monitoring") or {}).get("rolling"))
+            if not prod_roll.empty and not causal_roll.empty:
+                prod_roll["date"] = pd.to_datetime(prod_roll["date"])
+                causal_roll["date"] = pd.to_datetime(causal_roll["date"])
+                rolling_ir = (
+                    prod_roll.set_index("date")[["information_ratio_252d"]]
+                    .rename(columns={"information_ratio_252d": "Production S0"})
+                    .join(
+                        causal_roll.set_index("date")[["information_ratio_252d"]]
+                        .rename(columns={"information_ratio_252d": "Causal Rank 65"}),
+                        how="inner",
+                    )
+                )
+                render_chart(line_fig(
+                    rolling_ir, list(rolling_ir.columns),
+                    "Rolling 252-day information ratio", "IR",
+                ))
+
+            prod_hold = rows_df(holdings.get("all"))
+            causal_hold = rows_df(challenger_holdings.get("all"))
+            if not prod_hold.empty and not causal_hold.empty:
+                weight_diff = prod_hold[["ticker", "sector", "weight", "active"]].merge(
+                    causal_hold[["ticker", "weight", "active"]],
+                    on="ticker", suffixes=("_s0", "_causal"),
+                )
+                weight_diff["weight_delta"] = weight_diff["weight_causal"] - weight_diff["weight_s0"]
+                weight_diff["active_delta"] = weight_diff["active_causal"] - weight_diff["active_s0"]
+                weight_diff = weight_diff.reindex(
+                    weight_diff["weight_delta"].abs().sort_values(ascending=False).index
+                )
+                st.subheader("Largest holding differences")
+                st.dataframe(
+                    fmt_table(
+                        weight_diff.head(20),
+                        ["weight_s0", "weight_causal", "active_s0", "active_causal", "weight_delta", "active_delta"],
+                    ),
+                    width="stretch", hide_index=True,
+                )
 
 
 if __name__ == "__main__":
