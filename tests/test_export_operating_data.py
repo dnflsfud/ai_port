@@ -68,3 +68,36 @@ def test_smoke_additivity():
         recon = float(rec["base_value"]) + float(sum(rec["shap"].values()))
         assert abs(recon - float(rec["mu"])) <= 1e-3 * abs(float(rec["mu"])) + 1e-9
     assert out.get("additivity_ok") is True
+
+
+def test_rebalance_metadata_for_non_rebalance_and_rebalance_asof():
+    from scripts.export_operating_data import build_rebalance_metadata
+
+    dates = pd.bdate_range("2026-01-02", periods=25)
+    non_rebalance = build_rebalance_metadata(
+        [dates[0], dates[21]],
+        dates,
+        21,
+    )
+    assert non_rebalance["last_rebalance_date"] == dates[21].strftime("%Y-%m-%d")
+    assert non_rebalance["rows_since_last_rebalance"] == 3
+    assert non_rebalance["rows_until_next_rebalance"] == 18
+    assert non_rebalance["is_rebalance_data_as_of"] is False
+    assert pd.Timestamp(non_rebalance["next_expected_rebalance_date"]).dayofweek < 5
+
+    rebalance_asof = build_rebalance_metadata(
+        [dates[0], dates[21]],
+        dates[:22],
+        21,
+    )
+    assert rebalance_asof["is_rebalance_data_as_of"] is True
+    assert rebalance_asof["rows_since_last_rebalance"] == 0
+    assert rebalance_asof["rows_until_next_rebalance"] == 21
+
+
+def test_rebalance_metadata_rejects_weekend_calendar():
+    from scripts.export_operating_data import build_rebalance_metadata
+
+    dates = pd.to_datetime(["2026-01-02", "2026-01-03"])
+    with np.testing.assert_raises_regex(ValueError, "weekend"):
+        build_rebalance_metadata([dates[0]], dates, 21)

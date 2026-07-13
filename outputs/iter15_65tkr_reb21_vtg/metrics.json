@@ -93,22 +93,22 @@
     "dr_alpha_enabled": false
   },
   "metrics": {
-    "annual_return": 0.26793643744292406,
-    "annual_vol": 0.21787522839534498,
-    "sharpe_ratio": 1.229770081786171,
-    "active_return": 0.025927293830202425,
-    "tracking_error": 0.028747560384826634,
-    "information_ratio": 0.9018954472354883,
+    "annual_return": 0.2685483662628181,
+    "annual_vol": 0.21809538096758024,
+    "sharpe_ratio": 1.2313344971883546,
+    "active_return": 0.025980670296658515,
+    "tracking_error": 0.02877668033680501,
+    "information_ratio": 0.9028376446684702,
     "max_drawdown": -0.2952375824748794,
-    "avg_annual_turnover": 1.067760428709303,
-    "avg_annual_turnover_one_way": 0.5338802143546515,
+    "avg_annual_turnover": 1.0699306734831022,
+    "avg_annual_turnover_one_way": 0.5349653367415511,
     "avg_ic": 0.03964079871537493,
-    "annual_tc": 0.001067760428709303,
-    "spx_annual_return": 0.13630926092769435,
-    "spx_annual_vol": 0.19364459209552962,
-    "spx_sharpe": 0.7039146275794248,
-    "realized_beta": 0.9929216796582416,
-    "realized_active_beta": -0.007078320341758443,
+    "annual_tc": 0.0010699306734831022,
+    "spx_annual_return": 0.13660442907415482,
+    "spx_annual_vol": 0.1938409370437452,
+    "spx_sharpe": 0.7047243536762645,
+    "realized_beta": 0.9929205691407054,
+    "realized_active_beta": -0.007079430859294379,
     "sub_periods": {
       "P1_ir": 0.13698284455780327,
       "P2_ir": 0.22045769188235118,
@@ -709,10 +709,12 @@
     "intersection_dates": 3217,
     "longest_sheet_dates": 4894,
     "intersection_pct_of_longest": 0.6573355128729056,
-    "tail_ffill_days": 16,
+    "tail_ffill_days": 12,
     "tail_from": "2026-05-26",
     "tail_to": "2026-06-11",
-    "tail_extended_dates": 16,
+    "tail_extended_dates": 12,
+    "weekend_dates_removed": 4,
+    "calendar_type": "weekday_index",
     "max_tail_ffill_days": 10,
     "fail_on_stale_tail_ffill": false
   },
@@ -720,5 +722,5 @@
     "ECOS": 188
   },
   "optimizer_solver_fallback_rate": 0.0,
-  "elapsed_sec": 318.1
+  "elapsed_sec": 487.4
 }

@@ -99,22 +99,22 @@
     "dr_alpha_enabled": false
   },
   "metrics": {
-    "annual_return": 0.31564361331507684,
-    "annual_vol": 0.23039550514309665,
-    "sharpe_ratio": 1.3700076879496124,
-    "active_return": 0.06716945467435931,
-    "tracking_error": 0.03962561984896655,
-    "information_ratio": 1.6951016774091197,
+    "annual_return": 0.31637738540459814,
+    "annual_vol": 0.2306280580862225,
+    "sharpe_ratio": 1.371807871210178,
+    "active_return": 0.06731047302513082,
+    "tracking_error": 0.039665448457353036,
+    "information_ratio": 1.6969547967546816,
     "max_drawdown": -0.29445653939641747,
-    "avg_annual_turnover": 0.8849492457167908,
-    "avg_annual_turnover_one_way": 0.4424746228583954,
+    "avg_annual_turnover": 0.8867479230454834,
+    "avg_annual_turnover_one_way": 0.4433739615227417,
     "avg_ic": 0.027618504209489296,
-    "annual_tc": 0.0008849492457167908,
-    "spx_annual_return": 0.13630926092769435,
-    "spx_annual_vol": 0.19364459209552962,
-    "spx_sharpe": 0.7039146275794248,
-    "realized_beta": 1.0443737919368228,
-    "realized_active_beta": 0.04437379193682288,
+    "annual_tc": 0.0008867479230454835,
+    "spx_annual_return": 0.13660442907415482,
+    "spx_annual_vol": 0.1938409370437452,
+    "spx_sharpe": 0.7047243536762645,
+    "realized_beta": 1.0443715704731908,
+    "realized_active_beta": 0.04437157047319131,
     "sub_periods": {
       "P1_ir": 0.7524302469986336,
       "P2_ir": 0.7722779153877484,
@@ -736,10 +736,12 @@
     "intersection_dates": 3217,
     "longest_sheet_dates": 4894,
     "intersection_pct_of_longest": 0.6573355128729056,
-    "tail_ffill_days": 16,
+    "tail_ffill_days": 12,
     "tail_from": "2026-05-26",
     "tail_to": "2026-06-11",
-    "tail_extended_dates": 16,
+    "tail_extended_dates": 12,
+    "weekend_dates_removed": 4,
+    "calendar_type": "weekday_index",
     "max_tail_ffill_days": 10,
     "fail_on_stale_tail_ffill": false
   },
@@ -747,5 +749,5 @@
     "ECOS": 188
   },
   "optimizer_solver_fallback_rate": 0.0,
-  "elapsed_sec": 368.8
+  "elapsed_sec": 935.4
 }

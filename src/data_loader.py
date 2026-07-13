@@ -314,24 +314,40 @@ def align_dates(
 
     common_idx = common_idx.sort_values()
 
+    # Rebalance cadence is defined in trading-day rows. Bloomberg PX_LAST can
+    # carry Friday prices onto Saturday/Sunday in the recent tail; allowing
+    # those rows into the model calendar makes a 21-day rebalance count
+    # calendar rows. Remove weekends before constructing either calendar arm.
+    weekend_common_dates = common_idx[common_idx.dayofweek >= 5]
+    common_idx = common_idx[common_idx.dayofweek < 5]
+    if len(common_idx) == 0:
+        raise ValueError("No weekday dates remain after calendar filtering.")
+
     # 2) PX_LAST 끝 날짜까지 tail 확장
     if "PX_LAST" in processed:
-        px_end = processed["PX_LAST"].index.max()
+        ref_idx = processed["PX_LAST"].index
     elif "Daily_Returns" in processed:
-        px_end = processed["Daily_Returns"].index.max()
+        ref_idx = processed["Daily_Returns"].index
     else:
-        px_end = common_idx[-1]
+        ref_idx = common_idx
+
+    ref_idx = pd.DatetimeIndex(ref_idx).sort_values().unique()
+    ref_weekday_idx = ref_idx[ref_idx.dayofweek < 5]
+    if len(ref_weekday_idx) == 0:
+        raise ValueError("Reference price calendar has no weekday dates.")
+    px_end = ref_weekday_idx.max()
 
     n_extended = 0
     tail_from = None
     tail_to = None
+    weekend_tail_dates = pd.DatetimeIndex([])
     if px_end > common_idx[-1]:
         # PX_LAST 캘린더에서 교집합 끝 이후~PX_LAST 끝까지의 날짜 추가
-        if "PX_LAST" in processed:
-            ref_tail = processed["PX_LAST"].index
-        else:
-            ref_tail = processed["Daily_Returns"].index
-        tail_dates = ref_tail[(ref_tail > common_idx[-1]) & (ref_tail <= px_end)]
+        raw_tail_dates = ref_idx[(ref_idx > common_idx[-1]) & (ref_idx <= ref_idx.max())]
+        weekend_tail_dates = raw_tail_dates[raw_tail_dates.dayofweek >= 5]
+        tail_dates = ref_weekday_idx[
+            (ref_weekday_idx > common_idx[-1]) & (ref_weekday_idx <= px_end)
+        ]
         extended_idx = common_idx.append(tail_dates).sort_values().unique()
         n_extended = len(tail_dates)
         tail_from = common_idx[-1]
@@ -357,6 +373,10 @@ def align_dates(
         "tail_from": tail_from.strftime("%Y-%m-%d") if tail_from is not None else None,
         "tail_to": tail_to.strftime("%Y-%m-%d") if tail_to is not None else None,
         "tail_extended_dates": int(len(extended_idx) - len(common_idx)),
+        "weekend_dates_removed": int(
+            len(weekend_common_dates.append(weekend_tail_dates).unique())
+        ),
+        "calendar_type": "weekday_index",
         "max_tail_ffill_days": int(getattr(config, "max_tail_ffill_days", 10)),
         "fail_on_stale_tail_ffill": bool(getattr(config, "fail_on_stale_tail_ffill", False)),
     })

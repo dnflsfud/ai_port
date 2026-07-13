@@ -58,6 +58,7 @@ def validate_bundle(bundle_dir: Path) -> dict:
     meta = _read_json(bundle_dir / "portfolio.json")
     perf = _read_json(bundle_dir / "performance.json")
     holdings = _read_json(bundle_dir / "holdings.json")
+    operations = _read_json(bundle_dir / "operations.json")
     for name in REQUIRED_FILES:
         if name.endswith(".json"):
             _read_json(bundle_dir / name)
@@ -65,6 +66,12 @@ def validate_bundle(bundle_dir: Path) -> dict:
     returns = pd.read_csv(bundle_dir / "returns.csv", parse_dates=["date"])
     if returns.empty or returns["date"].isna().all():
         raise ValueError(f"{bundle_dir}: returns.csv has no dated observations")
+    if returns["date"].duplicated().any():
+        raise ValueError(f"{bundle_dir}: returns.csv has duplicate dates")
+    weekend_rows = returns.loc[returns["date"].dt.dayofweek >= 5, "date"]
+    if not weekend_rows.empty:
+        sample = weekend_rows.dt.strftime("%Y-%m-%d").head(5).tolist()
+        raise ValueError(f"{bundle_dir}: returns.csv contains weekend dates: {sample}")
     returns_as_of = returns["date"].max().strftime("%Y-%m-%d")
     if perf.get("as_of") != returns_as_of or meta.get("data_as_of") != returns_as_of:
         raise ValueError(
@@ -74,6 +81,56 @@ def validate_bundle(bundle_dir: Path) -> dict:
         )
     if pd.Timestamp(holdings.get("as_of")) > pd.Timestamp(returns_as_of):
         raise ValueError(f"{bundle_dir}: holdings date is after performance date")
+
+    data_quality = perf.get("data_quality") or {}
+    tail_days = data_quality.get("tail_ffill_days")
+    max_tail_days = data_quality.get("max_tail_ffill_days")
+    if tail_days is not None and max_tail_days is not None and int(tail_days) > int(max_tail_days):
+        fail_on = bool(data_quality.get("fail_on_stale_tail_ffill", False))
+        if fail_on:
+            raise ValueError(
+                f"{bundle_dir}: stale tail exceeds limit: {tail_days} > {max_tail_days}"
+            )
+        print(
+            f"[bundle-validator] WARN: {bundle_dir}: stale tail {tail_days} > {max_tail_days} "
+            f"(fail_on_stale_tail_ffill=false)",
+            file=sys.stderr,
+        )
+
+    rebalance_fields = (
+        "last_rebalance_date",
+        "previous_rebalance_date",
+        "next_expected_rebalance_date",
+        "rebalance_freq_days",
+        "rebalance_calendar",
+        "rows_since_last_rebalance",
+        "rows_until_next_rebalance",
+        "is_rebalance_data_as_of",
+        "next_rebalance_is_estimate",
+    )
+    missing_rebalance = [field for field in rebalance_fields if field not in meta]
+    if missing_rebalance:
+        raise ValueError(f"{bundle_dir}: missing rebalance metadata: {missing_rebalance}")
+    for field in rebalance_fields:
+        if operations.get(field) != meta.get(field):
+            raise ValueError(f"{bundle_dir}: operations/portfolio {field} mismatch")
+    last_rebalance = pd.Timestamp(meta["last_rebalance_date"])
+    next_rebalance = pd.Timestamp(meta["next_expected_rebalance_date"])
+    if (
+        holdings.get("as_of") != meta["last_rebalance_date"]
+        or operations.get("as_of") != meta["last_rebalance_date"]
+    ):
+        raise ValueError(f"{bundle_dir}: latest holdings/operations rebalance date mismatch")
+    if next_rebalance <= last_rebalance or next_rebalance.dayofweek >= 5:
+        raise ValueError(f"{bundle_dir}: invalid next expected rebalance date")
+    freq = int(meta["rebalance_freq_days"])
+    rows_since = int(meta["rows_since_last_rebalance"])
+    rows_until = int(meta["rows_until_next_rebalance"])
+    if freq <= 0 or rows_since < 0 or rows_until <= 0 or rows_since + rows_until != freq:
+        raise ValueError(f"{bundle_dir}: inconsistent rebalance row counters")
+    expected_is_rebalance = returns_as_of == meta["last_rebalance_date"]
+    if bool(meta["is_rebalance_data_as_of"]) != expected_is_rebalance:
+        raise ValueError(f"{bundle_dir}: is_rebalance_data_as_of mismatch")
     if int(meta.get("universe_size", 0)) != len(meta.get("universe") or []):
         raise ValueError(f"{bundle_dir}: universe_size does not match universe list")
     expected_universe_hash = hashlib.sha256(
@@ -142,7 +199,19 @@ def build_registry(bundle_dirs: list[Path]) -> dict:
     if len(ids) != len(set(ids)):
         raise ValueError(f"duplicate portfolio ids: {ids}")
 
-    common_fields = ("data_as_of", "universe_hash", "benchmark_type")
+    common_fields = (
+        "data_as_of",
+        "universe_hash",
+        "benchmark_type",
+        "last_rebalance_date",
+        "previous_rebalance_date",
+        "next_expected_rebalance_date",
+        "rebalance_freq_days",
+        "rebalance_calendar",
+        "rows_since_last_rebalance",
+        "rows_until_next_rebalance",
+        "is_rebalance_data_as_of",
+    )
     for field in common_fields:
         values = {row.get(field) for row in records}
         if len(values) != 1:
