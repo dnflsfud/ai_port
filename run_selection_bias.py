@@ -65,12 +65,13 @@ def load_experiment_inventory() -> int:
 
 
 # Production candidates checked when --pkl / --label are not supplied. Order
-# matters: top-level legacy path first (preserves prior --auto behavior), then
-# current production variant, then prior production. Update when production
-# baseline rotates (e.g. after a new iter15_* freeze).
+# matters: codex_causal_rank_65 = current production (2026-07-11 승격) first,
+# iter15 = legacy challenger next, then top-level legacy path and prior
+# production. Update when production baseline rotates.
 _PKL_FALLBACK_ORDER = [
-    OUTPUT_DIR / "backtest_result.pkl",
+    OUTPUT_DIR / "codex_causal_rank_65" / "backtest_result.pkl",
     OUTPUT_DIR / "iter15_65tkr_reb21_vtg" / "backtest_result.pkl",
+    OUTPUT_DIR / "backtest_result.pkl",
     OUTPUT_DIR / "baseline_v4" / "backtest_result.pkl",
 ]
 

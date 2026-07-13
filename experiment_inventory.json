@@ -127,9 +127,37 @@
       "param_space": "news_trend_feature_enabled=true (single pre-registered feature)",
       "trials": 1,
       "result": "IR 1.272249 (dIR -0.2092, subperiod P1/P2/P3 dIR all negative -0.053/-0.309/-0.180) -> gate not met, OFF-default, no flip. Feature injection confirmed (model features 61->62, exactly +news_trend). TE 0.030094 (<=0.045, character preserved), ECOS 188 / fallback 0.0%."
+    },
+    {
+      "script": "iter15_65tkr_reb21_vtg_causal_recert",
+      "phase": "Causal-discipline S0' re-certification (2026-07-10, user-directed): production variant iter15 with causal_validation_enabled=true + execution_signal_lag_days=1 (both correctness fixes flipped simultaneously). New reference baseline under causal discipline. Distinct config (IR changed, NOT a byte-identical OFF-parity recheck like exp_s0_recheck_d2), counted per redesign-precedent (adopted structural baseline change = 1 trial). ECOS, --no-cache.",
+      "param_space": "causal_validation_enabled=true + execution_signal_lag_days=1 on iter15_65tkr_reb21_vtg (coordinated correctness flip, no sweep)",
+      "trials": 1,
+      "result": "IR 0.902 (vs pre-causal 1.481, -0.579; active 2.59%, TE 2.87%, turnover 106.8%, realized_beta 0.993, MDD -29.5%; P1 0.14/P2 0.22/P3 2.09). pre-causal 1.481 retired as comparison base (val-label leakage + t-close-fill optimism). Becomes the S0' reference all challengers are measured against."
+    },
+    {
+      "script": "exp_causal_val_only",
+      "phase": "Causal contribution decomposition arm A (2026-07-10): causal_validation_enabled=true only (exec_lag=0) on iter15 base, isolating the val-label leakage (early-stopping) fix. Single-flag diagnostic arm, ECOS, --no-cache.",
+      "param_space": "causal_validation_enabled=true, execution_signal_lag_days=0 (single decomposition arm)",
+      "trials": 1,
+      "result": "IR 0.920 (dIR -0.561 vs pre-causal 1.481; P1 0.26/P2 0.30/P3 2.05). Attributes ~all of the S0 IR drop to val-label leakage repair; P1 collapse 1.59->0.26. Diagnostic decomposition, not a production candidate."
+    },
+    {
+      "script": "exp_exec_lag_only",
+      "phase": "Causal contribution decomposition arm B (2026-07-10): execution_signal_lag_days=1 only (causal_val off) on iter15 base, isolating the t-close-signal/t-close-fill optimism fix. Single-flag diagnostic arm, ECOS, --no-cache.",
+      "param_space": "causal_validation_enabled=false, execution_signal_lag_days=1 (single decomposition arm)",
+      "trials": 1,
+      "result": "IR 1.486 (dIR +0.005 vs pre-causal 1.481; P1 1.38/P2 0.64/P3 2.10). 1d execution lag alone is noise-band (|dIR|<1SE). Diagnostic decomposition, not a production candidate."
+    },
+    {
+      "script": "codex_causal_rank_65",
+      "phase": "GPT-5.6 challenger (2026-07-10): rank_xendcg LightGBM objective (model_objective=cross_sectional_rank, metric=ndcg) + causal validation split + 1d execution signal lag. Reuses default-OFF causal infra. Single pre-registered config, no sweep. ECOS, --no-cache full re-run.",
+      "param_space": "lgbm objective=rank_xendcg + causal_validation_enabled=true + execution_signal_lag_days=1 (single pre-registered challenger config)",
+      "trials": 1,
+      "result": "IR 1.695 vs causal-discipline S0' 0.902 (dIR +0.79 > +0.36 1SE; subperiod P1 0.752/P2 0.772/P3 3.080, all-positive 3/3) -> §2-4 adoption bar met, comparison_gate PASS 7/7. Promotion package pending this DSR/selection-bias gate."
     }
   ],
-  "n_trials_total": 408,
+  "n_trials_total": 412,
   "notes": [
     "396 is a conservative lower bound. Actual N is likely higher once",
     "ad-hoc config.py tweaks over the research period are counted.",
@@ -141,6 +169,11 @@
     "N 403 -> 407. A4's seed 43-46 harvests are non-selection diagnostic inputs, NOT counted",
     "as trials (they feed the single A4 ensemble config).",
     "2026-07-07: +1 S8 arm (news_trend sentiment feature), evaluated and OFF-default (no flip).",
-    "N 407 -> 408."
+    "N 407 -> 408.",
+    "2026-07-10: causal-discipline work +4 distinct configs: iter15 causal S0' re-cert",
+    "(both fixes, new baseline), decomposition arm A (causal_val_only), arm B (exec_lag_only),",
+    "and challenger codex_causal_rank_65 (rank_xendcg, IR 1.695, promotion candidate). S0' counted",
+    "as a distinct config (IR changed 1.481->0.902, not a byte-identical parity recheck).",
+    "N 408 -> 412."
   ]
 }

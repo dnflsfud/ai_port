@@ -265,16 +265,21 @@ def load_operating_bundle(meta: dict, project_root=HERE) -> dict:
     }
 
 
-def build_comparison_returns(production: pd.DataFrame, challenger: pd.DataFrame) -> pd.DataFrame:
+def build_comparison_returns(
+    production: pd.DataFrame,
+    challenger: pd.DataFrame,
+    prod_name: str = "Production",
+    chal_name: str = "Challenger",
+) -> pd.DataFrame:
     """Align the two portfolio curves and retain one common benchmark curve."""
     if production.empty:
         return pd.DataFrame()
     out = production[[c for c in ("portfolio_cum", "benchmark_cum") if c in production]].rename(
-        columns={"portfolio_cum": "Production S0", "benchmark_cum": "Benchmark"}
+        columns={"portfolio_cum": prod_name, "benchmark_cum": "Benchmark"}
     )
     if not challenger.empty and "portfolio_cum" in challenger:
         out = out.join(
-            challenger[["portfolio_cum"]].rename(columns={"portfolio_cum": "Causal Rank 65"}),
+            challenger[["portfolio_cum"]].rename(columns={"portfolio_cum": chal_name}),
             how="inner",
         )
     return out.sort_index()
@@ -511,12 +516,14 @@ def main() -> None:
     monitoring = data["monitoring"]
     challenger = data.get("challenger") or {}
     challenger_meta = challenger.get("meta") or {}
+    prod_name = (data["production"]["meta"] or {}).get("display_name") or "Production"
+    chal_name = challenger_meta.get("display_name") or "Challenger"
     challenger_perf = challenger.get("perf") or {}
     challenger_holdings = challenger.get("holdings") or {}
     challenger_returns = challenger.get("returns")
     if not isinstance(challenger_returns, pd.DataFrame):
         challenger_returns = pd.DataFrame()
-    comparison_returns = build_comparison_returns(returns, challenger_returns)
+    comparison_returns = build_comparison_returns(returns, challenger_returns, prod_name, chal_name)
 
     stage0 = summary.get("stage0_baseline", {})
     stage2 = summary.get("stage2_overlay", {})
@@ -539,7 +546,7 @@ def main() -> None:
         f"<span class='chip {'chip-ok' if factor_ok else 'chip-warn'}'>Factor collapsed={stage3.get('collapsed')}</span>"
         "<span class='chip chip-ok'>Production weights unchanged</span>"
         + (f"<span class='chip {'chip-ok' if challenger_meta.get('status') == 'PASS' else 'chip-warn'}'>"
-           f"Causal Rank {challenger_meta.get('status', 'not built')}</span>" if challenger else "") +
+           f"{chal_name} {challenger_meta.get('status', 'not built')}</span>" if challenger else "") +
         "</div>",
         unsafe_allow_html=True,
     )
@@ -549,8 +556,8 @@ def main() -> None:
         st.metric("Performance as of", perf.get("as_of", "n/a"))
         st.metric("Holdings as of", holdings.get("as_of", "n/a"))
         if challenger:
-            st.metric("Causal data as of", challenger_perf.get("as_of", "n/a"))
-            st.metric("Causal holdings as of", challenger_holdings.get("as_of", "n/a"))
+            st.metric(f"{chal_name} data as of", challenger_perf.get("as_of", "n/a"))
+            st.metric(f"{chal_name} holdings as of", challenger_holdings.get("as_of", "n/a"))
         st.metric("Solver", "ECOS")
 
         generated = data["registry"].get("generated_at_utc")
@@ -587,7 +594,7 @@ def main() -> None:
             filtered_challenger_returns = challenger_returns.loc[
                 (challenger_returns.index >= start) & (challenger_returns.index <= end)
             ].copy()
-    comparison_returns = build_comparison_returns(filtered_returns, filtered_challenger_returns)
+    comparison_returns = build_comparison_returns(filtered_returns, filtered_challenger_returns, prod_name, chal_name)
 
     def sector_filter(df: pd.DataFrame) -> pd.DataFrame:
         if df.empty or sector == "All sectors" or "sector" not in df.columns:
@@ -603,7 +610,7 @@ def main() -> None:
     top_cols[5].metric("Active Share", pct(holdings.get("active_share_one_way"), 2))
 
     if challenger:
-        st.caption("Causal Rank 65 challenger")
+        st.caption(f"{chal_name} challenger")
         challenger_cols = st.columns(6)
         challenger_cols[0].metric("Annual Return", pct(challenger_perf.get("annual_return"), 1))
         challenger_cols[1].metric("Active Return", pct(challenger_perf.get("active_return"), 2, signed=True))
@@ -716,14 +723,14 @@ def main() -> None:
             prod_leaders = rows_df(contribution.get("by_ticker"))
             causal_leaders = rows_df((challenger.get("contribution") or {}).get("by_ticker"))
             with pc1:
-                st.markdown("**Production S0**")
+                st.markdown(f"**{prod_name}**")
                 if not prod_leaders.empty:
                     st.dataframe(
                         fmt_table(prod_leaders.nlargest(8, "active_contribution")[["ticker", "sector", "active_contribution"]], ["active_contribution"]),
                         width="stretch", hide_index=True,
                     )
             with pc2:
-                st.markdown("**Causal Rank 65**")
+                st.markdown(f"**{chal_name}**")
                 if not causal_leaders.empty:
                     st.dataframe(
                         fmt_table(causal_leaders.nlargest(8, "active_contribution")[["ticker", "sector", "active_contribution"]], ["active_contribution"]),
@@ -768,8 +775,8 @@ def main() -> None:
             )
             pr1, pr2 = st.columns(2)
             for col, label, bundle in (
-                (pr1, "Production S0", data["production"]),
-                (pr2, "Causal Rank 65", challenger),
+                (pr1, prod_name, data["production"]),
+                (pr2, chal_name, challenger),
             ):
                 with col:
                     rmeta = bundle.get("risk") or {}
@@ -817,7 +824,7 @@ def main() -> None:
                             f"{label} — sector active TE",
                         ))
             st.divider()
-            st.subheader("Production S0 legacy detail")
+            st.subheader(f"{prod_name} legacy detail")
         risk_df = sector_filter(rows_df(risk.get("by_ticker")))
         sector_risk = sector_filter(rows_df(risk.get("by_sector")).rename(columns={"name": "sector"}))
         if risk.get("error"):
@@ -860,10 +867,10 @@ def main() -> None:
                 causal_turn["date"] = pd.to_datetime(causal_turn["date"])
                 turn_compare = (
                     prod_turn.set_index("date")[["turnover_two_way"]]
-                    .rename(columns={"turnover_two_way": "Production S0"})
+                    .rename(columns={"turnover_two_way": prod_name})
                     .join(
                         causal_turn.set_index("date")[["turnover_two_way"]]
-                        .rename(columns={"turnover_two_way": "Causal Rank 65"}),
+                        .rename(columns={"turnover_two_way": chal_name}),
                         how="outer",
                     )
                     .sort_index()
@@ -928,8 +935,8 @@ def main() -> None:
             )
             feature_cols = st.columns(2)
             for feature_col, feature_label, feature_bundle in (
-                (feature_cols[0], "Production S0", data["production"]),
-                (feature_cols[1], "Causal Rank 65", challenger),
+                (feature_cols[0], prod_name, data["production"]),
+                (feature_cols[1], chal_name, challenger),
             ):
                 with feature_col:
                     fund_features = feature_bundle.get("features") or {}
@@ -962,7 +969,7 @@ def main() -> None:
                     else:
                         st.info(f"No {feature_label} feature scores are available.")
             st.divider()
-            st.subheader("Production S0 adoption diagnostics")
+            st.subheader(f"{prod_name} adoption diagnostics")
             st.caption("The attribution, overlay and factor-ablation diagnostics below remain S0-specific research artifacts.")
         features = data["features"]
         fg = rows_df(features.get("group_importance"))
@@ -1122,8 +1129,8 @@ def main() -> None:
             )
             pair_cols = st.columns(2)
             for pair_col, pair_label, pair_attr in (
-                (pair_cols[0], "Production S0", attr),
-                (pair_cols[1], "Causal Rank 65", challenger_attr),
+                (pair_cols[0], prod_name, attr),
+                (pair_cols[1], chal_name, challenger_attr),
             ):
                 pair_view = prepare_stock_drivers(pair_attr, shared_selected)
                 with pair_col:
@@ -1160,7 +1167,7 @@ def main() -> None:
                         width="stretch", hide_index=True, height=380,
                     )
             st.divider()
-            st.subheader("Production S0 legacy detail")
+            st.subheader(f"{prod_name} legacy detail")
         base = prepare_stock_drivers(attr, None)
         if base is None:
             st.info("Run export_operating_data.py to generate feature attribution.")
@@ -1221,7 +1228,7 @@ def main() -> None:
     with tabs[8]:
         st.subheader("Portfolio comparison")
         if not challenger:
-            st.info("Causal Rank 65 bundle is not available yet. The dashboard is in legacy compatibility mode.")
+            st.info(f"{chal_name} bundle is not available yet. The dashboard is in legacy compatibility mode.")
         else:
             metric_defs = [
                 ("Annual Return", "annual_return"),
@@ -1239,8 +1246,8 @@ def main() -> None:
                 challenger_value = challenger_perf.get(key)
                 comparison_rows.append({
                     "metric": label,
-                    "Production S0": base_value,
-                    "Causal Rank 65": challenger_value,
+                    prod_name: base_value,
+                    chal_name: challenger_value,
                     "delta": (
                         float(challenger_value) - float(base_value)
                         if base_value is not None and challenger_value is not None else None
@@ -1260,10 +1267,10 @@ def main() -> None:
                 causal_roll["date"] = pd.to_datetime(causal_roll["date"])
                 rolling_ir = (
                     prod_roll.set_index("date")[["information_ratio_252d"]]
-                    .rename(columns={"information_ratio_252d": "Production S0"})
+                    .rename(columns={"information_ratio_252d": prod_name})
                     .join(
                         causal_roll.set_index("date")[["information_ratio_252d"]]
-                        .rename(columns={"information_ratio_252d": "Causal Rank 65"}),
+                        .rename(columns={"information_ratio_252d": chal_name}),
                         how="inner",
                     )
                 )

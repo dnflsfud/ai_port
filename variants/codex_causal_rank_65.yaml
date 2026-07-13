@@ -1,6 +1,6 @@
 label: codex_causal_rank_65
 display_name: Causal Rank 65
-portfolio_role: challenger
+portfolio_role: production
 description: >
   Fixed-65 causal challenger. Uses date-grouped LightGBM rank_xendcg,
   purged/embargoed validation, and a one-trading-day execution signal lag.

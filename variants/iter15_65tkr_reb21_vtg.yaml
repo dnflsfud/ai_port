@@ -1,4 +1,6 @@
 label: iter15_65tkr_reb21_vtg
+display_name: Legacy S0
+portfolio_role: challenger
 description: >
   PRODUCTION. iter15_65tkr_reb21 + post-prediction value-trap gate.
   The value-trap gate zeroes score for (cheap PE z<-0.5) &

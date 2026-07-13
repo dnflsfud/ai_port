@@ -44,6 +44,6 @@ def test_comparison_returns_aligns_both_portfolios_and_one_benchmark():
         {"portfolio_cum": [1.0, 1.12, 1.25], "benchmark_cum": [1.0, 1.05, 1.1]},
         index=dates,
     )
-    out = build_comparison_returns(production, challenger)
-    assert list(out.columns) == ["Production S0", "Benchmark", "Causal Rank 65"]
+    out = build_comparison_returns(production, challenger, "Legacy S0", "Causal Rank 65")
+    assert list(out.columns) == ["Legacy S0", "Benchmark", "Causal Rank 65"]
     assert out.iloc[-1]["Causal Rank 65"] == 1.25

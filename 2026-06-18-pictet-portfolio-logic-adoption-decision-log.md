@@ -121,6 +121,17 @@
 - degenerate 비율 참고: pre-causal 16/32, arm A 18/32, S0' 18/32, codex rank 21/32 — 모델 붕괴 지표와 성과 급락은 무관(가설 기각).
 - 롤백: variant 2줄 revert = 기존 S0 경로 바이트 동일 복원.
 
+### 2026-07-11 codex_causal_rank_65 프로덕션 승격 (사용자 지시)
+- 근거: 인과 규율 하 동일 ECOS 비교에서 codex_causal_rank_65 IR 1.695 vs iter15_65tkr_reb21_vtg(S0') IR 0.902, ΔIR +0.79 > 0.36(1SE) & 서브기간 3/3 승(P1 0.752/P2 0.772/P3 3.080) & comparison_gate 7/7 PASS(승격 전 기준). DSR/selection-bias 해킷(N=412, 재현: `run_selection_bias.py --auto --label codex_causal_rank_65`): verdict FAIL — 단, FAIL은 DSR 단일 항목(deflated SR 1.212, p=0.113>0.10)이며 MinTRL 충분(1.0yr vs 7.8yr)·haircut 후 조정 SR 0.430>0 PASS·생존편향 CLEAN·서브기간 3/3 양(+) STABLE. 기존 프로덕션 S0도 동일 검사 FAIL(조정 SR 0.259)로, 절대 유의성 문제이지 상대 비교 문제가 아님. 사용자 명시 승인(2026-07-11 'DSR FAIL이어도 승격 진행해')으로 오버라이드.
+- 조치: role 교체 — codex를 production으로, iter15를 challenger(display "Legacy S0")로 승격.
+  - variant yaml 2개: codex `portfolio_role: production`, iter15 `portfolio_role: challenger` + `display_name: Legacy S0` 추가.
+  - export 기본값 로직(scripts/export_operating_data.py `_LABEL_DEFAULTS`): 무인자 경로에서도 iter15→(Legacy S0, challenger), codex→(Causal Rank 65, production), 미지 label→challenger.
+  - registry 재발행: export×2 + validate_portfolio_bundles → production=codex, challenger=iter15.
+  - 대시보드 라벨을 registry display_name 유도로 치환(streamlit_app.py, 슬롯/역할은 role 단어).
+- comparison_gate: 승격 후 challenger(iter15 IR 0.902) < production(codex IR 1.695)이므로 gate FAIL/RESEARCH 표시가 **정상적 방향 반전**임(non-blocking, registry 발행·체인 계속).
+- 주말 캘린더 수정 후 codex 재실행 IR 1.697(기존 1.695, 결론 불변). validator stale-tail 검사는 번들 정책(fail_on_stale_tail_ffill=false) 존중으로 화해 수정(하드 게이트는 정책 true일 때만) — 근거: variant가 명시한 경고-전용 정책과 신규 하드 게이트의 충돌 해소, 데이터 빈티지(as_of 2026-06-11)의 고정 속성인 12d tail이 체인 전체를 영구 차단하는 것 방지.
+- 롤백: yaml 2개 role 되돌림 + export 기본값 revert + export×2/validate 재실행 = 완전 복원.
+
 ## 재현 실행 (2026-06-19)
 - `ai_port/run_pictet_adoption.py` — 전 스테이지(S0→attribution→overlay→factor) from-scratch 재현 + 게이트 자동판정 → `outputs/adoption_summary.json`. ai_port CWD, 단일 foreground/스테이지, ⚑**로컬 경로 + `PYTHONPATH=.`(벤더링 엔진, 2026-06-19~)**.
 

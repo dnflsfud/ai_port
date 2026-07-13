@@ -16,8 +16,8 @@ the scalar metrics.json does not carry:
                    drawdown events and guardrail diagnostics
   features.json    gain-based feature importance averaged across the walk-forward
                    models (which features actually drove the book) + group rollup
-  operations.json  next-rebalance target weights, trade list (target - prev),
-                   sector exposure (port vs bm), turnover, fallback rate
+  operations.json  latest realized rebalance weights/trades, expected next
+                   rebalance metadata, sector exposure and fallback rate
 
 Run FROM the project root (ai_port), engine vendored under ./src:
     PYTHONPATH=. <PY> scripts/export_operating_data.py
@@ -54,6 +54,14 @@ if str(ROOT) not in sys.path:
 DEFAULT_VARIANT = ROOT / "variants" / "iter15_65tkr_reb21_vtg.yaml"
 DEFAULT_OPERATING_DIR = ROOT / "outputs" / "operating"
 
+# (display_name, portfolio_role) defaults used when the variant yaml is silent
+# (e.g. the argument-free export path). Unknown labels stay challenger so an
+# unrecognized run can never seize the single production slot.
+_LABEL_DEFAULTS = {
+    "iter15_65tkr_reb21_vtg": ("Legacy S0", "challenger"),
+    "codex_causal_rank_65": ("Causal Rank 65", "production"),
+}
+
 
 def _rooted(path: Path) -> Path:
     path = Path(path)
@@ -80,6 +88,48 @@ def _safe_float(x, ndigits: Optional[int] = 6):
     if not np.isfinite(v):
         return None
     return round(v, ndigits) if ndigits is not None else v
+
+
+def build_rebalance_metadata(rebalance_dates, portfolio_dates, rebalance_freq: int) -> dict:
+    """Return auditable latest/next rebalance metadata on a weekday-row calendar."""
+    dates = pd.DatetimeIndex(portfolio_dates).sort_values().unique()
+    rebalances = pd.DatetimeIndex(rebalance_dates).sort_values().unique()
+    freq = int(rebalance_freq)
+    if len(dates) == 0 or len(rebalances) == 0:
+        raise ValueError("rebalance metadata requires non-empty date indexes")
+    if freq <= 0:
+        raise ValueError("rebalance_freq must be positive")
+    if bool((dates.dayofweek >= 5).any()):
+        raise ValueError("portfolio calendar contains weekend dates")
+
+    last = pd.Timestamp(rebalances[-1])
+    previous = pd.Timestamp(rebalances[-2] if len(rebalances) >= 2 else rebalances[-1])
+    last_pos = int(dates.get_indexer([last])[0])
+    if last_pos < 0:
+        raise ValueError("latest rebalance is absent from portfolio calendar")
+    rows_since = (len(dates) - 1) - last_pos
+    if rows_since < 0 or rows_since >= freq:
+        raise ValueError(
+            f"latest rebalance is inconsistent with calendar: rows_since={rows_since}, freq={freq}"
+        )
+    rows_until = freq - rows_since
+    next_pos = last_pos + freq
+    if next_pos < len(dates):
+        next_expected = pd.Timestamp(dates[next_pos])
+    else:
+        next_expected = pd.Timestamp(dates[-1]) + pd.offsets.BDay(rows_until)
+
+    return {
+        "last_rebalance_date": last.strftime("%Y-%m-%d"),
+        "previous_rebalance_date": previous.strftime("%Y-%m-%d"),
+        "next_expected_rebalance_date": next_expected.strftime("%Y-%m-%d"),
+        "rebalance_freq_days": freq,
+        "rebalance_calendar": "weekday_index",
+        "rows_since_last_rebalance": int(rows_since),
+        "rows_until_next_rebalance": int(rows_until),
+        "is_rebalance_data_as_of": bool(pd.Timestamp(dates[-1]) == last),
+        "next_rebalance_is_estimate": bool(next_pos >= len(dates)),
+    }
 
 
 def _drift_weights(weights: np.ndarray, daily_ret: np.ndarray) -> np.ndarray:
@@ -293,6 +343,11 @@ def main(argv=None) -> int:
     # ---- holdings.json (latest rebalance OW/UW) ---------------------------
     reb_dates = sorted(res.portfolio_weights.keys())
     last = reb_dates[-1]
+    rebalance_meta = build_rebalance_metadata(
+        reb_dates,
+        port.index,
+        getattr(cfg, "rebalance_freq", 21),
+    )
     w = res.portfolio_weights[last].reindex(tickers).fillna(0.0)
     bm_w = pd.Series(np.asarray(bm_fn(last, tickers, len(tickers)), dtype=float), index=tickers)
     active = w - bm_w
@@ -623,6 +678,7 @@ def main(argv=None) -> int:
         "optimizer_solver_fallbacks": getattr(res, "optimizer_solver_fallbacks", None),
         "optimizer_solver_fallback_rate": getattr(res, "optimizer_solver_fallback_rate", None),
     }
+    ops.update(rebalance_meta)
     json.dump(ops, open(out / "operations.json", "w", encoding="utf-8"), indent=2, default=str)
 
     # ---- feature_attribution.json (per-stock SHAP drivers, latest rebalance) --
@@ -642,8 +698,8 @@ def main(argv=None) -> int:
     portfolio_meta = {
         "schema_version": 1,
         "id": label,
-        "display_name": manifest.get("display_name", "Production S0" if label == "iter15_65tkr_reb21_vtg" else label),
-        "portfolio_role": manifest.get("portfolio_role", "production" if label == "iter15_65tkr_reb21_vtg" else "challenger"),
+        "display_name": manifest.get("display_name", _LABEL_DEFAULTS.get(label, (label, "challenger"))[0]),
+        "portfolio_role": manifest.get("portfolio_role", _LABEL_DEFAULTS.get(label, (label, "challenger"))[1]),
         "model_type": getattr(cfg, "model_objective", "regression"),
         "variant_path": str(variant.relative_to(ROOT)).replace("\\", "/"),
         "run_dir": str(run_dir.relative_to(ROOT)).replace("\\", "/"),
@@ -653,6 +709,7 @@ def main(argv=None) -> int:
         "universe": tickers,
         "universe_hash": universe_hash,
         "data_as_of": perf["as_of"],
+        **rebalance_meta,
         "exported_at_utc": datetime.now(timezone.utc).isoformat(),
         "source_metrics_sha256": _sha256(metrics_path),
         "source_metrics_mtime_utc": (
@@ -682,7 +739,12 @@ def main(argv=None) -> int:
     print(f"  monitoring: turnover points {len(turnover)} | rolling rows {len(rolling_df)}")
     print(f"  features({features['n_models']} models) top: " +
           ", ".join(f"{f['feature']}" for f in features['top_features'][:5]))
-    print(f"  ops: {ops['n_trades']} trades at next rebalance, wrote {out}")
+    print(f"  ops: {ops['n_trades']} latest-rebalance trades, wrote {out}")
+    print(
+        f"  rebalance: last {rebalance_meta['last_rebalance_date']} | "
+        f"next expected {rebalance_meta['next_expected_rebalance_date']} | "
+        f"rows remaining {rebalance_meta['rows_until_next_rebalance']}"
+    )
     print(f"  feature_attribution: {len(fa['tickers'])} names, additivity_ok={fa['additivity_ok']}, "
           f"as_of {fa['as_of']}, model_date {fa['model_date']}")
     return 0
