@@ -87,9 +87,9 @@
   "rows_until_next_rebalance": 7,
   "is_rebalance_data_as_of": false,
   "next_rebalance_is_estimate": true,
-  "exported_at_utc": "2026-07-11T07:58:02.690970+00:00",
-  "source_metrics_sha256": "35cf8ad55d925a303180bece3e1ffe04a4b84e209b882216ad8ec8b2f3f3f4ba",
-  "source_metrics_mtime_utc": "2026-07-11T07:50:15.218823+00:00",
+  "exported_at_utc": "2026-07-13T02:35:53.603627+00:00",
+  "source_metrics_sha256": "7dd06ad8df4ae1f1d8a9c81c8716d45e1c47d1fae9198df68fb567bb465d014a",
+  "source_metrics_mtime_utc": "2026-07-13T02:34:54.043734+00:00",
   "causal_validation_enabled": true,
   "causal_validation_ok": true,
   "execution_signal_lag_days": 1
