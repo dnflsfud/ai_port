@@ -3,6 +3,7 @@
     "allow_scs_on_ecos_exception": false,
     "alpha_attribution_enabled": false,
     "alpha_attribution_n_dates": 8,
+    "base_currency": "USD",
     "benchmark_type": "cap_weighted",
     "bm_proportional_cap_bm_scale_at_top": 1.5,
     "bm_proportional_cap_enabled": false,
@@ -11,6 +12,7 @@
     "bm_weight_floor": 0.02,
     "causal_validation_enabled": true,
     "confidence_spread_scale": 0.2,
+    "convert_returns_to_usd": true,
     "cov_lookback": 126,
     "cov_megacap_vol_shrink_enabled": true,
     "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
@@ -52,9 +54,11 @@
     },
     "factor_neutral_penalty": 5.0,
     "fail_on_degenerate_model_rate": false,
+    "fail_on_missing_fx": true,
     "fail_on_stale_tail_ffill": false,
     "feature_mode": "core",
     "forward_horizon": 20,
+    "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
     "growth_tilt_enabled": true,
     "growth_tilt_eps_skew": 0.5,
     "growth_tilt_fundamental_weight": 0.5,
@@ -79,17 +83,22 @@
       "verbose": -1
     },
     "listing_dates": {
+      "285A": "2024-12-18",
+      "ARM": "2023-09-14",
       "BE": "2018-07-25",
+      "CEG": "2022-02-02",
       "GEV": "2024-04-02",
-      "PLTR": "2020-09-30"
+      "PLTR": "2020-09-30",
+      "SNDK": "2025-02-24"
     },
-    "listing_mask_enabled": false,
+    "listing_mask_enabled": true,
     "macro_cross_enabled": true,
     "marginal_prediction_n_samples": 200,
     "max_active_per_stock": 0.04,
     "max_active_share": 0.45,
     "max_active_share_ceiling": null,
     "max_degenerate_model_rate": 0.25,
+    "max_fx_staleness_days": 7,
     "max_name_active_risk_share": 0.35,
     "max_sector_active_risk_share": 0.75,
     "max_single_turnover": 0.15,
@@ -162,12 +171,12 @@
     "vtg_scale": 0.0
   },
   "extra": {
-    "description": "Fixed-65 causal challenger. Uses date-grouped LightGBM rank_xendcg, purged/embargoed validation, and a one-trading-day execution signal lag. Universe, benchmark, overlays, optimizer and transaction-cost assumptions are pinned to the canonical iter15_65tkr_reb21_vtg production portfolio.\n",
+    "description": "Fixed-100 causal production portfolio. Uses date-grouped LightGBM rank_xendcg, purged/embargoed validation, and a one-trading-day execution signal lag. The legacy label/output path is retained for automation compatibility; the universe is the validated 100-name Universe_Meta set. Benchmark, overlays, optimizer and transaction-cost assumptions remain pinned to the canonical iter15_65tkr_reb21_vtg portfolio design.\n",
     "manifest_path": "variants\\codex_causal_rank_65.yaml",
     "tuning_mode": "production",
     "variant_label": "codex_causal_rank_65"
   },
   "git_dirty": true,
-  "git_hash": "528e752b5f45054b42478ef1f2d27eecebda7418",
-  "timestamp_utc": "2026-07-13T02:40:13Z"
+  "git_hash": "1cfe8d636d7d9bc0d27f6d7fbcfd8bbb235920e7",
+  "timestamp_utc": "2026-07-16T06:24:31Z"
 }
