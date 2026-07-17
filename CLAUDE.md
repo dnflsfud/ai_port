@@ -11,6 +11,10 @@
 > `c2/ai_port/src`다. 모든 실행은 `c2/ai_port`에서 `PYTHONPATH=.`로 수행한다.
 > 과거 `CC2` 절대경로와 `PYTHONPATH=<CC2>` 지시는 superseded다.
 
+> **STATUS (2026-07-16)**: 유니버스 100종·unhedged USD 회계로 전환(결정 로그 §S9).
+> 65종 시절 인증 수치와 직접 비교 금지. 데이터 정확성 계층(마스킹·FX 변환)은 §2.1 예외로
+> default-ON이다.
+
 ---
 
 ## 0. 문서 세트와 읽는 순서
@@ -45,7 +49,7 @@
 
 이 7가지를 어기면 결과를 **신뢰하지 말고 중단**한다.
 
-1. **OFF-default + parity**: 모든 신규 동작은 `PipelineConfig`에서 default-OFF. OFF일 때 메트릭이 baseline과 **바이트 동일**해야 하며, 이를 단위테스트로 먼저 통과시킨다(`tests/test_*` — fixture 없는 plain 함수, `_inline_reference`/`np.allclose(...fillna(0)...atol=1e-6)` 관용구).
+1. **OFF-default + parity**: 모든 신규 동작은 `PipelineConfig`에서 default-OFF. OFF일 때 메트릭이 baseline과 **바이트 동일**해야 하며, 이를 단위테스트로 먼저 통과시킨다(`tests/test_*` — fixture 없는 plain 함수, `_inline_reference`/`np.allclose(...fillna(0)...atol=1e-6)` 관용구). **예외(2026-07-17 개정, §S9)**: 데이터 정확성 계층 — 상장 전 마스킹(`listing_mask_enabled`)과 FX→USD 변환(`convert_returns_to_usd` 계열) — 은 default-ON을 허용한다. OFF면 100종·다통화 유니버스에서 결과 자체가 틀리기 때문이다. OFF-default+parity는 성능 개선 목적의 연구 arm에만 적용한다.
 2. **단일 ECOS 프로토콜**: baseline(S0)과 모든 arm을 **동일 ECOS 솔버·동일 경로**로 실행. 과거 SCS 기반 수치(docs IR≈1.30 포함)와 **직접 비교 금지**. 모든 보고 수치에 사용 솔버를 명시.
 3. **평가지 적용이 아님(codex #3 해소)**: 본 작업은 "P0~P3 **전부 평가(evaluate)**, **게이트 통과 후보만** 프로덕션 활성화"다. "P0~P3 전부 적용(apply)"이라는 표현은 폐기. beta/factor는 shelve 게이트가 있다.
 4. **IR 채택 바**: full-period **ΔIR > +0.36(=1 SE) & 서브기간 부호 일관**일 때만 IR을 근거로 채택. `|ΔIR| < 0.36`은 노이즈 → "설명력 근거로만 판단". **스윕에서 최대-IR arm 고르기 금지(= p-hacking)**; 후보당 **단일 사전등록 파라미터**.
@@ -56,6 +60,10 @@
 ---
 
 ## 3. S0 상태 — 아직 미완 (codex #2 해소)
+
+> **(2026-07-16 갱신)** S0의 유니버스·회계 기준은 100종·unhedged USD로 재정의되었다(결정
+> 로그 §S9 — production IR 1.599/TE 4.42%/beta 1.067, challenger IR 1.011). 아래 65종
+> 서술은 역사 기록으로 유지한다.
 
 > **ECOS 설치 ≠ S0 확정.** 설치는 끝났지만 **S0(baseline 재인증)은 PENDING**이다.
 
@@ -103,9 +111,9 @@ S0는 다음을 실행하고 결정 로그에 기록해야 비로소 "확정"된
 
 | 차원 | Pictet PDF | cc2_rl 의도 | 처리 |
 |---|---:|---:|---|
-| 보유종목 | 400–500 | 65 | 의도적 비복제로 명시 |
+| 보유종목 | 400–500 | 100 (2026-07-16 확장) | 의도적 비복제로 명시 |
 | Beta | 1.0 | S0 먼저 측정 후 결정 | P2를 코딩 전 게이트(§3) |
-| Tracking error | ≤2% | ~3.2%, 가드 4.5% | 로컬 리스크 예산으로 명확화 |
+| Tracking error | ≤2% | ex-ante 캡 3.5%(production)·실현 ~4.4%, 가드 4.5% | 로컬 리스크 예산으로 명확화 |
 | Active share | ~50% | 문서상 ~4.75% | 단위/정의 확인 |
 | 종목 active weight | ±1% | 로컬 캡 상이 | 적응된 제약으로 표기 |
 | 국가/산업 노출 | ±2% | sector deviation만 | 누락/비범위로 표기 |

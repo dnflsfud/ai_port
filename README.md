@@ -41,14 +41,15 @@ variant is justified by recorded gates rather than reconstructed memory.
 
 This project is better described as **Pictet-inspired risk discipline and
 explainability for the existing cc2_rl portfolio**, not a literal replication of
-Pictet Quest. The local baseline intentionally keeps the cc2_rl concentrated
-65-stock character, while the PDF describes a broader enhanced-index portfolio.
+Pictet Quest. The local baseline now uses a concentrated 100-stock universe,
+while the PDF describes a broader enhanced-index portfolio. Portfolio and
+benchmark returns are measured in unhedged USD, including listing-currency moves.
 
 Before implementation, the design spec should add a source-vs-local deviation table:
 
 | Dimension | Pictet PDF | Current cc2_rl intent | Action |
 |---|---:|---:|---|
-| Holdings | 400-500 stocks | 65 stocks | Explicitly mark as intentional non-replication |
+| Holdings | 400-500 stocks | 100 stocks | Explicitly mark as intentional non-replication |
 | Beta | 1.0 | Measure S0 first, then decide beta-neutral work | Gate P2 before coding |
 | Tracking error | Up to 2% | Local target around 3.2%-4.5% guard | Clarify local risk budget |
 | Active share | About 50% | Document currently says about 4.75% | Confirm unit/definition |
@@ -121,4 +122,3 @@ the production variant after the decision log records the relevant gate:
 - overlay change: full-period marginal dIR is clear (>1SE) and P1/P2/P3 sign-consistent (NOT OOS — the OOS holdout is inert in the harvest-once re-MVO; see scripts/run_overlay_ablation.py:12);
 - beta-neutral: realized beta moves toward 1.0 without fallback or risk-budget damage;
 - factor-neutral: penalized active exposures actually bind and drop.
-

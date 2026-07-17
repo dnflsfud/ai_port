@@ -10,3 +10,5 @@ outputs/**/*.pkl.sig
 outputs/checkpoints/
 outputs/csv/
 Pictet_Quest*.pdf
+.tmp_spreadsheet_audit/
+output/
