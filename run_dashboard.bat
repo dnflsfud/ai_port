@@ -7,9 +7,9 @@ REM  Pipeline (each step must succeed before the next runs):
 REM    [1] run_pictet_adoption.py    S0 + attribution + overlay + factor + DSR
 REM                                  -> outputs/adoption_summary.json (+ stages)
 REM    [2] scripts/data_quality_report.py  -> outputs/data_quality_report.json
-REM    [3] scripts/export_operating_data.py-> outputs/operating/*.json + returns.csv
-REM    [4] run_variant.py                  -> Causal Rank 65 challenger
-REM    [5] scripts/export_operating_data.py-> challenger operating bundle
+REM    [3] scripts/export_operating_data.py-> Legacy S0 challenger operating bundle
+REM    [4] run_variant.py                  -> Causal Rank 65 production
+REM    [5] scripts/export_operating_data.py-> production operating bundle
 REM    [6] validate_portfolio_bundles.py   -> validated portfolio registry
 REM    [7] streamlit run streamlit_app.py  -> dashboard (blocks until Ctrl+C)
 REM
@@ -68,27 +68,27 @@ if errorlevel 1 (
 )
 
 echo.
-echo [3/7] scripts/export_operating_data.py
+echo [3/7] Legacy S0 challenger operating export
 "%PY%" scripts\export_operating_data.py
 if errorlevel 1 (
-    echo [ERROR] export_operating_data.py failed.
+    echo [ERROR] Legacy S0 challenger operating export failed.
     goto :fail
 )
 
 echo.
 echo.
-echo [4/7] Causal Rank 65 backtest
+echo [4/7] Causal Rank 65 production backtest
 "%PY%" run_variant.py --variant variants\codex_causal_rank_65.yaml --no-cache
 if errorlevel 1 (
-    echo [ERROR] Causal Rank 65 backtest failed.
+    echo [ERROR] Causal Rank 65 production backtest failed.
     goto :fail
 )
 
 echo.
-echo [5/7] Causal Rank operating export
+echo [5/7] Causal Rank 65 production operating export
 "%PY%" scripts\export_operating_data.py --variant variants\codex_causal_rank_65.yaml --operating-dir outputs\operating_codex_causal_rank_65
 if errorlevel 1 (
-    echo [ERROR] Causal Rank operating export failed.
+    echo [ERROR] Causal Rank 65 production operating export failed.
     goto :fail
 )
 

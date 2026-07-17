@@ -1,7 +1,8 @@
 @echo off
 setlocal enabledelayedexpansion
 REM ============================================================
-REM run_and_upload.bat - env check, tests, S0 + Causal Rank backtests, then
+REM run_and_upload.bat - env check, tests, Legacy S0 challenger +
+REM Causal Rank 65 production backtests, then
 REM commit and upload ai_port (standalone repo) to GitHub.
 REM Usage: run_and_upload.bat [commit message]
 REM Target repo: https://github.com/dnflsfud/ai_port (private)
@@ -22,21 +23,21 @@ echo [2/10] Running test suite...
 "%PY%" -m pytest tests/ -q
 if errorlevel 1 (echo ERROR: tests failed - aborting before backtest/upload & exit /b 1)
 
-echo [3/10] Running S0 production backtest - full pipeline, about 4 min...
+echo [3/10] Running Legacy S0 challenger backtest - full pipeline, about 4 min...
 "%PY%" run_variant.py --variant variants\iter15_65tkr_reb21_vtg.yaml --no-cache
-if errorlevel 1 (echo ERROR: backtest failed - aborting before upload & exit /b 1)
+if errorlevel 1 (echo ERROR: Legacy S0 challenger backtest failed - aborting before upload & exit /b 1)
 
-echo [4/10] Refreshing S0 operating dashboard data...
+echo [4/10] Refreshing Legacy S0 challenger operating dashboard data...
 "%PY%" scripts\export_operating_data.py
-if errorlevel 1 (echo ERROR: S0 operating data export failed - aborting before upload & exit /b 1)
+if errorlevel 1 (echo ERROR: Legacy S0 challenger operating data export failed - aborting before upload & exit /b 1)
 
-echo [5/10] Running Causal Rank 65 challenger - full pipeline...
+echo [5/10] Running Causal Rank 65 production - full pipeline...
 "%PY%" run_variant.py --variant variants\codex_causal_rank_65.yaml --no-cache
-if errorlevel 1 (echo ERROR: Causal Rank backtest failed - aborting before upload & exit /b 1)
+if errorlevel 1 (echo ERROR: Causal Rank 65 production backtest failed - aborting before upload & exit /b 1)
 
-echo [6/10] Refreshing Causal Rank operating dashboard data...
+echo [6/10] Refreshing Causal Rank 65 production operating dashboard data...
 "%PY%" scripts\export_operating_data.py --variant variants\codex_causal_rank_65.yaml --operating-dir outputs\operating_codex_causal_rank_65
-if errorlevel 1 (echo ERROR: Causal Rank operating export failed - aborting before upload & exit /b 1)
+if errorlevel 1 (echo ERROR: Causal Rank 65 production operating export failed - aborting before upload & exit /b 1)
 
 echo [7/10] Validating both portfolio bundles and publishing registry...
 "%PY%" scripts\validate_portfolio_bundles.py --bundle outputs\operating --bundle outputs\operating_codex_causal_rank_65
@@ -51,7 +52,7 @@ git add -A
 git diff --cached --quiet
 if errorlevel 1 (
   set "MSG=%~1"
-  if "!MSG!"=="" set "MSG=run: tests + S0 reproduce %DATE% %TIME%"
+  if "!MSG!"=="" set "MSG=run: tests + challenger and production refresh %DATE% %TIME%"
   git commit -m "!MSG!"
   if errorlevel 1 (echo ERROR: git commit failed & exit /b 1)
 ) else (

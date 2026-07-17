@@ -3,7 +3,7 @@
 
 Two views are merged here:
 
-* Six operating tabs (Overview / Performance / Contribution / Risk / Turnover /
+* Six operating tabs (Overview / Performance / Contribution / Risk / Trading /
   Signals & Gates) driven by ``outputs/operating/*.json`` + ``returns.csv``
   (produced by ``scripts/export_operating_data.py``).
 * A ``Backtest Runs`` tab: a run selector over ``outputs/*/metrics.json`` that
@@ -260,6 +260,7 @@ def load_operating_bundle(meta: dict, project_root=HERE) -> dict:
         "contribution": read_json("contribution.json"),
         "risk": read_json("risk.json"),
         "monitoring": read_json("monitoring.json"),
+        "currency": read_json("currency.json"),
         "feature_attribution": read_json("feature_attribution.json"),
         "returns": returns,
     }
@@ -283,6 +284,94 @@ def build_comparison_returns(
             how="inner",
         )
     return out.sort_index()
+
+
+def currency_daily_frame(currency: dict) -> pd.DataFrame:
+    """Return the auditable daily local/FX decomposition indexed by date."""
+    daily = rows_df((currency or {}).get("daily"))
+    if daily.empty or "date" not in daily.columns:
+        return pd.DataFrame()
+    daily = daily.copy()
+    daily["date"] = pd.to_datetime(daily["date"], errors="coerce")
+    daily = daily.dropna(subset=["date"]).set_index("date").sort_index()
+    for column in daily.columns:
+        daily[column] = pd.to_numeric(daily[column], errors="coerce")
+    return daily
+
+
+def summarize_currency_period(currency: dict, start=None, end=None) -> dict:
+    """Sum arithmetic local/FX effects over a selected dashboard window."""
+    daily = currency_daily_frame(currency)
+    if daily.empty:
+        summary = dict((currency or {}).get("summary") or {})
+        summary["observations"] = 0
+        return summary
+    if start is not None:
+        daily = daily.loc[daily.index >= pd.Timestamp(start)]
+    if end is not None:
+        daily = daily.loc[daily.index <= pd.Timestamp(end)]
+    numeric = daily.select_dtypes(include=[np.number])
+    result = {column: float(value) for column, value in numeric.sum().items()}
+    if "active_fx_effect" not in result:
+        result["active_fx_effect"] = (
+            result.get("portfolio_fx_effect", 0.0)
+            - result.get("benchmark_fx_effect", 0.0)
+        )
+    result["observations"] = int(len(daily))
+    return result
+
+
+def collect_operating_alerts(
+    monitoring: dict, currency: dict | None = None, operations: dict | None = None
+) -> list[dict]:
+    """Collect actionable risk, model, data, and FX breaches for one panel."""
+    guardrails = (monitoring or {}).get("guardrails") or {}
+    labels = {
+        "estimated_te_breached": "Estimated tracking-error limit",
+        "te_constraint_breached": "Historical rebalance TE constraint",
+        "top_name_active_risk_breached": "Single-name active-risk concentration",
+        "top_sector_active_risk_breached": "Sector active-risk concentration",
+        "model_degenerate_rate_breached": "Degenerate model-fold rate",
+        "tail_ffill_breached": "Market-data tail fill",
+    }
+    value_keys = {
+        "estimated_te_breached": "latest_estimated_te",
+        "te_constraint_breached": "max_rebalance_estimated_te",
+        "top_name_active_risk_breached": "top_name_active_risk_share",
+        "top_sector_active_risk_breached": "top_sector_active_risk_share",
+        "model_degenerate_rate_breached": "model_degenerate_rate",
+        "tail_ffill_breached": "tail_ffill_days",
+    }
+    alerts = []
+    for key, label in labels.items():
+        if bool(guardrails.get(key)):
+            alerts.append({"key": key, "label": label, "value": guardrails.get(value_keys[key])})
+
+    coverage = (currency or {}).get("coverage") or {}
+    missing = (
+        coverage.get("missing_tickers")
+        or coverage.get("missing")
+        or coverage.get("missing_currency")
+        or []
+    )
+    missing_fx = coverage.get("missing_fx_tickers") or coverage.get("missing_fx") or []
+    stale = coverage.get("stale_tickers") or coverage.get("stale") or coverage.get("stale_fx") or []
+    if missing:
+        alerts.append({"key": "currency_mapping_missing", "label": "Missing currency mapping", "value": missing})
+    if missing_fx:
+        alerts.append({"key": "fx_series_missing", "label": "Missing FX series", "value": missing_fx})
+    if stale:
+        alerts.append({"key": "fx_series_stale", "label": "Stale FX series", "value": stale})
+
+    sector_active = (operations or {}).get("sector_active") or []
+    binding_sectors = [row.get("sector") for row in sector_active if row.get("binding")]
+    if binding_sectors:
+        alerts.append({
+            "key": "sector_deviation_binding",
+            "label": "Sector deviation at limit",
+            "value": binding_sectors,
+        })
+    return alerts
 
 
 def prepare_stock_drivers(attr, ticker=None):
@@ -442,6 +531,69 @@ def grouped_bar_fig(df: pd.DataFrame, x: str, y: list, title: str) -> go.Figure:
     return apply_theme(fig, height=360)
 
 
+def fx_decomposition_fig(daily: pd.DataFrame) -> go.Figure:
+    """Monthly arithmetic USD-return decomposition into local and FX effects."""
+    columns = ["portfolio_local_return", "portfolio_fx_effect"]
+    available = [column for column in columns if column in daily.columns]
+    if daily.empty or not available:
+        return apply_theme(go.Figure(), height=360)
+    monthly = daily[available].groupby(daily.index.to_period("M")).sum(min_count=1)
+    monthly.index = monthly.index.astype(str)
+    labels = {
+        "portfolio_local_return": "Local-market return",
+        "portfolio_fx_effect": "FX effect",
+    }
+    colors = {
+        "portfolio_local_return": COLOR_PORT,
+        "portfolio_fx_effect": COLOR_CAT3,
+    }
+    fig = go.Figure()
+    for column in available:
+        fig.add_bar(
+            x=monthly.index,
+            y=monthly[column],
+            name=labels[column],
+            marker_color=colors[column],
+            hovertemplate="%{x}<br>%{y:.2%}<extra>" + labels[column] + "</extra>",
+        )
+    fig.update_layout(
+        title="Monthly portfolio return decomposition (USD)",
+        barmode="relative",
+        xaxis_title="",
+        yaxis_title="Arithmetic contribution",
+        hovermode="x unified",
+    )
+    fig.update_yaxes(tickformat=".1%")
+    return apply_theme(fig, height=380)
+
+
+def currency_exposure_fig(by_currency: pd.DataFrame) -> go.Figure:
+    """Latest portfolio and benchmark currency exposures."""
+    fig = go.Figure()
+    if by_currency.empty or "currency" not in by_currency.columns:
+        return apply_theme(fig, height=340)
+    for column, label, color in (
+        ("target_weight", "Portfolio", COLOR_PORT),
+        ("benchmark_weight", "Benchmark", COLOR_BM),
+    ):
+        if column in by_currency.columns:
+            fig.add_bar(
+                x=by_currency["currency"],
+                y=by_currency[column],
+                name=label,
+                marker_color=color,
+            )
+    fig.update_layout(
+        title="Latest currency exposure",
+        barmode="group",
+        xaxis_title="",
+        yaxis_title="Weight",
+        hovermode="x unified",
+    )
+    fig.update_yaxes(tickformat=".1%")
+    return apply_theme(fig, height=340)
+
+
 def fmt_table(df: pd.DataFrame, percent_cols: list, digits: int = 2):
     formats = {c: "{:.2%}" for c in percent_cols if c in df.columns}
     for col in df.select_dtypes(include="number").columns:
@@ -493,6 +645,7 @@ def main() -> None:
             "contribution": production["contribution"],
             "risk": production["risk"],
             "monitoring": production["monitoring"],
+            "currency": production["currency"],
             "feature_attribution": production["feature_attribution"],
             "returns": production["returns"],
         }
@@ -514,6 +667,7 @@ def main() -> None:
     contribution = data["contribution"]
     risk = data["risk"]
     monitoring = data["monitoring"]
+    currency = data["currency"]
     challenger = data.get("challenger") or {}
     challenger_meta = challenger.get("meta") or {}
     prod_name = (data["production"]["meta"] or {}).get("display_name") or "Production"
@@ -532,19 +686,36 @@ def main() -> None:
     overlay_ok = bool(overlay_decisions) and all(v == "KEEP" for v in overlay_decisions.values())
     factor_ok = not bool(stage3.get("collapsed"))
 
-    st.title("Pictet Portfolio Monitor")
+    production_meta = data["production"].get("meta") or {}
+    fx_coverage = (currency or {}).get("coverage") or {}
+    universe_size = int(production_meta.get("universe_size") or fx_coverage.get("total") or 0)
+    fx_mapped = int(fx_coverage.get("mapped") or 0)
+    fx_gaps = []
+    for coverage_key in ("missing", "missing_fx", "stale"):
+        coverage_value = fx_coverage.get(coverage_key)
+        if isinstance(coverage_value, (list, tuple, set)):
+            fx_gaps.extend(coverage_value)
+        elif coverage_value:
+            fx_gaps.append(coverage_value)
+    fx_coverage_ok = bool(universe_size and fx_mapped == universe_size and not fx_gaps)
+    currency_summary = (currency or {}).get("summary") or {}
+
+    st.title("Pictet Portfolio Monitor — USD")
     st.markdown(
-        "<div class='note'>Lightweight operating dashboard for performance, contribution, risk, turnover and adoption gates.</div>",
+        "<div class='note'>Operating dashboard for the 100-name universe, unhedged USD performance, FX attribution, risk and rebalance controls.</div>",
         unsafe_allow_html=True,
     )
     st.markdown(
         "<div class='status-row'>"
-        f"<span class='chip chip-ok'>S0 IR {num(stage0.get('information_ratio'), 3)}</span>"
-        f"<span class='chip chip-ok'>TE {pct(stage0.get('tracking_error'), 2)}</span>"
-        f"<span class='chip chip-ok'>Beta {num(stage0.get('realized_beta'), 3)}</span>"
+        f"<span class='chip chip-ok'>Portfolio IR {num(perf.get('information_ratio'), 3)}</span>"
+        f"<span class='chip chip-ok'>TE {pct(perf.get('tracking_error'), 2)}</span>"
+        f"<span class='chip chip-ok'>Beta {num(perf.get('realized_beta'), 3)}</span>"
         f"<span class='chip {'chip-ok' if overlay_ok else 'chip-warn'}'>Overlay {'KEEP all' if overlay_ok else 'Review'}</span>"
         f"<span class='chip {'chip-ok' if factor_ok else 'chip-warn'}'>Factor collapsed={stage3.get('collapsed')}</span>"
-        "<span class='chip chip-ok'>Production weights unchanged</span>"
+        f"<span class='chip chip-ok'>Base currency {(currency or {}).get('base_currency', 'USD')}</span>"
+        f"<span class='chip {'chip-ok' if universe_size == 100 else 'chip-warn'}'>Universe {universe_size or 'n/a'}</span>"
+        f"<span class='chip {'chip-ok' if fx_coverage_ok else 'chip-warn'}'>FX mapped {fx_mapped or 'n/a'}/{universe_size or 'n/a'}</span>"
+        f"<span class='chip chip-ok'>Non-USD {pct(currency_summary.get('non_usd_target_weight'), 1)}</span>"
         + (f"<span class='chip {'chip-ok' if challenger_meta.get('status') == 'PASS' else 'chip-warn'}'>"
            f"{chal_name} {challenger_meta.get('status', 'not built')}</span>" if challenger else "") +
         "</div>",
@@ -553,12 +724,18 @@ def main() -> None:
 
     with st.sidebar:
         st.subheader("Scope")
-        st.metric("Performance as of", perf.get("as_of", "n/a"))
+        st.metric("Market data as of", production_meta.get("data_as_of", perf.get("as_of", "n/a")))
+        st.metric("FX data as of", (currency or {}).get("fx_data_as_of", "n/a"))
         st.metric("Holdings as of", holdings.get("as_of", "n/a"))
+        st.metric("Next rebalance", ops.get("next_expected_rebalance_date", "n/a"))
+        st.caption(
+            f"{ops.get('rows_until_next_rebalance', 'n/a')} weekday rows remaining | "
+            f"last rebalance {ops.get('last_rebalance_date', ops.get('as_of', 'n/a'))}"
+        )
         if challenger:
             st.metric(f"{chal_name} data as of", challenger_perf.get("as_of", "n/a"))
             st.metric(f"{chal_name} holdings as of", challenger_holdings.get("as_of", "n/a"))
-        st.metric("Solver", "ECOS")
+        st.metric("Solver", ops.get("solver_protocol", "ECOS"))
 
         generated = data["registry"].get("generated_at_utc")
         if generated:
@@ -595,6 +772,15 @@ def main() -> None:
                 (challenger_returns.index >= start) & (challenger_returns.index <= end)
             ].copy()
     comparison_returns = build_comparison_returns(filtered_returns, filtered_challenger_returns, prod_name, chal_name)
+    period_start = filtered_returns.index.min() if not filtered_returns.empty else None
+    period_end = filtered_returns.index.max() if not filtered_returns.empty else None
+    filtered_currency_daily = currency_daily_frame(currency)
+    if period_start is not None and not filtered_currency_daily.empty:
+        filtered_currency_daily = filtered_currency_daily.loc[
+            (filtered_currency_daily.index >= period_start)
+            & (filtered_currency_daily.index <= period_end)
+        ]
+    fx_period = summarize_currency_period(currency, period_start, period_end)
 
     def sector_filter(df: pd.DataFrame) -> pd.DataFrame:
         if df.empty or sector == "All sectors" or "sector" not in df.columns:
@@ -602,7 +788,7 @@ def main() -> None:
         return df[df["sector"] == sector].copy()
 
     top_cols = st.columns(6)
-    top_cols[0].metric("Annual Return", pct(perf.get("annual_return"), 1))
+    top_cols[0].metric("Annual Return (USD)", pct(perf.get("annual_return"), 1))
     top_cols[1].metric("Active Return", pct(perf.get("active_return"), 2, signed=True))
     top_cols[2].metric("Information Ratio", num(perf.get("information_ratio"), 3))
     top_cols[3].metric("Tracking Error", pct(perf.get("tracking_error"), 2))
@@ -612,7 +798,7 @@ def main() -> None:
     if challenger:
         st.caption(f"{chal_name} challenger")
         challenger_cols = st.columns(6)
-        challenger_cols[0].metric("Annual Return", pct(challenger_perf.get("annual_return"), 1))
+        challenger_cols[0].metric("Annual Return (USD)", pct(challenger_perf.get("annual_return"), 1))
         challenger_cols[1].metric("Active Return", pct(challenger_perf.get("active_return"), 2, signed=True))
         challenger_cols[2].metric("Information Ratio", num(challenger_perf.get("information_ratio"), 3))
         challenger_cols[3].metric("Tracking Error", pct(challenger_perf.get("tracking_error"), 2))
@@ -620,7 +806,7 @@ def main() -> None:
         challenger_cols[5].metric("Active Share", pct(challenger_holdings.get("active_share_one_way"), 2))
 
     tabs = st.tabs(
-        ["Overview", "Performance", "Contribution", "Risk", "Turnover", "Signals & Gates", "Backtest Runs", "Stock Drivers", "Comparison"]
+        ["Overview", "Performance", "Contribution", "Risk", "Trading & Operations", "Signals & Gates", "Backtest Runs", "Stock Drivers", "Comparison"]
     )
 
     with tabs[0]:
@@ -711,6 +897,44 @@ def main() -> None:
             with c2:
                 render_chart(line_fig(rolling, ["tracking_error_126d_ann", "tracking_error_252d_ann"], "Rolling tracking error", "Annualized TE"))
 
+        st.divider()
+        st.subheader("USD return and FX effect")
+        st.markdown(
+            "<div class='note'>Unhedged USD returns are decomposed daily using entering-day weights. "
+            "Local return + FX effect equals gross USD return; period figures are arithmetic contributions.</div>",
+            unsafe_allow_html=True,
+        )
+        if not filtered_currency_daily.empty:
+            fx_cards = st.columns(4)
+            fx_cards[0].metric(
+                "Portfolio FX effect",
+                pct(fx_period.get("portfolio_fx_effect"), 2, signed=True),
+            )
+            fx_cards[1].metric(
+                "Benchmark FX effect",
+                pct(fx_period.get("benchmark_fx_effect"), 2, signed=True),
+            )
+            fx_cards[2].metric(
+                "Active FX effect",
+                pct(fx_period.get("active_fx_effect"), 2, signed=True),
+            )
+            fx_cards[3].metric(
+                "Latest non-USD weight",
+                pct(currency_summary.get("non_usd_target_weight"), 1),
+            )
+            render_chart(fx_decomposition_fig(filtered_currency_daily))
+            reconciliation = (currency or {}).get("reconciliation") or {}
+            max_error = max(
+                abs(float(reconciliation.get("max_daily_portfolio_error") or 0.0)),
+                abs(float(reconciliation.get("max_daily_benchmark_error") or 0.0)),
+            )
+            st.caption(
+                f"{fx_period.get('observations', 0):,} daily observations | "
+                f"maximum daily reconciliation error {max_error:.2e}"
+            )
+        else:
+            st.info("No FX attribution is available. Re-export the operating bundle after the USD backtest.")
+
     with tabs[2]:
         st.subheader("Stock and sector contribution")
         st.markdown(
@@ -787,11 +1011,16 @@ def main() -> None:
                     )
                     st.markdown(f"### {label}")
                     st.caption(f"Risk/positions as of {rmeta.get('as_of', hmeta.get('as_of', 'n/a'))}")
-                    q1, q2, q3, q4 = st.columns(4)
+                    q1, q2, q3, q4, q5, q6 = st.columns(6)
                     q1.metric("Est. Vol", pct(rmeta.get("estimated_portfolio_vol"), 2))
                     q2.metric("Est. TE", pct(rmeta.get("estimated_tracking_error"), 2))
-                    q3.metric("Active Share", pct(hmeta.get("active_share_one_way"), 2))
-                    q4.metric("Holdings", hmeta.get("n_holdings", "n/a"))
+                    q3.metric("TE Limit", pct(rmeta.get("max_tracking_error_annual"), 2))
+                    q4.metric(
+                        "TE Headroom",
+                        pct((rmeta.get("guardrails") or {}).get("estimated_te_headroom"), 2),
+                    )
+                    q5.metric("Active Share", pct(hmeta.get("active_share_one_way"), 2))
+                    q6.metric("Holdings", hmeta.get("n_holdings", "n/a"))
                     if not fund_risk.empty:
                         fund_risk = fund_risk.copy()
                         fund_risk["abs_active_risk"] = fund_risk["active_te_contribution"].abs()
@@ -832,11 +1061,19 @@ def main() -> None:
         elif risk_df.empty:
             st.info("No risk data. Run scripts/export_operating_data.py.")
         else:
-            c = st.columns(4)
+            c = st.columns(5)
             c[0].metric("Estimated Vol", pct(risk.get("estimated_portfolio_vol"), 2))
             c[1].metric("Estimated TE", pct(risk.get("estimated_tracking_error"), 2))
-            c[2].metric("Lookback", f"{risk.get('cov_lookback_days')}d")
-            c[3].metric("Active Share", pct(holdings.get("active_share_one_way"), 2))
+            c[2].metric("TE Limit", pct(risk.get("max_tracking_error_annual"), 2))
+            c[3].metric(
+                "TE Headroom",
+                pct((risk.get("guardrails") or {}).get("estimated_te_headroom"), 2),
+            )
+            c[4].metric("Active Share", pct(holdings.get("active_share_one_way"), 2))
+            st.caption(
+                "TE limit is an ex-ante rebalance constraint; realized rolling TE can differ. "
+                f"Covariance lookback: {risk.get('cov_lookback_days')}d."
+            )
 
             top_risk = risk_df.reindex(risk_df["active_te_contribution"].abs().sort_values(ascending=False).index).head(14)
             c1, c2 = st.columns([1.2, 1.0])
@@ -857,8 +1094,147 @@ def main() -> None:
                 st.subheader("Top underweight")
                 st.dataframe(fmt_table(uw[["ticker", "sector", "weight", "bm_weight", "active"]], ["weight", "bm_weight", "active"]), width="stretch", hide_index=True)
 
+        sector_active_rows = rows_df(ops.get("sector_active"))
+        if not sector_active_rows.empty:
+            st.divider()
+            st.subheader("Sector deviation vs cap band")
+            if "binding" in sector_active_rows.columns:
+                binding_now = sector_active_rows[sector_active_rows["binding"] == True]
+                if not binding_now.empty:
+                    st.error("At sector cap: " + ", ".join(binding_now["sector"].astype(str)))
+            sector_active_cols = [
+                c for c in ("sector", "port", "bm", "active", "limit", "binding")
+                if c in sector_active_rows.columns
+            ]
+            st.dataframe(
+                fmt_table(sector_active_rows[sector_active_cols],
+                          [c for c in ("port", "bm", "active", "limit") if c in sector_active_cols]),
+                width="stretch", hide_index=True,
+            )
+
+        currency_risk = rows_df((currency or {}).get("by_currency"))
+        if not currency_risk.empty:
+            currency_risk = currency_risk.rename(columns={"name": "currency"})
+            st.divider()
+            st.subheader("Currency exposure and FX contribution")
+            st.markdown(
+                "<div class='note'>Latest unhedged weights are shown by listing currency. The stress column "
+                "approximates portfolio P&L if that currency strengthens 1% against USD, holding local prices fixed.</div>",
+                unsafe_allow_html=True,
+            )
+            if "target_weight" in currency_risk.columns:
+                currency_risk = currency_risk.sort_values("target_weight", ascending=False)
+                currency_risk["pnl_if_currency_up_1pct"] = np.where(
+                    currency_risk["currency"].eq("USD"),
+                    0.0,
+                    pd.to_numeric(currency_risk["target_weight"], errors="coerce") * 0.01,
+                )
+            ccy_left, ccy_right = st.columns([1.05, 1.15])
+            with ccy_left:
+                render_chart(currency_exposure_fig(currency_risk))
+            with ccy_right:
+                currency_columns = [
+                    column for column in (
+                        "currency", "target_weight", "benchmark_weight", "active_weight",
+                        "fx_move_1d", "fx_move_21d", "fx_source_date", "fx_stale",
+                        "portfolio_fx_contribution", "benchmark_fx_contribution",
+                        "active_fx_contribution", "pnl_if_currency_up_1pct",
+                    ) if column in currency_risk.columns
+                ]
+                percent_columns = [
+                    column for column in currency_columns
+                    if column not in {"currency", "fx_source_date", "fx_stale"}
+                ]
+                st.dataframe(
+                    fmt_table(currency_risk[currency_columns], percent_columns),
+                    width="stretch",
+                    hide_index=True,
+                    height=340,
+                )
+            fx_stress = (currency or {}).get("stress") or {}
+            plus_stress = fx_stress.get("plus_1pct") or {}
+            minus_stress = fx_stress.get("minus_1pct") or {}
+            if plus_stress or minus_stress:
+                stress_cards = st.columns(3)
+                stress_cards[0].metric(
+                    "All non-USD currencies +1%",
+                    pct(plus_stress.get("portfolio"), 2, signed=True),
+                )
+                stress_cards[1].metric(
+                    "Active P&L at +1%",
+                    pct(plus_stress.get("active"), 2, signed=True),
+                )
+                stress_cards[2].metric(
+                    "All non-USD currencies -1%",
+                    pct(minus_stress.get("portfolio"), 2, signed=True),
+                )
+
     with tabs[4]:
-        st.subheader("Turnover, active share and trade list")
+        st.subheader("Trading and operating controls")
+        operating_alerts = collect_operating_alerts(monitoring, currency, operations=ops)
+        if operating_alerts:
+            st.error(
+                "Action required: "
+                + "; ".join(
+                    f"{alert['label']} ({alert.get('value', 'n/a')})"
+                    for alert in operating_alerts
+                )
+            )
+        else:
+            st.success("No configured model, concentration, data-tail, or FX coverage breach.")
+
+        drift = ops.get("current_drift")
+        st.divider()
+        st.subheader("Drift since last rebalance")
+        if drift:
+            band = drift.get("no_trade_band")
+            d = st.columns(4)
+            d[0].metric("Drift L1", pct(drift.get("drift_l1"), 2))
+            d[1].metric("Max single drift", pct(drift.get("max_single_drift"), 2))
+            d[2].metric(f"Names outside band ({pct(band, 1)})", drift.get("names_outside_band", "n/a"))
+            d[3].metric("Days since rebalance", drift.get("days_since_rebalance", "n/a"))
+            drift_rows = rows_df(drift.get("by_ticker"))
+            if not drift_rows.empty:
+                drift_cols = [c for c in ("ticker", "target", "current", "drift") if c in drift_rows.columns]
+                st.dataframe(
+                    fmt_table(drift_rows.head(12)[drift_cols],
+                              [c for c in ("target", "current", "drift") if c in drift_cols]),
+                    width="stretch", hide_index=True,
+                )
+        else:
+            st.info("Re-export the operating bundle to see drift monitoring.")
+
+        tc = monitoring.get("transaction_costs")
+        st.divider()
+        st.subheader("Transaction costs")
+        if tc:
+            n_reb = tc.get("n_rebalances") or 0
+            cum_cost = tc.get("cumulative_transaction_cost")
+            avg_cost = (cum_cost / n_reb) if (cum_cost is not None and n_reb) else None
+            cc = st.columns(3)
+            cc[0].metric("Cumulative cost", pct(cum_cost, 3))
+            cc[1].metric("Annualized drag", f"{num((tc.get('annualized_cost_drag') or 0.0) * 1e4, 1)} bps")
+            cc[2].metric("Cost per rebalance", pct(avg_cost, 3))
+            cost_series = rows_df(tc.get("series"))
+            if not cost_series.empty:
+                cost_series["date"] = pd.to_datetime(cost_series["date"])
+                cost_series = cost_series.set_index("date").sort_index()
+                render_chart(line_fig(cost_series, ["cumulative_cost"], "Cumulative transaction cost", "Fraction of AUM"))
+        else:
+            st.info("Re-export the operating bundle to see transaction costs.")
+
+        schedule = st.columns(4)
+        schedule[0].metric("Market data as of", production_meta.get("data_as_of", perf.get("as_of", "n/a")))
+        schedule[1].metric("FX data as of", (currency or {}).get("fx_data_as_of", "n/a"))
+        schedule[2].metric("Next rebalance", ops.get("next_expected_rebalance_date", "n/a"))
+        schedule[3].metric("Weekday rows to go", ops.get("rows_until_next_rebalance", "n/a"))
+
+        funnel = st.columns(4)
+        funnel[0].metric("Source universe", universe_size or "n/a")
+        funnel[1].metric("Currency mapped", f"{fx_mapped}/{universe_size}" if universe_size else "n/a")
+        funnel[2].metric("Current holdings", holdings.get("n_holdings", "n/a"))
+        funnel[3].metric("Orders", ops.get("n_trades", "n/a"))
+
         if challenger:
             prod_turn = rows_df(monitoring.get("turnover"))
             causal_turn = rows_df((challenger.get("monitoring") or {}).get("turnover"))
@@ -890,24 +1266,57 @@ def main() -> None:
                 active_share = active_share.set_index("date").sort_index()
                 render_chart(line_fig(active_share, ["active_share_one_way", "top5_active_budget_share"], "Active share and concentration", "Share"))
 
+        aum_usd_m = st.number_input(
+            "Portfolio AUM (USD millions)",
+            min_value=0.0,
+            value=100.0,
+            step=10.0,
+            help="Scales target-weight changes into indicative USD order sizes; it does not alter the backtest.",
+            key="operations_aum_usd_m",
+        )
         trades = rows_df(ops.get("trade_list"))
+        gross_order_usd_m = None
         if not trades.empty:
-            sectors_df = rows_df(holdings.get("all"))[["ticker", "sector"]]
-            trades = trades.merge(sectors_df, on="ticker", how="left")
+            holdings_rows = rows_df(holdings.get("all"))
+            if {"ticker", "sector"}.issubset(holdings_rows.columns):
+                trades = trades.merge(holdings_rows[["ticker", "sector"]], on="ticker", how="left")
             trades = sector_filter(trades)
+            pre_trade_column = next(
+                (column for column in ("pre_trade", "drifted_pre_trade", "prev") if column in trades.columns),
+                None,
+            )
+            if pre_trade_column:
+                trades["pre_trade"] = pd.to_numeric(trades[pre_trade_column], errors="coerce")
+            elif "target" in trades.columns and "delta" in trades.columns:
+                trades["pre_trade"] = trades["target"] - trades["delta"]
             trades["abs_delta"] = trades["delta"].abs()
+            trades["order_usd_m"] = trades["delta"] * float(aum_usd_m)
+            gross_order_usd_m = float(trades["order_usd_m"].abs().sum())
             trades = trades.sort_values("abs_delta", ascending=False)
             t1, t2 = st.columns([1.0, 1.2])
             with t1:
-                render_chart(hbar_fig(trades.head(18).sort_values("delta"), "ticker", "delta", "Largest proposed trades"))
+                render_chart(hbar_fig(trades.head(18).sort_values("delta"), "ticker", "delta", "Largest rebalance orders"))
             with t2:
-                st.dataframe(fmt_table(trades[["ticker", "sector", "prev", "target", "delta"]].head(40), ["prev", "target", "delta"]), width="stretch", hide_index=True)
+                order_columns = [
+                    column for column in ("ticker", "sector", "currency", "pre_trade", "target", "delta", "order_usd_m")
+                    if column in trades.columns
+                ]
+                st.dataframe(
+                    fmt_table(
+                        trades[order_columns].head(40),
+                        [column for column in ("pre_trade", "target", "delta") if column in order_columns],
+                    ),
+                    width="stretch",
+                    hide_index=True,
+                )
 
-        k = st.columns(4)
+        k = st.columns(6)
         k[0].metric("Trade Count", ops.get("n_trades", "n/a"))
         k[1].metric("Latest Turnover", pct(ops.get("turnover_two_way_latest"), 1))
-        k[2].metric("Rebalance Freq", f"{ops.get('rebalance_freq_days', 'n/a')}d")
-        k[3].metric("Fallback Rate", pct(ops.get("optimizer_failure_rate"), 1))
+        k[2].metric("Gross Orders", f"${gross_order_usd_m:,.2f}m" if gross_order_usd_m is not None else "n/a")
+        k[3].metric("Rebalance Freq", f"{ops.get('rebalance_freq_days', 'n/a')}d")
+        k[4].metric("Fallback Rate", pct(ops.get("optimizer_failure_rate"), 1))
+        k[5].metric("Expected Cost", pct(ops.get("expected_transaction_cost"), 3))
 
     with tabs[5]:
         st.subheader("Signals and adoption gates")
