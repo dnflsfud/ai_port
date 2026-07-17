@@ -1,11 +1,13 @@
 label: codex_causal_rank_65
-display_name: Causal Rank 65
+display_name: Causal Rank 100
 portfolio_role: production
 description: >
-  Fixed-65 causal challenger. Uses date-grouped LightGBM rank_xendcg,
+  Fixed-100 causal production portfolio. Uses date-grouped LightGBM rank_xendcg,
   purged/embargoed validation, and a one-trading-day execution signal lag.
-  Universe, benchmark, overlays, optimizer and transaction-cost assumptions
-  are pinned to the canonical iter15_65tkr_reb21_vtg production portfolio.
+  The legacy label/output path is retained for automation compatibility; the
+  universe is the validated 100-name Universe_Meta set. Benchmark, overlays,
+  optimizer and transaction-cost assumptions remain pinned to the canonical
+  iter15_65tkr_reb21_vtg portfolio design.
 out_dir: outputs/codex_causal_rank_65
 tuning_mode: production
 overrides:
@@ -52,7 +54,10 @@ overrides:
   benchmark_type: cap_weighted
   risk_aversion: 1.0
   turnover_penalty: 0.03
-  max_te_annual: 0.045
+  # Production mandate: ex-ante active risk must stay within 3.5% annual TE.
+  # The same value is enforced in both the MVO target and post-execution
+  # projection, so partial rebalancing cannot bypass the hard constraint.
+  max_te_annual: 0.035
   max_single_turnover: 0.15
   sector_deviation: 0.10
   cov_lookback: 126

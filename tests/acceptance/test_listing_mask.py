@@ -47,6 +47,10 @@ SPEC_LISTING_DATES = {
     "PLTR": "2020-09-30",
     "GEV": "2024-04-02",
     "BE": "2018-07-25",
+    "285A": "2024-12-18",
+    "SNDK": "2025-02-24",
+    "ARM": "2023-09-14",
+    "CEG": "2022-02-02",
 }
 
 
@@ -217,8 +221,9 @@ def test_capweight_fn_off_parity():
     data = types.SimpleNamespace(market_cap=mc)
     query = idx[1]  # a date where A is still NaN -> exercises median fallback
 
-    # config omitted entirely -> must reproduce legacy behaviour.
-    fn = make_capweight_bm_fn(data, tickers)
+    # Explicit OFF config retains the legacy median-fill branch.
+    cfg = PipelineConfig(listing_mask_enabled=False)
+    fn = make_capweight_bm_fn(data, tickers, config=cfg)
     w = np.asarray(fn(query, tickers, len(tickers)), dtype=float)
 
     expected_ref = _capweight_reference(mc, tickers, query)
@@ -268,7 +273,7 @@ def test_capweight_fn_on_zero_weight_for_masked():
 # ---------------------------------------------------------------------------
 def test_config_defaults():
     c = PipelineConfig()
-    assert c.listing_mask_enabled is False
+    assert c.listing_mask_enabled is True
     assert c.listing_dates == SPEC_LISTING_DATES
 
 

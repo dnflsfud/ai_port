@@ -1,11 +1,68 @@
 import types
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import pytest
+import yaml
 
 from src.backtest import apply_execution_signal_lag
 from src.config import PipelineConfig
+from src.harness import build_override_config
 from src.model_trainer import build_walk_forward_split, prepare_rank_data, train_model
+from src.portfolio_optimizer import optimize_portfolio, project_portfolio_weights
+
+
+def _production_config():
+    variant = Path(__file__).resolve().parents[1] / "variants" / "codex_causal_rank_65.yaml"
+    manifest = yaml.safe_load(variant.read_text(encoding="utf-8"))
+    return build_override_config(dict(manifest["overrides"]))
+
+
+def test_production_100_fund_uses_usd_cap_weighted_benchmark_and_35pct_te_limit():
+    config = _production_config()
+    assert config.base_currency == "USD"
+    assert config.convert_returns_to_usd is True
+    assert config.benchmark_type == "cap_weighted"
+    assert config.max_te_annual == pytest.approx(0.035)
+
+
+def test_production_te_limit_survives_optimizer_and_execution_projection():
+    config = _production_config()
+    config.portfolio_style = "unconstrained"
+    config.max_active_share = 2.0
+    config.max_active_per_stock = 1.0
+    config.max_weight = 1.0
+    config.max_single_turnover = 2.0
+    config.turnover_penalty = 0.0
+    config.risk_aversion = 0.0
+    config.mega_cap_protection_enabled = False
+    config.enforce_score_gated_ow = False
+
+    tickers = [f"T{i:02d}" for i in range(20)]
+    benchmark = np.full(len(tickers), 1.0 / len(tickers))
+    covariance = np.eye(len(tickers)) * 0.0004
+    alpha = pd.Series(np.linspace(1.0, -1.0, len(tickers)), index=tickers)
+
+    target = optimize_portfolio(
+        alpha,
+        covariance,
+        prev_weights=benchmark,
+        bm_weights=benchmark,
+        config=config,
+    )
+    projected = project_portfolio_weights(
+        0.5 * benchmark + 0.5 * target,
+        alpha,
+        covariance,
+        prev_weights=benchmark,
+        bm_weights=benchmark,
+        config=config,
+    )
+    for weights in (target, projected):
+        active = weights - benchmark
+        estimated_te = np.sqrt(active @ covariance @ active) * np.sqrt(252.0)
+        assert estimated_te <= 0.035 + 1e-5
 
 
 def test_causal_split_purges_realization_overlap_and_future_labels():

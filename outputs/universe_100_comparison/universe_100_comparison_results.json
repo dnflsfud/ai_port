@@ -1,0 +1,2260 @@
+{
+  "generated_at": "2026-07-15T03:13:36.033302+00:00",
+  "analysis_as_of": "2026-07-15",
+  "source": {
+    "prior_results": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\c2\\ai_port\\outputs\\universe_100_recommendation\\universe_100_results.json",
+    "current_universe_names": 65,
+    "current_region_counts": {
+      "United States": 60,
+      "United Kingdom": 1,
+      "Europe ex-UK": 0,
+      "Asia": 4
+    },
+    "model_train_window_sessions": 1260
+  },
+  "headline": {
+    "consensus_names": 18,
+    "prior_final_us_share": 0.69,
+    "fable_final_us_share": 0.78,
+    "hybrid_final_us_share": 0.73,
+    "hybrid_non_us_share": 0.27,
+    "hybrid_history_gates": 4
+  },
+  "proposal_summaries": [
+    {
+      "proposal": "Prior proposal",
+      "add_names": 35,
+      "us_add_names": 9,
+      "non_us_add_names": 26,
+      "final_us_share": 0.69,
+      "final_non_us_share": 0.31,
+      "final_uk_share": 0.09,
+      "final_europe_ex_uk_share": 0.17,
+      "final_asia_share": 0.05
+    },
+    {
+      "proposal": "Fable proposal",
+      "add_names": 35,
+      "us_add_names": 18,
+      "non_us_add_names": 17,
+      "final_us_share": 0.78,
+      "final_non_us_share": 0.22,
+      "final_uk_share": 0.07,
+      "final_europe_ex_uk_share": 0.09,
+      "final_asia_share": 0.06
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "add_names": 35,
+      "us_add_names": 13,
+      "non_us_add_names": 22,
+      "final_us_share": 0.73,
+      "final_non_us_share": 0.27,
+      "final_uk_share": 0.08,
+      "final_europe_ex_uk_share": 0.13,
+      "final_asia_share": 0.06
+    }
+  ],
+  "region_comparison": [
+    {
+      "proposal": "Prior proposal",
+      "region": "United States",
+      "current_names": 60,
+      "add_names": 9,
+      "final_names": 69,
+      "final_share": 0.69
+    },
+    {
+      "proposal": "Prior proposal",
+      "region": "United Kingdom",
+      "current_names": 1,
+      "add_names": 8,
+      "final_names": 9,
+      "final_share": 0.09
+    },
+    {
+      "proposal": "Prior proposal",
+      "region": "Europe ex-UK",
+      "current_names": 0,
+      "add_names": 17,
+      "final_names": 17,
+      "final_share": 0.17
+    },
+    {
+      "proposal": "Prior proposal",
+      "region": "Asia",
+      "current_names": 4,
+      "add_names": 1,
+      "final_names": 5,
+      "final_share": 0.05
+    },
+    {
+      "proposal": "Fable proposal",
+      "region": "United States",
+      "current_names": 60,
+      "add_names": 18,
+      "final_names": 78,
+      "final_share": 0.78
+    },
+    {
+      "proposal": "Fable proposal",
+      "region": "United Kingdom",
+      "current_names": 1,
+      "add_names": 6,
+      "final_names": 7,
+      "final_share": 0.07
+    },
+    {
+      "proposal": "Fable proposal",
+      "region": "Europe ex-UK",
+      "current_names": 0,
+      "add_names": 9,
+      "final_names": 9,
+      "final_share": 0.09
+    },
+    {
+      "proposal": "Fable proposal",
+      "region": "Asia",
+      "current_names": 4,
+      "add_names": 2,
+      "final_names": 6,
+      "final_share": 0.06
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "region": "United States",
+      "current_names": 60,
+      "add_names": 13,
+      "final_names": 73,
+      "final_share": 0.73
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "region": "United Kingdom",
+      "current_names": 1,
+      "add_names": 7,
+      "final_names": 8,
+      "final_share": 0.08
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "region": "Europe ex-UK",
+      "current_names": 0,
+      "add_names": 13,
+      "final_names": 13,
+      "final_share": 0.13
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "region": "Asia",
+      "current_names": 4,
+      "add_names": 2,
+      "final_names": 6,
+      "final_share": 0.06
+    }
+  ],
+  "sector_comparison": [
+    {
+      "proposal": "Prior proposal",
+      "sector": "Technology",
+      "current_names": 24,
+      "add_names": 10,
+      "final_names": 34
+    },
+    {
+      "proposal": "Prior proposal",
+      "sector": "Industrials",
+      "current_names": 9,
+      "add_names": 4,
+      "final_names": 13
+    },
+    {
+      "proposal": "Prior proposal",
+      "sector": "Financials",
+      "current_names": 8,
+      "add_names": 4,
+      "final_names": 12
+    },
+    {
+      "proposal": "Prior proposal",
+      "sector": "Healthcare",
+      "current_names": 6,
+      "add_names": 5,
+      "final_names": 11
+    },
+    {
+      "proposal": "Prior proposal",
+      "sector": "Consumer Discretionary",
+      "current_names": 4,
+      "add_names": 3,
+      "final_names": 7
+    },
+    {
+      "proposal": "Prior proposal",
+      "sector": "Consumer Staples",
+      "current_names": 3,
+      "add_names": 2,
+      "final_names": 5
+    },
+    {
+      "proposal": "Prior proposal",
+      "sector": "Energy",
+      "current_names": 3,
+      "add_names": 2,
+      "final_names": 5
+    },
+    {
+      "proposal": "Prior proposal",
+      "sector": "Utilities",
+      "current_names": 1,
+      "add_names": 1,
+      "final_names": 2
+    },
+    {
+      "proposal": "Prior proposal",
+      "sector": "Real Estate",
+      "current_names": 3,
+      "add_names": 1,
+      "final_names": 4
+    },
+    {
+      "proposal": "Prior proposal",
+      "sector": "Communication Services",
+      "current_names": 2,
+      "add_names": 2,
+      "final_names": 4
+    },
+    {
+      "proposal": "Prior proposal",
+      "sector": "Materials",
+      "current_names": 2,
+      "add_names": 1,
+      "final_names": 3
+    },
+    {
+      "proposal": "Fable proposal",
+      "sector": "Technology",
+      "current_names": 24,
+      "add_names": 10,
+      "final_names": 34
+    },
+    {
+      "proposal": "Fable proposal",
+      "sector": "Industrials",
+      "current_names": 9,
+      "add_names": 5,
+      "final_names": 14
+    },
+    {
+      "proposal": "Fable proposal",
+      "sector": "Financials",
+      "current_names": 8,
+      "add_names": 4,
+      "final_names": 12
+    },
+    {
+      "proposal": "Fable proposal",
+      "sector": "Healthcare",
+      "current_names": 6,
+      "add_names": 4,
+      "final_names": 10
+    },
+    {
+      "proposal": "Fable proposal",
+      "sector": "Consumer Discretionary",
+      "current_names": 4,
+      "add_names": 3,
+      "final_names": 7
+    },
+    {
+      "proposal": "Fable proposal",
+      "sector": "Consumer Staples",
+      "current_names": 3,
+      "add_names": 2,
+      "final_names": 5
+    },
+    {
+      "proposal": "Fable proposal",
+      "sector": "Energy",
+      "current_names": 3,
+      "add_names": 2,
+      "final_names": 5
+    },
+    {
+      "proposal": "Fable proposal",
+      "sector": "Utilities",
+      "current_names": 1,
+      "add_names": 2,
+      "final_names": 3
+    },
+    {
+      "proposal": "Fable proposal",
+      "sector": "Real Estate",
+      "current_names": 3,
+      "add_names": 1,
+      "final_names": 4
+    },
+    {
+      "proposal": "Fable proposal",
+      "sector": "Communication Services",
+      "current_names": 2,
+      "add_names": 1,
+      "final_names": 3
+    },
+    {
+      "proposal": "Fable proposal",
+      "sector": "Materials",
+      "current_names": 2,
+      "add_names": 1,
+      "final_names": 3
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "sector": "Technology",
+      "current_names": 24,
+      "add_names": 10,
+      "final_names": 34
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "sector": "Industrials",
+      "current_names": 9,
+      "add_names": 4,
+      "final_names": 13
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "sector": "Financials",
+      "current_names": 8,
+      "add_names": 4,
+      "final_names": 12
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "sector": "Healthcare",
+      "current_names": 6,
+      "add_names": 5,
+      "final_names": 11
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "sector": "Consumer Discretionary",
+      "current_names": 4,
+      "add_names": 3,
+      "final_names": 7
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "sector": "Consumer Staples",
+      "current_names": 3,
+      "add_names": 2,
+      "final_names": 5
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "sector": "Energy",
+      "current_names": 3,
+      "add_names": 2,
+      "final_names": 5
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "sector": "Utilities",
+      "current_names": 1,
+      "add_names": 2,
+      "final_names": 3
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "sector": "Real Estate",
+      "current_names": 3,
+      "add_names": 1,
+      "final_names": 4
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "sector": "Communication Services",
+      "current_names": 2,
+      "add_names": 1,
+      "final_names": 3
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "sector": "Materials",
+      "current_names": 2,
+      "add_names": 1,
+      "final_names": 3
+    }
+  ],
+  "consensus": [
+    {
+      "ticker": "285A JP",
+      "name": "Kioxia Holdings",
+      "sector": "Technology",
+      "region": "Asia"
+    },
+    {
+      "ticker": "ASML NA",
+      "name": "ASML Holding",
+      "sector": "Technology",
+      "region": "Europe ex-UK"
+    },
+    {
+      "ticker": "AZN LN",
+      "name": "AstraZeneca",
+      "sector": "Healthcare",
+      "region": "United Kingdom"
+    },
+    {
+      "ticker": "BKNG US",
+      "name": "Booking Holdings",
+      "sector": "Consumer Discretionary",
+      "region": "United States"
+    },
+    {
+      "ticker": "HSBA LN",
+      "name": "HSBC Holdings",
+      "sector": "Financials",
+      "region": "United Kingdom"
+    },
+    {
+      "ticker": "KLAC US",
+      "name": "KLA",
+      "sector": "Technology",
+      "region": "United States"
+    },
+    {
+      "ticker": "MC FP",
+      "name": "LVMH",
+      "sector": "Consumer Discretionary",
+      "region": "Europe ex-UK"
+    },
+    {
+      "ticker": "NESN SW",
+      "name": "Nestle",
+      "sector": "Consumer Staples",
+      "region": "Europe ex-UK"
+    },
+    {
+      "ticker": "NOVOB DC",
+      "name": "Novo Nordisk",
+      "sector": "Healthcare",
+      "region": "Europe ex-UK"
+    },
+    {
+      "ticker": "PWR US",
+      "name": "Quanta Services",
+      "sector": "Industrials",
+      "region": "United States"
+    },
+    {
+      "ticker": "RIO LN",
+      "name": "Rio Tinto",
+      "sector": "Materials",
+      "region": "United Kingdom"
+    },
+    {
+      "ticker": "RR/ LN",
+      "name": "Rolls-Royce Holdings",
+      "sector": "Industrials",
+      "region": "United Kingdom"
+    },
+    {
+      "ticker": "SAP GR",
+      "name": "SAP",
+      "sector": "Technology",
+      "region": "Europe ex-UK"
+    },
+    {
+      "ticker": "SHEL LN",
+      "name": "Shell",
+      "sector": "Energy",
+      "region": "United Kingdom"
+    },
+    {
+      "ticker": "SIE GR",
+      "name": "Siemens",
+      "sector": "Industrials",
+      "region": "Europe ex-UK"
+    },
+    {
+      "ticker": "SNDK US",
+      "name": "Sandisk",
+      "sector": "Technology",
+      "region": "United States"
+    },
+    {
+      "ticker": "SU FP",
+      "name": "Schneider Electric",
+      "sector": "Industrials",
+      "region": "Europe ex-UK"
+    },
+    {
+      "ticker": "TMO US",
+      "name": "Thermo Fisher Scientific",
+      "sector": "Healthcare",
+      "region": "United States"
+    }
+  ],
+  "prior_only": [
+    {
+      "ticker": "ALV GR",
+      "name": "Allianz",
+      "sector": "Financials"
+    },
+    {
+      "ticker": "CDNS US",
+      "name": "Cadence Design Systems",
+      "sector": "Technology"
+    },
+    {
+      "ticker": "DELL US",
+      "name": "Dell Technologies",
+      "sector": "Technology"
+    },
+    {
+      "ticker": "DTE GR",
+      "name": "Deutsche Telekom",
+      "sector": "Communication Services"
+    },
+    {
+      "ticker": "IBE SM",
+      "name": "Iberdrola",
+      "sector": "Utilities"
+    },
+    {
+      "ticker": "LSEG LN",
+      "name": "London Stock Exchange Group",
+      "sector": "Financials"
+    },
+    {
+      "ticker": "MRVL US",
+      "name": "Marvell Technology",
+      "sector": "Technology"
+    },
+    {
+      "ticker": "NOVN SW",
+      "name": "Novartis",
+      "sector": "Healthcare"
+    },
+    {
+      "ticker": "QCOM US",
+      "name": "Qualcomm",
+      "sector": "Technology"
+    },
+    {
+      "ticker": "RACE IM",
+      "name": "Ferrari",
+      "sector": "Consumer Discretionary"
+    },
+    {
+      "ticker": "ROG SW",
+      "name": "Roche Holding",
+      "sector": "Healthcare"
+    },
+    {
+      "ticker": "STM FP",
+      "name": "STMicroelectronics",
+      "sector": "Technology"
+    },
+    {
+      "ticker": "TTE FP",
+      "name": "TotalEnergies",
+      "sector": "Energy"
+    },
+    {
+      "ticker": "UBSG SW",
+      "name": "UBS Group",
+      "sector": "Financials"
+    },
+    {
+      "ticker": "ULVR LN",
+      "name": "Unilever",
+      "sector": "Consumer Staples"
+    },
+    {
+      "ticker": "VNA GR",
+      "name": "Vonovia",
+      "sector": "Real Estate"
+    },
+    {
+      "ticker": "VOD LN",
+      "name": "Vodafone Group",
+      "sector": "Communication Services"
+    }
+  ],
+  "fable_only": [
+    {
+      "ticker": "6857 JP",
+      "name": "Advantest",
+      "sector": "Technology"
+    },
+    {
+      "ticker": "ANET US",
+      "name": "Arista Networks",
+      "sector": "Technology"
+    },
+    {
+      "ticker": "ARM US",
+      "name": "Arm Holdings",
+      "sector": "Technology"
+    },
+    {
+      "ticker": "BSX US",
+      "name": "Boston Scientific",
+      "sector": "Healthcare"
+    },
+    {
+      "ticker": "BX US",
+      "name": "Blackstone",
+      "sector": "Financials"
+    },
+    {
+      "ticker": "CEG US",
+      "name": "Constellation Energy",
+      "sector": "Utilities"
+    },
+    {
+      "ticker": "DLR US",
+      "name": "Digital Realty",
+      "sector": "Real Estate"
+    },
+    {
+      "ticker": "MS US",
+      "name": "Morgan Stanley",
+      "sector": "Financials"
+    },
+    {
+      "ticker": "NOW US",
+      "name": "ServiceNow",
+      "sector": "Technology"
+    },
+    {
+      "ticker": "PGR US",
+      "name": "Progressive",
+      "sector": "Financials"
+    },
+    {
+      "ticker": "PM US",
+      "name": "Philip Morris International",
+      "sector": "Consumer Staples"
+    },
+    {
+      "ticker": "RHM GR",
+      "name": "Rheinmetall",
+      "sector": "Industrials"
+    },
+    {
+      "ticker": "SPOT US",
+      "name": "Spotify Technology",
+      "sector": "Communication Services"
+    },
+    {
+      "ticker": "STX US",
+      "name": "Seagate Technology",
+      "sector": "Technology"
+    },
+    {
+      "ticker": "TJX US",
+      "name": "TJX Companies",
+      "sector": "Consumer Discretionary"
+    },
+    {
+      "ticker": "VST US",
+      "name": "Vistra",
+      "sector": "Utilities"
+    },
+    {
+      "ticker": "WMB US",
+      "name": "Williams Companies",
+      "sector": "Energy"
+    }
+  ],
+  "hybrid_candidates": [
+    {
+      "ticker": "285A JP",
+      "name": "Kioxia Holdings",
+      "sector": "Technology",
+      "country": "Japan",
+      "region": "Asia",
+      "subindustry": "NAND flash / SSD",
+      "rationale": "Mandatory memory-cycle exposure",
+      "listing_date": "2024-12-18",
+      "history_gate": true,
+      "selection_order": 1,
+      "source_status": "Consensus",
+      "selection_note": "Retain as common core in both proposals."
+    },
+    {
+      "ticker": "SNDK US",
+      "name": "Sandisk",
+      "sector": "Technology",
+      "country": "United States",
+      "region": "United States",
+      "subindustry": "Flash memory / SSD",
+      "rationale": "Mandatory memory-cycle exposure",
+      "listing_date": "2025-02-24",
+      "history_gate": true,
+      "selection_order": 2,
+      "source_status": "Consensus",
+      "selection_note": "Retain as common core in both proposals."
+    },
+    {
+      "ticker": "ASML NA",
+      "name": "ASML Holding",
+      "sector": "Technology",
+      "country": "Netherlands",
+      "region": "Europe ex-UK",
+      "subindustry": "Lithography equipment",
+      "rationale": "Critical semiconductor equipment exposure",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 3,
+      "source_status": "Consensus",
+      "selection_note": "Retain as common core in both proposals."
+    },
+    {
+      "ticker": "SAP GR",
+      "name": "SAP",
+      "sector": "Technology",
+      "country": "Germany",
+      "region": "Europe ex-UK",
+      "subindustry": "Enterprise software",
+      "rationale": "European enterprise software anchor",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 4,
+      "source_status": "Consensus",
+      "selection_note": "Retain as common core in both proposals."
+    },
+    {
+      "ticker": "KLAC US",
+      "name": "KLA",
+      "sector": "Technology",
+      "country": "United States",
+      "region": "United States",
+      "subindustry": "Process control equipment",
+      "rationale": "Inspection and metrology coverage",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 5,
+      "source_status": "Consensus",
+      "selection_note": "Retain as common core in both proposals."
+    },
+    {
+      "ticker": "ARM US",
+      "name": "Arm Holdings",
+      "sector": "Technology",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "subindustry": "CPU architecture IP",
+      "rationale": "Adds CPU-IP economics and UK domicile",
+      "listing_date": "2023-09-14",
+      "history_gate": true,
+      "selection_order": 6,
+      "source_status": "Fable-only",
+      "selection_note": "Choose over another mature semiconductor name: CPU-IP economics and UK domicile add a different factor, subject to a history gate."
+    },
+    {
+      "ticker": "ANET US",
+      "name": "Arista Networks",
+      "sector": "Technology",
+      "country": "United States",
+      "region": "United States",
+      "subindustry": "Data-center networking",
+      "rationale": "AI Ethernet peer exposure",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 7,
+      "source_status": "Fable-only",
+      "selection_note": "Choose as the AI-networking systems peer; more differentiated from the semiconductor-heavy current universe than another chip vendor."
+    },
+    {
+      "ticker": "CDNS US",
+      "name": "Cadence Design Systems",
+      "sector": "Technology",
+      "subindustry": "EDA software",
+      "country": "United States",
+      "region": "United States",
+      "priority": "Core",
+      "rationale": "반도체 설계 소프트웨어 공급망",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 8,
+      "source_status": "Prior-only",
+      "selection_note": "Keep because EDA is a bottleneck business and less duplicative than adding another enterprise workflow vendor."
+    },
+    {
+      "ticker": "STM FP",
+      "name": "STMicroelectronics",
+      "sector": "Technology",
+      "subindustry": "Analog / automotive semiconductors",
+      "country": "Netherlands",
+      "region": "Europe ex-UK",
+      "priority": "Core",
+      "rationale": "자동차·산업용 반도체로 AI 일변도 완화",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 9,
+      "source_status": "Prior-only",
+      "selection_note": "Keep as a European analog/auto semiconductor diversifier; avoid a third memory/storage-cycle name after Kioxia and Sandisk."
+    },
+    {
+      "ticker": "6857 JP",
+      "name": "Advantest",
+      "sector": "Technology",
+      "country": "Japan",
+      "region": "Asia",
+      "subindustry": "Semiconductor test systems",
+      "rationale": "AI accelerator test peer for Teradyne",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 10,
+      "source_status": "Fable-only",
+      "selection_note": "Choose for a clean cross-sectional test-equipment pair with existing Teradyne and for a second Japanese addition."
+    },
+    {
+      "ticker": "SU FP",
+      "name": "Schneider Electric",
+      "sector": "Industrials",
+      "country": "France",
+      "region": "Europe ex-UK",
+      "subindustry": "Electrification / automation",
+      "rationale": "Data-center power and automation peer",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 11,
+      "source_status": "Consensus",
+      "selection_note": "Retain as common core in both proposals."
+    },
+    {
+      "ticker": "SIE GR",
+      "name": "Siemens",
+      "sector": "Industrials",
+      "country": "Germany",
+      "region": "Europe ex-UK",
+      "subindustry": "Industrial automation",
+      "rationale": "Industrial AI, automation and grid exposure",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 12,
+      "source_status": "Consensus",
+      "selection_note": "Retain as common core in both proposals."
+    },
+    {
+      "ticker": "RR/ LN",
+      "name": "Rolls-Royce Holdings",
+      "sector": "Industrials",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "subindustry": "Aerospace engines",
+      "rationale": "Civil aerospace aftermarket and SMR optionality",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 13,
+      "source_status": "Consensus",
+      "selection_note": "Retain as common core in both proposals."
+    },
+    {
+      "ticker": "PWR US",
+      "name": "Quanta Services",
+      "sector": "Industrials",
+      "country": "United States",
+      "region": "United States",
+      "subindustry": "Grid infrastructure",
+      "rationale": "Grid and data-center construction exposure",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 14,
+      "source_status": "Consensus",
+      "selection_note": "Retain as common core in both proposals."
+    },
+    {
+      "ticker": "HSBA LN",
+      "name": "HSBC Holdings",
+      "sector": "Financials",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "subindustry": "Global banking",
+      "rationale": "Asia and UK banking exposure",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 15,
+      "source_status": "Consensus",
+      "selection_note": "Retain as common core in both proposals."
+    },
+    {
+      "ticker": "ALV GR",
+      "name": "Allianz",
+      "sector": "Financials",
+      "subindustry": "Insurance / asset management",
+      "country": "Germany",
+      "region": "Europe ex-UK",
+      "priority": "Diversifier",
+      "rationale": "보험·자산운용 복합 금융 노출",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 16,
+      "source_status": "Prior-only",
+      "selection_note": "Keep a European insurance and asset-management compounder to diversify US financial factors."
+    },
+    {
+      "ticker": "PGR US",
+      "name": "Progressive",
+      "sector": "Financials",
+      "country": "United States",
+      "region": "United States",
+      "subindustry": "Property and casualty insurance",
+      "rationale": "Fills insurance model gap",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 17,
+      "source_status": "Fable-only",
+      "selection_note": "Choose to fill the current insurance gap rather than add another bank or asset manager."
+    },
+    {
+      "ticker": "LSEG LN",
+      "name": "London Stock Exchange Group",
+      "sector": "Financials",
+      "subindustry": "Market infrastructure / data",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "priority": "Diversifier",
+      "rationale": "거래소·금융데이터 인프라 노출",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 18,
+      "source_status": "Prior-only",
+      "selection_note": "Keep market-data and exchange infrastructure, which is less correlated with bank balance-sheet exposure."
+    },
+    {
+      "ticker": "NOVOB DC",
+      "name": "Novo Nordisk",
+      "sector": "Healthcare",
+      "country": "Denmark",
+      "region": "Europe ex-UK",
+      "subindustry": "Diabetes / obesity pharmaceuticals",
+      "rationale": "GLP-1 peer for Eli Lilly",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 19,
+      "source_status": "Consensus",
+      "selection_note": "Retain as common core in both proposals."
+    },
+    {
+      "ticker": "AZN LN",
+      "name": "AstraZeneca",
+      "sector": "Healthcare",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "subindustry": "Pharmaceuticals",
+      "rationale": "Oncology-led global pharma exposure",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 20,
+      "source_status": "Consensus",
+      "selection_note": "Retain as common core in both proposals."
+    },
+    {
+      "ticker": "TMO US",
+      "name": "Thermo Fisher Scientific",
+      "sector": "Healthcare",
+      "country": "United States",
+      "region": "United States",
+      "subindustry": "Life-science tools",
+      "rationale": "Life-science tools exposure",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 21,
+      "source_status": "Consensus",
+      "selection_note": "Retain as common core in both proposals."
+    },
+    {
+      "ticker": "BSX US",
+      "name": "Boston Scientific",
+      "sector": "Healthcare",
+      "country": "United States",
+      "region": "United States",
+      "subindustry": "Medical devices",
+      "rationale": "Adds medical-device growth exposure",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 22,
+      "source_status": "Fable-only",
+      "selection_note": "Choose medical devices to broaden healthcare beyond pharmaceuticals and life-science tools."
+    },
+    {
+      "ticker": "ROG SW",
+      "name": "Roche Holding",
+      "sector": "Healthcare",
+      "subindustry": "Pharmaceuticals / diagnostics",
+      "country": "Switzerland",
+      "region": "Europe ex-UK",
+      "priority": "Diversifier",
+      "rationale": "제약과 진단의 결합 노출",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 23,
+      "source_status": "Prior-only",
+      "selection_note": "Keep pharma plus diagnostics; use one Swiss defensive anchor instead of adding two large European drug makers."
+    },
+    {
+      "ticker": "BKNG US",
+      "name": "Booking Holdings",
+      "sector": "Consumer Discretionary",
+      "country": "United States",
+      "region": "United States",
+      "subindustry": "Online travel",
+      "rationale": "Global travel platform exposure",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 24,
+      "source_status": "Consensus",
+      "selection_note": "Retain as common core in both proposals."
+    },
+    {
+      "ticker": "MC FP",
+      "name": "LVMH",
+      "sector": "Consumer Discretionary",
+      "country": "France",
+      "region": "Europe ex-UK",
+      "subindustry": "Luxury goods",
+      "rationale": "European luxury anchor",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 25,
+      "source_status": "Consensus",
+      "selection_note": "Retain as common core in both proposals."
+    },
+    {
+      "ticker": "TJX US",
+      "name": "TJX Companies",
+      "sector": "Consumer Discretionary",
+      "country": "United States",
+      "region": "United States",
+      "subindustry": "Off-price retail",
+      "rationale": "Defensive discretionary exposure",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 26,
+      "source_status": "Fable-only",
+      "selection_note": "Choose off-price retail over a second luxury name because LVMH already covers luxury demand."
+    },
+    {
+      "ticker": "PM US",
+      "name": "Philip Morris International",
+      "sector": "Consumer Staples",
+      "country": "United States",
+      "region": "United States",
+      "subindustry": "Tobacco / smoke-free products",
+      "rationale": "Distinct smoke-free transition exposure",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 27,
+      "source_status": "Fable-only",
+      "selection_note": "Choose for a differentiated smoke-free transition, with an explicit regulatory-risk flag."
+    },
+    {
+      "ticker": "NESN SW",
+      "name": "Nestle",
+      "sector": "Consumer Staples",
+      "country": "Switzerland",
+      "region": "Europe ex-UK",
+      "subindustry": "Packaged food / beverages",
+      "rationale": "European staples anchor",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 28,
+      "source_status": "Consensus",
+      "selection_note": "Retain as common core in both proposals."
+    },
+    {
+      "ticker": "SHEL LN",
+      "name": "Shell",
+      "sector": "Energy",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "subindustry": "Integrated energy / LNG",
+      "rationale": "Global LNG and integrated energy exposure",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 29,
+      "source_status": "Consensus",
+      "selection_note": "Retain as common core in both proposals."
+    },
+    {
+      "ticker": "WMB US",
+      "name": "Williams Companies",
+      "sector": "Energy",
+      "country": "United States",
+      "region": "United States",
+      "subindustry": "Natural-gas midstream",
+      "rationale": "Gas infrastructure for power-demand growth",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 30,
+      "source_status": "Fable-only",
+      "selection_note": "Choose midstream gas infrastructure over another integrated oil major already represented by current energy holdings."
+    },
+    {
+      "ticker": "CEG US",
+      "name": "Constellation Energy",
+      "sector": "Utilities",
+      "country": "United States",
+      "region": "United States",
+      "subindustry": "Nuclear generation",
+      "rationale": "Nuclear power exposure for data-center demand",
+      "listing_date": "2022-02-02",
+      "history_gate": true,
+      "selection_order": 31,
+      "source_status": "Fable-only",
+      "selection_note": "Choose one US nuclear/merchant-power beneficiary, subject to a full-history gate."
+    },
+    {
+      "ticker": "IBE SM",
+      "name": "Iberdrola",
+      "sector": "Utilities",
+      "subindustry": "Electric utility / renewables",
+      "country": "Spain",
+      "region": "Europe ex-UK",
+      "priority": "Diversifier",
+      "rationale": "전력망과 재생에너지 중심 유틸리티 노출",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 32,
+      "source_status": "Prior-only",
+      "selection_note": "Pair CEG with a regulated European networks/renewables utility instead of doubling US merchant-power exposure."
+    },
+    {
+      "ticker": "VNA GR",
+      "name": "Vonovia",
+      "sector": "Real Estate",
+      "subindustry": "Residential real estate",
+      "country": "Germany",
+      "region": "Europe ex-UK",
+      "priority": "Diversifier",
+      "rationale": "유럽 주거 부동산과 금리 민감도 노출",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 33,
+      "source_status": "Prior-only",
+      "selection_note": "Choose European residential real estate and rate sensitivity; existing Equinix already covers data-center real estate."
+    },
+    {
+      "ticker": "SPOT US",
+      "name": "Spotify Technology",
+      "sector": "Communication Services",
+      "country": "Sweden",
+      "region": "Europe ex-UK",
+      "subindustry": "Audio streaming",
+      "rationale": "Global subscription audio platform",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 34,
+      "source_status": "Fable-only",
+      "selection_note": "Choose a global subscription platform; avoid Deutsche Telekom look-through duplication with existing T-Mobile US."
+    },
+    {
+      "ticker": "RIO LN",
+      "name": "Rio Tinto",
+      "sector": "Materials",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "subindustry": "Diversified mining",
+      "rationale": "Copper and grid-material exposure",
+      "listing_date": null,
+      "history_gate": false,
+      "selection_order": 35,
+      "source_status": "Consensus",
+      "selection_note": "Retain as common core in both proposals."
+    }
+  ],
+  "candidate_comparison": [
+    {
+      "proposal": "Prior proposal",
+      "ticker": "285A JP",
+      "name": "Kioxia Holdings",
+      "sector": "Technology",
+      "country": "Japan",
+      "region": "Asia",
+      "history_gate": true
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "SNDK US",
+      "name": "Sandisk",
+      "sector": "Technology",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": true
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "ASML NA",
+      "name": "ASML Holding",
+      "sector": "Technology",
+      "country": "Netherlands",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "SAP GR",
+      "name": "SAP",
+      "sector": "Technology",
+      "country": "Germany",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "STM FP",
+      "name": "STMicroelectronics",
+      "sector": "Technology",
+      "country": "Netherlands",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "KLAC US",
+      "name": "KLA",
+      "sector": "Technology",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "QCOM US",
+      "name": "Qualcomm",
+      "sector": "Technology",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "MRVL US",
+      "name": "Marvell Technology",
+      "sector": "Technology",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "CDNS US",
+      "name": "Cadence Design Systems",
+      "sector": "Technology",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "DELL US",
+      "name": "Dell Technologies",
+      "sector": "Technology",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "SIE GR",
+      "name": "Siemens",
+      "sector": "Industrials",
+      "country": "Germany",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "SU FP",
+      "name": "Schneider Electric",
+      "sector": "Industrials",
+      "country": "France",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "RR/ LN",
+      "name": "Rolls-Royce Holdings",
+      "sector": "Industrials",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "PWR US",
+      "name": "Quanta Services",
+      "sector": "Industrials",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "HSBA LN",
+      "name": "HSBC Holdings",
+      "sector": "Financials",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "ALV GR",
+      "name": "Allianz",
+      "sector": "Financials",
+      "country": "Germany",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "UBSG SW",
+      "name": "UBS Group",
+      "sector": "Financials",
+      "country": "Switzerland",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "LSEG LN",
+      "name": "London Stock Exchange Group",
+      "sector": "Financials",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "NOVOB DC",
+      "name": "Novo Nordisk",
+      "sector": "Healthcare",
+      "country": "Denmark",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "AZN LN",
+      "name": "AstraZeneca",
+      "sector": "Healthcare",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "ROG SW",
+      "name": "Roche Holding",
+      "sector": "Healthcare",
+      "country": "Switzerland",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "NOVN SW",
+      "name": "Novartis",
+      "sector": "Healthcare",
+      "country": "Switzerland",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "TMO US",
+      "name": "Thermo Fisher Scientific",
+      "sector": "Healthcare",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "MC FP",
+      "name": "LVMH",
+      "sector": "Consumer Discretionary",
+      "country": "France",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "RACE IM",
+      "name": "Ferrari",
+      "sector": "Consumer Discretionary",
+      "country": "Italy",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "BKNG US",
+      "name": "Booking Holdings",
+      "sector": "Consumer Discretionary",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "SHEL LN",
+      "name": "Shell",
+      "sector": "Energy",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "TTE FP",
+      "name": "TotalEnergies",
+      "sector": "Energy",
+      "country": "France",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "ULVR LN",
+      "name": "Unilever",
+      "sector": "Consumer Staples",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "NESN SW",
+      "name": "Nestle",
+      "sector": "Consumer Staples",
+      "country": "Switzerland",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "DTE GR",
+      "name": "Deutsche Telekom",
+      "sector": "Communication Services",
+      "country": "Germany",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "VOD LN",
+      "name": "Vodafone Group",
+      "sector": "Communication Services",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "VNA GR",
+      "name": "Vonovia",
+      "sector": "Real Estate",
+      "country": "Germany",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "RIO LN",
+      "name": "Rio Tinto",
+      "sector": "Materials",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "history_gate": false
+    },
+    {
+      "proposal": "Prior proposal",
+      "ticker": "IBE SM",
+      "name": "Iberdrola",
+      "sector": "Utilities",
+      "country": "Spain",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "285A JP",
+      "name": "Kioxia Holdings",
+      "sector": "Technology",
+      "country": "Japan",
+      "region": "Asia",
+      "history_gate": true
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "SNDK US",
+      "name": "Sandisk",
+      "sector": "Technology",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": true
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "ASML NA",
+      "name": "ASML Holding",
+      "sector": "Technology",
+      "country": "Netherlands",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "SAP GR",
+      "name": "SAP",
+      "sector": "Technology",
+      "country": "Germany",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "ARM US",
+      "name": "Arm Holdings",
+      "sector": "Technology",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "history_gate": true
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "ANET US",
+      "name": "Arista Networks",
+      "sector": "Technology",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "KLAC US",
+      "name": "KLA",
+      "sector": "Technology",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "NOW US",
+      "name": "ServiceNow",
+      "sector": "Technology",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "STX US",
+      "name": "Seagate Technology",
+      "sector": "Technology",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "6857 JP",
+      "name": "Advantest",
+      "sector": "Technology",
+      "country": "Japan",
+      "region": "Asia",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "SU FP",
+      "name": "Schneider Electric",
+      "sector": "Industrials",
+      "country": "France",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "SIE GR",
+      "name": "Siemens",
+      "sector": "Industrials",
+      "country": "Germany",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "RHM GR",
+      "name": "Rheinmetall",
+      "sector": "Industrials",
+      "country": "Germany",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "RR/ LN",
+      "name": "Rolls-Royce Holdings",
+      "sector": "Industrials",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "PWR US",
+      "name": "Quanta Services",
+      "sector": "Industrials",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "BX US",
+      "name": "Blackstone",
+      "sector": "Financials",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "MS US",
+      "name": "Morgan Stanley",
+      "sector": "Financials",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "PGR US",
+      "name": "Progressive",
+      "sector": "Financials",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "HSBA LN",
+      "name": "HSBC Holdings",
+      "sector": "Financials",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "NOVOB DC",
+      "name": "Novo Nordisk",
+      "sector": "Healthcare",
+      "country": "Denmark",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "AZN LN",
+      "name": "AstraZeneca",
+      "sector": "Healthcare",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "TMO US",
+      "name": "Thermo Fisher Scientific",
+      "sector": "Healthcare",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "BSX US",
+      "name": "Boston Scientific",
+      "sector": "Healthcare",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "BKNG US",
+      "name": "Booking Holdings",
+      "sector": "Consumer Discretionary",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "MC FP",
+      "name": "LVMH",
+      "sector": "Consumer Discretionary",
+      "country": "France",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "TJX US",
+      "name": "TJX Companies",
+      "sector": "Consumer Discretionary",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "PM US",
+      "name": "Philip Morris International",
+      "sector": "Consumer Staples",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "NESN SW",
+      "name": "Nestle",
+      "sector": "Consumer Staples",
+      "country": "Switzerland",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "SHEL LN",
+      "name": "Shell",
+      "sector": "Energy",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "WMB US",
+      "name": "Williams Companies",
+      "sector": "Energy",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "CEG US",
+      "name": "Constellation Energy",
+      "sector": "Utilities",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": true
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "VST US",
+      "name": "Vistra",
+      "sector": "Utilities",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "DLR US",
+      "name": "Digital Realty",
+      "sector": "Real Estate",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "SPOT US",
+      "name": "Spotify Technology",
+      "sector": "Communication Services",
+      "country": "Sweden",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Fable proposal",
+      "ticker": "RIO LN",
+      "name": "Rio Tinto",
+      "sector": "Materials",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "285A JP",
+      "name": "Kioxia Holdings",
+      "sector": "Technology",
+      "country": "Japan",
+      "region": "Asia",
+      "history_gate": true
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "SNDK US",
+      "name": "Sandisk",
+      "sector": "Technology",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": true
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "ASML NA",
+      "name": "ASML Holding",
+      "sector": "Technology",
+      "country": "Netherlands",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "SAP GR",
+      "name": "SAP",
+      "sector": "Technology",
+      "country": "Germany",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "KLAC US",
+      "name": "KLA",
+      "sector": "Technology",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "ARM US",
+      "name": "Arm Holdings",
+      "sector": "Technology",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "history_gate": true
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "ANET US",
+      "name": "Arista Networks",
+      "sector": "Technology",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "CDNS US",
+      "name": "Cadence Design Systems",
+      "sector": "Technology",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "STM FP",
+      "name": "STMicroelectronics",
+      "sector": "Technology",
+      "country": "Netherlands",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "6857 JP",
+      "name": "Advantest",
+      "sector": "Technology",
+      "country": "Japan",
+      "region": "Asia",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "SU FP",
+      "name": "Schneider Electric",
+      "sector": "Industrials",
+      "country": "France",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "SIE GR",
+      "name": "Siemens",
+      "sector": "Industrials",
+      "country": "Germany",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "RR/ LN",
+      "name": "Rolls-Royce Holdings",
+      "sector": "Industrials",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "PWR US",
+      "name": "Quanta Services",
+      "sector": "Industrials",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "HSBA LN",
+      "name": "HSBC Holdings",
+      "sector": "Financials",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "ALV GR",
+      "name": "Allianz",
+      "sector": "Financials",
+      "country": "Germany",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "PGR US",
+      "name": "Progressive",
+      "sector": "Financials",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "LSEG LN",
+      "name": "London Stock Exchange Group",
+      "sector": "Financials",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "NOVOB DC",
+      "name": "Novo Nordisk",
+      "sector": "Healthcare",
+      "country": "Denmark",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "AZN LN",
+      "name": "AstraZeneca",
+      "sector": "Healthcare",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "TMO US",
+      "name": "Thermo Fisher Scientific",
+      "sector": "Healthcare",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "BSX US",
+      "name": "Boston Scientific",
+      "sector": "Healthcare",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "ROG SW",
+      "name": "Roche Holding",
+      "sector": "Healthcare",
+      "country": "Switzerland",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "BKNG US",
+      "name": "Booking Holdings",
+      "sector": "Consumer Discretionary",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "MC FP",
+      "name": "LVMH",
+      "sector": "Consumer Discretionary",
+      "country": "France",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "TJX US",
+      "name": "TJX Companies",
+      "sector": "Consumer Discretionary",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "PM US",
+      "name": "Philip Morris International",
+      "sector": "Consumer Staples",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "NESN SW",
+      "name": "Nestle",
+      "sector": "Consumer Staples",
+      "country": "Switzerland",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "SHEL LN",
+      "name": "Shell",
+      "sector": "Energy",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "WMB US",
+      "name": "Williams Companies",
+      "sector": "Energy",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "CEG US",
+      "name": "Constellation Energy",
+      "sector": "Utilities",
+      "country": "United States",
+      "region": "United States",
+      "history_gate": true
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "IBE SM",
+      "name": "Iberdrola",
+      "sector": "Utilities",
+      "country": "Spain",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "VNA GR",
+      "name": "Vonovia",
+      "sector": "Real Estate",
+      "country": "Germany",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "SPOT US",
+      "name": "Spotify Technology",
+      "sector": "Communication Services",
+      "country": "Sweden",
+      "region": "Europe ex-UK",
+      "history_gate": false
+    },
+    {
+      "proposal": "Hybrid recommendation",
+      "ticker": "RIO LN",
+      "name": "Rio Tinto",
+      "sector": "Materials",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "history_gate": false
+    }
+  ],
+  "conflict_decisions": [
+    {
+      "area": "Technology – software",
+      "selected": "CDNS",
+      "not_selected": "NOW",
+      "decision": "EDA adds a scarcer supply-chain bottleneck; NOW overlaps current enterprise software exposure."
+    },
+    {
+      "area": "Technology – storage",
+      "selected": "STM",
+      "not_selected": "STX",
+      "decision": "Kioxia and Sandisk already create a large memory/storage cluster; STM adds European analog/auto exposure."
+    },
+    {
+      "area": "Technology – peers",
+      "selected": "ARM, ANET, Advantest",
+      "not_selected": "QCOM, MRVL, DELL",
+      "decision": "The selected trio improves CPU-IP, networking-system and test-equipment peer coverage with less semiconductor/OEM repetition."
+    },
+    {
+      "area": "Industrials",
+      "selected": "Schneider, Siemens, Rolls-Royce, Quanta",
+      "not_selected": "Rheinmetall",
+      "decision": "Current Lockheed already supplies defense beta; keep four industrial slots and use the released slot in healthcare."
+    },
+    {
+      "area": "Financials",
+      "selected": "HSBC, Allianz, PGR, LSEG",
+      "not_selected": "BX, MS, UBS",
+      "decision": "Bank, two insurance-related models and market infrastructure diversify better than more asset-management and investment-bank exposure."
+    },
+    {
+      "area": "Healthcare",
+      "selected": "NVO, AZN, TMO, BSX, Roche",
+      "not_selected": "Novartis",
+      "decision": "Five slots cover obesity, oncology, tools, devices and diagnostics; a second Swiss pharma is redundant."
+    },
+    {
+      "area": "Consumer discretionary",
+      "selected": "TJX",
+      "not_selected": "Ferrari",
+      "decision": "TJX adds defensive retail while LVMH already represents the luxury factor."
+    },
+    {
+      "area": "Consumer staples",
+      "selected": "PM",
+      "not_selected": "Unilever",
+      "decision": "PM adds a distinct business-model transition; carry a regulatory-risk flag rather than add another broad staples conglomerate."
+    },
+    {
+      "area": "Energy",
+      "selected": "WMB",
+      "not_selected": "TotalEnergies",
+      "decision": "WMB adds midstream gas infrastructure; the current universe already has integrated energy and LNG exposure."
+    },
+    {
+      "area": "Utilities",
+      "selected": "CEG + Iberdrola",
+      "not_selected": "CEG + VST",
+      "decision": "One US nuclear beneficiary plus one European regulated utility is more balanced than two US merchant-power trades."
+    },
+    {
+      "area": "Real estate",
+      "selected": "Vonovia",
+      "not_selected": "Digital Realty",
+      "decision": "Existing Equinix already covers data-center REITs; Vonovia contributes European residential and rates exposure."
+    },
+    {
+      "area": "Communication services",
+      "selected": "Spotify",
+      "not_selected": "Deutsche Telekom, Vodafone",
+      "decision": "Spotify adds subscription media; Deutsche Telekom duplicates existing T-Mobile US at the controlling-shareholder level."
+    }
+  ],
+  "selection_framework": [
+    {
+      "criterion": "Marginal diversification vs. current 65",
+      "weight": 0.3,
+      "test": "Country, sector, business model and current look-through overlap"
+    },
+    {
+      "criterion": "Data readiness",
+      "weight": 0.2,
+      "test": "Price/fundamental coverage, FX, calendar and 1,260-session train window"
+    },
+    {
+      "criterion": "Cross-sectional peer usefulness",
+      "weight": 0.2,
+      "test": "Creates a comparable pair or fills a model peer-group gap"
+    },
+    {
+      "criterion": "Liquidity and quality",
+      "weight": 0.15,
+      "test": "Tradability, accounting continuity and corporate-action cleanliness"
+    },
+    {
+      "criterion": "Theme / ownership overlap penalty",
+      "weight": 0.15,
+      "test": "Penalize repeated AI, memory, merchant-power or controlled-subsidiary exposure"
+    }
+  ],
+  "history_gates": [
+    {
+      "ticker": "285A JP",
+      "name": "Kioxia Holdings",
+      "listing_date": "2024-12-18",
+      "reason": "Less than the configured 1,260-session training window as of 2026-07-15; mask before listing and keep trade-ineligible until the minimum-history rule passes."
+    },
+    {
+      "ticker": "SNDK US",
+      "name": "Sandisk",
+      "listing_date": "2025-02-24",
+      "reason": "Less than the configured 1,260-session training window as of 2026-07-15; mask before listing and keep trade-ineligible until the minimum-history rule passes."
+    },
+    {
+      "ticker": "ARM US",
+      "name": "Arm Holdings",
+      "listing_date": "2023-09-14",
+      "reason": "Less than the configured 1,260-session training window as of 2026-07-15; mask before listing and keep trade-ineligible until the minimum-history rule passes."
+    },
+    {
+      "ticker": "CEG US",
+      "name": "Constellation Energy",
+      "listing_date": "2022-02-02",
+      "reason": "Less than the configured 1,260-session training window as of 2026-07-15; mask before listing and keep trade-ineligible until the minimum-history rule passes."
+    }
+  ],
+  "checks": {
+    "prior_has_35": true,
+    "fable_has_35": true,
+    "hybrid_has_35": true,
+    "hybrid_unique": true,
+    "mandatory_names_present": true,
+    "consensus_is_18": true,
+    "hybrid_final_is_100": true,
+    "hybrid_region_is_100": true,
+    "hybrid_us_is_73": true,
+    "history_gates_are_4": true
+  },
+  "validation_status": "Share with caveats",
+  "validation_caveat": "The comparison validates structure, overlap, listing history and implementation gates. It does not rank expected returns because current valuation, liquidity and point-in-time fundamental panels for all 35 candidates were not ingested in this analysis."
+}

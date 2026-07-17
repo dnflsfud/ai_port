@@ -10,7 +10,7 @@ import logging
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, Tuple
 
 from src.config import DEFAULT_CONFIG, PipelineConfig
 
@@ -106,7 +106,50 @@ TICKERS = [
     "LRCX", "AMAT", "PANW", "FN", "MPWR",
     # Expansion 2026-04-23 (5)
     "BAC", "CSCO", "INTC", "ORCL", "TSM",
+    # Expansion 2026-07-16 (35) -- exact Universe_Meta workbook order
+    "SNDK", "KLAC", "ANET", "MRVL", "CDNS", "STX", "PWR", "BX",
+    "TMO", "BSX", "BKNG", "PM", "WMB", "CEG", "VST", "DLR", "ARM",
+    "SPOT", "RACE", "285A", "6857", "SU", "SIE", "RHM", "ALV", "MC",
+    "NESN", "RR/", "SAP", "ASML", "AZN", "SHEL", "HSBA", "NOVOB", "RIO",
 ]
+
+# Bloomberg listing suffix -> local trading currency. Universe_Meta is the
+# authoritative source of each suffix (``SYMBOL XX Equity``).
+MARKET_TO_CURRENCY = {
+    "US": "USD",
+    "KS": "KRW",
+    "JP": "JPY",
+    "FP": "EUR",
+    "GR": "EUR",
+    "NA": "EUR",
+    "SW": "CHF",
+    "LN": "GBP",
+    "DC": "DKK",
+}
+
+# Raw quote convention -> USD per one unit of local currency. ``inverse``
+# means the source is local-per-USD (USDKRW, USDJPY, USDCHF, USDDKK).
+FX_QUOTE_SPECS = {
+    "KRW": {"column": "USDKRW", "direction": "inverse"},
+    "JPY": {"column": "USDJPY", "direction": "inverse"},
+    "EUR": {"column": "EURUSD", "direction": "direct"},
+    "CHF": {"column": "USDCHF", "direction": "inverse"},
+    "GBP": {"column": "GBPUSD", "direction": "direct"},
+    "DKK": {"column": "USDDKK", "direction": "inverse"},
+}
+
+# Used only when an old/synthetic workbook has no Bloomberg market suffix.
+# Production currency always comes from Universe_Meta.
+FALLBACK_TICKER_CURRENCY = {
+    "000660": "KRW", "005930": "KRW",
+    "285A": "JPY", "6857": "JPY",
+    "SU": "EUR", "SIE": "EUR", "RHM": "EUR", "ALV": "EUR",
+    "MC": "EUR", "SAP": "EUR", "ASML": "EUR",
+    "NESN": "CHF",
+    "RR/": "GBP", "AZN": "GBP", "SHEL": "GBP", "HSBA": "GBP",
+    "RIO": "GBP",
+    "NOVOB": "DKK",
+}
 
 SENT_TREND_SHEETS = {
     "Sent_Trend_Momentum_Timeseries",
@@ -126,7 +169,10 @@ FACTOR_CATEGORIES = {
     "Market_Index": ["SPX", "NDX", "RTY", "MXWD", "MXEF", "SX5E", "NKY", "HSI", "SHCOMP"],
     "Volatility": ["VIX", "SKEW"],
     "Rates": ["UST_3M", "UST_2Y", "UST_10Y", "US_BEI10", "GER_10Y"],
-    "FX": ["DXY", "USDKRW", "USDJPY", "EURUSD", "USDCNH"],
+    "FX": [
+        "DXY", "USDKRW", "USDJPY", "EURUSD", "USDCHF", "GBPUSD",
+        "USDDKK", "USDCNH",
+    ],
     "Commodity": ["WTI", "GOLD", "COPPER", "BCOM"],
     "Factor_ETF": ["F_MinVol", "F_Quality", "F_HiDiv", "F_Growth", "F_Value", "F_SmCap", "F_HiBeta"],
     "GS_Thematic": ["GS_AI", "GS_Nuclear", "GS_SemiHW"],
@@ -151,27 +197,88 @@ def load_all_sheets(data_path: str) -> Dict[str, pd.DataFrame]:
     return raw
 
 
-def _rename_sent_trend_columns(df: pd.DataFrame) -> pd.DataFrame:
-    """Sent_Trend 시트의 회사명 컬럼을 티커로 변환.
+def _normalize_company_name(value) -> str:
+    """Normalize a vendor company label for collision-free exact matching."""
+    return " ".join(str(value).strip().split()).casefold()
 
-    C3: COMPANY_TO_TICKER 에 없는 회사명이 들어오면 warning 으로 알린다.
-    (silent drop 방지 — 새 종목이 추가될 때 feature pipeline 이 조용히 누락하는 것을 차단)
+
+def _split_bloomberg_ticker(value) -> Tuple[str, Optional[str]]:
+    """Return ``(simple_ticker, exchange_code)`` from a Bloomberg identifier."""
+    text = str(value).strip()
+    parts = text.rsplit(" ", 2)
+    if len(parts) == 3 and parts[2].casefold() == "equity":
+        return parts[0].strip(), parts[1].strip().upper()
+    return text, None
+
+
+def build_company_to_ticker(
+    meta: pd.DataFrame,
+    tickers: Optional[List[str]] = None,
+) -> Dict[str, str]:
+    """Build an exact normalized company-name -> ticker map from Universe_Meta.
+
+    Universe_Meta names win. Legacy aliases are retained only as fallbacks for
+    historical vendor spellings. Substring matching is deliberately forbidden.
     """
+    allowed = set(tickers or list(meta.index) or TICKERS)
+    mapping = {
+        _normalize_company_name(company): ticker
+        for company, ticker in COMPANY_TO_TICKER.items()
+        if ticker in allowed
+    }
+    name_col = next(
+        (c for c in meta.columns if str(c).strip().casefold() == "name"),
+        None,
+    )
+    if name_col is not None:
+        for ticker, company in meta[name_col].items():
+            if ticker not in allowed or pd.isna(company):
+                continue
+            key = _normalize_company_name(company)
+            prior = mapping.get(key)
+            if prior is not None and prior != ticker:
+                raise ValueError(
+                    "Universe_Meta contains a duplicate normalized company name "
+                    f"{company!r} for {prior} and {ticker}."
+                )
+            mapping[key] = ticker
+    return mapping
+
+
+def _rename_sent_trend_columns(
+    df: pd.DataFrame,
+    tickers: Optional[List[str]] = None,
+    company_to_ticker: Optional[Dict[str, str]] = None,
+) -> pd.DataFrame:
+    """Map Sent_Trend headers using normalized exact names, never substrings."""
+    tickers = list(tickers or TICKERS)
+    allowed = set(tickers)
+    company_to_ticker = company_to_ticker or {
+        _normalize_company_name(company): ticker
+        for company, ticker in COMPANY_TO_TICKER.items()
+        if ticker in allowed
+    }
     rename_map = {}
     for col in df.columns:
         col_str = str(col).strip()
-        for company, ticker in COMPANY_TO_TICKER.items():
-            if company.lower() in col_str.lower():
-                rename_map[col] = ticker
-                break
+        if col_str in allowed:
+            rename_map[col] = col_str
+            continue
+        ticker = company_to_ticker.get(_normalize_company_name(col_str))
+        if ticker is not None:
+            rename_map[col] = ticker
     renamed = df.rename(columns=rename_map)
-    # Post-rename verification: any column that is not a known ticker is unmapped.
-    unmapped = [c for c in renamed.columns if str(c).strip() not in TICKERS]
+    if renamed.columns.duplicated().any():
+        duplicates = sorted(set(renamed.columns[renamed.columns.duplicated()].tolist()))
+        raise ValueError(
+            "Sent_Trend exact-name mapping produced duplicate ticker columns: "
+            f"{duplicates}"
+        )
+    unmapped = [c for c in renamed.columns if str(c).strip() not in allowed]
     if unmapped:
         logger.warning(
-            "Sent_Trend columns missing from COMPANY_TO_TICKER: %s. "
-            "Add them to data_loader.COMPANY_TO_TICKER or the signal for these "
-            "companies will be silently dropped downstream.",
+            "Sent_Trend columns missing from Universe_Meta Name mapping: %s. "
+            "These columns will be dropped downstream.",
             unmapped,
         )
     return renamed
@@ -214,39 +321,76 @@ def _fill_missing(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def _filter_tickers(df: pd.DataFrame) -> pd.DataFrame:
+def _filter_tickers(
+    df: pd.DataFrame,
+    tickers: Optional[List[str]] = None,
+) -> pd.DataFrame:
     """TICKERS에 포함된 컬럼만 남김. 컬럼 순서 통일."""
-    available = [t for t in TICKERS if t in df.columns]
+    tickers = list(tickers or TICKERS)
+    available = [t for t in tickers if t in df.columns]
     return df[available]
 
 
 def load_universe_meta(raw: Dict[str, pd.DataFrame]) -> pd.DataFrame:
-    """Universe_Meta 시트에서 종목별 섹터 정보 추출."""
+    """Load ordered Universe_Meta and derive simple ticker/exchange/currency."""
     if "Universe_Meta" not in raw:
-        sectors = pd.Series("Unknown", index=TICKERS, name="sector")
-        return sectors.to_frame()
+        return pd.DataFrame({
+            "ticker": TICKERS,
+            "Name": TICKERS,
+            "sector": "Unknown",
+            "bloomberg_ticker": TICKERS,
+            "exchange_code": None,
+            "currency": [FALLBACK_TICKER_CURRENCY.get(t, "USD") for t in TICKERS],
+        }, index=pd.Index(TICKERS, name="ticker"))
 
-    meta = raw["Universe_Meta"].copy()
-    meta = _standardize_columns(meta)
+    meta = _standardize_columns(raw["Universe_Meta"].copy())
+    ticker_col = next(
+        (c for c in meta.columns if str(c).strip().casefold() == "ticker"),
+        None,
+    )
+    simple_tickers = []
+    bloomberg_tickers = []
+    exchange_codes = []
+    for idx, row in meta.iterrows():
+        raw_ticker = row[ticker_col] if ticker_col is not None else idx
+        simple, exchange = _split_bloomberg_ticker(raw_ticker)
+        idx_simple, idx_exchange = _split_bloomberg_ticker(idx)
+        if exchange is None and idx_exchange is not None:
+            exchange = idx_exchange
+        if (not simple or simple.casefold() == "nan") and idx_simple:
+            simple = idx_simple
+        bloomberg = (
+            str(raw_ticker).strip()
+            if _split_bloomberg_ticker(raw_ticker)[1] is not None
+            else str(idx).strip()
+            if idx_exchange is not None
+            else str(raw_ticker).strip()
+        )
+        simple_tickers.append(simple)
+        bloomberg_tickers.append(bloomberg)
+        exchange_codes.append(exchange)
 
-    # 인덱스가 'AAPL US Equity' 형태이면 티커만 추출
-    new_idx = []
-    for idx in meta.index:
-        idx_str = str(idx).strip()
-        # "AAPL US Equity" -> "AAPL", "000660 KS Equity" -> "000660"
-        parts = idx_str.split()
-        new_idx.append(parts[0] if parts else idx_str)
-    meta.index = new_idx
-
-    # Sector 컬럼 표준화
+    ticker_index = pd.Index(simple_tickers, name="ticker")
+    if ticker_index.duplicated().any():
+        duplicates = ticker_index[ticker_index.duplicated()].unique().tolist()
+        raise ValueError(f"Universe_Meta contains duplicate tickers: {duplicates}")
+    meta.index = ticker_index
+    meta["ticker"] = simple_tickers
+    meta["bloomberg_ticker"] = bloomberg_tickers
+    meta["exchange_code"] = exchange_codes
+    meta["currency"] = [
+        MARKET_TO_CURRENCY.get(code) if code is not None else None
+        for code in exchange_codes
+    ]
     if "Sector" in meta.columns:
         meta = meta.rename(columns={"Sector": "sector"})
-
     return meta
 
 
 def preprocess_sheets(
     raw: Dict[str, pd.DataFrame],
+    tickers: Optional[List[str]] = None,
+    company_to_ticker: Optional[Dict[str, str]] = None,
 ) -> Dict[str, pd.DataFrame]:
     """
     모든 시트를 전처리하여 반환.
@@ -256,6 +400,7 @@ def preprocess_sheets(
     - 결측치 처리
     """
     processed: Dict[str, pd.DataFrame] = {}
+    tickers = list(tickers or TICKERS)
 
     for sheet_name, df in raw.items():
         if sheet_name in SKIP_SHEETS or sheet_name in FACTOR_SHEETS:
@@ -266,14 +411,18 @@ def preprocess_sheets(
 
         # Sent_Trend 시트는 회사명 -> 티커 매핑
         if sheet_name in SENT_TREND_SHEETS:
-            df = _rename_sent_trend_columns(df)
+            df = _rename_sent_trend_columns(
+                df,
+                tickers=tickers,
+                company_to_ticker=company_to_ticker,
+            )
 
         # Bloomberg Equity 시트는 'AAPL US Equity' -> 'AAPL' 매핑
         if sheet_name in BLOOMBERG_EQUITY_SHEETS:
             df = _rename_bloomberg_equity_columns(df)
 
         df = _standardize_index(df)
-        df = _filter_tickers(df)
+        df = _filter_tickers(df, tickers=tickers)
 
         # 수치형 변환
         df = df.apply(pd.to_numeric, errors="coerce")
@@ -442,6 +591,223 @@ def load_factor_sheets(raw: Dict[str, pd.DataFrame]) -> Dict[str, pd.DataFrame]:
     return factor_data
 
 
+def _raw_factor_prices_for_fx(raw: Dict[str, pd.DataFrame]) -> Optional[pd.DataFrame]:
+    """Return unfilled Factor_PX_LAST observations for FX construction.
+
+    ``load_factor_sheets`` forward-fills factor levels for model features.  FX
+    freshness must instead retain the source observation gaps so a filled
+    factor value cannot mask a newer quote from the external FX workbook.
+    """
+    if "Factor_PX_LAST" not in raw:
+        return None
+    frame = raw["Factor_PX_LAST"].copy()
+    frame = _standardize_columns(frame)
+    frame = _standardize_index(frame)
+    available = [column for column in ALL_FACTOR_COLUMNS if column in frame.columns]
+    return frame[available].apply(pd.to_numeric, errors="coerce")
+
+
+def _canonical_fx_quote_name(value) -> str:
+    """Normalize Bloomberg FX headers (for example ``USDKRW Curncy``)."""
+    name = " ".join(str(value).strip().upper().split())
+    if name.endswith(" CURNCY"):
+        name = name[:-7].strip()
+    return name
+
+
+def normalize_fx_quotes_to_usd_per_local(quotes: pd.DataFrame) -> pd.DataFrame:
+    """Convert supported raw FX quotes to USD-per-local-currency levels.
+
+    ``USDKRW``, ``USDJPY``, ``USDCHF`` and ``USDDKK`` are local-per-USD and
+    are inverted. ``EURUSD`` and ``GBPUSD`` are already USD-per-local.
+    Non-positive quotes are invalid and remain missing; they are never filled
+    with cross-sectional medians.
+    """
+    if quotes is None or quotes.empty:
+        return pd.DataFrame(index=getattr(quotes, "index", None))
+    frame = quotes.copy()
+    frame = _standardize_index(frame)
+    canonical = {_canonical_fx_quote_name(col): col for col in frame.columns}
+    converted = {}
+    for currency, spec in FX_QUOTE_SPECS.items():
+        source_col = canonical.get(spec["column"])
+        if source_col is None:
+            continue
+        values = pd.to_numeric(frame[source_col], errors="coerce")
+        values = values.where(values > 0)
+        if spec["direction"] == "inverse":
+            values = 1.0 / values
+        converted[currency] = values.astype(float)
+    return pd.DataFrame(converted, index=frame.index)
+
+
+def load_external_fx_quotes(
+    data_path: str,
+    currencies: List[str],
+) -> pd.DataFrame:
+    """Load only required FX columns from the external Index.xlsx source."""
+    currencies = [c for c in currencies if c in FX_QUOTE_SPECS]
+    if not currencies:
+        return pd.DataFrame()
+    path = Path(data_path)
+    if not path.exists():
+        return pd.DataFrame()
+
+    header = pd.read_excel(path, sheet_name="PX_LAST", nrows=0).columns.tolist()
+    canonical_to_actual = {_canonical_fx_quote_name(col): col for col in header}
+    date_col = next(
+        (col for col in header if str(col).strip().casefold() == "date"),
+        None,
+    )
+    quote_cols = [
+        canonical_to_actual[FX_QUOTE_SPECS[currency]["column"]]
+        for currency in currencies
+        if FX_QUOTE_SPECS[currency]["column"] in canonical_to_actual
+    ]
+    if date_col is None or not quote_cols:
+        return pd.DataFrame()
+    quotes = pd.read_excel(
+        path,
+        sheet_name="PX_LAST",
+        usecols=[date_col, *quote_cols],
+    )
+    quotes[date_col] = pd.to_datetime(quotes[date_col], errors="coerce")
+    quotes = (
+        quotes.dropna(subset=[date_col])
+        .drop_duplicates(subset=[date_col], keep="last")
+        .set_index(date_col)
+        .sort_index()
+    )
+    return quotes
+
+
+def build_fx_rates_usd_per_local(
+    target_index: pd.DatetimeIndex,
+    currencies: List[str],
+    config: PipelineConfig,
+    factor_prices: Optional[pd.DataFrame] = None,
+    external_quotes: Optional[pd.DataFrame] = None,
+) -> Tuple[pd.DataFrame, Dict]:
+    """Build date x currency USD-per-local levels with freshness diagnostics.
+
+    Factor_PX_LAST is preferred wherever it has an observed value. The
+    external source fills missing currencies/dates, including its fresher tail.
+    Forward fill is time-series-only and guarded by calendar-day staleness.
+    """
+    target_index = pd.DatetimeIndex(target_index).sort_values().unique()
+    required = list(dict.fromkeys(str(c).upper() for c in currencies))
+    non_usd = [c for c in required if c != "USD"]
+    factor_levels = normalize_fx_quotes_to_usd_per_local(factor_prices)
+    if external_quotes is None and non_usd:
+        external_quotes = load_external_fx_quotes(config.fx_source_path, non_usd)
+    external_levels = normalize_fx_quotes_to_usd_per_local(external_quotes)
+
+    rates = pd.DataFrame(index=target_index)
+    diagnostics = {
+        "required_currencies": required,
+        "source_by_currency": {},
+        "coverage_by_currency": {},
+        "latest_source_date_by_currency": {},
+        "max_staleness_days_by_currency": {},
+        "missing_currencies": [],
+        "stale_currencies": [],
+        "quote_directions": {
+            currency: spec["direction"]
+            for currency, spec in FX_QUOTE_SPECS.items()
+            if currency in non_usd
+        },
+    }
+
+    if "USD" in required:
+        rates["USD"] = 1.0
+        diagnostics["source_by_currency"]["USD"] = "identity"
+        diagnostics["coverage_by_currency"]["USD"] = 1.0
+        diagnostics["latest_source_date_by_currency"]["USD"] = (
+            target_index.max().strftime("%Y-%m-%d") if len(target_index) else None
+        )
+        diagnostics["max_staleness_days_by_currency"]["USD"] = 0
+
+    for currency in non_usd:
+        if currency not in FX_QUOTE_SPECS:
+            diagnostics["missing_currencies"].append(currency)
+            continue
+        factor_series = (
+            factor_levels[currency]
+            if currency in factor_levels.columns
+            else pd.Series(dtype=float)
+        )
+        external_series = (
+            external_levels[currency]
+            if currency in external_levels.columns
+            else pd.Series(dtype=float)
+        )
+        observations = factor_series.combine_first(external_series)
+        observations = observations[~observations.index.duplicated(keep="last")]
+        observations = observations.sort_index().dropna()
+        if len(target_index):
+            observations = observations.loc[observations.index <= target_index.max()]
+        source_parts = []
+        if not factor_series.dropna().empty:
+            source_parts.append("Factor_PX_LAST")
+        if not external_series.dropna().empty:
+            source_parts.append("Index.xlsx/PX_LAST")
+        diagnostics["source_by_currency"][currency] = "+".join(source_parts) or None
+        if observations.empty:
+            diagnostics["missing_currencies"].append(currency)
+            diagnostics["coverage_by_currency"][currency] = 0.0
+            diagnostics["latest_source_date_by_currency"][currency] = None
+            diagnostics["max_staleness_days_by_currency"][currency] = None
+            rates[currency] = np.nan
+            continue
+
+        union_index = observations.index.union(target_index).sort_values()
+        aligned = observations.reindex(union_index).ffill().reindex(target_index)
+        observed_dates = pd.Series(
+            observations.index,
+            index=observations.index,
+            dtype="datetime64[ns]",
+        )
+        last_observed = observed_dates.reindex(union_index).ffill().reindex(target_index)
+        age_days = pd.Series(
+            (target_index - pd.DatetimeIndex(last_observed)).days,
+            index=target_index,
+            dtype=float,
+        )
+        rates[currency] = aligned
+        coverage = float(aligned.notna().mean()) if len(aligned) else 1.0
+        max_age = int(age_days.max()) if age_days.notna().any() else None
+        diagnostics["coverage_by_currency"][currency] = coverage
+        diagnostics["latest_source_date_by_currency"][currency] = (
+            observations.index.max().strftime("%Y-%m-%d")
+        )
+        diagnostics["max_staleness_days_by_currency"][currency] = max_age
+        if coverage < 1.0:
+            diagnostics["missing_currencies"].append(currency)
+        if age_days.gt(config.max_fx_staleness_days).any():
+            diagnostics["stale_currencies"].append(currency)
+
+    diagnostics["missing_currencies"] = sorted(
+        set(diagnostics["missing_currencies"])
+    )
+    diagnostics["stale_currencies"] = sorted(
+        set(diagnostics["stale_currencies"])
+    )
+    issues = []
+    if diagnostics["missing_currencies"]:
+        issues.append(f"missing={diagnostics['missing_currencies']}")
+    if diagnostics["stale_currencies"]:
+        issues.append(
+            f"stale>{config.max_fx_staleness_days}d="
+            f"{diagnostics['stale_currencies']}"
+        )
+    if issues:
+        message = "FX coverage validation failed: " + "; ".join(issues)
+        if config.fail_on_missing_fx:
+            raise ValueError(message)
+        logger.warning(message)
+    return rates.reindex(columns=required), diagnostics
+
+
 def mask_pre_listing(
     df: pd.DataFrame,
     listing_dates: Dict[str, str],
@@ -483,6 +849,26 @@ class UniverseData:
         self.raw = load_all_sheets(data_path)
         self.meta = load_universe_meta(self.raw)
         self.data_quality: Dict = {}
+        self.full_universe = list(self.meta.index)
+        self.company_to_ticker = build_company_to_ticker(
+            self.meta,
+            tickers=self.full_universe,
+        )
+        self._full_currency_map: Dict[str, str] = {}
+        for ticker in self.full_universe:
+            currency = self.meta.loc[ticker, "currency"] if "currency" in self.meta else None
+            exchange = (
+                self.meta.loc[ticker, "exchange_code"]
+                if "exchange_code" in self.meta
+                else None
+            )
+            if pd.isna(currency) or not str(currency).strip():
+                if exchange is not None and not pd.isna(exchange):
+                    raise ValueError(
+                        f"Unsupported Bloomberg exchange code {exchange!r} for {ticker}."
+                    )
+                currency = FALLBACK_TICKER_CURRENCY.get(ticker, "USD")
+            self._full_currency_map[ticker] = str(currency).upper()
 
         # Preserve RAW (un-imputed) Daily_Returns BEFORE preprocess_sheets
         # fills NaN. Survivorship checks (run_selection_bias.py) need this
@@ -491,7 +877,11 @@ class UniverseData:
         # check silently passes even when a ticker genuinely joined late.
         self.raw_returns = self._extract_raw_returns()
 
-        self.sheets = preprocess_sheets(self.raw)
+        self.sheets = preprocess_sheets(
+            self.raw,
+            tickers=self.full_universe,
+            company_to_ticker=self.company_to_ticker,
+        )
         self.sheets = align_dates(
             self.sheets,
             config=self.config,
@@ -547,7 +937,7 @@ class UniverseData:
             "BEST_EPS", "BEST_SALES",
             "BEST_PE_RATIO",
             "OPER_MARGIN",
-            "BEST_ROE", "BEST_PX_BPS_RATIO",
+            "BEST_ROE",
             "NEWS_SENTIMENT_DAILY_AVG", "EQY_REC_CONS",
             "Factset_EPS_Revision", "Factset_Sales_Revision",
             "Factset_TG_Price",
@@ -559,9 +949,9 @@ class UniverseData:
             "BEST_EV_TO_BEST_EBITDA",   # banks: EBITDA undefined
             "BEST_GROSS_MARGIN",        # banks (WFC): no gross margin concept
             "BEST_PEG_RATIO",           # low-coverage names (FN): no LT growth estimate
+            "BEST_PX_BPS_RATIO",        # PM and some non-US names: no usable BPS
         }
 
-        self.full_universe = list(TICKERS)
         if self.sheets:
             # Intersect only across essential sheets
             essential_sets = [
@@ -576,10 +966,12 @@ class UniverseData:
                     *(set(df.columns) for df in self.sheets.values())
                 )
 
-            self.tickers = [t for t in TICKERS if t in loaded_intersection]
+            self.tickers = [t for t in self.full_universe if t in loaded_intersection]
 
             # Diagnostic: which tickers are missing from which sheets
-            self.missing_tickers = [t for t in TICKERS if t not in loaded_intersection]
+            self.missing_tickers = [
+                t for t in self.full_universe if t not in loaded_intersection
+            ]
             self.missing_by_sheet: Dict[str, list] = {}
             self.optional_missing: Dict[str, list] = {}
             for name, df in self.sheets.items():
@@ -590,7 +982,7 @@ class UniverseData:
                     else:
                         self.missing_by_sheet[name] = gone
         else:
-            self.tickers = list(TICKERS)
+            self.tickers = list(self.full_universe)
             self.missing_tickers = []
             self.missing_by_sheet = {}
             self.optional_missing = {}
@@ -608,6 +1000,30 @@ class UniverseData:
                 {k: v for k, v in self.optional_missing.items()},
             )
 
+        self.currency_map = {
+            ticker: self._full_currency_map[ticker] for ticker in self.tickers
+        }
+        currency_counts = pd.Series(self.currency_map, dtype=object).value_counts().to_dict()
+        self.data_quality["universe"] = {
+            "meta_count": int(len(self.meta)) if "Universe_Meta" in self.raw else None,
+            "full_universe_count": int(len(self.full_universe)),
+            "essential_ticker_count": int(len(self.tickers)),
+            "loaded_ticker_count": int(len(self.tickers)),
+            "missing_tickers": list(self.missing_tickers),
+            "essential_sheet_ticker_counts": {
+                name: int(len(set(df.columns).intersection(self.full_universe)))
+                for name, df in self.sheets.items()
+                if name in ESSENTIAL_SHEETS
+            },
+        }
+        self.data_quality["currency"] = {
+            "base_currency": self.config.base_currency,
+            "counts": {str(k): int(v) for k, v in currency_counts.items()},
+            "non_usd_ticker_count": int(
+                sum(currency != "USD" for currency in self.currency_map.values())
+            ),
+        }
+
         self.dates = self.sheets[next(iter(self.sheets))].index
 
         # Factor 데이터 (별도 파이프라인)
@@ -618,7 +1034,164 @@ class UniverseData:
                 self.factor_data[name] = df.loc[common]
 
         # Earnings Timeline (종목별 실적발표일 0/1 매트릭스)
+        self._apply_usd_conversion()
+
         self.earnings_timeline = self._load_earnings_timeline()
+
+    @staticmethod
+    def _max_abs_finite(frame: pd.DataFrame) -> float:
+        values = frame.to_numpy(dtype=float, copy=False)
+        finite = np.isfinite(values)
+        return float(np.max(np.abs(values[finite]))) if finite.any() else 0.0
+
+    def _apply_usd_conversion(self) -> None:
+        """Preserve local data, then expose USD prices/returns and FX effects."""
+        self.local_prices = self.sheets["PX_LAST"].copy()
+        self.local_returns = self.sheets["Daily_Returns"].copy()
+        self.raw_local_returns = (
+            self.raw_returns.copy() if self.raw_returns is not None else None
+        )
+
+        conversion_columns = list(dict.fromkeys(
+            list(self.local_prices.columns)
+            + list(self.local_returns.columns)
+            + (
+                list(self.raw_local_returns.columns)
+                if self.raw_local_returns is not None
+                else []
+            )
+        ))
+        all_dates = pd.DatetimeIndex(self.dates)
+        if self.raw_local_returns is not None:
+            all_dates = all_dates.union(self.raw_local_returns.index)
+        all_dates = all_dates.sort_values().unique()
+
+        if not self.config.convert_returns_to_usd:
+            self.fx_rates_usd_per_local = pd.DataFrame(
+                {
+                    ticker: (
+                        1.0
+                        if self.currency_map[ticker] == "USD"
+                        else np.nan
+                    )
+                    for ticker in self.tickers
+                },
+                index=self.dates,
+            )
+            self.fx_returns = pd.DataFrame(
+                0.0,
+                index=self.dates,
+                columns=self.tickers,
+            )
+            fx_quality = {
+                "conversion_enabled": False,
+                "base_currency": self.config.base_currency,
+                "required_currencies": sorted(set(self.currency_map.values())),
+                "missing_currencies": [],
+                "stale_currencies": [],
+                "price_return_reconciliation_max_abs_error": None,
+            }
+            self.data_quality["fx"] = fx_quality
+            self.data_quality["fx_data_as_of"] = None
+            self.data_quality["fx_missing_currencies"] = []
+            self.data_quality["fx_stale_currencies"] = []
+            self.data_quality["universe_funnel"] = dict(self.data_quality["universe"])
+            return
+
+        required_currencies = [
+            self._full_currency_map[ticker] for ticker in conversion_columns
+        ]
+        # Use raw observations here.  The model-facing factor panel is
+        # forward-filled, which is appropriate for features but would make an
+        # old FX quote look newly observed and could hide the fresher external
+        # Index.xlsx value.
+        factor_prices = _raw_factor_prices_for_fx(self.raw)
+        currency_rates, fx_quality = build_fx_rates_usd_per_local(
+            all_dates,
+            required_currencies,
+            config=self.config,
+            factor_prices=factor_prices,
+        )
+        ticker_rates_all = pd.DataFrame(
+            {
+                ticker: currency_rates[self._full_currency_map[ticker]]
+                for ticker in conversion_columns
+            },
+            index=all_dates,
+        )
+        ticker_fx_returns_all = (
+            ticker_rates_all.pct_change(fill_method=None).fillna(0.0)
+        )
+
+        self.fx_rates_usd_per_local = ticker_rates_all.reindex(
+            index=self.dates,
+            columns=self.tickers,
+        )
+        self.fx_returns = ticker_fx_returns_all.reindex(
+            index=self.dates,
+            columns=self.tickers,
+        )
+
+        local_price_rates = ticker_rates_all.reindex(
+            index=self.local_prices.index,
+            columns=self.local_prices.columns,
+        )
+        self.sheets["PX_LAST"] = self.local_prices * local_price_rates
+
+        local_fx_returns = ticker_fx_returns_all.reindex(
+            index=self.local_returns.index,
+            columns=self.local_returns.columns,
+        )
+        usd_returns = (
+            (1.0 + self.local_returns) * (1.0 + local_fx_returns) - 1.0
+        )
+        self.sheets["Daily_Returns"] = usd_returns
+
+        if self.raw_local_returns is not None:
+            raw_fx_returns = ticker_fx_returns_all.reindex(
+                index=self.raw_local_returns.index,
+                columns=self.raw_local_returns.columns,
+            )
+            self.raw_returns = (
+                (1.0 + self.raw_local_returns) * (1.0 + raw_fx_returns) - 1.0
+            )
+
+        price_implied_returns = self.sheets["PX_LAST"].pct_change(fill_method=None)
+        price_reconciliation = price_implied_returns - usd_returns.reindex(
+            index=price_implied_returns.index,
+            columns=price_implied_returns.columns,
+        )
+        fx_quality.update({
+            "conversion_enabled": True,
+            "base_currency": self.config.base_currency,
+            "price_return_reconciliation_max_abs_error": self._max_abs_finite(
+                price_reconciliation
+            ),
+        })
+        latest_dates = [
+            value
+            for currency, value in fx_quality["latest_source_date_by_currency"].items()
+            if currency != "USD" and value is not None
+        ]
+        fx_data_as_of = min(latest_dates) if latest_dates else (
+            self.dates.max().strftime("%Y-%m-%d") if len(self.dates) else None
+        )
+        self.data_quality["fx"] = fx_quality
+        self.data_quality["fx_data_as_of"] = fx_data_as_of
+        self.data_quality["fx_missing_currencies"] = list(
+            fx_quality["missing_currencies"]
+        )
+        self.data_quality["fx_stale_currencies"] = list(
+            fx_quality["stale_currencies"]
+        )
+        self.data_quality["universe_funnel"] = dict(self.data_quality["universe"])
+        self.data_quality["data_freshness"] = {
+            "portfolio_data_as_of": (
+                self.dates.max().strftime("%Y-%m-%d") if len(self.dates) else None
+            ),
+            "fx_data_as_of": fx_data_as_of,
+            "max_fx_staleness_days": int(self.config.max_fx_staleness_days),
+        }
 
     def _extract_raw_returns(self) -> Optional[pd.DataFrame]:
         """Return a standardized but UN-imputed copy of Daily_Returns.
@@ -632,7 +1205,7 @@ class UniverseData:
         df = self.raw["Daily_Returns"].copy()
         df = _standardize_columns(df)
         df = _standardize_index(df)
-        df = _filter_tickers(df)
+        df = _filter_tickers(df, tickers=self.full_universe)
         df = df.apply(pd.to_numeric, errors="coerce")
         return df
 
@@ -659,7 +1232,7 @@ class UniverseData:
         df = self.raw[sheet_key].copy()
         df = _standardize_columns(df)
         df = _standardize_index(df)
-        df = _filter_tickers(df)
+        df = _filter_tickers(df, tickers=self.full_universe)
         df = df.fillna(0).astype(int)
         common = df.index.intersection(self.dates)
         df = df.loc[common]
@@ -711,7 +1284,7 @@ class UniverseData:
                 lines.append(f"      - {sheet_name}: {', '.join(gone)}")
         if getattr(self, "optional_missing", {}):
             lines.append(
-                f"  [i] Optional sheet 결측 (per-date median 대체):"
+                "  [i] Optional sheet 결측 (per-date median 대체):"
             )
             for sheet_name, gone in self.optional_missing.items():
                 lines.append(f"      - {sheet_name}: {', '.join(gone)}")

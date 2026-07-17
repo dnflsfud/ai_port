@@ -1,0 +1,2405 @@
+{
+  "surface": "report",
+  "manifest": {
+    "version": 1,
+    "surface": "report",
+    "title": "유니버스 100종목 확장안",
+    "description": "현재 65종목 섹터 구성과 35개 신규 후보를 비교한 실행 제안",
+    "generatedAt": "2026-07-14T23:14:02.763521+09:00",
+    "sources": [
+      {
+        "id": "src-analysis",
+        "label": "65-to-100 universe analysis results",
+        "path": "outputs/universe_100_recommendation/universe_100_results.json"
+      },
+      {
+        "id": "src-workbook",
+        "label": "ai_signal_data.xlsx — Universe_Meta and PX_LAST",
+        "path": "ai_signal_data.xlsx"
+      },
+      {
+        "id": "src-operations",
+        "label": "operations.json — last operating portfolio sector exposure",
+        "path": "outputs/operating/operations.json"
+      },
+      {
+        "id": "src-config",
+        "label": "src/config.py — model history requirements",
+        "path": "src/config.py"
+      },
+      {
+        "id": "src-kioxia",
+        "label": "Kioxia Holdings Tokyo Stock Exchange listing announcement",
+        "href": "https://www.kioxia-holdings.com/en-jp/news/2024/20241218-1.html"
+      },
+      {
+        "id": "src-sandisk",
+        "label": "Sandisk Nasdaq listing announcement",
+        "href": "https://investor.sandisk.com/news-releases/news-release-details/sandisk-celebrates-nasdaq-listing-after-completing-separation"
+      },
+      {
+        "id": "src-summary-sql",
+        "label": "Universe expansion summary query",
+        "path": "outputs/universe_100_recommendation/universe_100_analysis.sqlite",
+        "query": {
+          "engine": "SQLite",
+          "language": "sql",
+          "sql": "SELECT current_names, new_names, final_names, tech_name_share, tech_portfolio, tech_benchmark, final_tech_share, tech_share_change, current_us_share, final_us_share, current_non_us_share, final_non_us_share FROM summary;",
+          "description": "Headline counts, technology concentration, and geographic concentration metrics.",
+          "executed_at": "2026-07-15T10:24:01.814252+09:00",
+          "tables_used": [
+            "summary"
+          ],
+          "metric_definitions": [
+            "tech_name_share = current technology names / 65",
+            "tech_portfolio = last operating portfolio technology weight",
+            "final_tech_share = proposed technology names / 100",
+            "current_non_us_share = 1 - current_us_share",
+            "final_non_us_share = 1 - final_us_share"
+          ]
+        }
+      },
+      {
+        "id": "src-current-sql",
+        "label": "Current sector mix query",
+        "path": "outputs/universe_100_recommendation/universe_100_analysis.sqlite",
+        "query": {
+          "engine": "SQLite",
+          "language": "sql",
+          "sql": "SELECT sector, metric, value, current_names, current_name_share, portfolio, benchmark, active, portfolio_as_of FROM current_sector_long ORDER BY current_names DESC, sector, metric;",
+          "description": "Current sector name share, last portfolio weight, benchmark weight, and active weight.",
+          "executed_at": "2026-07-15T10:24:01.814252+09:00",
+          "tables_used": [
+            "current_sector_long"
+          ],
+          "filters": [
+            "Current universe = 65 names",
+            "Portfolio as of 2026-05-22"
+          ],
+          "metric_definitions": [
+            "current_name_share = current_names / 65",
+            "active = portfolio - benchmark"
+          ]
+        }
+      },
+      {
+        "id": "src-proposed-sql",
+        "label": "Proposed sector count query",
+        "path": "outputs/universe_100_recommendation/universe_100_analysis.sqlite",
+        "query": {
+          "engine": "SQLite",
+          "language": "sql",
+          "sql": "SELECT sector, metric, value, current_names, add_names, final_names, current_name_share, final_name_share FROM proposed_sector_long ORDER BY final_names DESC, sector, metric;",
+          "description": "Current and proposed universe name counts by sector.",
+          "executed_at": "2026-07-15T10:24:01.814252+09:00",
+          "tables_used": [
+            "proposed_sector_long"
+          ],
+          "filters": [
+            "Adds exactly 35 unique non-overlapping names"
+          ],
+          "metric_definitions": [
+            "final_names = current_names + add_names",
+            "final_name_share = final_names / 100"
+          ]
+        }
+      },
+      {
+        "id": "src-candidates-sql",
+        "label": "Recommended global 35-name candidate query",
+        "path": "outputs/universe_100_recommendation/universe_100_analysis.sqlite",
+        "query": {
+          "engine": "SQLite",
+          "language": "sql",
+          "sql": "SELECT selection_order, ticker, name, sector, subindustry, country, region, priority, history_gate_label, rationale, listing_date FROM candidates ORDER BY selection_order;",
+          "description": "Reviewed global 35-name recommendation, including required Kioxia and Sandisk additions.",
+          "executed_at": "2026-07-15T10:24:01.814252+09:00",
+          "tables_used": [
+            "candidates"
+          ],
+          "filters": [
+            "No overlap with current 65-name universe",
+            "Unique ticker count = 35",
+            "Kioxia and Sandisk required",
+            "New additions = 9 United States and 26 non-United States names"
+          ],
+          "metric_definitions": [
+            "history_gate_label = Required for short independent listing history, otherwise Standard"
+          ]
+        }
+      },
+      {
+        "id": "src-asml",
+        "label": "ASML official share listing information",
+        "href": "https://www.asml.com/en/en/investors/shares"
+      },
+      {
+        "id": "src-sap",
+        "label": "SAP official basic stock data",
+        "href": "https://www.sap.com/investors/en/stock/basic-data.html"
+      },
+      {
+        "id": "src-siemens",
+        "label": "Siemens official share identifiers",
+        "href": "https://www.siemens.com/de-de/company/investor-relations/share-bonds-rating/basic-data-key-share-figures/"
+      },
+      {
+        "id": "src-lseg",
+        "label": "LSEG official investor relations page",
+        "href": "https://www.lseg.com/en/investor-relations"
+      },
+      {
+        "id": "src-linde",
+        "label": "Linde official corporate domicile and principal office information",
+        "href": "https://www.linde.com/imprint"
+      },
+      {
+        "id": "src-fabrinet",
+        "label": "Fabrinet 2025 Form 10-K",
+        "href": "https://www.sec.gov/Archives/edgar/data/1408710/000140871025000039/fn-20250627.htm"
+      },
+      {
+        "id": "src-geo-sql",
+        "label": "Current and proposed regional mix query",
+        "path": "outputs/universe_100_recommendation/universe_100_analysis.sqlite",
+        "query": {
+          "engine": "SQLite",
+          "language": "sql",
+          "sql": "SELECT region, metric, value, current_names, add_names, final_names, current_share, final_share FROM region_mix_long ORDER BY CASE region WHEN 'United States' THEN 1 WHEN 'United Kingdom' THEN 2 WHEN 'Europe ex-UK' THEN 3 ELSE 4 END, metric;",
+          "description": "Current and proposed regional name counts and shares using economic domicile.",
+          "executed_at": "2026-07-15T10:24:01.814252+09:00",
+          "tables_used": [
+            "region_mix_long"
+          ],
+          "filters": [
+            "Current universe = 65 names",
+            "Proposed universe = 100 names"
+          ],
+          "metric_definitions": [
+            "current_share = current_names / 65",
+            "final_share = final_names / 100"
+          ]
+        }
+      },
+      {
+        "id": "src-country-sql",
+        "label": "Proposed country mix query",
+        "path": "outputs/universe_100_recommendation/universe_100_analysis.sqlite",
+        "query": {
+          "engine": "SQLite",
+          "language": "sql",
+          "sql": "SELECT country, current_names, add_names, final_names, final_share FROM proposed_country ORDER BY final_names DESC, country;",
+          "description": "Final country composition after the reviewed 35-name additions.",
+          "executed_at": "2026-07-15T10:24:01.814252+09:00",
+          "tables_used": [
+            "proposed_country"
+          ],
+          "filters": [
+            "Economic domicile classification",
+            "Final universe = 100 names"
+          ],
+          "metric_definitions": [
+            "final_share = final_names / 100"
+          ]
+        }
+      }
+    ],
+    "cards": [
+      {
+        "id": "card-current",
+        "dataset": "summary",
+        "sourceId": "src-summary-sql",
+        "description": "현재 원천 유니버스의 종목 수",
+        "metrics": [
+          {
+            "label": "현재 종목 수",
+            "field": "current_names",
+            "format": "number"
+          }
+        ]
+      },
+      {
+        "id": "card-tech",
+        "dataset": "summary",
+        "sourceId": "src-summary-sql",
+        "description": "마지막 운영 포트폴리오의 기술주 자본 비중과 종목 수 비중 비교",
+        "metrics": [
+          {
+            "label": "기술주 포트폴리오 비중",
+            "field": "tech_portfolio",
+            "format": "percent"
+          },
+          {
+            "label": "종목 수 비중",
+            "field": "tech_name_share",
+            "format": "percent"
+          }
+        ]
+      },
+      {
+        "id": "card-final",
+        "dataset": "summary",
+        "sourceId": "src-summary-sql",
+        "description": "35개 신규 편입 후 목표 유니버스",
+        "metrics": [
+          {
+            "label": "목표 종목 수",
+            "field": "final_names",
+            "format": "number"
+          },
+          {
+            "label": "신규 편입",
+            "field": "new_names",
+            "format": "number"
+          }
+        ]
+      },
+      {
+        "id": "card-final-tech",
+        "dataset": "summary",
+        "sourceId": "src-summary-sql",
+        "description": "제안 유니버스의 기술주 종목 수 비중",
+        "metrics": [
+          {
+            "label": "최종 기술주 비중",
+            "field": "final_tech_share",
+            "format": "percent"
+          },
+          {
+            "label": "현재 대비",
+            "field": "tech_share_change",
+            "format": "percent",
+            "signed": true
+          }
+        ]
+      },
+      {
+        "id": "card-global",
+        "dataset": "summary",
+        "sourceId": "src-summary-sql",
+        "description": "발행기업의 경제적 본거지 기준 비미국 종목 수 비중",
+        "metrics": [
+          {
+            "label": "최종 비미국 비중",
+            "field": "final_non_us_share",
+            "format": "percent"
+          },
+          {
+            "label": "현재 비미국 비중",
+            "field": "current_non_us_share",
+            "format": "percent"
+          }
+        ]
+      }
+    ],
+    "charts": [
+      {
+        "id": "chart-current",
+        "title": "현재 섹터 구성",
+        "subtitle": "종목 수 비중은 65종목 기준, 자본 비중은 2026년 5월 22일 마지막 운영 리밸런싱 기준",
+        "intent": "comparison",
+        "question": "현재 섹터별 종목 수 비중과 실제 자본 비중은 얼마나 다른가?",
+        "type": "bar",
+        "dataset": "current_sector_long",
+        "sourceId": "src-current-sql",
+        "encodings": {
+          "x": {
+            "field": "sector",
+            "type": "nominal",
+            "label": "섹터"
+          },
+          "y": {
+            "field": "value",
+            "type": "quantitative",
+            "format": "percent",
+            "label": "비중"
+          },
+          "color": {
+            "field": "metric",
+            "type": "nominal",
+            "label": "구분"
+          },
+          "tooltip": [
+            {
+              "field": "current_names",
+              "type": "quantitative",
+              "label": "종목 수"
+            },
+            {
+              "field": "active",
+              "type": "quantitative",
+              "format": "percent",
+              "label": "액티브 비중"
+            }
+          ]
+        },
+        "valueFormat": "percent",
+        "layout": "full",
+        "palette": {
+          "kind": "categorical"
+        },
+        "settings": {
+          "orientation": "horizontal",
+          "groupMode": "grouped",
+          "sort": "descending",
+          "categoryLabelPolicy": "wrap"
+        },
+        "legend": {
+          "position": "bottom",
+          "title": "구분"
+        },
+        "surface": {
+          "surface": "card",
+          "viewMode": "visualization"
+        }
+      },
+      {
+        "id": "chart-proposed",
+        "title": "현재 및 제안 유니버스 섹터별 종목 수",
+        "subtitle": "신규 35종목은 기술 10개와 비기술 25개로 배분",
+        "intent": "comparison",
+        "question": "35개 추가 후 섹터별 종목 수 구조는 어떻게 바뀌는가?",
+        "type": "bar",
+        "dataset": "proposed_sector_long",
+        "sourceId": "src-proposed-sql",
+        "encodings": {
+          "x": {
+            "field": "sector",
+            "type": "nominal",
+            "label": "섹터"
+          },
+          "y": {
+            "field": "value",
+            "type": "quantitative",
+            "format": "number",
+            "label": "종목 수"
+          },
+          "color": {
+            "field": "metric",
+            "type": "nominal",
+            "label": "구분"
+          },
+          "tooltip": [
+            {
+              "field": "add_names",
+              "type": "quantitative",
+              "label": "신규 종목 수"
+            },
+            {
+              "field": "final_name_share",
+              "type": "quantitative",
+              "format": "percent",
+              "label": "최종 비중"
+            }
+          ]
+        },
+        "valueFormat": "number",
+        "layout": "full",
+        "palette": {
+          "kind": "categorical"
+        },
+        "settings": {
+          "orientation": "horizontal",
+          "groupMode": "grouped",
+          "sort": "descending",
+          "categoryLabelPolicy": "wrap",
+          "showValues": true
+        },
+        "legend": {
+          "position": "bottom",
+          "title": "구분"
+        },
+        "surface": {
+          "surface": "card",
+          "viewMode": "visualization"
+        }
+      },
+      {
+        "id": "chart-geo",
+        "title": "현재 및 제안 유니버스의 지역별 종목 수 비중",
+        "subtitle": "경제적 본거지 기준; 신규 35개 중 미국 9개, 영국 8개, 유럽(영국 제외) 17개, 일본 1개",
+        "intent": "comparison",
+        "question": "글로벌 35개 추가 후 지역 편중은 얼마나 완화되는가?",
+        "type": "bar",
+        "dataset": "region_mix_long",
+        "sourceId": "src-geo-sql",
+        "encodings": {
+          "x": {
+            "field": "region",
+            "type": "nominal",
+            "label": "지역"
+          },
+          "y": {
+            "field": "value",
+            "type": "quantitative",
+            "format": "percent",
+            "label": "종목 수 비중"
+          },
+          "color": {
+            "field": "metric",
+            "type": "nominal",
+            "label": "구분"
+          },
+          "tooltip": [
+            {
+              "field": "current_names",
+              "type": "quantitative",
+              "label": "현재 종목 수"
+            },
+            {
+              "field": "add_names",
+              "type": "quantitative",
+              "label": "신규 종목 수"
+            },
+            {
+              "field": "final_names",
+              "type": "quantitative",
+              "label": "최종 종목 수"
+            }
+          ]
+        },
+        "valueFormat": "percent",
+        "layout": "full",
+        "palette": {
+          "kind": "categorical"
+        },
+        "settings": {
+          "orientation": "horizontal",
+          "groupMode": "grouped",
+          "sort": "descending",
+          "categoryLabelPolicy": "wrap",
+          "showValues": true
+        },
+        "legend": {
+          "position": "bottom",
+          "title": "구분"
+        },
+        "surface": {
+          "surface": "card",
+          "viewMode": "visualization"
+        }
+      }
+    ],
+    "tables": [
+      {
+        "id": "table-candidates",
+        "title": "추천 신규 35종목",
+        "subtitle": "키옥시아와 샌디스크는 필수 편입; 미국 9개와 비미국 26개로 구성",
+        "dataset": "candidates",
+        "sourceId": "src-candidates-sql",
+        "defaultSort": {
+          "field": "selection_order",
+          "direction": "asc"
+        },
+        "density": "dense",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "selection_order",
+            "label": "순번",
+            "format": "number"
+          },
+          {
+            "field": "ticker",
+            "label": "티커",
+            "type": "text"
+          },
+          {
+            "field": "name",
+            "label": "종목명",
+            "type": "text"
+          },
+          {
+            "field": "sector",
+            "label": "섹터",
+            "type": "text"
+          },
+          {
+            "field": "subindustry",
+            "label": "하위산업",
+            "type": "text"
+          },
+          {
+            "field": "country",
+            "label": "국가",
+            "type": "text"
+          },
+          {
+            "field": "region",
+            "label": "지역",
+            "type": "text"
+          },
+          {
+            "field": "role_label",
+            "label": "역할",
+            "type": "text"
+          },
+          {
+            "field": "history_gate_label",
+            "label": "이력 게이트",
+            "type": "text"
+          },
+          {
+            "field": "rationale",
+            "label": "선정 이유",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "id": "table-country",
+        "title": "최종 100종목의 국가별 구성",
+        "subtitle": "거래소가 아니라 발행기업의 경제적 본거지 기준",
+        "dataset": "proposed_country",
+        "sourceId": "src-country-sql",
+        "defaultSort": {
+          "field": "final_names",
+          "direction": "desc"
+        },
+        "density": "dense",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "country",
+            "label": "국가",
+            "type": "text"
+          },
+          {
+            "field": "current_names",
+            "label": "현재",
+            "format": "number"
+          },
+          {
+            "field": "add_names",
+            "label": "신규",
+            "format": "number"
+          },
+          {
+            "field": "final_names",
+            "label": "최종",
+            "format": "number"
+          },
+          {
+            "field": "final_share",
+            "label": "최종 비중",
+            "format": "percent"
+          }
+        ]
+      }
+    ],
+    "blocks": [
+      {
+        "id": "title",
+        "type": "markdown",
+        "body": "# 유니버스 100종목 확장안",
+        "layout": "full"
+      },
+      {
+        "id": "executive-summary",
+        "type": "markdown",
+        "sourceId": "src-analysis",
+        "body": "## Executive Summary\n\n- **현재 핵심 문제는 기술주 자본 편중과 미국 기업 편중입니다.** 기술주는 24개로 전체의 36.9%지만 마지막 운영 포트폴리오에서 68.5%를 차지하고, 경제적 본거지 기준 미국 기업은 60개로 92.3%입니다.\n- **신규 35종목은 섹터와 지역을 동시에 분산하는 안을 권고합니다.** 최종 기술주 종목 수 비중은 34%로 낮아지고, 지역 구성은 미국 69%, 영국 9%, 유럽(영국 제외) 17%, 아시아 5%가 됩니다.\n- **키옥시아(285A JP)와 샌디스크(SNDK US)는 포함했습니다.** 두 종목은 독립 상장 이력이 짧아 상장 전 구간 마스킹과 최소 이력 충족 전 거래 제한을 전제로 합니다.\n- **이번 명단은 구조 개선안이며 즉시 운영 승인안은 아닙니다.** 현지 통화 환산, 거래소별 휴장일, 데이터 커버리지, 기업행사 처리와 100종목 재백테스트를 통과한 뒤 적용해야 합니다."
+      },
+      {
+        "id": "metrics",
+        "type": "metric-strip",
+        "cardIds": [
+          "card-current",
+          "card-tech",
+          "card-final",
+          "card-final-tech",
+          "card-global"
+        ],
+        "layout": "full"
+      },
+      {
+        "id": "current-story",
+        "type": "markdown",
+        "sourceId": "src-analysis",
+        "body": "## 현재 문제는 종목 수보다 자본 편중이다\n\n기술주는 종목 수 기준으로도 가장 크지만, 실제 자본 비중은 훨씬 더 집중되어 있습니다. 마지막 운영 포트폴리오의 기술주 비중 68.5%는 같은 유니버스의 시가총액 벤치마크 65.1%보다도 3.4%p 높습니다. 반대로 경기소비재는 벤치마크보다 3.5%p 낮습니다.\n\n**의미:** 종목을 100개로 늘리는 것만으로는 집중 위험이 자동으로 해결되지 않습니다. 신규 종목 적재 후 벤치마크를 다시 계산하고 섹터 밴드·종목별 상한을 함께 재검증해야 합니다."
+      },
+      {
+        "id": "current-chart",
+        "type": "chart",
+        "chartId": "chart-current",
+        "layout": "full"
+      },
+      {
+        "id": "proposed-story",
+        "type": "markdown",
+        "sourceId": "src-analysis",
+        "body": "## 35개는 기술 10개·비기술 25개로 배분한다\n\n기술주는 키옥시아·샌디스크와 ASML·SAP·STMicroelectronics를 포함해 메모리, 반도체 장비, EDA, 네트워킹, 서버, 소프트웨어를 보강하되 10개로 제한합니다. 나머지 25개는 헬스케어 5개, 산업재·금융 각 4개, 경기소비재 3개, 필수소비재·에너지·커뮤니케이션 각 2개, 부동산·소재·유틸리티 각 1개로 배분합니다.\n\n**의미:** AI 공급망의 깊이는 유지하면서 종목 수 기준 기술주 비중은 36.9%에서 34.0%로 낮아집니다. 동시에 보험, 유럽 산업자동화, 글로벌 제약, 럭셔리, 통신, 광산, 유틸리티 등 현재 빈 영역을 보완합니다."
+      },
+      {
+        "id": "proposed-chart",
+        "type": "chart",
+        "chartId": "chart-proposed",
+        "layout": "full"
+      },
+      {
+        "id": "geo-story",
+        "type": "markdown",
+        "sourceId": "src-geo-sql",
+        "body": "## 미국 92.3%를 69%로 낮추고 영국·유럽을 26% 확보한다\n\n현재 65종목은 경제적 본거지 기준 미국 60개, 한국 2개, 대만·영국·태국 각 1개입니다. 글로벌 후보 35개를 더하면 미국 69개, 영국 9개, 유럽(영국 제외) 17개, 아시아 5개가 됩니다. 비미국 종목 비중은 7.7%에서 31.0%로 높아집니다.\n\n**의미:** 미국 기술주 단일 레짐에 대한 의존을 줄이면서, 유럽의 산업자동화·제약·금융·필수소비재와 영국의 은행·에너지·통신·소재를 독립 신호 원천으로 확보합니다."
+      },
+      {
+        "id": "geo-chart",
+        "type": "chart",
+        "chartId": "chart-geo",
+        "layout": "full"
+      },
+      {
+        "id": "country-table",
+        "type": "table",
+        "tableId": "table-country",
+        "layout": "full"
+      },
+      {
+        "id": "listing-note",
+        "type": "markdown",
+        "body": "### 현지 상장 티커를 우선한다\n\n대표적으로 ASML은 Euronext Amsterdam이 주 거래시장이고, SAP·Siemens·Allianz·Deutsche Telekom은 각 회사가 공개한 Bloomberg 독일 티커를 사용했습니다. LSEG도 회사 IR 페이지의 Bloomberg 표기인 `LSEG LN`을 따랐습니다. [ASML 주식정보](https://www.asml.com/en/en/investors/shares) · [SAP 기본정보](https://www.sap.com/investors/en/stock/basic-data.html) · [Siemens 주식정보](https://www.siemens.com/de-de/company/investor-relations/share-bonds-rating/basic-data-key-share-figures/) · [LSEG IR](https://www.lseg.com/en/investor-relations)\n\n실제 적재 전에는 데이터 공급사 심볼 규칙과 `Equity` 접미사를 일괄 검증해야 합니다."
+      },
+      {
+        "id": "candidate-story",
+        "type": "markdown",
+        "sourceId": "src-analysis",
+        "body": "## 추천 신규 35종목\n\n아래 명단은 현재 유니버스와 중복되지 않으며 35개 티커가 모두 고유합니다. 미국 종목은 9개로 제한하고, 영국 8개, 독일 5개, 스위스 4개, 프랑스 3개, 네덜란드 2개, 덴마크·이탈리아·일본·스페인 각 1개를 추가합니다. 기술 후보는 메모리·노광·EDA·네트워킹·서버·유럽 소프트웨어로 분산하고, 비기술 후보는 유럽 산업재·금융·헬스케어·소비재를 중심으로 채웠습니다."
+      },
+      {
+        "id": "candidate-table",
+        "type": "table",
+        "tableId": "table-candidates",
+        "layout": "full"
+      },
+      {
+        "id": "history-gate",
+        "type": "markdown",
+        "body": "## 키옥시아와 샌디스크는 명단 포함, 거래는 이력 게이트\n\n키옥시아는 도쿄증권거래소 프라임시장에 **2024년 12월 18일** 상장했고 증권코드는 **285A**입니다. [키옥시아 공식 상장 발표](https://www.kioxia-holdings.com/en-jp/news/2024/20241218-1.html)\n\n샌디스크는 Western Digital에서 분리되어 **2025년 2월 24일**부터 Nasdaq에서 **SNDK**로 거래를 시작했습니다. [샌디스크 공식 상장 발표](https://investor.sandisk.com/news-releases/news-release-details/sandisk-celebrates-nasdaq-listing-after-completing-separation)\n\n두 종목 모두 현재 모델의 약 5년 학습창보다 이력이 짧습니다. 유니버스 메타데이터에는 포함하되, 상장 전 가격·시가총액·펀더멘털 백필을 금지하고 최소 이력 기준을 충족할 때까지 거래 가능 여부를 별도 플래그로 관리하는 방식을 권고합니다."
+      },
+      {
+        "id": "next-steps",
+        "type": "markdown",
+        "sourceId": "src-config",
+        "body": "## 권장 적용 순서\n\n1. **35개 종목을 `Universe_Meta`에 먼저 추가**하고 섹터, 국가, 지역, 통화, 거래소, 현지 티커와 공급사 식별자를 고정합니다.\n2. **현지 통화 가격을 기준통화로 환산**하고 GBP·CHF·DKK 등 현재 팩터 원천에 없는 환율 계열을 보강합니다.\n3. **거래소별 휴장일과 시간대를 정렬**합니다. 현재 `weekday_index` 방식만으로는 런던·유럽·도쿄 휴장 차이를 충분히 표현하지 못합니다.\n4. **모든 입력 시트의 컬럼 일치와 데이터 커버리지를 검증**하고, 상장 전 구간 마스킹과 최소 이력 게이트를 적용합니다.\n5. **65종목 대 100종목을 같은 기간·같은 비용 가정으로 재백테스트**해 IR, 회전율, 추적오차, 섹터·국가 액티브 위험, 최적화 실패율을 비교합니다.\n6. **게이트를 통과한 뒤에만 운영 유니버스를 전환**합니다. 이번 결과는 종목 선정안이지 운영 전환 승인안은 아닙니다."
+      },
+      {
+        "id": "questions",
+        "type": "markdown",
+        "body": "## 추가 확인할 질문\n\n- 기준통화를 USD로 통일할지, 지역별 현지통화 수익률을 유지한 뒤 포트폴리오 단계에서 환산할지?\n- GBP·CHF·DKK 환율과 런던·SIX·코펜하겐·유로넥스트·Xetra 휴장일을 어떤 원천으로 공급할지?\n- 신규 35종목 모두에 대해 가격, 시가총액, 컨센서스, 뉴스, 공매도, 리비전 계열이 동일한 날짜 범위로 공급되는지?\n- 100종목 시가총액 벤치마크가 기술주와 미국 주식 편중을 어느 정도 유지하는지?\n- 샌디스크의 분할 이전 Western Digital 이력을 연결할지, 독립 상장 이후 데이터만 사용할지?"
+      },
+      {
+        "id": "caveats",
+        "type": "markdown",
+        "sourceId": "src-analysis",
+        "body": "## 가정과 유의사항\n\n- 종목 수 비중은 2026년 7월 14일 원천 엑셀 기준입니다. 실제 포트폴리오 비중은 2026년 5월 22일 마지막 운영 리밸런싱 산출물입니다.\n- 현재 원천에는 국가 필드가 없어 경제적 본거지를 별도로 매핑했습니다. Linde는 영국 주요 본사, Fabrinet은 태국 중심 사업 기준으로 분류했으며, 운영 적재 시 공급사의 국가 분류 정책과 재확인해야 합니다.\n- 섹터 분류는 프로젝트 원천 파일을 그대로 사용했습니다. 일부 종목은 표준 GICS 분류와 다를 수 있습니다.\n- 팩터 원천에는 EURUSD·USDJPY·USDKRW가 있지만 GBP·CHF·DKK 환율이 없습니다. 또한 운영 캘린더는 `weekday_index`이므로 국가별 휴장일 검증이 필수입니다.\n- 신규 35종목은 유동성·섹터·지역·하위산업·데이터 이력을 우선한 구조적 후보군입니다. 개별 종목의 목표가, 밸류에이션, 단기 모멘텀을 반영한 매수 추천은 아닙니다.\n- 최종 자본 비중은 이번 종목 수 배분으로 확정되지 않습니다. 100종목 시가총액 벤치마크와 최적화 제약을 다시 계산해야 합니다."
+      }
+    ]
+  },
+  "snapshot": {
+    "version": 1,
+    "generatedAt": "2026-07-15T10:24:01.814252+09:00",
+    "status": "ready",
+    "datasets": {
+      "summary": [
+        {
+          "current_names": 65,
+          "new_names": 35,
+          "final_names": 100,
+          "tech_name_share": 0.3692307692,
+          "tech_portfolio": 0.6847,
+          "tech_benchmark": 0.6512,
+          "final_tech_share": 0.34,
+          "current_us_share": 0.9230769231,
+          "final_us_share": 0.69,
+          "final_uk_share": 0.09,
+          "final_europe_ex_uk_share": 0.17,
+          "final_asia_share": 0.05,
+          "tech_share_change": -0.0292307692,
+          "current_non_us_share": 0.0769230769,
+          "final_non_us_share": 0.31
+        }
+      ],
+      "current_sector": [
+        {
+          "Sector": "Technology",
+          "current_names": 24,
+          "current_name_share": 0.36923076923076925,
+          "portfolio": 0.6847,
+          "benchmark": 0.6512,
+          "active": 0.033499999999999974
+        },
+        {
+          "Sector": "Industrials",
+          "current_names": 9,
+          "current_name_share": 0.13846153846153847,
+          "portfolio": 0.0225,
+          "benchmark": 0.0349,
+          "active": -0.012400000000000001
+        },
+        {
+          "Sector": "Financials",
+          "current_names": 8,
+          "current_name_share": 0.12307692307692308,
+          "portfolio": 0.0757,
+          "benchmark": 0.067,
+          "active": 0.0087
+        },
+        {
+          "Sector": "Healthcare",
+          "current_names": 6,
+          "current_name_share": 0.09230769230769231,
+          "portfolio": 0.0501,
+          "benchmark": 0.0544,
+          "active": -0.004299999999999998
+        },
+        {
+          "Sector": "Consumer Discretionary",
+          "current_names": 4,
+          "current_name_share": 0.06153846153846154,
+          "portfolio": 0.0723,
+          "benchmark": 0.1074,
+          "active": -0.03509999999999999
+        },
+        {
+          "Sector": "Consumer Staples",
+          "current_names": 3,
+          "current_name_share": 0.046153846153846156,
+          "portfolio": 0.0477,
+          "benchmark": 0.0378,
+          "active": 0.009899999999999999
+        },
+        {
+          "Sector": "Energy",
+          "current_names": 3,
+          "current_name_share": 0.046153846153846156,
+          "portfolio": 0.0147,
+          "benchmark": 0.0166,
+          "active": -0.0019000000000000006
+        },
+        {
+          "Sector": "Real Estate",
+          "current_names": 3,
+          "current_name_share": 0.046153846153846156,
+          "portfolio": 0.0052,
+          "benchmark": 0.0072,
+          "active": -0.002
+        },
+        {
+          "Sector": "Communication Services",
+          "current_names": 2,
+          "current_name_share": 0.03076923076923077,
+          "portfolio": 0.022,
+          "benchmark": 0.0125,
+          "active": 0.009499999999999998
+        },
+        {
+          "Sector": "Materials",
+          "current_names": 2,
+          "current_name_share": 0.03076923076923077,
+          "portfolio": 0.0036,
+          "benchmark": 0.0071,
+          "active": -0.0035000000000000005
+        },
+        {
+          "Sector": "Utilities",
+          "current_names": 1,
+          "current_name_share": 0.015384615384615385,
+          "portfolio": 0.0014,
+          "benchmark": 0.004,
+          "active": -0.0026
+        }
+      ],
+      "current_sector_long": [
+        {
+          "sector": "Technology",
+          "metric": "종목 수 비중",
+          "value": 0.36923076923076925,
+          "current_names": 24,
+          "current_name_share": 0.36923076923076925,
+          "portfolio": 0.6847,
+          "benchmark": 0.6512,
+          "active": 0.033499999999999974,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Technology",
+          "metric": "포트폴리오 비중",
+          "value": 0.6847,
+          "current_names": 24,
+          "current_name_share": 0.36923076923076925,
+          "portfolio": 0.6847,
+          "benchmark": 0.6512,
+          "active": 0.033499999999999974,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Technology",
+          "metric": "벤치마크 비중",
+          "value": 0.6512,
+          "current_names": 24,
+          "current_name_share": 0.36923076923076925,
+          "portfolio": 0.6847,
+          "benchmark": 0.6512,
+          "active": 0.033499999999999974,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Industrials",
+          "metric": "종목 수 비중",
+          "value": 0.13846153846153847,
+          "current_names": 9,
+          "current_name_share": 0.13846153846153847,
+          "portfolio": 0.0225,
+          "benchmark": 0.0349,
+          "active": -0.012400000000000001,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Industrials",
+          "metric": "포트폴리오 비중",
+          "value": 0.0225,
+          "current_names": 9,
+          "current_name_share": 0.13846153846153847,
+          "portfolio": 0.0225,
+          "benchmark": 0.0349,
+          "active": -0.012400000000000001,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Industrials",
+          "metric": "벤치마크 비중",
+          "value": 0.0349,
+          "current_names": 9,
+          "current_name_share": 0.13846153846153847,
+          "portfolio": 0.0225,
+          "benchmark": 0.0349,
+          "active": -0.012400000000000001,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Financials",
+          "metric": "종목 수 비중",
+          "value": 0.12307692307692308,
+          "current_names": 8,
+          "current_name_share": 0.12307692307692308,
+          "portfolio": 0.0757,
+          "benchmark": 0.067,
+          "active": 0.0087,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Financials",
+          "metric": "포트폴리오 비중",
+          "value": 0.0757,
+          "current_names": 8,
+          "current_name_share": 0.12307692307692308,
+          "portfolio": 0.0757,
+          "benchmark": 0.067,
+          "active": 0.0087,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Financials",
+          "metric": "벤치마크 비중",
+          "value": 0.067,
+          "current_names": 8,
+          "current_name_share": 0.12307692307692308,
+          "portfolio": 0.0757,
+          "benchmark": 0.067,
+          "active": 0.0087,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Healthcare",
+          "metric": "종목 수 비중",
+          "value": 0.09230769230769231,
+          "current_names": 6,
+          "current_name_share": 0.09230769230769231,
+          "portfolio": 0.0501,
+          "benchmark": 0.0544,
+          "active": -0.004299999999999998,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Healthcare",
+          "metric": "포트폴리오 비중",
+          "value": 0.0501,
+          "current_names": 6,
+          "current_name_share": 0.09230769230769231,
+          "portfolio": 0.0501,
+          "benchmark": 0.0544,
+          "active": -0.004299999999999998,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Healthcare",
+          "metric": "벤치마크 비중",
+          "value": 0.0544,
+          "current_names": 6,
+          "current_name_share": 0.09230769230769231,
+          "portfolio": 0.0501,
+          "benchmark": 0.0544,
+          "active": -0.004299999999999998,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Consumer Discretionary",
+          "metric": "종목 수 비중",
+          "value": 0.06153846153846154,
+          "current_names": 4,
+          "current_name_share": 0.06153846153846154,
+          "portfolio": 0.0723,
+          "benchmark": 0.1074,
+          "active": -0.03509999999999999,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Consumer Discretionary",
+          "metric": "포트폴리오 비중",
+          "value": 0.0723,
+          "current_names": 4,
+          "current_name_share": 0.06153846153846154,
+          "portfolio": 0.0723,
+          "benchmark": 0.1074,
+          "active": -0.03509999999999999,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Consumer Discretionary",
+          "metric": "벤치마크 비중",
+          "value": 0.1074,
+          "current_names": 4,
+          "current_name_share": 0.06153846153846154,
+          "portfolio": 0.0723,
+          "benchmark": 0.1074,
+          "active": -0.03509999999999999,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Consumer Staples",
+          "metric": "종목 수 비중",
+          "value": 0.046153846153846156,
+          "current_names": 3,
+          "current_name_share": 0.046153846153846156,
+          "portfolio": 0.0477,
+          "benchmark": 0.0378,
+          "active": 0.009899999999999999,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Consumer Staples",
+          "metric": "포트폴리오 비중",
+          "value": 0.0477,
+          "current_names": 3,
+          "current_name_share": 0.046153846153846156,
+          "portfolio": 0.0477,
+          "benchmark": 0.0378,
+          "active": 0.009899999999999999,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Consumer Staples",
+          "metric": "벤치마크 비중",
+          "value": 0.0378,
+          "current_names": 3,
+          "current_name_share": 0.046153846153846156,
+          "portfolio": 0.0477,
+          "benchmark": 0.0378,
+          "active": 0.009899999999999999,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Energy",
+          "metric": "종목 수 비중",
+          "value": 0.046153846153846156,
+          "current_names": 3,
+          "current_name_share": 0.046153846153846156,
+          "portfolio": 0.0147,
+          "benchmark": 0.0166,
+          "active": -0.0019000000000000006,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Energy",
+          "metric": "포트폴리오 비중",
+          "value": 0.0147,
+          "current_names": 3,
+          "current_name_share": 0.046153846153846156,
+          "portfolio": 0.0147,
+          "benchmark": 0.0166,
+          "active": -0.0019000000000000006,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Energy",
+          "metric": "벤치마크 비중",
+          "value": 0.0166,
+          "current_names": 3,
+          "current_name_share": 0.046153846153846156,
+          "portfolio": 0.0147,
+          "benchmark": 0.0166,
+          "active": -0.0019000000000000006,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Real Estate",
+          "metric": "종목 수 비중",
+          "value": 0.046153846153846156,
+          "current_names": 3,
+          "current_name_share": 0.046153846153846156,
+          "portfolio": 0.0052,
+          "benchmark": 0.0072,
+          "active": -0.002,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Real Estate",
+          "metric": "포트폴리오 비중",
+          "value": 0.0052,
+          "current_names": 3,
+          "current_name_share": 0.046153846153846156,
+          "portfolio": 0.0052,
+          "benchmark": 0.0072,
+          "active": -0.002,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Real Estate",
+          "metric": "벤치마크 비중",
+          "value": 0.0072,
+          "current_names": 3,
+          "current_name_share": 0.046153846153846156,
+          "portfolio": 0.0052,
+          "benchmark": 0.0072,
+          "active": -0.002,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Communication Services",
+          "metric": "종목 수 비중",
+          "value": 0.03076923076923077,
+          "current_names": 2,
+          "current_name_share": 0.03076923076923077,
+          "portfolio": 0.022,
+          "benchmark": 0.0125,
+          "active": 0.009499999999999998,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Communication Services",
+          "metric": "포트폴리오 비중",
+          "value": 0.022,
+          "current_names": 2,
+          "current_name_share": 0.03076923076923077,
+          "portfolio": 0.022,
+          "benchmark": 0.0125,
+          "active": 0.009499999999999998,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Communication Services",
+          "metric": "벤치마크 비중",
+          "value": 0.0125,
+          "current_names": 2,
+          "current_name_share": 0.03076923076923077,
+          "portfolio": 0.022,
+          "benchmark": 0.0125,
+          "active": 0.009499999999999998,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Materials",
+          "metric": "종목 수 비중",
+          "value": 0.03076923076923077,
+          "current_names": 2,
+          "current_name_share": 0.03076923076923077,
+          "portfolio": 0.0036,
+          "benchmark": 0.0071,
+          "active": -0.0035000000000000005,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Materials",
+          "metric": "포트폴리오 비중",
+          "value": 0.0036,
+          "current_names": 2,
+          "current_name_share": 0.03076923076923077,
+          "portfolio": 0.0036,
+          "benchmark": 0.0071,
+          "active": -0.0035000000000000005,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Materials",
+          "metric": "벤치마크 비중",
+          "value": 0.0071,
+          "current_names": 2,
+          "current_name_share": 0.03076923076923077,
+          "portfolio": 0.0036,
+          "benchmark": 0.0071,
+          "active": -0.0035000000000000005,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Utilities",
+          "metric": "종목 수 비중",
+          "value": 0.015384615384615385,
+          "current_names": 1,
+          "current_name_share": 0.015384615384615385,
+          "portfolio": 0.0014,
+          "benchmark": 0.004,
+          "active": -0.0026,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Utilities",
+          "metric": "포트폴리오 비중",
+          "value": 0.0014,
+          "current_names": 1,
+          "current_name_share": 0.015384615384615385,
+          "portfolio": 0.0014,
+          "benchmark": 0.004,
+          "active": -0.0026,
+          "portfolio_as_of": "2026-05-22"
+        },
+        {
+          "sector": "Utilities",
+          "metric": "벤치마크 비중",
+          "value": 0.004,
+          "current_names": 1,
+          "current_name_share": 0.015384615384615385,
+          "portfolio": 0.0014,
+          "benchmark": 0.004,
+          "active": -0.0026,
+          "portfolio_as_of": "2026-05-22"
+        }
+      ],
+      "proposed_sector": [
+        {
+          "Sector": "Technology",
+          "current_names": 24,
+          "current_name_share": 0.36923076923076925,
+          "add_names": 10,
+          "final_names": 34,
+          "final_name_share": 0.34
+        },
+        {
+          "Sector": "Industrials",
+          "current_names": 9,
+          "current_name_share": 0.13846153846153847,
+          "add_names": 4,
+          "final_names": 13,
+          "final_name_share": 0.13
+        },
+        {
+          "Sector": "Financials",
+          "current_names": 8,
+          "current_name_share": 0.12307692307692308,
+          "add_names": 4,
+          "final_names": 12,
+          "final_name_share": 0.12
+        },
+        {
+          "Sector": "Healthcare",
+          "current_names": 6,
+          "current_name_share": 0.09230769230769231,
+          "add_names": 5,
+          "final_names": 11,
+          "final_name_share": 0.11
+        },
+        {
+          "Sector": "Consumer Discretionary",
+          "current_names": 4,
+          "current_name_share": 0.06153846153846154,
+          "add_names": 3,
+          "final_names": 7,
+          "final_name_share": 0.07
+        },
+        {
+          "Sector": "Consumer Staples",
+          "current_names": 3,
+          "current_name_share": 0.046153846153846156,
+          "add_names": 2,
+          "final_names": 5,
+          "final_name_share": 0.05
+        },
+        {
+          "Sector": "Energy",
+          "current_names": 3,
+          "current_name_share": 0.046153846153846156,
+          "add_names": 2,
+          "final_names": 5,
+          "final_name_share": 0.05
+        },
+        {
+          "Sector": "Communication Services",
+          "current_names": 2,
+          "current_name_share": 0.03076923076923077,
+          "add_names": 2,
+          "final_names": 4,
+          "final_name_share": 0.04
+        },
+        {
+          "Sector": "Real Estate",
+          "current_names": 3,
+          "current_name_share": 0.046153846153846156,
+          "add_names": 1,
+          "final_names": 4,
+          "final_name_share": 0.04
+        },
+        {
+          "Sector": "Materials",
+          "current_names": 2,
+          "current_name_share": 0.03076923076923077,
+          "add_names": 1,
+          "final_names": 3,
+          "final_name_share": 0.03
+        },
+        {
+          "Sector": "Utilities",
+          "current_names": 1,
+          "current_name_share": 0.015384615384615385,
+          "add_names": 1,
+          "final_names": 2,
+          "final_name_share": 0.02
+        }
+      ],
+      "proposed_sector_long": [
+        {
+          "sector": "Technology",
+          "metric": "현재",
+          "value": 24,
+          "current_names": 24,
+          "add_names": 10,
+          "final_names": 34,
+          "current_name_share": 0.36923076923076925,
+          "final_name_share": 0.34
+        },
+        {
+          "sector": "Technology",
+          "metric": "제안",
+          "value": 34,
+          "current_names": 24,
+          "add_names": 10,
+          "final_names": 34,
+          "current_name_share": 0.36923076923076925,
+          "final_name_share": 0.34
+        },
+        {
+          "sector": "Industrials",
+          "metric": "현재",
+          "value": 9,
+          "current_names": 9,
+          "add_names": 4,
+          "final_names": 13,
+          "current_name_share": 0.13846153846153847,
+          "final_name_share": 0.13
+        },
+        {
+          "sector": "Industrials",
+          "metric": "제안",
+          "value": 13,
+          "current_names": 9,
+          "add_names": 4,
+          "final_names": 13,
+          "current_name_share": 0.13846153846153847,
+          "final_name_share": 0.13
+        },
+        {
+          "sector": "Financials",
+          "metric": "현재",
+          "value": 8,
+          "current_names": 8,
+          "add_names": 4,
+          "final_names": 12,
+          "current_name_share": 0.12307692307692308,
+          "final_name_share": 0.12
+        },
+        {
+          "sector": "Financials",
+          "metric": "제안",
+          "value": 12,
+          "current_names": 8,
+          "add_names": 4,
+          "final_names": 12,
+          "current_name_share": 0.12307692307692308,
+          "final_name_share": 0.12
+        },
+        {
+          "sector": "Healthcare",
+          "metric": "현재",
+          "value": 6,
+          "current_names": 6,
+          "add_names": 5,
+          "final_names": 11,
+          "current_name_share": 0.09230769230769231,
+          "final_name_share": 0.11
+        },
+        {
+          "sector": "Healthcare",
+          "metric": "제안",
+          "value": 11,
+          "current_names": 6,
+          "add_names": 5,
+          "final_names": 11,
+          "current_name_share": 0.09230769230769231,
+          "final_name_share": 0.11
+        },
+        {
+          "sector": "Consumer Discretionary",
+          "metric": "현재",
+          "value": 4,
+          "current_names": 4,
+          "add_names": 3,
+          "final_names": 7,
+          "current_name_share": 0.06153846153846154,
+          "final_name_share": 0.07
+        },
+        {
+          "sector": "Consumer Discretionary",
+          "metric": "제안",
+          "value": 7,
+          "current_names": 4,
+          "add_names": 3,
+          "final_names": 7,
+          "current_name_share": 0.06153846153846154,
+          "final_name_share": 0.07
+        },
+        {
+          "sector": "Consumer Staples",
+          "metric": "현재",
+          "value": 3,
+          "current_names": 3,
+          "add_names": 2,
+          "final_names": 5,
+          "current_name_share": 0.046153846153846156,
+          "final_name_share": 0.05
+        },
+        {
+          "sector": "Consumer Staples",
+          "metric": "제안",
+          "value": 5,
+          "current_names": 3,
+          "add_names": 2,
+          "final_names": 5,
+          "current_name_share": 0.046153846153846156,
+          "final_name_share": 0.05
+        },
+        {
+          "sector": "Energy",
+          "metric": "현재",
+          "value": 3,
+          "current_names": 3,
+          "add_names": 2,
+          "final_names": 5,
+          "current_name_share": 0.046153846153846156,
+          "final_name_share": 0.05
+        },
+        {
+          "sector": "Energy",
+          "metric": "제안",
+          "value": 5,
+          "current_names": 3,
+          "add_names": 2,
+          "final_names": 5,
+          "current_name_share": 0.046153846153846156,
+          "final_name_share": 0.05
+        },
+        {
+          "sector": "Communication Services",
+          "metric": "현재",
+          "value": 2,
+          "current_names": 2,
+          "add_names": 2,
+          "final_names": 4,
+          "current_name_share": 0.03076923076923077,
+          "final_name_share": 0.04
+        },
+        {
+          "sector": "Communication Services",
+          "metric": "제안",
+          "value": 4,
+          "current_names": 2,
+          "add_names": 2,
+          "final_names": 4,
+          "current_name_share": 0.03076923076923077,
+          "final_name_share": 0.04
+        },
+        {
+          "sector": "Real Estate",
+          "metric": "현재",
+          "value": 3,
+          "current_names": 3,
+          "add_names": 1,
+          "final_names": 4,
+          "current_name_share": 0.046153846153846156,
+          "final_name_share": 0.04
+        },
+        {
+          "sector": "Real Estate",
+          "metric": "제안",
+          "value": 4,
+          "current_names": 3,
+          "add_names": 1,
+          "final_names": 4,
+          "current_name_share": 0.046153846153846156,
+          "final_name_share": 0.04
+        },
+        {
+          "sector": "Materials",
+          "metric": "현재",
+          "value": 2,
+          "current_names": 2,
+          "add_names": 1,
+          "final_names": 3,
+          "current_name_share": 0.03076923076923077,
+          "final_name_share": 0.03
+        },
+        {
+          "sector": "Materials",
+          "metric": "제안",
+          "value": 3,
+          "current_names": 2,
+          "add_names": 1,
+          "final_names": 3,
+          "current_name_share": 0.03076923076923077,
+          "final_name_share": 0.03
+        },
+        {
+          "sector": "Utilities",
+          "metric": "현재",
+          "value": 1,
+          "current_names": 1,
+          "add_names": 1,
+          "final_names": 2,
+          "current_name_share": 0.015384615384615385,
+          "final_name_share": 0.02
+        },
+        {
+          "sector": "Utilities",
+          "metric": "제안",
+          "value": 2,
+          "current_names": 1,
+          "add_names": 1,
+          "final_names": 2,
+          "current_name_share": 0.015384615384615385,
+          "final_name_share": 0.02
+        }
+      ],
+      "candidates": [
+        {
+          "ticker": "285A JP",
+          "name": "Kioxia Holdings",
+          "sector": "Technology",
+          "subindustry": "NAND flash / SSD",
+          "country": "Japan",
+          "region": "Asia",
+          "priority": "Required",
+          "rationale": "NAND 공급망 직접 노출; 사용자 지정 필수 편입",
+          "listing_date": "2024-12-18",
+          "history_gate": true,
+          "selection_order": 1,
+          "role_label": "필수",
+          "history_gate_label": "필수"
+        },
+        {
+          "ticker": "SNDK US",
+          "name": "Sandisk",
+          "sector": "Technology",
+          "subindustry": "Flash memory / SSD",
+          "country": "United States",
+          "region": "United States",
+          "priority": "Required",
+          "rationale": "클라이언트·데이터센터 플래시 메모리 커버리지; 사용자 지정 필수 편입",
+          "listing_date": "2025-02-24",
+          "history_gate": true,
+          "selection_order": 2,
+          "role_label": "필수",
+          "history_gate_label": "필수"
+        },
+        {
+          "ticker": "ASML NA",
+          "name": "ASML Holding",
+          "sector": "Technology",
+          "subindustry": "Lithography equipment",
+          "country": "Netherlands",
+          "region": "Europe ex-UK",
+          "priority": "Core",
+          "rationale": "첨단 반도체 노광 장비의 핵심 공급망",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 3,
+          "role_label": "핵심",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "SAP GR",
+          "name": "SAP",
+          "sector": "Technology",
+          "subindustry": "Enterprise software",
+          "country": "Germany",
+          "region": "Europe ex-UK",
+          "priority": "Core",
+          "rationale": "유럽 대표 엔터프라이즈 소프트웨어 플랫폼",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 4,
+          "role_label": "핵심",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "STM FP",
+          "name": "STMicroelectronics",
+          "sector": "Technology",
+          "subindustry": "Analog / automotive semiconductors",
+          "country": "Netherlands",
+          "region": "Europe ex-UK",
+          "priority": "Core",
+          "rationale": "자동차·산업용 반도체로 AI 일변도 완화",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 5,
+          "role_label": "핵심",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "KLAC US",
+          "name": "KLA",
+          "sector": "Technology",
+          "subindustry": "Process control equipment",
+          "country": "United States",
+          "region": "United States",
+          "priority": "Core",
+          "rationale": "검사·계측 장비로 전공정 장비 노출 보완",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 6,
+          "role_label": "핵심",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "QCOM US",
+          "name": "Qualcomm",
+          "sector": "Technology",
+          "subindustry": "Wireless / edge semiconductors",
+          "country": "United States",
+          "region": "United States",
+          "priority": "Core",
+          "rationale": "모바일·엣지 AI 반도체 노출",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 7,
+          "role_label": "핵심",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "MRVL US",
+          "name": "Marvell Technology",
+          "sector": "Technology",
+          "subindustry": "Data-center networking chips",
+          "country": "United States",
+          "region": "United States",
+          "priority": "Core",
+          "rationale": "데이터센터 인터커넥트·맞춤형 실리콘 커버리지",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 8,
+          "role_label": "핵심",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "CDNS US",
+          "name": "Cadence Design Systems",
+          "sector": "Technology",
+          "subindustry": "EDA software",
+          "country": "United States",
+          "region": "United States",
+          "priority": "Core",
+          "rationale": "반도체 설계 소프트웨어 공급망",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 9,
+          "role_label": "핵심",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "DELL US",
+          "name": "Dell Technologies",
+          "sector": "Technology",
+          "subindustry": "Servers / enterprise hardware",
+          "country": "United States",
+          "region": "United States",
+          "priority": "Core",
+          "rationale": "AI 서버·기업 하드웨어 수요 커버리지",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 10,
+          "role_label": "핵심",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "SIE GR",
+          "name": "Siemens",
+          "sector": "Industrials",
+          "subindustry": "Industrial automation",
+          "country": "Germany",
+          "region": "Europe ex-UK",
+          "priority": "Diversifier",
+          "rationale": "산업 자동화·전력화 노출",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 11,
+          "role_label": "분산",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "SU FP",
+          "name": "Schneider Electric",
+          "sector": "Industrials",
+          "subindustry": "Electrification / automation",
+          "country": "France",
+          "region": "Europe ex-UK",
+          "priority": "Diversifier",
+          "rationale": "데이터센터 전력관리와 자동화 노출",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 12,
+          "role_label": "분산",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "RR/ LN",
+          "name": "Rolls-Royce Holdings",
+          "sector": "Industrials",
+          "subindustry": "Aerospace engines",
+          "country": "United Kingdom",
+          "region": "United Kingdom",
+          "priority": "Diversifier",
+          "rationale": "민항 엔진·장기 서비스 매출 노출",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 13,
+          "role_label": "분산",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "PWR US",
+          "name": "Quanta Services",
+          "sector": "Industrials",
+          "subindustry": "Grid infrastructure",
+          "country": "United States",
+          "region": "United States",
+          "priority": "Diversifier",
+          "rationale": "전력망·데이터센터 전력 인프라 수혜",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 14,
+          "role_label": "분산",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "HSBA LN",
+          "name": "HSBC Holdings",
+          "sector": "Financials",
+          "subindustry": "Global banking",
+          "country": "United Kingdom",
+          "region": "United Kingdom",
+          "priority": "Diversifier",
+          "rationale": "아시아 비중이 큰 글로벌 은행 노출",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 15,
+          "role_label": "분산",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "ALV GR",
+          "name": "Allianz",
+          "sector": "Financials",
+          "subindustry": "Insurance / asset management",
+          "country": "Germany",
+          "region": "Europe ex-UK",
+          "priority": "Diversifier",
+          "rationale": "보험·자산운용 복합 금융 노출",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 16,
+          "role_label": "분산",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "UBSG SW",
+          "name": "UBS Group",
+          "sector": "Financials",
+          "subindustry": "Wealth management / banking",
+          "country": "Switzerland",
+          "region": "Europe ex-UK",
+          "priority": "Diversifier",
+          "rationale": "글로벌 자산관리 중심 금융 플랫폼",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 17,
+          "role_label": "분산",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "LSEG LN",
+          "name": "London Stock Exchange Group",
+          "sector": "Financials",
+          "subindustry": "Market infrastructure / data",
+          "country": "United Kingdom",
+          "region": "United Kingdom",
+          "priority": "Diversifier",
+          "rationale": "거래소·금융데이터 인프라 노출",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 18,
+          "role_label": "분산",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "NOVOB DC",
+          "name": "Novo Nordisk",
+          "sector": "Healthcare",
+          "subindustry": "Diabetes / obesity pharmaceuticals",
+          "country": "Denmark",
+          "region": "Europe ex-UK",
+          "priority": "Diversifier",
+          "rationale": "비만·당뇨 치료제의 글로벌 성장 노출",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 19,
+          "role_label": "분산",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "AZN LN",
+          "name": "AstraZeneca",
+          "sector": "Healthcare",
+          "subindustry": "Pharmaceuticals",
+          "country": "United Kingdom",
+          "region": "United Kingdom",
+          "priority": "Diversifier",
+          "rationale": "종양·희귀질환 중심 대형 제약 노출",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 20,
+          "role_label": "분산",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "ROG SW",
+          "name": "Roche Holding",
+          "sector": "Healthcare",
+          "subindustry": "Pharmaceuticals / diagnostics",
+          "country": "Switzerland",
+          "region": "Europe ex-UK",
+          "priority": "Diversifier",
+          "rationale": "제약과 진단의 결합 노출",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 21,
+          "role_label": "분산",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "NOVN SW",
+          "name": "Novartis",
+          "sector": "Healthcare",
+          "subindustry": "Innovative medicines",
+          "country": "Switzerland",
+          "region": "Europe ex-UK",
+          "priority": "Diversifier",
+          "rationale": "유럽 대형 혁신신약 포트폴리오",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 22,
+          "role_label": "분산",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "TMO US",
+          "name": "Thermo Fisher Scientific",
+          "sector": "Healthcare",
+          "subindustry": "Life-science tools",
+          "country": "United States",
+          "region": "United States",
+          "priority": "Diversifier",
+          "rationale": "생명과학 도구·서비스 커버리지",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 23,
+          "role_label": "분산",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "MC FP",
+          "name": "LVMH",
+          "sector": "Consumer Discretionary",
+          "subindustry": "Luxury goods",
+          "country": "France",
+          "region": "Europe ex-UK",
+          "priority": "Diversifier",
+          "rationale": "글로벌 럭셔리 소비와 브랜드 파워 노출",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 24,
+          "role_label": "분산",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "RACE IM",
+          "name": "Ferrari",
+          "sector": "Consumer Discretionary",
+          "subindustry": "Luxury automobiles",
+          "country": "Italy",
+          "region": "Europe ex-UK",
+          "priority": "Diversifier",
+          "rationale": "희소성이 높은 럭셔리 자동차 노출",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 25,
+          "role_label": "분산",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "BKNG US",
+          "name": "Booking Holdings",
+          "sector": "Consumer Discretionary",
+          "subindustry": "Online travel",
+          "country": "United States",
+          "region": "United States",
+          "priority": "Diversifier",
+          "rationale": "글로벌 여행 플랫폼 노출",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 26,
+          "role_label": "분산",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "SHEL LN",
+          "name": "Shell",
+          "sector": "Energy",
+          "subindustry": "Integrated energy",
+          "country": "United Kingdom",
+          "region": "United Kingdom",
+          "priority": "Diversifier",
+          "rationale": "통합 에너지와 LNG 노출",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 27,
+          "role_label": "분산",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "TTE FP",
+          "name": "TotalEnergies",
+          "sector": "Energy",
+          "subindustry": "Integrated energy",
+          "country": "France",
+          "region": "Europe ex-UK",
+          "priority": "Diversifier",
+          "rationale": "석유·가스와 전력 전환 포트폴리오",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 28,
+          "role_label": "분산",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "ULVR LN",
+          "name": "Unilever",
+          "sector": "Consumer Staples",
+          "subindustry": "Household / personal products",
+          "country": "United Kingdom",
+          "region": "United Kingdom",
+          "priority": "Diversifier",
+          "rationale": "글로벌 생활소비재의 방어적 현금흐름",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 29,
+          "role_label": "분산",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "NESN SW",
+          "name": "Nestle",
+          "sector": "Consumer Staples",
+          "subindustry": "Packaged food / beverages",
+          "country": "Switzerland",
+          "region": "Europe ex-UK",
+          "priority": "Diversifier",
+          "rationale": "글로벌 식품·음료 브랜드 노출",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 30,
+          "role_label": "분산",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "DTE GR",
+          "name": "Deutsche Telekom",
+          "sector": "Communication Services",
+          "subindustry": "Telecom",
+          "country": "Germany",
+          "region": "Europe ex-UK",
+          "priority": "Diversifier",
+          "rationale": "유럽 통신과 미국 무선 자회사 노출",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 31,
+          "role_label": "분산",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "VOD LN",
+          "name": "Vodafone Group",
+          "sector": "Communication Services",
+          "subindustry": "Telecom",
+          "country": "United Kingdom",
+          "region": "United Kingdom",
+          "priority": "Diversifier",
+          "rationale": "유럽·아프리카 통신 노출",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 32,
+          "role_label": "분산",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "VNA GR",
+          "name": "Vonovia",
+          "sector": "Real Estate",
+          "subindustry": "Residential real estate",
+          "country": "Germany",
+          "region": "Europe ex-UK",
+          "priority": "Diversifier",
+          "rationale": "유럽 주거 부동산과 금리 민감도 노출",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 33,
+          "role_label": "분산",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "RIO LN",
+          "name": "Rio Tinto",
+          "sector": "Materials",
+          "subindustry": "Diversified mining",
+          "country": "United Kingdom",
+          "region": "United Kingdom",
+          "priority": "Diversifier",
+          "rationale": "철광석·알루미늄·구리의 글로벌 광산 노출",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 34,
+          "role_label": "분산",
+          "history_gate_label": "일반"
+        },
+        {
+          "ticker": "IBE SM",
+          "name": "Iberdrola",
+          "sector": "Utilities",
+          "subindustry": "Electric utility / renewables",
+          "country": "Spain",
+          "region": "Europe ex-UK",
+          "priority": "Diversifier",
+          "rationale": "전력망과 재생에너지 중심 유틸리티 노출",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 35,
+          "role_label": "분산",
+          "history_gate_label": "일반"
+        }
+      ],
+      "history_gates": [
+        {
+          "ticker": "285A JP",
+          "name": "Kioxia Holdings",
+          "listing_date": "2024-12-18",
+          "rationale": "NAND 공급망 직접 노출; 사용자 지정 필수 편입"
+        },
+        {
+          "ticker": "SNDK US",
+          "name": "Sandisk",
+          "listing_date": "2025-02-24",
+          "rationale": "클라이언트·데이터센터 플래시 메모리 커버리지; 사용자 지정 필수 편입"
+        }
+      ],
+      "proposed_country": [
+        {
+          "country": "United States",
+          "current_names": 60,
+          "add_names": 9,
+          "final_names": 69,
+          "final_share": 0.69
+        },
+        {
+          "country": "United Kingdom",
+          "current_names": 1,
+          "add_names": 8,
+          "final_names": 9,
+          "final_share": 0.09
+        },
+        {
+          "country": "Germany",
+          "current_names": 0,
+          "add_names": 5,
+          "final_names": 5,
+          "final_share": 0.05
+        },
+        {
+          "country": "Switzerland",
+          "current_names": 0,
+          "add_names": 4,
+          "final_names": 4,
+          "final_share": 0.04
+        },
+        {
+          "country": "France",
+          "current_names": 0,
+          "add_names": 3,
+          "final_names": 3,
+          "final_share": 0.03
+        },
+        {
+          "country": "Netherlands",
+          "current_names": 0,
+          "add_names": 2,
+          "final_names": 2,
+          "final_share": 0.02
+        },
+        {
+          "country": "South Korea",
+          "current_names": 2,
+          "add_names": 0,
+          "final_names": 2,
+          "final_share": 0.02
+        },
+        {
+          "country": "Denmark",
+          "current_names": 0,
+          "add_names": 1,
+          "final_names": 1,
+          "final_share": 0.01
+        },
+        {
+          "country": "Italy",
+          "current_names": 0,
+          "add_names": 1,
+          "final_names": 1,
+          "final_share": 0.01
+        },
+        {
+          "country": "Japan",
+          "current_names": 0,
+          "add_names": 1,
+          "final_names": 1,
+          "final_share": 0.01
+        },
+        {
+          "country": "Spain",
+          "current_names": 0,
+          "add_names": 1,
+          "final_names": 1,
+          "final_share": 0.01
+        },
+        {
+          "country": "Taiwan",
+          "current_names": 1,
+          "add_names": 0,
+          "final_names": 1,
+          "final_share": 0.01
+        },
+        {
+          "country": "Thailand",
+          "current_names": 1,
+          "add_names": 0,
+          "final_names": 1,
+          "final_share": 0.01
+        }
+      ],
+      "region_mix_long": [
+        {
+          "region": "United States",
+          "metric": "현재",
+          "value": 0.9230769230769231,
+          "current_names": 60,
+          "add_names": 9,
+          "final_names": 69,
+          "current_share": 0.9230769230769231,
+          "final_share": 0.69
+        },
+        {
+          "region": "United States",
+          "metric": "제안",
+          "value": 0.69,
+          "current_names": 60,
+          "add_names": 9,
+          "final_names": 69,
+          "current_share": 0.9230769230769231,
+          "final_share": 0.69
+        },
+        {
+          "region": "United Kingdom",
+          "metric": "현재",
+          "value": 0.015384615384615385,
+          "current_names": 1,
+          "add_names": 8,
+          "final_names": 9,
+          "current_share": 0.015384615384615385,
+          "final_share": 0.09
+        },
+        {
+          "region": "United Kingdom",
+          "metric": "제안",
+          "value": 0.09,
+          "current_names": 1,
+          "add_names": 8,
+          "final_names": 9,
+          "current_share": 0.015384615384615385,
+          "final_share": 0.09
+        },
+        {
+          "region": "Europe ex-UK",
+          "metric": "현재",
+          "value": 0.0,
+          "current_names": 0,
+          "add_names": 17,
+          "final_names": 17,
+          "current_share": 0.0,
+          "final_share": 0.17
+        },
+        {
+          "region": "Europe ex-UK",
+          "metric": "제안",
+          "value": 0.17,
+          "current_names": 0,
+          "add_names": 17,
+          "final_names": 17,
+          "current_share": 0.0,
+          "final_share": 0.17
+        },
+        {
+          "region": "Asia",
+          "metric": "현재",
+          "value": 0.06153846153846154,
+          "current_names": 4,
+          "add_names": 1,
+          "final_names": 5,
+          "current_share": 0.06153846153846154,
+          "final_share": 0.05
+        },
+        {
+          "region": "Asia",
+          "metric": "제안",
+          "value": 0.05,
+          "current_names": 4,
+          "add_names": 1,
+          "final_names": 5,
+          "current_share": 0.06153846153846154,
+          "final_share": 0.05
+        }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "src-analysis",
+      "label": "65-to-100 universe analysis results",
+      "path": "outputs/universe_100_recommendation/universe_100_results.json"
+    },
+    {
+      "id": "src-workbook",
+      "label": "ai_signal_data.xlsx — Universe_Meta and PX_LAST",
+      "path": "ai_signal_data.xlsx"
+    },
+    {
+      "id": "src-operations",
+      "label": "operations.json — last operating portfolio sector exposure",
+      "path": "outputs/operating/operations.json"
+    },
+    {
+      "id": "src-config",
+      "label": "src/config.py — model history requirements",
+      "path": "src/config.py"
+    },
+    {
+      "id": "src-kioxia",
+      "label": "Kioxia Holdings Tokyo Stock Exchange listing announcement",
+      "href": "https://www.kioxia-holdings.com/en-jp/news/2024/20241218-1.html"
+    },
+    {
+      "id": "src-sandisk",
+      "label": "Sandisk Nasdaq listing announcement",
+      "href": "https://investor.sandisk.com/news-releases/news-release-details/sandisk-celebrates-nasdaq-listing-after-completing-separation"
+    },
+    {
+      "id": "src-summary-sql",
+      "label": "Universe expansion summary query",
+      "path": "outputs/universe_100_recommendation/universe_100_analysis.sqlite",
+      "query": {
+        "engine": "SQLite",
+        "language": "sql",
+        "sql": "SELECT current_names, new_names, final_names, tech_name_share, tech_portfolio, tech_benchmark, final_tech_share, tech_share_change, current_us_share, final_us_share, current_non_us_share, final_non_us_share FROM summary;",
+        "description": "Headline counts, technology concentration, and geographic concentration metrics.",
+        "executed_at": "2026-07-15T10:24:01.814252+09:00",
+        "tables_used": [
+          "summary"
+        ],
+        "metric_definitions": [
+          "tech_name_share = current technology names / 65",
+          "tech_portfolio = last operating portfolio technology weight",
+          "final_tech_share = proposed technology names / 100",
+          "current_non_us_share = 1 - current_us_share",
+          "final_non_us_share = 1 - final_us_share"
+        ]
+      }
+    },
+    {
+      "id": "src-current-sql",
+      "label": "Current sector mix query",
+      "path": "outputs/universe_100_recommendation/universe_100_analysis.sqlite",
+      "query": {
+        "engine": "SQLite",
+        "language": "sql",
+        "sql": "SELECT sector, metric, value, current_names, current_name_share, portfolio, benchmark, active, portfolio_as_of FROM current_sector_long ORDER BY current_names DESC, sector, metric;",
+        "description": "Current sector name share, last portfolio weight, benchmark weight, and active weight.",
+        "executed_at": "2026-07-15T10:24:01.814252+09:00",
+        "tables_used": [
+          "current_sector_long"
+        ],
+        "filters": [
+          "Current universe = 65 names",
+          "Portfolio as of 2026-05-22"
+        ],
+        "metric_definitions": [
+          "current_name_share = current_names / 65",
+          "active = portfolio - benchmark"
+        ]
+      }
+    },
+    {
+      "id": "src-proposed-sql",
+      "label": "Proposed sector count query",
+      "path": "outputs/universe_100_recommendation/universe_100_analysis.sqlite",
+      "query": {
+        "engine": "SQLite",
+        "language": "sql",
+        "sql": "SELECT sector, metric, value, current_names, add_names, final_names, current_name_share, final_name_share FROM proposed_sector_long ORDER BY final_names DESC, sector, metric;",
+        "description": "Current and proposed universe name counts by sector.",
+        "executed_at": "2026-07-15T10:24:01.814252+09:00",
+        "tables_used": [
+          "proposed_sector_long"
+        ],
+        "filters": [
+          "Adds exactly 35 unique non-overlapping names"
+        ],
+        "metric_definitions": [
+          "final_names = current_names + add_names",
+          "final_name_share = final_names / 100"
+        ]
+      }
+    },
+    {
+      "id": "src-candidates-sql",
+      "label": "Recommended global 35-name candidate query",
+      "path": "outputs/universe_100_recommendation/universe_100_analysis.sqlite",
+      "query": {
+        "engine": "SQLite",
+        "language": "sql",
+        "sql": "SELECT selection_order, ticker, name, sector, subindustry, country, region, priority, history_gate_label, rationale, listing_date FROM candidates ORDER BY selection_order;",
+        "description": "Reviewed global 35-name recommendation, including required Kioxia and Sandisk additions.",
+        "executed_at": "2026-07-15T10:24:01.814252+09:00",
+        "tables_used": [
+          "candidates"
+        ],
+        "filters": [
+          "No overlap with current 65-name universe",
+          "Unique ticker count = 35",
+          "Kioxia and Sandisk required",
+          "New additions = 9 United States and 26 non-United States names"
+        ],
+        "metric_definitions": [
+          "history_gate_label = Required for short independent listing history, otherwise Standard"
+        ]
+      }
+    },
+    {
+      "id": "src-asml",
+      "label": "ASML official share listing information",
+      "href": "https://www.asml.com/en/en/investors/shares"
+    },
+    {
+      "id": "src-sap",
+      "label": "SAP official basic stock data",
+      "href": "https://www.sap.com/investors/en/stock/basic-data.html"
+    },
+    {
+      "id": "src-siemens",
+      "label": "Siemens official share identifiers",
+      "href": "https://www.siemens.com/de-de/company/investor-relations/share-bonds-rating/basic-data-key-share-figures/"
+    },
+    {
+      "id": "src-lseg",
+      "label": "LSEG official investor relations page",
+      "href": "https://www.lseg.com/en/investor-relations"
+    },
+    {
+      "id": "src-linde",
+      "label": "Linde official corporate domicile and principal office information",
+      "href": "https://www.linde.com/imprint"
+    },
+    {
+      "id": "src-fabrinet",
+      "label": "Fabrinet 2025 Form 10-K",
+      "href": "https://www.sec.gov/Archives/edgar/data/1408710/000140871025000039/fn-20250627.htm"
+    },
+    {
+      "id": "src-geo-sql",
+      "label": "Current and proposed regional mix query",
+      "path": "outputs/universe_100_recommendation/universe_100_analysis.sqlite",
+      "query": {
+        "engine": "SQLite",
+        "language": "sql",
+        "sql": "SELECT region, metric, value, current_names, add_names, final_names, current_share, final_share FROM region_mix_long ORDER BY CASE region WHEN 'United States' THEN 1 WHEN 'United Kingdom' THEN 2 WHEN 'Europe ex-UK' THEN 3 ELSE 4 END, metric;",
+        "description": "Current and proposed regional name counts and shares using economic domicile.",
+        "executed_at": "2026-07-15T10:24:01.814252+09:00",
+        "tables_used": [
+          "region_mix_long"
+        ],
+        "filters": [
+          "Current universe = 65 names",
+          "Proposed universe = 100 names"
+        ],
+        "metric_definitions": [
+          "current_share = current_names / 65",
+          "final_share = final_names / 100"
+        ]
+      }
+    },
+    {
+      "id": "src-country-sql",
+      "label": "Proposed country mix query",
+      "path": "outputs/universe_100_recommendation/universe_100_analysis.sqlite",
+      "query": {
+        "engine": "SQLite",
+        "language": "sql",
+        "sql": "SELECT country, current_names, add_names, final_names, final_share FROM proposed_country ORDER BY final_names DESC, country;",
+        "description": "Final country composition after the reviewed 35-name additions.",
+        "executed_at": "2026-07-15T10:24:01.814252+09:00",
+        "tables_used": [
+          "proposed_country"
+        ],
+        "filters": [
+          "Economic domicile classification",
+          "Final universe = 100 names"
+        ],
+        "metric_definitions": [
+          "final_share = final_names / 100"
+        ]
+      }
+    }
+  ]
+}

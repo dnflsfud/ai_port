@@ -30,15 +30,26 @@ class PipelineConfig:
     data_path: str = r"C:\Users\westl\PycharmProjects\pythonProject\venv_vf_new\machine\re_study\ai_signal_data.xlsx"
     output_dir: str = "./outputs"
 
+    # Portfolio accounting currency. Equity prices/returns are supplied in
+    # each listing's local currency; the live portfolio and dashboard are USD
+    # based. CUR_MKT_CAP is already converted upstream and must not be touched.
+    base_currency: str = "USD"
+    fx_source_path: str = r"C:\Users\westl\PycharmProjects\pythonProject\Data\Index.xlsx"
+    max_fx_staleness_days: int = 7
+    fail_on_missing_fx: bool = True
+    convert_returns_to_usd: bool = True
+
     # Pre-listing backfill masking (2026-07-02 structure review Critical #1).
-    # OFF-default infra that NaN-masks the pre-listing constant backfill in the
-    # source xlsx — PLTR/GEV/BE carry constant price / zero return / constant
-    # market cap before their IPO, which pollutes the cap-weighted BM, opens a
-    # zero-vol free-OW path, and contaminates the training panel. VRT is
-    # excluded — it has genuine SPAC-predecessor trading history.
-    listing_mask_enabled: bool = False
+    # NaN-mask the pre-listing constant backfill in the
+    # source xlsx — PLTR/GEV/BE plus new members 285A/SNDK/ARM/CEG carry
+    # pre-listing history that can pollute the cap-weighted BM, open a zero-vol
+    # free-OW path, and contaminate the training panel. VRT is excluded — it
+    # has genuine SPAC-predecessor trading history.
+    listing_mask_enabled: bool = True
     listing_dates: Dict[str, str] = field(default_factory=lambda: {
         "PLTR": "2020-09-30", "GEV": "2024-04-02", "BE": "2018-07-25",
+        "285A": "2024-12-18", "SNDK": "2025-02-24",
+        "ARM": "2023-09-14", "CEG": "2022-02-02",
     })
 
     # ------------------------------------------------------------------
@@ -559,6 +570,18 @@ class PipelineConfig:
             raise ValueError("rank_eval_at must contain positive integers")
         if self.max_tail_ffill_days < 0:
             raise ValueError("max_tail_ffill_days must be >= 0")
+        self.base_currency = str(self.base_currency).upper()
+        if self.base_currency != "USD":
+            raise ValueError(
+                "base_currency must be 'USD'; the configured FX quote map "
+                f"does not support {self.base_currency!r}"
+            )
+        if self.max_fx_staleness_days < 0:
+            raise ValueError("max_fx_staleness_days must be >= 0")
+        if self.convert_returns_to_usd and not str(self.fx_source_path).strip():
+            raise ValueError(
+                "fx_source_path must be non-empty when convert_returns_to_usd=True"
+            )
         if self.max_name_active_risk_share <= 0:
             raise ValueError("max_name_active_risk_share must be > 0")
         if self.max_sector_active_risk_share <= 0:

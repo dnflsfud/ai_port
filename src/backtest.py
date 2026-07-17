@@ -26,7 +26,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 logger = logging.getLogger(__name__)
 
 from src.config import PipelineConfig, DEFAULT_CONFIG
-from src.data_loader import UniverseData, TICKERS, mask_pre_listing
+from src.data_loader import UniverseData, mask_pre_listing
 from src.feature_engine import build_all_features
 from src.target_engine import build_targets
 from src.model_trainer import walk_forward_train, TRAIN_WINDOW
@@ -233,7 +233,15 @@ def apply_growth_tilt(
     eps_raw = _get("BEST_EPS")
     sales_raw = _get("BEST_SALES")
     tg_price = _get("Factset_TG_Price")
-    px_last = _get("PX_LAST")
+    # FactSet target prices are quoted in the listing currency. Portfolio
+    # prices are USD after UniverseData conversion, so target-price upside
+    # must explicitly use the preserved local-price panel.
+    local_prices = getattr(data, "local_prices", None)
+    px_last = (
+        local_prices.reindex(index=pred_idx, columns=pred_cols).ffill()
+        if local_prices is not None
+        else _get("PX_LAST")
+    )
 
     # Revision MA window for the post-process composite — matched to the
     # feature panel exposes DUAL horizons (10d + 63d); this composite uses
@@ -765,12 +773,12 @@ def get_sector_map(data: UniverseData) -> Dict[str, str]:
 
     if isinstance(meta, pd.DataFrame):
         if "sector" in meta.columns:
-            for ticker in TICKERS:
+            for ticker in data.tickers:
                 if ticker in meta.index:
                     sector_map[ticker] = str(meta.loc[ticker, "sector"])
         elif len(meta.columns) > 0:
             col = meta.columns[0]
-            for ticker in TICKERS:
+            for ticker in data.tickers:
                 if ticker in meta.index:
                     sector_map[ticker] = str(meta.loc[ticker, col])
 

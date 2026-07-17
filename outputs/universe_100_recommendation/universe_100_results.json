@@ -1,0 +1,789 @@
+{
+  "generated_at": "2026-07-15T10:24:01.814252+09:00",
+  "source": {
+    "workbook": "ai_signal_data.xlsx",
+    "price_data_as_of": "2026-07-14",
+    "portfolio_as_of": "2026-05-22",
+    "portfolio_export_data_as_of": "2026-06-11",
+    "sqlite_snapshot": "universe_100_analysis.sqlite"
+  },
+  "summary": {
+    "current_names": 65,
+    "new_names": 35,
+    "final_names": 100,
+    "tech_name_share": 0.3692307692,
+    "tech_portfolio": 0.6847,
+    "tech_benchmark": 0.6512,
+    "final_tech_share": 0.34,
+    "current_us_share": 0.9230769231,
+    "final_us_share": 0.69,
+    "final_uk_share": 0.09,
+    "final_europe_ex_uk_share": 0.17,
+    "final_asia_share": 0.05,
+    "tech_share_change": -0.0292307692,
+    "current_non_us_share": 0.0769230769,
+    "final_non_us_share": 0.31
+  },
+  "current_sector": [
+    {
+      "Sector": "Technology",
+      "current_names": 24,
+      "current_name_share": 0.36923076923076925,
+      "portfolio": 0.6847,
+      "benchmark": 0.6512,
+      "active": 0.033499999999999974
+    },
+    {
+      "Sector": "Industrials",
+      "current_names": 9,
+      "current_name_share": 0.13846153846153847,
+      "portfolio": 0.0225,
+      "benchmark": 0.0349,
+      "active": -0.012400000000000001
+    },
+    {
+      "Sector": "Financials",
+      "current_names": 8,
+      "current_name_share": 0.12307692307692308,
+      "portfolio": 0.0757,
+      "benchmark": 0.067,
+      "active": 0.0087
+    },
+    {
+      "Sector": "Healthcare",
+      "current_names": 6,
+      "current_name_share": 0.09230769230769231,
+      "portfolio": 0.0501,
+      "benchmark": 0.0544,
+      "active": -0.004299999999999998
+    },
+    {
+      "Sector": "Consumer Discretionary",
+      "current_names": 4,
+      "current_name_share": 0.06153846153846154,
+      "portfolio": 0.0723,
+      "benchmark": 0.1074,
+      "active": -0.03509999999999999
+    },
+    {
+      "Sector": "Consumer Staples",
+      "current_names": 3,
+      "current_name_share": 0.046153846153846156,
+      "portfolio": 0.0477,
+      "benchmark": 0.0378,
+      "active": 0.009899999999999999
+    },
+    {
+      "Sector": "Energy",
+      "current_names": 3,
+      "current_name_share": 0.046153846153846156,
+      "portfolio": 0.0147,
+      "benchmark": 0.0166,
+      "active": -0.0019000000000000006
+    },
+    {
+      "Sector": "Real Estate",
+      "current_names": 3,
+      "current_name_share": 0.046153846153846156,
+      "portfolio": 0.0052,
+      "benchmark": 0.0072,
+      "active": -0.002
+    },
+    {
+      "Sector": "Communication Services",
+      "current_names": 2,
+      "current_name_share": 0.03076923076923077,
+      "portfolio": 0.022,
+      "benchmark": 0.0125,
+      "active": 0.009499999999999998
+    },
+    {
+      "Sector": "Materials",
+      "current_names": 2,
+      "current_name_share": 0.03076923076923077,
+      "portfolio": 0.0036,
+      "benchmark": 0.0071,
+      "active": -0.0035000000000000005
+    },
+    {
+      "Sector": "Utilities",
+      "current_names": 1,
+      "current_name_share": 0.015384615384615385,
+      "portfolio": 0.0014,
+      "benchmark": 0.004,
+      "active": -0.0026
+    }
+  ],
+  "proposed_sector": [
+    {
+      "Sector": "Technology",
+      "current_names": 24,
+      "current_name_share": 0.36923076923076925,
+      "add_names": 10,
+      "final_names": 34,
+      "final_name_share": 0.34
+    },
+    {
+      "Sector": "Industrials",
+      "current_names": 9,
+      "current_name_share": 0.13846153846153847,
+      "add_names": 4,
+      "final_names": 13,
+      "final_name_share": 0.13
+    },
+    {
+      "Sector": "Financials",
+      "current_names": 8,
+      "current_name_share": 0.12307692307692308,
+      "add_names": 4,
+      "final_names": 12,
+      "final_name_share": 0.12
+    },
+    {
+      "Sector": "Healthcare",
+      "current_names": 6,
+      "current_name_share": 0.09230769230769231,
+      "add_names": 5,
+      "final_names": 11,
+      "final_name_share": 0.11
+    },
+    {
+      "Sector": "Consumer Discretionary",
+      "current_names": 4,
+      "current_name_share": 0.06153846153846154,
+      "add_names": 3,
+      "final_names": 7,
+      "final_name_share": 0.07
+    },
+    {
+      "Sector": "Consumer Staples",
+      "current_names": 3,
+      "current_name_share": 0.046153846153846156,
+      "add_names": 2,
+      "final_names": 5,
+      "final_name_share": 0.05
+    },
+    {
+      "Sector": "Energy",
+      "current_names": 3,
+      "current_name_share": 0.046153846153846156,
+      "add_names": 2,
+      "final_names": 5,
+      "final_name_share": 0.05
+    },
+    {
+      "Sector": "Communication Services",
+      "current_names": 2,
+      "current_name_share": 0.03076923076923077,
+      "add_names": 2,
+      "final_names": 4,
+      "final_name_share": 0.04
+    },
+    {
+      "Sector": "Real Estate",
+      "current_names": 3,
+      "current_name_share": 0.046153846153846156,
+      "add_names": 1,
+      "final_names": 4,
+      "final_name_share": 0.04
+    },
+    {
+      "Sector": "Materials",
+      "current_names": 2,
+      "current_name_share": 0.03076923076923077,
+      "add_names": 1,
+      "final_names": 3,
+      "final_name_share": 0.03
+    },
+    {
+      "Sector": "Utilities",
+      "current_names": 1,
+      "current_name_share": 0.015384615384615385,
+      "add_names": 1,
+      "final_names": 2,
+      "final_name_share": 0.02
+    }
+  ],
+  "proposed_country": [
+    {
+      "country": "United States",
+      "current_names": 60,
+      "add_names": 9,
+      "final_names": 69,
+      "final_share": 0.69
+    },
+    {
+      "country": "United Kingdom",
+      "current_names": 1,
+      "add_names": 8,
+      "final_names": 9,
+      "final_share": 0.09
+    },
+    {
+      "country": "Germany",
+      "current_names": 0,
+      "add_names": 5,
+      "final_names": 5,
+      "final_share": 0.05
+    },
+    {
+      "country": "Switzerland",
+      "current_names": 0,
+      "add_names": 4,
+      "final_names": 4,
+      "final_share": 0.04
+    },
+    {
+      "country": "France",
+      "current_names": 0,
+      "add_names": 3,
+      "final_names": 3,
+      "final_share": 0.03
+    },
+    {
+      "country": "Netherlands",
+      "current_names": 0,
+      "add_names": 2,
+      "final_names": 2,
+      "final_share": 0.02
+    },
+    {
+      "country": "South Korea",
+      "current_names": 2,
+      "add_names": 0,
+      "final_names": 2,
+      "final_share": 0.02
+    },
+    {
+      "country": "Denmark",
+      "current_names": 0,
+      "add_names": 1,
+      "final_names": 1,
+      "final_share": 0.01
+    },
+    {
+      "country": "Italy",
+      "current_names": 0,
+      "add_names": 1,
+      "final_names": 1,
+      "final_share": 0.01
+    },
+    {
+      "country": "Japan",
+      "current_names": 0,
+      "add_names": 1,
+      "final_names": 1,
+      "final_share": 0.01
+    },
+    {
+      "country": "Spain",
+      "current_names": 0,
+      "add_names": 1,
+      "final_names": 1,
+      "final_share": 0.01
+    },
+    {
+      "country": "Taiwan",
+      "current_names": 1,
+      "add_names": 0,
+      "final_names": 1,
+      "final_share": 0.01
+    },
+    {
+      "country": "Thailand",
+      "current_names": 1,
+      "add_names": 0,
+      "final_names": 1,
+      "final_share": 0.01
+    }
+  ],
+  "region_mix": [
+    {
+      "region": "United States",
+      "current_names": 60,
+      "add_names": 9,
+      "final_names": 69,
+      "current_share": 0.9230769230769231,
+      "final_share": 0.69
+    },
+    {
+      "region": "United Kingdom",
+      "current_names": 1,
+      "add_names": 8,
+      "final_names": 9,
+      "current_share": 0.015384615384615385,
+      "final_share": 0.09
+    },
+    {
+      "region": "Europe ex-UK",
+      "current_names": 0,
+      "add_names": 17,
+      "final_names": 17,
+      "current_share": 0.0,
+      "final_share": 0.17
+    },
+    {
+      "region": "Asia",
+      "current_names": 4,
+      "add_names": 1,
+      "final_names": 5,
+      "current_share": 0.06153846153846154,
+      "final_share": 0.05
+    }
+  ],
+  "candidates": [
+    {
+      "ticker": "285A JP",
+      "name": "Kioxia Holdings",
+      "sector": "Technology",
+      "subindustry": "NAND flash / SSD",
+      "country": "Japan",
+      "region": "Asia",
+      "priority": "Required",
+      "rationale": "NAND 공급망 직접 노출; 사용자 지정 필수 편입",
+      "listing_date": "2024-12-18",
+      "history_gate": true
+    },
+    {
+      "ticker": "SNDK US",
+      "name": "Sandisk",
+      "sector": "Technology",
+      "subindustry": "Flash memory / SSD",
+      "country": "United States",
+      "region": "United States",
+      "priority": "Required",
+      "rationale": "클라이언트·데이터센터 플래시 메모리 커버리지; 사용자 지정 필수 편입",
+      "listing_date": "2025-02-24",
+      "history_gate": true
+    },
+    {
+      "ticker": "ASML NA",
+      "name": "ASML Holding",
+      "sector": "Technology",
+      "subindustry": "Lithography equipment",
+      "country": "Netherlands",
+      "region": "Europe ex-UK",
+      "priority": "Core",
+      "rationale": "첨단 반도체 노광 장비의 핵심 공급망",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "SAP GR",
+      "name": "SAP",
+      "sector": "Technology",
+      "subindustry": "Enterprise software",
+      "country": "Germany",
+      "region": "Europe ex-UK",
+      "priority": "Core",
+      "rationale": "유럽 대표 엔터프라이즈 소프트웨어 플랫폼",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "STM FP",
+      "name": "STMicroelectronics",
+      "sector": "Technology",
+      "subindustry": "Analog / automotive semiconductors",
+      "country": "Netherlands",
+      "region": "Europe ex-UK",
+      "priority": "Core",
+      "rationale": "자동차·산업용 반도체로 AI 일변도 완화",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "KLAC US",
+      "name": "KLA",
+      "sector": "Technology",
+      "subindustry": "Process control equipment",
+      "country": "United States",
+      "region": "United States",
+      "priority": "Core",
+      "rationale": "검사·계측 장비로 전공정 장비 노출 보완",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "QCOM US",
+      "name": "Qualcomm",
+      "sector": "Technology",
+      "subindustry": "Wireless / edge semiconductors",
+      "country": "United States",
+      "region": "United States",
+      "priority": "Core",
+      "rationale": "모바일·엣지 AI 반도체 노출",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "MRVL US",
+      "name": "Marvell Technology",
+      "sector": "Technology",
+      "subindustry": "Data-center networking chips",
+      "country": "United States",
+      "region": "United States",
+      "priority": "Core",
+      "rationale": "데이터센터 인터커넥트·맞춤형 실리콘 커버리지",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "CDNS US",
+      "name": "Cadence Design Systems",
+      "sector": "Technology",
+      "subindustry": "EDA software",
+      "country": "United States",
+      "region": "United States",
+      "priority": "Core",
+      "rationale": "반도체 설계 소프트웨어 공급망",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "DELL US",
+      "name": "Dell Technologies",
+      "sector": "Technology",
+      "subindustry": "Servers / enterprise hardware",
+      "country": "United States",
+      "region": "United States",
+      "priority": "Core",
+      "rationale": "AI 서버·기업 하드웨어 수요 커버리지",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "SIE GR",
+      "name": "Siemens",
+      "sector": "Industrials",
+      "subindustry": "Industrial automation",
+      "country": "Germany",
+      "region": "Europe ex-UK",
+      "priority": "Diversifier",
+      "rationale": "산업 자동화·전력화 노출",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "SU FP",
+      "name": "Schneider Electric",
+      "sector": "Industrials",
+      "subindustry": "Electrification / automation",
+      "country": "France",
+      "region": "Europe ex-UK",
+      "priority": "Diversifier",
+      "rationale": "데이터센터 전력관리와 자동화 노출",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "RR/ LN",
+      "name": "Rolls-Royce Holdings",
+      "sector": "Industrials",
+      "subindustry": "Aerospace engines",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "priority": "Diversifier",
+      "rationale": "민항 엔진·장기 서비스 매출 노출",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "PWR US",
+      "name": "Quanta Services",
+      "sector": "Industrials",
+      "subindustry": "Grid infrastructure",
+      "country": "United States",
+      "region": "United States",
+      "priority": "Diversifier",
+      "rationale": "전력망·데이터센터 전력 인프라 수혜",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "HSBA LN",
+      "name": "HSBC Holdings",
+      "sector": "Financials",
+      "subindustry": "Global banking",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "priority": "Diversifier",
+      "rationale": "아시아 비중이 큰 글로벌 은행 노출",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "ALV GR",
+      "name": "Allianz",
+      "sector": "Financials",
+      "subindustry": "Insurance / asset management",
+      "country": "Germany",
+      "region": "Europe ex-UK",
+      "priority": "Diversifier",
+      "rationale": "보험·자산운용 복합 금융 노출",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "UBSG SW",
+      "name": "UBS Group",
+      "sector": "Financials",
+      "subindustry": "Wealth management / banking",
+      "country": "Switzerland",
+      "region": "Europe ex-UK",
+      "priority": "Diversifier",
+      "rationale": "글로벌 자산관리 중심 금융 플랫폼",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "LSEG LN",
+      "name": "London Stock Exchange Group",
+      "sector": "Financials",
+      "subindustry": "Market infrastructure / data",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "priority": "Diversifier",
+      "rationale": "거래소·금융데이터 인프라 노출",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "NOVOB DC",
+      "name": "Novo Nordisk",
+      "sector": "Healthcare",
+      "subindustry": "Diabetes / obesity pharmaceuticals",
+      "country": "Denmark",
+      "region": "Europe ex-UK",
+      "priority": "Diversifier",
+      "rationale": "비만·당뇨 치료제의 글로벌 성장 노출",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "AZN LN",
+      "name": "AstraZeneca",
+      "sector": "Healthcare",
+      "subindustry": "Pharmaceuticals",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "priority": "Diversifier",
+      "rationale": "종양·희귀질환 중심 대형 제약 노출",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "ROG SW",
+      "name": "Roche Holding",
+      "sector": "Healthcare",
+      "subindustry": "Pharmaceuticals / diagnostics",
+      "country": "Switzerland",
+      "region": "Europe ex-UK",
+      "priority": "Diversifier",
+      "rationale": "제약과 진단의 결합 노출",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "NOVN SW",
+      "name": "Novartis",
+      "sector": "Healthcare",
+      "subindustry": "Innovative medicines",
+      "country": "Switzerland",
+      "region": "Europe ex-UK",
+      "priority": "Diversifier",
+      "rationale": "유럽 대형 혁신신약 포트폴리오",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "TMO US",
+      "name": "Thermo Fisher Scientific",
+      "sector": "Healthcare",
+      "subindustry": "Life-science tools",
+      "country": "United States",
+      "region": "United States",
+      "priority": "Diversifier",
+      "rationale": "생명과학 도구·서비스 커버리지",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "MC FP",
+      "name": "LVMH",
+      "sector": "Consumer Discretionary",
+      "subindustry": "Luxury goods",
+      "country": "France",
+      "region": "Europe ex-UK",
+      "priority": "Diversifier",
+      "rationale": "글로벌 럭셔리 소비와 브랜드 파워 노출",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "RACE IM",
+      "name": "Ferrari",
+      "sector": "Consumer Discretionary",
+      "subindustry": "Luxury automobiles",
+      "country": "Italy",
+      "region": "Europe ex-UK",
+      "priority": "Diversifier",
+      "rationale": "희소성이 높은 럭셔리 자동차 노출",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "BKNG US",
+      "name": "Booking Holdings",
+      "sector": "Consumer Discretionary",
+      "subindustry": "Online travel",
+      "country": "United States",
+      "region": "United States",
+      "priority": "Diversifier",
+      "rationale": "글로벌 여행 플랫폼 노출",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "SHEL LN",
+      "name": "Shell",
+      "sector": "Energy",
+      "subindustry": "Integrated energy",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "priority": "Diversifier",
+      "rationale": "통합 에너지와 LNG 노출",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "TTE FP",
+      "name": "TotalEnergies",
+      "sector": "Energy",
+      "subindustry": "Integrated energy",
+      "country": "France",
+      "region": "Europe ex-UK",
+      "priority": "Diversifier",
+      "rationale": "석유·가스와 전력 전환 포트폴리오",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "ULVR LN",
+      "name": "Unilever",
+      "sector": "Consumer Staples",
+      "subindustry": "Household / personal products",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "priority": "Diversifier",
+      "rationale": "글로벌 생활소비재의 방어적 현금흐름",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "NESN SW",
+      "name": "Nestle",
+      "sector": "Consumer Staples",
+      "subindustry": "Packaged food / beverages",
+      "country": "Switzerland",
+      "region": "Europe ex-UK",
+      "priority": "Diversifier",
+      "rationale": "글로벌 식품·음료 브랜드 노출",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "DTE GR",
+      "name": "Deutsche Telekom",
+      "sector": "Communication Services",
+      "subindustry": "Telecom",
+      "country": "Germany",
+      "region": "Europe ex-UK",
+      "priority": "Diversifier",
+      "rationale": "유럽 통신과 미국 무선 자회사 노출",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "VOD LN",
+      "name": "Vodafone Group",
+      "sector": "Communication Services",
+      "subindustry": "Telecom",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "priority": "Diversifier",
+      "rationale": "유럽·아프리카 통신 노출",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "VNA GR",
+      "name": "Vonovia",
+      "sector": "Real Estate",
+      "subindustry": "Residential real estate",
+      "country": "Germany",
+      "region": "Europe ex-UK",
+      "priority": "Diversifier",
+      "rationale": "유럽 주거 부동산과 금리 민감도 노출",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "RIO LN",
+      "name": "Rio Tinto",
+      "sector": "Materials",
+      "subindustry": "Diversified mining",
+      "country": "United Kingdom",
+      "region": "United Kingdom",
+      "priority": "Diversifier",
+      "rationale": "철광석·알루미늄·구리의 글로벌 광산 노출",
+      "listing_date": null,
+      "history_gate": false
+    },
+    {
+      "ticker": "IBE SM",
+      "name": "Iberdrola",
+      "sector": "Utilities",
+      "subindustry": "Electric utility / renewables",
+      "country": "Spain",
+      "region": "Europe ex-UK",
+      "priority": "Diversifier",
+      "rationale": "전력망과 재생에너지 중심 유틸리티 노출",
+      "listing_date": null,
+      "history_gate": false
+    }
+  ],
+  "checks": {
+    "current_universe_is_65": true,
+    "all_current_status_available": true,
+    "current_sector_complete": true,
+    "candidate_count_is_35": true,
+    "candidate_tickers_unique": true,
+    "no_overlap_with_current_universe": true,
+    "required_kioxia_present": true,
+    "required_sandisk_present": true,
+    "final_universe_is_100": true,
+    "final_country_count_is_100": true,
+    "final_us_is_69": true,
+    "final_uk_is_9": true,
+    "final_europe_ex_uk_is_17": true,
+    "final_asia_is_5": true,
+    "current_name_shares_sum_to_one": true,
+    "portfolio_sector_weights_sum_to_one": true,
+    "benchmark_sector_weights_sum_to_one": true
+  },
+  "history_gates": [
+    {
+      "ticker": "285A JP",
+      "name": "Kioxia Holdings",
+      "listing_date": "2024-12-18",
+      "rationale": "NAND 공급망 직접 노출; 사용자 지정 필수 편입"
+    },
+    {
+      "ticker": "SNDK US",
+      "name": "Sandisk",
+      "listing_date": "2025-02-24",
+      "rationale": "클라이언트·데이터센터 플래시 메모리 커버리지; 사용자 지정 필수 편입"
+    }
+  ]
+}

@@ -303,7 +303,10 @@ def build_sellside_features(data: UniverseData, config=None) -> Dict[str, pd.Dat
     # --- Target Price (~10) ---
     try:
         tg = data.get_sheet("Factset_TG_Price")
-        px = data.prices.replace(0, np.nan)
+        # Vendor target prices are quoted in each listing's local currency.
+        # UniverseData.prices is USD-normalized for return/momentum features,
+        # so target-price upside must retain the matching local price unit.
+        px = getattr(data, "local_prices", data.prices).replace(0, np.nan)
         upside = (tg / px) - 1
         features["tg_upside"] = upside
         features["tg_upside_diff_5d"] = upside - upside.shift(5)

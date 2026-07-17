@@ -1,0 +1,2034 @@
+{
+  "surface": "report",
+  "manifest": {
+    "version": 1,
+    "surface": "report",
+    "title": "100종목 유니버스: 두 제안 비교와 하이브리드 추천",
+    "description": "기존 35종목 제안과 Fable 제안을 현재 65종목 대비 중복, 지역·섹터 분산, 상대가치 페어, 데이터 이력으로 비교한 보고서",
+    "generatedAt": "2026-07-15T03:13:36.033302+00:00",
+    "sources": [
+      {
+        "id": "src-analysis",
+        "label": "Universe proposal comparison results",
+        "path": "outputs/universe_100_comparison/universe_100_comparison_results.json"
+      },
+      {
+        "id": "src-prior",
+        "label": "Prior 65-to-100 universe analysis",
+        "path": "outputs/universe_100_recommendation/universe_100_results.json"
+      },
+      {
+        "id": "src-fable",
+        "label": "User-provided Fable 35-name candidate list"
+      },
+      {
+        "id": "src-config",
+        "label": "Model configuration: 1,260-session training window",
+        "path": "src/config.py"
+      },
+      {
+        "id": "src-arm",
+        "label": "Arm IPO closing and Nasdaq trading date",
+        "href": "https://newsroom.arm.com/news/arm-announces-closing-of-initial-public-offering"
+      },
+      {
+        "id": "src-ceg",
+        "label": "Constellation separation from Exelon",
+        "href": "https://investors.constellationenergy.com/news-releases/news-release-details/constellation-reports-first-quarter-2022-results"
+      },
+      {
+        "id": "src-advantest",
+        "label": "Advantest investor overview",
+        "href": "https://www.advantest.com/en/investors/individual-investors/"
+      },
+      {
+        "id": "src-dte",
+        "label": "Deutsche Telekom ownership of T-Mobile US",
+        "href": "https://www.telekom.com/en/media/media-information/archive/t-mobile-us-1102078"
+      },
+      {
+        "id": "src-kioxia",
+        "label": "Kioxia listing announcement",
+        "href": "https://www.kioxia-holdings.com/en-jp/news/2024/20241218-1.html"
+      },
+      {
+        "id": "src-sandisk",
+        "label": "Sandisk separation and Nasdaq listing",
+        "href": "https://investor.sandisk.com/news-releases/news-release-details/sandisk-celebrates-nasdaq-listing-after-completing-separation"
+      },
+      {
+        "id": "src-spotify",
+        "label": "Spotify stock information",
+        "href": "https://investors.spotify.com/stock-info/default.aspx"
+      },
+      {
+        "id": "src-iberdrola",
+        "label": "Iberdrola shareholder and investor information",
+        "href": "https://www.iberdrola.com/shareholders-investors"
+      }
+    ],
+    "cards": [
+      {
+        "id": "card-consensus",
+        "dataset": "headline",
+        "sourceId": "src-analysis",
+        "description": "두 제안이 함께 선택한 종목",
+        "metrics": [
+          {
+            "label": "합의 종목",
+            "field": "consensus_names",
+            "format": "number"
+          }
+        ],
+        "source": {
+          "id": "src-headline-sql",
+          "label": "Reviewed comparison dataset: headline",
+          "path": "outputs/universe_100_comparison/universe_100_comparison.sqlite",
+          "query": {
+            "id": "query-headline",
+            "engine": "sqlite",
+            "sql": "SELECT * FROM \"headline\"",
+            "description": "Read the reviewed headline result table.",
+            "tables_used": [
+              "headline"
+            ],
+            "executed_at": "2026-07-15T03:13:36.033302+00:00",
+            "metric_definitions": [
+              "All shares are name-count shares, not capital weights.",
+              "Regions use issuer economic domicile rather than listing exchange."
+            ]
+          }
+        }
+      },
+      {
+        "id": "card-fable-us",
+        "dataset": "headline",
+        "sourceId": "src-analysis",
+        "description": "Fable안 적용 후 미국 기업 종목 수 비중",
+        "metrics": [
+          {
+            "label": "Fable 최종 미국",
+            "field": "fable_final_us_share",
+            "format": "percent"
+          }
+        ],
+        "source": {
+          "id": "src-headline-sql",
+          "label": "Reviewed comparison dataset: headline",
+          "path": "outputs/universe_100_comparison/universe_100_comparison.sqlite",
+          "query": {
+            "id": "query-headline",
+            "engine": "sqlite",
+            "sql": "SELECT * FROM \"headline\"",
+            "description": "Read the reviewed headline result table.",
+            "tables_used": [
+              "headline"
+            ],
+            "executed_at": "2026-07-15T03:13:36.033302+00:00",
+            "metric_definitions": [
+              "All shares are name-count shares, not capital weights.",
+              "Regions use issuer economic domicile rather than listing exchange."
+            ]
+          }
+        }
+      },
+      {
+        "id": "card-hybrid-us",
+        "dataset": "headline",
+        "sourceId": "src-analysis",
+        "description": "하이브리드안 적용 후 미국 기업 종목 수 비중",
+        "metrics": [
+          {
+            "label": "하이브리드 최종 미국",
+            "field": "hybrid_final_us_share",
+            "format": "percent"
+          }
+        ],
+        "source": {
+          "id": "src-headline-sql",
+          "label": "Reviewed comparison dataset: headline",
+          "path": "outputs/universe_100_comparison/universe_100_comparison.sqlite",
+          "query": {
+            "id": "query-headline",
+            "engine": "sqlite",
+            "sql": "SELECT * FROM \"headline\"",
+            "description": "Read the reviewed headline result table.",
+            "tables_used": [
+              "headline"
+            ],
+            "executed_at": "2026-07-15T03:13:36.033302+00:00",
+            "metric_definitions": [
+              "All shares are name-count shares, not capital weights.",
+              "Regions use issuer economic domicile rather than listing exchange."
+            ]
+          }
+        }
+      },
+      {
+        "id": "card-gates",
+        "dataset": "headline",
+        "sourceId": "src-analysis",
+        "description": "1,260거래일 학습창을 아직 채우지 못한 추천 종목",
+        "metrics": [
+          {
+            "label": "이력 게이트",
+            "field": "hybrid_history_gates",
+            "format": "number"
+          }
+        ],
+        "source": {
+          "id": "src-headline-sql",
+          "label": "Reviewed comparison dataset: headline",
+          "path": "outputs/universe_100_comparison/universe_100_comparison.sqlite",
+          "query": {
+            "id": "query-headline",
+            "engine": "sqlite",
+            "sql": "SELECT * FROM \"headline\"",
+            "description": "Read the reviewed headline result table.",
+            "tables_used": [
+              "headline"
+            ],
+            "executed_at": "2026-07-15T03:13:36.033302+00:00",
+            "metric_definitions": [
+              "All shares are name-count shares, not capital weights.",
+              "Regions use issuer economic domicile rather than listing exchange."
+            ]
+          }
+        }
+      }
+    ],
+    "charts": [
+      {
+        "id": "chart-region",
+        "title": "제안별 최종 지역 구성",
+        "subtitle": "하이브리드안은 Fable안보다 미국 종목을 5개 줄이면서 기존안보다 AI·상대가치 페어를 보강한다.",
+        "intent": "comparison",
+        "question": "각 제안을 적용한 최종 100종목의 경제적 본거지 구성은 어떻게 달라지는가?",
+        "type": "bar",
+        "dataset": "region_comparison",
+        "sourceId": "src-analysis",
+        "encodings": {
+          "x": {
+            "field": "region",
+            "type": "nominal",
+            "label": "지역"
+          },
+          "y": {
+            "field": "final_share",
+            "type": "quantitative",
+            "format": "percent",
+            "label": "최종 종목 수 비중"
+          },
+          "color": {
+            "field": "proposal",
+            "type": "nominal",
+            "label": "제안"
+          },
+          "tooltip": [
+            {
+              "field": "current_names",
+              "type": "quantitative",
+              "label": "현재 종목 수"
+            },
+            {
+              "field": "add_names",
+              "type": "quantitative",
+              "label": "추가 종목 수"
+            },
+            {
+              "field": "final_names",
+              "type": "quantitative",
+              "label": "최종 종목 수"
+            }
+          ]
+        },
+        "valueFormat": "percent",
+        "layout": "full",
+        "palette": {
+          "kind": "categorical"
+        },
+        "settings": {
+          "orientation": "horizontal",
+          "groupMode": "grouped",
+          "sort": "descending",
+          "categoryLabelPolicy": "wrap",
+          "showValues": true
+        },
+        "legend": {
+          "position": "bottom",
+          "title": "제안"
+        },
+        "surface": {
+          "surface": "card",
+          "viewMode": "visualization"
+        },
+        "source": {
+          "id": "src-region_comparison-sql",
+          "label": "Reviewed comparison dataset: region_comparison",
+          "path": "outputs/universe_100_comparison/universe_100_comparison.sqlite",
+          "query": {
+            "id": "query-region_comparison",
+            "engine": "sqlite",
+            "sql": "SELECT * FROM \"region_comparison\"",
+            "description": "Read the reviewed region_comparison result table.",
+            "tables_used": [
+              "region_comparison"
+            ],
+            "executed_at": "2026-07-15T03:13:36.033302+00:00",
+            "metric_definitions": [
+              "All shares are name-count shares, not capital weights.",
+              "Regions use issuer economic domicile rather than listing exchange."
+            ]
+          }
+        }
+      },
+      {
+        "id": "chart-sector",
+        "title": "제안별 최종 섹터 종목 수",
+        "subtitle": "하이브리드안은 산업재 1개를 헬스케어로 옮기고 유틸리티 2개를 유지해 방어·금리 팩터를 보강한다.",
+        "intent": "comparison",
+        "question": "최종 100종목의 섹터별 종목 수는 제안에 따라 어떻게 달라지는가?",
+        "type": "bar",
+        "dataset": "sector_comparison",
+        "sourceId": "src-analysis",
+        "encodings": {
+          "x": {
+            "field": "sector",
+            "type": "nominal",
+            "label": "섹터"
+          },
+          "y": {
+            "field": "final_names",
+            "type": "quantitative",
+            "format": "number",
+            "label": "최종 종목 수"
+          },
+          "color": {
+            "field": "proposal",
+            "type": "nominal",
+            "label": "제안"
+          },
+          "tooltip": [
+            {
+              "field": "current_names",
+              "type": "quantitative",
+              "label": "현재"
+            },
+            {
+              "field": "add_names",
+              "type": "quantitative",
+              "label": "추가"
+            },
+            {
+              "field": "final_names",
+              "type": "quantitative",
+              "label": "최종"
+            }
+          ]
+        },
+        "valueFormat": "number",
+        "layout": "full",
+        "palette": {
+          "kind": "categorical"
+        },
+        "settings": {
+          "orientation": "horizontal",
+          "groupMode": "grouped",
+          "sort": "descending",
+          "categoryLabelPolicy": "wrap",
+          "showValues": true
+        },
+        "legend": {
+          "position": "bottom",
+          "title": "제안"
+        },
+        "surface": {
+          "surface": "card",
+          "viewMode": "visualization"
+        },
+        "source": {
+          "id": "src-sector_comparison-sql",
+          "label": "Reviewed comparison dataset: sector_comparison",
+          "path": "outputs/universe_100_comparison/universe_100_comparison.sqlite",
+          "query": {
+            "id": "query-sector_comparison",
+            "engine": "sqlite",
+            "sql": "SELECT * FROM \"sector_comparison\"",
+            "description": "Read the reviewed sector_comparison result table.",
+            "tables_used": [
+              "sector_comparison"
+            ],
+            "executed_at": "2026-07-15T03:13:36.033302+00:00",
+            "metric_definitions": [
+              "All shares are name-count shares, not capital weights.",
+              "Regions use issuer economic domicile rather than listing exchange."
+            ]
+          }
+        }
+      }
+    ],
+    "tables": [
+      {
+        "id": "table-proposals",
+        "title": "두 제안과 하이브리드안의 지역 비교",
+        "subtitle": "발행기업의 경제적 본거지 기준",
+        "dataset": "proposal_summaries",
+        "sourceId": "src-analysis",
+        "defaultSort": {
+          "field": "final_us_share",
+          "direction": "desc"
+        },
+        "density": "dense",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "proposal",
+            "label": "안",
+            "type": "text"
+          },
+          {
+            "field": "us_add_names",
+            "label": "신규 미국",
+            "format": "number"
+          },
+          {
+            "field": "non_us_add_names",
+            "label": "신규 비미국",
+            "format": "number"
+          },
+          {
+            "field": "final_us_share",
+            "label": "최종 미국",
+            "format": "percent"
+          },
+          {
+            "field": "final_uk_share",
+            "label": "최종 영국",
+            "format": "percent"
+          },
+          {
+            "field": "final_europe_ex_uk_share",
+            "label": "최종 유럽(영국 제외)",
+            "format": "percent"
+          },
+          {
+            "field": "final_asia_share",
+            "label": "최종 아시아",
+            "format": "percent"
+          }
+        ],
+        "source": {
+          "id": "src-proposal_summaries-sql",
+          "label": "Reviewed comparison dataset: proposal_summaries",
+          "path": "outputs/universe_100_comparison/universe_100_comparison.sqlite",
+          "query": {
+            "id": "query-proposal_summaries",
+            "engine": "sqlite",
+            "sql": "SELECT * FROM \"proposal_summaries\"",
+            "description": "Read the reviewed proposal_summaries result table.",
+            "tables_used": [
+              "proposal_summaries"
+            ],
+            "executed_at": "2026-07-15T03:13:36.033302+00:00",
+            "metric_definitions": [
+              "All shares are name-count shares, not capital weights.",
+              "Regions use issuer economic domicile rather than listing exchange."
+            ]
+          }
+        }
+      },
+      {
+        "id": "table-consensus",
+        "title": "두 제안이 공통으로 선택한 18종목",
+        "subtitle": "공통 종목은 기본 코어로 유지",
+        "dataset": "consensus",
+        "sourceId": "src-analysis",
+        "defaultSort": {
+          "field": "sector",
+          "direction": "asc"
+        },
+        "density": "dense",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "ticker",
+            "label": "티커",
+            "type": "text"
+          },
+          {
+            "field": "name",
+            "label": "종목명",
+            "type": "text"
+          },
+          {
+            "field": "sector",
+            "label": "섹터",
+            "type": "text"
+          },
+          {
+            "field": "region",
+            "label": "지역",
+            "type": "text"
+          }
+        ],
+        "source": {
+          "id": "src-consensus-sql",
+          "label": "Reviewed comparison dataset: consensus",
+          "path": "outputs/universe_100_comparison/universe_100_comparison.sqlite",
+          "query": {
+            "id": "query-consensus",
+            "engine": "sqlite",
+            "sql": "SELECT * FROM \"consensus\"",
+            "description": "Read the reviewed consensus result table.",
+            "tables_used": [
+              "consensus"
+            ],
+            "executed_at": "2026-07-15T03:13:36.033302+00:00",
+            "metric_definitions": [
+              "All shares are name-count shares, not capital weights.",
+              "Regions use issuer economic domicile rather than listing exchange."
+            ]
+          }
+        }
+      },
+      {
+        "id": "table-hybrid",
+        "title": "최종 추천 신규 35종목",
+        "subtitle": "공통 18개 + 재선정 17개; 키옥시아와 샌디스크 필수 포함",
+        "dataset": "hybrid_candidates",
+        "sourceId": "src-analysis",
+        "defaultSort": {
+          "field": "selection_order",
+          "direction": "asc"
+        },
+        "density": "dense",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "selection_order",
+            "label": "순번",
+            "format": "number"
+          },
+          {
+            "field": "ticker",
+            "label": "티커",
+            "type": "text"
+          },
+          {
+            "field": "name",
+            "label": "종목명",
+            "type": "text"
+          },
+          {
+            "field": "sector",
+            "label": "섹터",
+            "type": "text"
+          },
+          {
+            "field": "country",
+            "label": "국가",
+            "type": "text"
+          },
+          {
+            "field": "source_status",
+            "label": "선정 출처",
+            "type": "text"
+          },
+          {
+            "field": "history_gate",
+            "label": "이력 게이트",
+            "type": "text"
+          },
+          {
+            "field": "selection_note",
+            "label": "최종 판단",
+            "type": "text"
+          }
+        ],
+        "source": {
+          "id": "src-hybrid_candidates-sql",
+          "label": "Reviewed comparison dataset: hybrid_candidates",
+          "path": "outputs/universe_100_comparison/universe_100_comparison.sqlite",
+          "query": {
+            "id": "query-hybrid_candidates",
+            "engine": "sqlite",
+            "sql": "SELECT * FROM \"hybrid_candidates\"",
+            "description": "Read the reviewed hybrid_candidates result table.",
+            "tables_used": [
+              "hybrid_candidates"
+            ],
+            "executed_at": "2026-07-15T03:13:36.033302+00:00",
+            "metric_definitions": [
+              "All shares are name-count shares, not capital weights.",
+              "Regions use issuer economic domicile rather than listing exchange."
+            ]
+          }
+        }
+      },
+      {
+        "id": "table-conflicts",
+        "title": "충돌 종목 결정표",
+        "subtitle": "종목 스토리보다 현재 65종목 대비 한계 분산효과를 우선",
+        "dataset": "conflict_decisions",
+        "sourceId": "src-analysis",
+        "defaultSort": {
+          "field": "area",
+          "direction": "asc"
+        },
+        "density": "dense",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "area",
+            "label": "판단 영역",
+            "type": "text"
+          },
+          {
+            "field": "selected",
+            "label": "선택",
+            "type": "text"
+          },
+          {
+            "field": "not_selected",
+            "label": "제외",
+            "type": "text"
+          },
+          {
+            "field": "decision",
+            "label": "이유",
+            "type": "text"
+          }
+        ],
+        "source": {
+          "id": "src-conflict_decisions-sql",
+          "label": "Reviewed comparison dataset: conflict_decisions",
+          "path": "outputs/universe_100_comparison/universe_100_comparison.sqlite",
+          "query": {
+            "id": "query-conflict_decisions",
+            "engine": "sqlite",
+            "sql": "SELECT * FROM \"conflict_decisions\"",
+            "description": "Read the reviewed conflict_decisions result table.",
+            "tables_used": [
+              "conflict_decisions"
+            ],
+            "executed_at": "2026-07-15T03:13:36.033302+00:00",
+            "metric_definitions": [
+              "All shares are name-count shares, not capital weights.",
+              "Regions use issuer economic domicile rather than listing exchange."
+            ]
+          }
+        }
+      },
+      {
+        "id": "table-framework",
+        "title": "후보 선정 점수표",
+        "subtitle": "정성 스토리를 동일한 검증 규칙으로 바꾸는 권고안",
+        "dataset": "selection_framework",
+        "sourceId": "src-analysis",
+        "defaultSort": {
+          "field": "weight",
+          "direction": "desc"
+        },
+        "density": "dense",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "criterion",
+            "label": "기준",
+            "type": "text"
+          },
+          {
+            "field": "weight",
+            "label": "가중치",
+            "format": "percent"
+          },
+          {
+            "field": "test",
+            "label": "검증 내용",
+            "type": "text"
+          }
+        ],
+        "source": {
+          "id": "src-selection_framework-sql",
+          "label": "Reviewed comparison dataset: selection_framework",
+          "path": "outputs/universe_100_comparison/universe_100_comparison.sqlite",
+          "query": {
+            "id": "query-selection_framework",
+            "engine": "sqlite",
+            "sql": "SELECT * FROM \"selection_framework\"",
+            "description": "Read the reviewed selection_framework result table.",
+            "tables_used": [
+              "selection_framework"
+            ],
+            "executed_at": "2026-07-15T03:13:36.033302+00:00",
+            "metric_definitions": [
+              "All shares are name-count shares, not capital weights.",
+              "Regions use issuer economic domicile rather than listing exchange."
+            ]
+          }
+        }
+      },
+      {
+        "id": "table-gates",
+        "title": "상장 이력 게이트 대상",
+        "subtitle": "상장 전 마스킹과 최소 이력 충족 전 거래 제한",
+        "dataset": "history_gates",
+        "sourceId": "src-analysis",
+        "defaultSort": {
+          "field": "listing_date",
+          "direction": "desc"
+        },
+        "density": "dense",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "ticker",
+            "label": "티커",
+            "type": "text"
+          },
+          {
+            "field": "name",
+            "label": "종목명",
+            "type": "text"
+          },
+          {
+            "field": "listing_date",
+            "label": "거래 시작/독립 상장",
+            "type": "date"
+          },
+          {
+            "field": "reason",
+            "label": "처리",
+            "type": "text"
+          }
+        ],
+        "source": {
+          "id": "src-history_gates-sql",
+          "label": "Reviewed comparison dataset: history_gates",
+          "path": "outputs/universe_100_comparison/universe_100_comparison.sqlite",
+          "query": {
+            "id": "query-history_gates",
+            "engine": "sqlite",
+            "sql": "SELECT * FROM \"history_gates\"",
+            "description": "Read the reviewed history_gates result table.",
+            "tables_used": [
+              "history_gates"
+            ],
+            "executed_at": "2026-07-15T03:13:36.033302+00:00",
+            "metric_definitions": [
+              "All shares are name-count shares, not capital weights.",
+              "Regions use issuer economic domicile rather than listing exchange."
+            ]
+          }
+        }
+      }
+    ],
+    "blocks": [
+      {
+        "id": "title",
+        "type": "markdown",
+        "body": "# 100종목 유니버스: 두 제안 비교와 하이브리드 추천",
+        "layout": "full"
+      },
+      {
+        "id": "executive-summary",
+        "type": "markdown",
+        "sourceId": "src-analysis",
+        "body": "## Executive Summary\n\n- **결론은 두 안 중 하나를 그대로 채택하는 것이 아니라 공통 18종목을 코어로 두고 나머지 17종목만 재선정하는 것입니다.** 두 목록의 일치율은 51.4%입니다.\n- **Fable안의 장점은 상대가치 페어와 AI 인프라 공급망 연결성입니다.** Advantest–기존 Teradyne, Schneider–기존 Eaton/Vertiv, Novo Nordisk–기존 Eli Lilly 같은 비교군이 좋아집니다. 반면 신규 35개 중 미국 기업이 18개여서 최종 미국 비중이 78%입니다.\n- **기존안의 장점은 지역 분산입니다.** 최종 미국 비중은 69%지만 Deutsche Telekom–기존 T-Mobile US 같은 실질 중복과 통신·저성장 종목이 약점입니다.\n- **권고 하이브리드안은 최종 미국 73%, 영국 8%, 유럽(영국 제외) 13%, 아시아 6%입니다.** 키옥시아와 샌디스크는 필수 포함하고, AI 공급망의 깊이는 유지하면서 미국·동일 테마 집중을 줄입니다.\n- **검증 상태는 ‘조건부 공유’입니다.** 구조·중복·상장 이력은 검증했지만 35종목 전체의 최신 밸류에이션, 유동성, 시점 일치 재무데이터를 아직 동일 패널로 넣지 않았으므로 기대수익 순위로 해석하면 안 됩니다."
+      },
+      {
+        "id": "metrics",
+        "type": "metric-strip",
+        "cardIds": [
+          "card-consensus",
+          "card-fable-us",
+          "card-hybrid-us",
+          "card-gates"
+        ],
+        "layout": "full"
+      },
+      {
+        "id": "region-story",
+        "type": "markdown",
+        "sourceId": "src-analysis",
+        "body": "## Fable안은 테마가 강하고, 기존안은 지역 분산이 강하다\n\n현재 65종목은 경제적 본거지 기준 미국 기업이 60개입니다. Fable안은 AI·데이터센터와 미국 성장주 연결성이 강한 대신 최종 미국 기업이 78개가 됩니다. 기존안은 69개까지 낮추지만 일부 후보의 사업 중복이 큽니다. 하이브리드안은 미국 73개로 중간점을 택하되, 영국 8개·유럽 13개·아시아 6개를 확보합니다."
+      },
+      {
+        "id": "region-chart",
+        "type": "chart",
+        "chartId": "chart-region",
+        "layout": "full"
+      },
+      {
+        "id": "proposal-table",
+        "type": "table",
+        "tableId": "table-proposals",
+        "layout": "full"
+      },
+      {
+        "id": "consensus-story",
+        "type": "markdown",
+        "sourceId": "src-analysis",
+        "body": "## 18종목은 논쟁하지 않고 공통 코어로 유지한다\n\n공통 종목은 키옥시아, 샌디스크, ASML, SAP, KLA, Schneider, Siemens, Rolls-Royce, Quanta, HSBC, Novo Nordisk, AstraZeneca, Thermo Fisher, Booking, LVMH, Nestlé, Shell, Rio Tinto입니다. 이 18개는 두 독립 제안이 동시에 선택했고, 현재 유니버스의 유럽·일본 공백과 산업 공급망 공백을 함께 메웁니다."
+      },
+      {
+        "id": "consensus-table",
+        "type": "table",
+        "tableId": "table-consensus",
+        "layout": "full"
+      },
+      {
+        "id": "hybrid-story",
+        "type": "markdown",
+        "sourceId": "src-analysis",
+        "body": "## 최종 35종목은 AI 공급망과 방어 팩터를 함께 보강한다\n\n기술 10개는 ARM·Arista·Advantest를 받아 상대가치 페어를 강화하고, Cadence·STMicroelectronics를 남겨 EDA와 유럽 아날로그 반도체를 보완합니다. ServiceNow와 Seagate는 기존 소프트웨어·메모리 노출과의 중복 때문에 제외합니다.\n\n비기술 25개에서는 Progressive·Boston Scientific·TJX·Philip Morris·Williams·Constellation·Spotify를 채택합니다. 동시에 Allianz·LSEG·Roche·Iberdrola·Vonovia를 유지해 보험, 시장 인프라, 진단, 규제 유틸리티, 유럽 주거용 부동산을 확보합니다."
+      },
+      {
+        "id": "sector-chart",
+        "type": "chart",
+        "chartId": "chart-sector",
+        "layout": "full"
+      },
+      {
+        "id": "hybrid-table",
+        "type": "table",
+        "tableId": "table-hybrid",
+        "layout": "full"
+      },
+      {
+        "id": "conflict-story",
+        "type": "markdown",
+        "sourceId": "src-analysis",
+        "body": "## 제외 기준은 종목의 질이 아니라 현재 65종목과의 중복이다\n\nDigital Realty는 좋은 데이터센터 자산이지만 현재 Equinix가 이미 있습니다. Vistra와 Constellation을 함께 넣으면 미국 merchant-power/AI 전력 테마가 겹치므로 Constellation 하나만 두고 Iberdrola를 짝으로 둡니다. Deutsche Telekom은 2026년 2월 기준 T-Mobile US 지분 52.8%를 보유해 기존 TMUS와 look-through 중복이 큽니다. [Deutsche Telekom 공식 자료](https://www.telekom.com/en/media/media-information/archive/t-mobile-us-1102078)"
+      },
+      {
+        "id": "conflict-table",
+        "type": "table",
+        "tableId": "table-conflicts",
+        "layout": "full"
+      },
+      {
+        "id": "framework-story",
+        "type": "markdown",
+        "sourceId": "src-analysis",
+        "body": "## 종목 스토리를 5개 공통 점수로 바꾼다\n\n후보 선정은 한계 분산효과 30%, 데이터 준비도 20%, 상대가치 비교군 기여 20%, 유동성·품질 15%, 테마·지배구조 중복 패널티 15%로 평가하는 방식을 권고합니다. 밸류에이션·모멘텀 데이터가 준비되기 전에는 이 점수로 우선순위를 정하되, 기대수익 점수처럼 사용하지 않습니다."
+      },
+      {
+        "id": "framework-table",
+        "type": "table",
+        "tableId": "table-framework",
+        "layout": "full"
+      },
+      {
+        "id": "history-story",
+        "type": "markdown",
+        "sourceId": "src-config",
+        "body": "## 네 종목은 유니버스에는 넣되 즉시 거래 자격을 주지 않는다\n\n현재 설정의 학습창은 1,260거래일입니다. 키옥시아는 2024년 12월 18일 상장했고, 샌디스크는 2025년 2월 24일 독립 거래를 시작했습니다. ARM은 2023년 9월 14일 Nasdaq 거래를 시작했고, Constellation은 2022년 2월 2일 Exelon 분사 후 정규 거래를 시작했습니다. 따라서 네 종목 모두 상장 전 마스킹과 최소 이력 게이트가 필요합니다. [Kioxia](https://www.kioxia-holdings.com/en-jp/news/2024/20241218-1.html) · [Sandisk](https://investor.sandisk.com/news-releases/news-release-details/sandisk-celebrates-nasdaq-listing-after-completing-separation) · [Arm](https://newsroom.arm.com/news/arm-announces-closing-of-initial-public-offering) · [Constellation](https://investors.constellationenergy.com/news-releases/news-release-details/constellation-reports-first-quarter-2022-results)"
+      },
+      {
+        "id": "history-table",
+        "type": "table",
+        "tableId": "table-gates",
+        "layout": "full"
+      },
+      {
+        "id": "next-steps",
+        "type": "markdown",
+        "sourceId": "src-analysis",
+        "body": "## Recommended Next Steps\n\n1. **35종목 전체의 데이터 적재를 먼저 완료합니다.** 현지 티커, 통화, FX, 거래소 달력, 기업행사, 재무항목 커버리지를 동일 체크리스트로 검증합니다.\n2. **두 단계 자격 규칙을 적용합니다.** 유니버스에는 포함하되 가격·재무·학습 이력 기준을 통과하기 전에는 모델 학습과 실제 거래 대상에서 제외합니다.\n3. **세 안을 같은 조건으로 재백테스트합니다.** 동일 기간·거래비용·회전율·종목 상한·섹터/국가 제약에서 IR, turnover, tracking error, optimizer failure, sector/country active risk를 비교합니다.\n4. **하이브리드안을 기본안으로 사용합니다.** 재백테스트에서 Fable안이 비용 후 IR을 유의하게 개선하고 지역·테마 리스크 한도를 지킬 때만 Fable-only 종목을 추가합니다."
+      },
+      {
+        "id": "questions",
+        "type": "markdown",
+        "sourceId": "src-analysis",
+        "body": "## Further Questions\n\n- 최종 100종목은 종목 수 균형이 목표인가, 또는 국가·섹터별 자본 비중 제한도 함께 둘 것인가?\n- ADR과 현지 상장 중 어떤 라인을 표준으로 사용할 것인가?\n- 최소 이력 기준을 1,260거래일로 고정할지, 짧은 이력 종목에 별도 축소 모델을 허용할 것인가?\n- 방위산업과 담배처럼 정책·ESG 민감 업종에 별도 허용 한도가 필요한가?"
+      },
+      {
+        "id": "caveats",
+        "type": "markdown",
+        "sourceId": "src-analysis",
+        "body": "## Caveats\n\n- 이 보고서의 지역 비중은 자본 비중이 아니라 **종목 수 비중**이며, 거래소가 아닌 발행기업의 경제적 본거지 기준입니다.\n- 현재 운용 비중과 섹터 편중은 2026년 5월 22일 운영 산출물을 사용했고, 후보 35종목의 최신 시가총액·밸류에이션·유동성 패널은 포함하지 않았습니다.\n- 종목 선정은 투자수익 보장이나 개별 매수 권고가 아니라 모델 유니버스 설계안입니다.\n- 최종 검증 상태는 **Share with caveats**입니다. 데이터 적재와 동일 조건 재백테스트 전에는 운영 승인안으로 사용하면 안 됩니다."
+      }
+    ]
+  },
+  "snapshot": {
+    "version": 1,
+    "generatedAt": "2026-07-15T03:13:36.033302+00:00",
+    "status": "ready",
+    "datasets": {
+      "headline": [
+        {
+          "consensus_names": 18,
+          "prior_final_us_share": 0.69,
+          "fable_final_us_share": 0.78,
+          "hybrid_final_us_share": 0.73,
+          "hybrid_non_us_share": 0.27,
+          "hybrid_history_gates": 4
+        }
+      ],
+      "proposal_summaries": [
+        {
+          "proposal": "Prior proposal",
+          "add_names": 35,
+          "us_add_names": 9,
+          "non_us_add_names": 26,
+          "final_us_share": 0.69,
+          "final_non_us_share": 0.31,
+          "final_uk_share": 0.09,
+          "final_europe_ex_uk_share": 0.17,
+          "final_asia_share": 0.05
+        },
+        {
+          "proposal": "Fable proposal",
+          "add_names": 35,
+          "us_add_names": 18,
+          "non_us_add_names": 17,
+          "final_us_share": 0.78,
+          "final_non_us_share": 0.22,
+          "final_uk_share": 0.07,
+          "final_europe_ex_uk_share": 0.09,
+          "final_asia_share": 0.06
+        },
+        {
+          "proposal": "Hybrid recommendation",
+          "add_names": 35,
+          "us_add_names": 13,
+          "non_us_add_names": 22,
+          "final_us_share": 0.73,
+          "final_non_us_share": 0.27,
+          "final_uk_share": 0.08,
+          "final_europe_ex_uk_share": 0.13,
+          "final_asia_share": 0.06
+        }
+      ],
+      "region_comparison": [
+        {
+          "proposal": "Prior proposal",
+          "region": "United States",
+          "current_names": 60,
+          "add_names": 9,
+          "final_names": 69,
+          "final_share": 0.69
+        },
+        {
+          "proposal": "Prior proposal",
+          "region": "United Kingdom",
+          "current_names": 1,
+          "add_names": 8,
+          "final_names": 9,
+          "final_share": 0.09
+        },
+        {
+          "proposal": "Prior proposal",
+          "region": "Europe ex-UK",
+          "current_names": 0,
+          "add_names": 17,
+          "final_names": 17,
+          "final_share": 0.17
+        },
+        {
+          "proposal": "Prior proposal",
+          "region": "Asia",
+          "current_names": 4,
+          "add_names": 1,
+          "final_names": 5,
+          "final_share": 0.05
+        },
+        {
+          "proposal": "Fable proposal",
+          "region": "United States",
+          "current_names": 60,
+          "add_names": 18,
+          "final_names": 78,
+          "final_share": 0.78
+        },
+        {
+          "proposal": "Fable proposal",
+          "region": "United Kingdom",
+          "current_names": 1,
+          "add_names": 6,
+          "final_names": 7,
+          "final_share": 0.07
+        },
+        {
+          "proposal": "Fable proposal",
+          "region": "Europe ex-UK",
+          "current_names": 0,
+          "add_names": 9,
+          "final_names": 9,
+          "final_share": 0.09
+        },
+        {
+          "proposal": "Fable proposal",
+          "region": "Asia",
+          "current_names": 4,
+          "add_names": 2,
+          "final_names": 6,
+          "final_share": 0.06
+        },
+        {
+          "proposal": "Hybrid recommendation",
+          "region": "United States",
+          "current_names": 60,
+          "add_names": 13,
+          "final_names": 73,
+          "final_share": 0.73
+        },
+        {
+          "proposal": "Hybrid recommendation",
+          "region": "United Kingdom",
+          "current_names": 1,
+          "add_names": 7,
+          "final_names": 8,
+          "final_share": 0.08
+        },
+        {
+          "proposal": "Hybrid recommendation",
+          "region": "Europe ex-UK",
+          "current_names": 0,
+          "add_names": 13,
+          "final_names": 13,
+          "final_share": 0.13
+        },
+        {
+          "proposal": "Hybrid recommendation",
+          "region": "Asia",
+          "current_names": 4,
+          "add_names": 2,
+          "final_names": 6,
+          "final_share": 0.06
+        }
+      ],
+      "sector_comparison": [
+        {
+          "proposal": "Prior proposal",
+          "sector": "Technology",
+          "current_names": 24,
+          "add_names": 10,
+          "final_names": 34
+        },
+        {
+          "proposal": "Prior proposal",
+          "sector": "Industrials",
+          "current_names": 9,
+          "add_names": 4,
+          "final_names": 13
+        },
+        {
+          "proposal": "Prior proposal",
+          "sector": "Financials",
+          "current_names": 8,
+          "add_names": 4,
+          "final_names": 12
+        },
+        {
+          "proposal": "Prior proposal",
+          "sector": "Healthcare",
+          "current_names": 6,
+          "add_names": 5,
+          "final_names": 11
+        },
+        {
+          "proposal": "Prior proposal",
+          "sector": "Consumer Discretionary",
+          "current_names": 4,
+          "add_names": 3,
+          "final_names": 7
+        },
+        {
+          "proposal": "Prior proposal",
+          "sector": "Consumer Staples",
+          "current_names": 3,
+          "add_names": 2,
+          "final_names": 5
+        },
+        {
+          "proposal": "Prior proposal",
+          "sector": "Energy",
+          "current_names": 3,
+          "add_names": 2,
+          "final_names": 5
+        },
+        {
+          "proposal": "Prior proposal",
+          "sector": "Utilities",
+          "current_names": 1,
+          "add_names": 1,
+          "final_names": 2
+        },
+        {
+          "proposal": "Prior proposal",
+          "sector": "Real Estate",
+          "current_names": 3,
+          "add_names": 1,
+          "final_names": 4
+        },
+        {
+          "proposal": "Prior proposal",
+          "sector": "Communication Services",
+          "current_names": 2,
+          "add_names": 2,
+          "final_names": 4
+        },
+        {
+          "proposal": "Prior proposal",
+          "sector": "Materials",
+          "current_names": 2,
+          "add_names": 1,
+          "final_names": 3
+        },
+        {
+          "proposal": "Fable proposal",
+          "sector": "Technology",
+          "current_names": 24,
+          "add_names": 10,
+          "final_names": 34
+        },
+        {
+          "proposal": "Fable proposal",
+          "sector": "Industrials",
+          "current_names": 9,
+          "add_names": 5,
+          "final_names": 14
+        },
+        {
+          "proposal": "Fable proposal",
+          "sector": "Financials",
+          "current_names": 8,
+          "add_names": 4,
+          "final_names": 12
+        },
+        {
+          "proposal": "Fable proposal",
+          "sector": "Healthcare",
+          "current_names": 6,
+          "add_names": 4,
+          "final_names": 10
+        },
+        {
+          "proposal": "Fable proposal",
+          "sector": "Consumer Discretionary",
+          "current_names": 4,
+          "add_names": 3,
+          "final_names": 7
+        },
+        {
+          "proposal": "Fable proposal",
+          "sector": "Consumer Staples",
+          "current_names": 3,
+          "add_names": 2,
+          "final_names": 5
+        },
+        {
+          "proposal": "Fable proposal",
+          "sector": "Energy",
+          "current_names": 3,
+          "add_names": 2,
+          "final_names": 5
+        },
+        {
+          "proposal": "Fable proposal",
+          "sector": "Utilities",
+          "current_names": 1,
+          "add_names": 2,
+          "final_names": 3
+        },
+        {
+          "proposal": "Fable proposal",
+          "sector": "Real Estate",
+          "current_names": 3,
+          "add_names": 1,
+          "final_names": 4
+        },
+        {
+          "proposal": "Fable proposal",
+          "sector": "Communication Services",
+          "current_names": 2,
+          "add_names": 1,
+          "final_names": 3
+        },
+        {
+          "proposal": "Fable proposal",
+          "sector": "Materials",
+          "current_names": 2,
+          "add_names": 1,
+          "final_names": 3
+        },
+        {
+          "proposal": "Hybrid recommendation",
+          "sector": "Technology",
+          "current_names": 24,
+          "add_names": 10,
+          "final_names": 34
+        },
+        {
+          "proposal": "Hybrid recommendation",
+          "sector": "Industrials",
+          "current_names": 9,
+          "add_names": 4,
+          "final_names": 13
+        },
+        {
+          "proposal": "Hybrid recommendation",
+          "sector": "Financials",
+          "current_names": 8,
+          "add_names": 4,
+          "final_names": 12
+        },
+        {
+          "proposal": "Hybrid recommendation",
+          "sector": "Healthcare",
+          "current_names": 6,
+          "add_names": 5,
+          "final_names": 11
+        },
+        {
+          "proposal": "Hybrid recommendation",
+          "sector": "Consumer Discretionary",
+          "current_names": 4,
+          "add_names": 3,
+          "final_names": 7
+        },
+        {
+          "proposal": "Hybrid recommendation",
+          "sector": "Consumer Staples",
+          "current_names": 3,
+          "add_names": 2,
+          "final_names": 5
+        },
+        {
+          "proposal": "Hybrid recommendation",
+          "sector": "Energy",
+          "current_names": 3,
+          "add_names": 2,
+          "final_names": 5
+        },
+        {
+          "proposal": "Hybrid recommendation",
+          "sector": "Utilities",
+          "current_names": 1,
+          "add_names": 2,
+          "final_names": 3
+        },
+        {
+          "proposal": "Hybrid recommendation",
+          "sector": "Real Estate",
+          "current_names": 3,
+          "add_names": 1,
+          "final_names": 4
+        },
+        {
+          "proposal": "Hybrid recommendation",
+          "sector": "Communication Services",
+          "current_names": 2,
+          "add_names": 1,
+          "final_names": 3
+        },
+        {
+          "proposal": "Hybrid recommendation",
+          "sector": "Materials",
+          "current_names": 2,
+          "add_names": 1,
+          "final_names": 3
+        }
+      ],
+      "consensus": [
+        {
+          "ticker": "285A JP",
+          "name": "Kioxia Holdings",
+          "sector": "Technology",
+          "region": "Asia"
+        },
+        {
+          "ticker": "ASML NA",
+          "name": "ASML Holding",
+          "sector": "Technology",
+          "region": "Europe ex-UK"
+        },
+        {
+          "ticker": "AZN LN",
+          "name": "AstraZeneca",
+          "sector": "Healthcare",
+          "region": "United Kingdom"
+        },
+        {
+          "ticker": "BKNG US",
+          "name": "Booking Holdings",
+          "sector": "Consumer Discretionary",
+          "region": "United States"
+        },
+        {
+          "ticker": "HSBA LN",
+          "name": "HSBC Holdings",
+          "sector": "Financials",
+          "region": "United Kingdom"
+        },
+        {
+          "ticker": "KLAC US",
+          "name": "KLA",
+          "sector": "Technology",
+          "region": "United States"
+        },
+        {
+          "ticker": "MC FP",
+          "name": "LVMH",
+          "sector": "Consumer Discretionary",
+          "region": "Europe ex-UK"
+        },
+        {
+          "ticker": "NESN SW",
+          "name": "Nestle",
+          "sector": "Consumer Staples",
+          "region": "Europe ex-UK"
+        },
+        {
+          "ticker": "NOVOB DC",
+          "name": "Novo Nordisk",
+          "sector": "Healthcare",
+          "region": "Europe ex-UK"
+        },
+        {
+          "ticker": "PWR US",
+          "name": "Quanta Services",
+          "sector": "Industrials",
+          "region": "United States"
+        },
+        {
+          "ticker": "RIO LN",
+          "name": "Rio Tinto",
+          "sector": "Materials",
+          "region": "United Kingdom"
+        },
+        {
+          "ticker": "RR/ LN",
+          "name": "Rolls-Royce Holdings",
+          "sector": "Industrials",
+          "region": "United Kingdom"
+        },
+        {
+          "ticker": "SAP GR",
+          "name": "SAP",
+          "sector": "Technology",
+          "region": "Europe ex-UK"
+        },
+        {
+          "ticker": "SHEL LN",
+          "name": "Shell",
+          "sector": "Energy",
+          "region": "United Kingdom"
+        },
+        {
+          "ticker": "SIE GR",
+          "name": "Siemens",
+          "sector": "Industrials",
+          "region": "Europe ex-UK"
+        },
+        {
+          "ticker": "SNDK US",
+          "name": "Sandisk",
+          "sector": "Technology",
+          "region": "United States"
+        },
+        {
+          "ticker": "SU FP",
+          "name": "Schneider Electric",
+          "sector": "Industrials",
+          "region": "Europe ex-UK"
+        },
+        {
+          "ticker": "TMO US",
+          "name": "Thermo Fisher Scientific",
+          "sector": "Healthcare",
+          "region": "United States"
+        }
+      ],
+      "hybrid_candidates": [
+        {
+          "ticker": "285A JP",
+          "name": "Kioxia Holdings",
+          "sector": "Technology",
+          "country": "Japan",
+          "region": "Asia",
+          "subindustry": "NAND flash / SSD",
+          "rationale": "Mandatory memory-cycle exposure",
+          "listing_date": "2024-12-18",
+          "history_gate": true,
+          "selection_order": 1,
+          "source_status": "Consensus",
+          "selection_note": "Retain as common core in both proposals."
+        },
+        {
+          "ticker": "SNDK US",
+          "name": "Sandisk",
+          "sector": "Technology",
+          "country": "United States",
+          "region": "United States",
+          "subindustry": "Flash memory / SSD",
+          "rationale": "Mandatory memory-cycle exposure",
+          "listing_date": "2025-02-24",
+          "history_gate": true,
+          "selection_order": 2,
+          "source_status": "Consensus",
+          "selection_note": "Retain as common core in both proposals."
+        },
+        {
+          "ticker": "ASML NA",
+          "name": "ASML Holding",
+          "sector": "Technology",
+          "country": "Netherlands",
+          "region": "Europe ex-UK",
+          "subindustry": "Lithography equipment",
+          "rationale": "Critical semiconductor equipment exposure",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 3,
+          "source_status": "Consensus",
+          "selection_note": "Retain as common core in both proposals."
+        },
+        {
+          "ticker": "SAP GR",
+          "name": "SAP",
+          "sector": "Technology",
+          "country": "Germany",
+          "region": "Europe ex-UK",
+          "subindustry": "Enterprise software",
+          "rationale": "European enterprise software anchor",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 4,
+          "source_status": "Consensus",
+          "selection_note": "Retain as common core in both proposals."
+        },
+        {
+          "ticker": "KLAC US",
+          "name": "KLA",
+          "sector": "Technology",
+          "country": "United States",
+          "region": "United States",
+          "subindustry": "Process control equipment",
+          "rationale": "Inspection and metrology coverage",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 5,
+          "source_status": "Consensus",
+          "selection_note": "Retain as common core in both proposals."
+        },
+        {
+          "ticker": "ARM US",
+          "name": "Arm Holdings",
+          "sector": "Technology",
+          "country": "United Kingdom",
+          "region": "United Kingdom",
+          "subindustry": "CPU architecture IP",
+          "rationale": "Adds CPU-IP economics and UK domicile",
+          "listing_date": "2023-09-14",
+          "history_gate": true,
+          "selection_order": 6,
+          "source_status": "Fable-only",
+          "selection_note": "Choose over another mature semiconductor name: CPU-IP economics and UK domicile add a different factor, subject to a history gate."
+        },
+        {
+          "ticker": "ANET US",
+          "name": "Arista Networks",
+          "sector": "Technology",
+          "country": "United States",
+          "region": "United States",
+          "subindustry": "Data-center networking",
+          "rationale": "AI Ethernet peer exposure",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 7,
+          "source_status": "Fable-only",
+          "selection_note": "Choose as the AI-networking systems peer; more differentiated from the semiconductor-heavy current universe than another chip vendor."
+        },
+        {
+          "ticker": "CDNS US",
+          "name": "Cadence Design Systems",
+          "sector": "Technology",
+          "subindustry": "EDA software",
+          "country": "United States",
+          "region": "United States",
+          "priority": "Core",
+          "rationale": "반도체 설계 소프트웨어 공급망",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 8,
+          "source_status": "Prior-only",
+          "selection_note": "Keep because EDA is a bottleneck business and less duplicative than adding another enterprise workflow vendor."
+        },
+        {
+          "ticker": "STM FP",
+          "name": "STMicroelectronics",
+          "sector": "Technology",
+          "subindustry": "Analog / automotive semiconductors",
+          "country": "Netherlands",
+          "region": "Europe ex-UK",
+          "priority": "Core",
+          "rationale": "자동차·산업용 반도체로 AI 일변도 완화",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 9,
+          "source_status": "Prior-only",
+          "selection_note": "Keep as a European analog/auto semiconductor diversifier; avoid a third memory/storage-cycle name after Kioxia and Sandisk."
+        },
+        {
+          "ticker": "6857 JP",
+          "name": "Advantest",
+          "sector": "Technology",
+          "country": "Japan",
+          "region": "Asia",
+          "subindustry": "Semiconductor test systems",
+          "rationale": "AI accelerator test peer for Teradyne",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 10,
+          "source_status": "Fable-only",
+          "selection_note": "Choose for a clean cross-sectional test-equipment pair with existing Teradyne and for a second Japanese addition."
+        },
+        {
+          "ticker": "SU FP",
+          "name": "Schneider Electric",
+          "sector": "Industrials",
+          "country": "France",
+          "region": "Europe ex-UK",
+          "subindustry": "Electrification / automation",
+          "rationale": "Data-center power and automation peer",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 11,
+          "source_status": "Consensus",
+          "selection_note": "Retain as common core in both proposals."
+        },
+        {
+          "ticker": "SIE GR",
+          "name": "Siemens",
+          "sector": "Industrials",
+          "country": "Germany",
+          "region": "Europe ex-UK",
+          "subindustry": "Industrial automation",
+          "rationale": "Industrial AI, automation and grid exposure",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 12,
+          "source_status": "Consensus",
+          "selection_note": "Retain as common core in both proposals."
+        },
+        {
+          "ticker": "RR/ LN",
+          "name": "Rolls-Royce Holdings",
+          "sector": "Industrials",
+          "country": "United Kingdom",
+          "region": "United Kingdom",
+          "subindustry": "Aerospace engines",
+          "rationale": "Civil aerospace aftermarket and SMR optionality",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 13,
+          "source_status": "Consensus",
+          "selection_note": "Retain as common core in both proposals."
+        },
+        {
+          "ticker": "PWR US",
+          "name": "Quanta Services",
+          "sector": "Industrials",
+          "country": "United States",
+          "region": "United States",
+          "subindustry": "Grid infrastructure",
+          "rationale": "Grid and data-center construction exposure",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 14,
+          "source_status": "Consensus",
+          "selection_note": "Retain as common core in both proposals."
+        },
+        {
+          "ticker": "HSBA LN",
+          "name": "HSBC Holdings",
+          "sector": "Financials",
+          "country": "United Kingdom",
+          "region": "United Kingdom",
+          "subindustry": "Global banking",
+          "rationale": "Asia and UK banking exposure",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 15,
+          "source_status": "Consensus",
+          "selection_note": "Retain as common core in both proposals."
+        },
+        {
+          "ticker": "ALV GR",
+          "name": "Allianz",
+          "sector": "Financials",
+          "subindustry": "Insurance / asset management",
+          "country": "Germany",
+          "region": "Europe ex-UK",
+          "priority": "Diversifier",
+          "rationale": "보험·자산운용 복합 금융 노출",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 16,
+          "source_status": "Prior-only",
+          "selection_note": "Keep a European insurance and asset-management compounder to diversify US financial factors."
+        },
+        {
+          "ticker": "PGR US",
+          "name": "Progressive",
+          "sector": "Financials",
+          "country": "United States",
+          "region": "United States",
+          "subindustry": "Property and casualty insurance",
+          "rationale": "Fills insurance model gap",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 17,
+          "source_status": "Fable-only",
+          "selection_note": "Choose to fill the current insurance gap rather than add another bank or asset manager."
+        },
+        {
+          "ticker": "LSEG LN",
+          "name": "London Stock Exchange Group",
+          "sector": "Financials",
+          "subindustry": "Market infrastructure / data",
+          "country": "United Kingdom",
+          "region": "United Kingdom",
+          "priority": "Diversifier",
+          "rationale": "거래소·금융데이터 인프라 노출",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 18,
+          "source_status": "Prior-only",
+          "selection_note": "Keep market-data and exchange infrastructure, which is less correlated with bank balance-sheet exposure."
+        },
+        {
+          "ticker": "NOVOB DC",
+          "name": "Novo Nordisk",
+          "sector": "Healthcare",
+          "country": "Denmark",
+          "region": "Europe ex-UK",
+          "subindustry": "Diabetes / obesity pharmaceuticals",
+          "rationale": "GLP-1 peer for Eli Lilly",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 19,
+          "source_status": "Consensus",
+          "selection_note": "Retain as common core in both proposals."
+        },
+        {
+          "ticker": "AZN LN",
+          "name": "AstraZeneca",
+          "sector": "Healthcare",
+          "country": "United Kingdom",
+          "region": "United Kingdom",
+          "subindustry": "Pharmaceuticals",
+          "rationale": "Oncology-led global pharma exposure",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 20,
+          "source_status": "Consensus",
+          "selection_note": "Retain as common core in both proposals."
+        },
+        {
+          "ticker": "TMO US",
+          "name": "Thermo Fisher Scientific",
+          "sector": "Healthcare",
+          "country": "United States",
+          "region": "United States",
+          "subindustry": "Life-science tools",
+          "rationale": "Life-science tools exposure",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 21,
+          "source_status": "Consensus",
+          "selection_note": "Retain as common core in both proposals."
+        },
+        {
+          "ticker": "BSX US",
+          "name": "Boston Scientific",
+          "sector": "Healthcare",
+          "country": "United States",
+          "region": "United States",
+          "subindustry": "Medical devices",
+          "rationale": "Adds medical-device growth exposure",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 22,
+          "source_status": "Fable-only",
+          "selection_note": "Choose medical devices to broaden healthcare beyond pharmaceuticals and life-science tools."
+        },
+        {
+          "ticker": "ROG SW",
+          "name": "Roche Holding",
+          "sector": "Healthcare",
+          "subindustry": "Pharmaceuticals / diagnostics",
+          "country": "Switzerland",
+          "region": "Europe ex-UK",
+          "priority": "Diversifier",
+          "rationale": "제약과 진단의 결합 노출",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 23,
+          "source_status": "Prior-only",
+          "selection_note": "Keep pharma plus diagnostics; use one Swiss defensive anchor instead of adding two large European drug makers."
+        },
+        {
+          "ticker": "BKNG US",
+          "name": "Booking Holdings",
+          "sector": "Consumer Discretionary",
+          "country": "United States",
+          "region": "United States",
+          "subindustry": "Online travel",
+          "rationale": "Global travel platform exposure",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 24,
+          "source_status": "Consensus",
+          "selection_note": "Retain as common core in both proposals."
+        },
+        {
+          "ticker": "MC FP",
+          "name": "LVMH",
+          "sector": "Consumer Discretionary",
+          "country": "France",
+          "region": "Europe ex-UK",
+          "subindustry": "Luxury goods",
+          "rationale": "European luxury anchor",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 25,
+          "source_status": "Consensus",
+          "selection_note": "Retain as common core in both proposals."
+        },
+        {
+          "ticker": "TJX US",
+          "name": "TJX Companies",
+          "sector": "Consumer Discretionary",
+          "country": "United States",
+          "region": "United States",
+          "subindustry": "Off-price retail",
+          "rationale": "Defensive discretionary exposure",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 26,
+          "source_status": "Fable-only",
+          "selection_note": "Choose off-price retail over a second luxury name because LVMH already covers luxury demand."
+        },
+        {
+          "ticker": "PM US",
+          "name": "Philip Morris International",
+          "sector": "Consumer Staples",
+          "country": "United States",
+          "region": "United States",
+          "subindustry": "Tobacco / smoke-free products",
+          "rationale": "Distinct smoke-free transition exposure",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 27,
+          "source_status": "Fable-only",
+          "selection_note": "Choose for a differentiated smoke-free transition, with an explicit regulatory-risk flag."
+        },
+        {
+          "ticker": "NESN SW",
+          "name": "Nestle",
+          "sector": "Consumer Staples",
+          "country": "Switzerland",
+          "region": "Europe ex-UK",
+          "subindustry": "Packaged food / beverages",
+          "rationale": "European staples anchor",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 28,
+          "source_status": "Consensus",
+          "selection_note": "Retain as common core in both proposals."
+        },
+        {
+          "ticker": "SHEL LN",
+          "name": "Shell",
+          "sector": "Energy",
+          "country": "United Kingdom",
+          "region": "United Kingdom",
+          "subindustry": "Integrated energy / LNG",
+          "rationale": "Global LNG and integrated energy exposure",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 29,
+          "source_status": "Consensus",
+          "selection_note": "Retain as common core in both proposals."
+        },
+        {
+          "ticker": "WMB US",
+          "name": "Williams Companies",
+          "sector": "Energy",
+          "country": "United States",
+          "region": "United States",
+          "subindustry": "Natural-gas midstream",
+          "rationale": "Gas infrastructure for power-demand growth",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 30,
+          "source_status": "Fable-only",
+          "selection_note": "Choose midstream gas infrastructure over another integrated oil major already represented by current energy holdings."
+        },
+        {
+          "ticker": "CEG US",
+          "name": "Constellation Energy",
+          "sector": "Utilities",
+          "country": "United States",
+          "region": "United States",
+          "subindustry": "Nuclear generation",
+          "rationale": "Nuclear power exposure for data-center demand",
+          "listing_date": "2022-02-02",
+          "history_gate": true,
+          "selection_order": 31,
+          "source_status": "Fable-only",
+          "selection_note": "Choose one US nuclear/merchant-power beneficiary, subject to a full-history gate."
+        },
+        {
+          "ticker": "IBE SM",
+          "name": "Iberdrola",
+          "sector": "Utilities",
+          "subindustry": "Electric utility / renewables",
+          "country": "Spain",
+          "region": "Europe ex-UK",
+          "priority": "Diversifier",
+          "rationale": "전력망과 재생에너지 중심 유틸리티 노출",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 32,
+          "source_status": "Prior-only",
+          "selection_note": "Pair CEG with a regulated European networks/renewables utility instead of doubling US merchant-power exposure."
+        },
+        {
+          "ticker": "VNA GR",
+          "name": "Vonovia",
+          "sector": "Real Estate",
+          "subindustry": "Residential real estate",
+          "country": "Germany",
+          "region": "Europe ex-UK",
+          "priority": "Diversifier",
+          "rationale": "유럽 주거 부동산과 금리 민감도 노출",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 33,
+          "source_status": "Prior-only",
+          "selection_note": "Choose European residential real estate and rate sensitivity; existing Equinix already covers data-center real estate."
+        },
+        {
+          "ticker": "SPOT US",
+          "name": "Spotify Technology",
+          "sector": "Communication Services",
+          "country": "Sweden",
+          "region": "Europe ex-UK",
+          "subindustry": "Audio streaming",
+          "rationale": "Global subscription audio platform",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 34,
+          "source_status": "Fable-only",
+          "selection_note": "Choose a global subscription platform; avoid Deutsche Telekom look-through duplication with existing T-Mobile US."
+        },
+        {
+          "ticker": "RIO LN",
+          "name": "Rio Tinto",
+          "sector": "Materials",
+          "country": "United Kingdom",
+          "region": "United Kingdom",
+          "subindustry": "Diversified mining",
+          "rationale": "Copper and grid-material exposure",
+          "listing_date": null,
+          "history_gate": false,
+          "selection_order": 35,
+          "source_status": "Consensus",
+          "selection_note": "Retain as common core in both proposals."
+        }
+      ],
+      "conflict_decisions": [
+        {
+          "area": "Technology – software",
+          "selected": "CDNS",
+          "not_selected": "NOW",
+          "decision": "EDA adds a scarcer supply-chain bottleneck; NOW overlaps current enterprise software exposure."
+        },
+        {
+          "area": "Technology – storage",
+          "selected": "STM",
+          "not_selected": "STX",
+          "decision": "Kioxia and Sandisk already create a large memory/storage cluster; STM adds European analog/auto exposure."
+        },
+        {
+          "area": "Technology – peers",
+          "selected": "ARM, ANET, Advantest",
+          "not_selected": "QCOM, MRVL, DELL",
+          "decision": "The selected trio improves CPU-IP, networking-system and test-equipment peer coverage with less semiconductor/OEM repetition."
+        },
+        {
+          "area": "Industrials",
+          "selected": "Schneider, Siemens, Rolls-Royce, Quanta",
+          "not_selected": "Rheinmetall",
+          "decision": "Current Lockheed already supplies defense beta; keep four industrial slots and use the released slot in healthcare."
+        },
+        {
+          "area": "Financials",
+          "selected": "HSBC, Allianz, PGR, LSEG",
+          "not_selected": "BX, MS, UBS",
+          "decision": "Bank, two insurance-related models and market infrastructure diversify better than more asset-management and investment-bank exposure."
+        },
+        {
+          "area": "Healthcare",
+          "selected": "NVO, AZN, TMO, BSX, Roche",
+          "not_selected": "Novartis",
+          "decision": "Five slots cover obesity, oncology, tools, devices and diagnostics; a second Swiss pharma is redundant."
+        },
+        {
+          "area": "Consumer discretionary",
+          "selected": "TJX",
+          "not_selected": "Ferrari",
+          "decision": "TJX adds defensive retail while LVMH already represents the luxury factor."
+        },
+        {
+          "area": "Consumer staples",
+          "selected": "PM",
+          "not_selected": "Unilever",
+          "decision": "PM adds a distinct business-model transition; carry a regulatory-risk flag rather than add another broad staples conglomerate."
+        },
+        {
+          "area": "Energy",
+          "selected": "WMB",
+          "not_selected": "TotalEnergies",
+          "decision": "WMB adds midstream gas infrastructure; the current universe already has integrated energy and LNG exposure."
+        },
+        {
+          "area": "Utilities",
+          "selected": "CEG + Iberdrola",
+          "not_selected": "CEG + VST",
+          "decision": "One US nuclear beneficiary plus one European regulated utility is more balanced than two US merchant-power trades."
+        },
+        {
+          "area": "Real estate",
+          "selected": "Vonovia",
+          "not_selected": "Digital Realty",
+          "decision": "Existing Equinix already covers data-center REITs; Vonovia contributes European residential and rates exposure."
+        },
+        {
+          "area": "Communication services",
+          "selected": "Spotify",
+          "not_selected": "Deutsche Telekom, Vodafone",
+          "decision": "Spotify adds subscription media; Deutsche Telekom duplicates existing T-Mobile US at the controlling-shareholder level."
+        }
+      ],
+      "selection_framework": [
+        {
+          "criterion": "Marginal diversification vs. current 65",
+          "weight": 0.3,
+          "test": "Country, sector, business model and current look-through overlap"
+        },
+        {
+          "criterion": "Data readiness",
+          "weight": 0.2,
+          "test": "Price/fundamental coverage, FX, calendar and 1,260-session train window"
+        },
+        {
+          "criterion": "Cross-sectional peer usefulness",
+          "weight": 0.2,
+          "test": "Creates a comparable pair or fills a model peer-group gap"
+        },
+        {
+          "criterion": "Liquidity and quality",
+          "weight": 0.15,
+          "test": "Tradability, accounting continuity and corporate-action cleanliness"
+        },
+        {
+          "criterion": "Theme / ownership overlap penalty",
+          "weight": 0.15,
+          "test": "Penalize repeated AI, memory, merchant-power or controlled-subsidiary exposure"
+        }
+      ],
+      "history_gates": [
+        {
+          "ticker": "285A JP",
+          "name": "Kioxia Holdings",
+          "listing_date": "2024-12-18",
+          "reason": "Less than the configured 1,260-session training window as of 2026-07-15; mask before listing and keep trade-ineligible until the minimum-history rule passes."
+        },
+        {
+          "ticker": "SNDK US",
+          "name": "Sandisk",
+          "listing_date": "2025-02-24",
+          "reason": "Less than the configured 1,260-session training window as of 2026-07-15; mask before listing and keep trade-ineligible until the minimum-history rule passes."
+        },
+        {
+          "ticker": "ARM US",
+          "name": "Arm Holdings",
+          "listing_date": "2023-09-14",
+          "reason": "Less than the configured 1,260-session training window as of 2026-07-15; mask before listing and keep trade-ineligible until the minimum-history rule passes."
+        },
+        {
+          "ticker": "CEG US",
+          "name": "Constellation Energy",
+          "listing_date": "2022-02-02",
+          "reason": "Less than the configured 1,260-session training window as of 2026-07-15; mask before listing and keep trade-ineligible until the minimum-history rule passes."
+        }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "src-analysis",
+      "label": "Universe proposal comparison results",
+      "path": "outputs/universe_100_comparison/universe_100_comparison_results.json"
+    },
+    {
+      "id": "src-prior",
+      "label": "Prior 65-to-100 universe analysis",
+      "path": "outputs/universe_100_recommendation/universe_100_results.json"
+    },
+    {
+      "id": "src-fable",
+      "label": "User-provided Fable 35-name candidate list"
+    },
+    {
+      "id": "src-config",
+      "label": "Model configuration: 1,260-session training window",
+      "path": "src/config.py"
+    },
+    {
+      "id": "src-arm",
+      "label": "Arm IPO closing and Nasdaq trading date",
+      "href": "https://newsroom.arm.com/news/arm-announces-closing-of-initial-public-offering"
+    },
+    {
+      "id": "src-ceg",
+      "label": "Constellation separation from Exelon",
+      "href": "https://investors.constellationenergy.com/news-releases/news-release-details/constellation-reports-first-quarter-2022-results"
+    },
+    {
+      "id": "src-advantest",
+      "label": "Advantest investor overview",
+      "href": "https://www.advantest.com/en/investors/individual-investors/"
+    },
+    {
+      "id": "src-dte",
+      "label": "Deutsche Telekom ownership of T-Mobile US",
+      "href": "https://www.telekom.com/en/media/media-information/archive/t-mobile-us-1102078"
+    },
+    {
+      "id": "src-kioxia",
+      "label": "Kioxia listing announcement",
+      "href": "https://www.kioxia-holdings.com/en-jp/news/2024/20241218-1.html"
+    },
+    {
+      "id": "src-sandisk",
+      "label": "Sandisk separation and Nasdaq listing",
+      "href": "https://investor.sandisk.com/news-releases/news-release-details/sandisk-celebrates-nasdaq-listing-after-completing-separation"
+    },
+    {
+      "id": "src-spotify",
+      "label": "Spotify stock information",
+      "href": "https://investors.spotify.com/stock-info/default.aspx"
+    },
+    {
+      "id": "src-iberdrola",
+      "label": "Iberdrola shareholder and investor information",
+      "href": "https://www.iberdrola.com/shareholders-investors"
+    }
+  ]
+}
