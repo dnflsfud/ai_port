@@ -31589,7 +31589,7 @@
     "top_name_active_risk_share": 0.230171,
     "top_name_active_risk_breached": false,
     "top_sector_active_risk_share": 0.786829,
-    "top_sector_active_risk_breached": true,
+    "top_sector_active_risk_breached": false,
     "model_degenerate_rate": 0.53125,
     "model_degenerate_rate_breached": true,
     "tail_ffill_days": 1,

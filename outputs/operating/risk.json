@@ -13,7 +13,7 @@
     "top_name": "285A",
     "top_name_active_risk_share": 0.549822,
     "top_name_active_risk_breached": true,
-    "max_sector_active_risk_share": 0.75,
+    "max_sector_active_risk_share": 0.85,
     "top_sector": "Technology",
     "top_sector_active_risk_share": 0.9646,
     "top_sector_active_risk_breached": true
