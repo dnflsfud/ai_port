@@ -775,7 +775,6 @@
       },
       "conversion_enabled": true,
       "base_currency": "USD",
-      "return_identity_max_abs_error": 0.0,
       "price_return_reconciliation_max_abs_error": 4.440892098500626e-16
     },
     "fx_data_as_of": "2026-07-16",
@@ -813,5 +812,5 @@
     "ECOS": 190
   },
   "optimizer_solver_fallback_rate": 0.0,
-  "elapsed_sec": 597.7
+  "elapsed_sec": 558.3
 }

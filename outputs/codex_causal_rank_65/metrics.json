@@ -45,7 +45,7 @@
     "benchmark_type": "cap_weighted",
     "risk_aversion": 1.0,
     "turnover_penalty": 0.03,
-    "max_te_annual": 0.045,
+    "max_te_annual": 0.035,
     "max_single_turnover": 0.15,
     "sector_deviation": 0.1,
     "cov_lookback": 126,
@@ -99,26 +99,26 @@
     "dr_alpha_enabled": false
   },
   "metrics": {
-    "annual_return": 0.31378534228567556,
-    "annual_vol": 0.224833629266653,
-    "sharpe_ratio": 1.3956334882337629,
-    "active_return": 0.0707035111355172,
-    "tracking_error": 0.04420351345940376,
-    "information_ratio": 1.5994998044771007,
-    "max_drawdown": -0.32816407801247915,
-    "avg_annual_turnover": 0.8707045343774685,
-    "avg_annual_turnover_one_way": 0.43535226718873427,
+    "annual_return": 0.29939877547758154,
+    "annual_vol": 0.2210829554794666,
+    "sharpe_ratio": 1.354237258264754,
+    "active_return": 0.05837810954891576,
+    "tracking_error": 0.03718495905760561,
+    "information_ratio": 1.5699387878437212,
+    "max_drawdown": -0.3163725213227975,
+    "avg_annual_turnover": 0.8482899778198565,
+    "avg_annual_turnover_one_way": 0.42414498890992824,
     "avg_ic": 0.03267193066580068,
-    "annual_tc": 0.0008707045343774685,
+    "annual_tc": 0.0008482899778198565,
     "spx_annual_return": 0.1407026491282246,
     "spx_annual_vol": 0.1931272491466384,
     "spx_sharpe": 0.7285489217598257,
-    "realized_beta": 1.0670687972177324,
-    "realized_active_beta": 0.06706879721773266,
+    "realized_beta": 1.0542182236209379,
+    "realized_active_beta": 0.05421822362093784,
     "sub_periods": {
-      "P1_ir": 0.8470014041577539,
-      "P2_ir": 0.6793880033412903,
-      "P3_ir": 2.7710029776729073
+      "P1_ir": 0.774243883962984,
+      "P2_ir": 0.7801247691753022,
+      "P3_ir": 2.7690351852531823
     }
   },
   "model_quality": {
@@ -809,7 +809,6 @@
       },
       "conversion_enabled": true,
       "base_currency": "USD",
-      "return_identity_max_abs_error": 0.0,
       "price_return_reconciliation_max_abs_error": 4.440892098500626e-16
     },
     "fx_data_as_of": "2026-07-16",
@@ -847,5 +846,5 @@
     "ECOS": 190
   },
   "optimizer_solver_fallback_rate": 0.0,
-  "elapsed_sec": 524.7
+  "elapsed_sec": 434.4
 }

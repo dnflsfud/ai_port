@@ -103,7 +103,7 @@
     "max_sector_active_risk_share": 0.75,
     "max_single_turnover": 0.15,
     "max_tail_ffill_days": 10,
-    "max_te_annual": 0.045,
+    "max_te_annual": 0.035,
     "max_weight": 0.15,
     "mega_cap_bm_threshold": 0.04,
     "mega_cap_funding_k": 4,
@@ -177,6 +177,6 @@
     "variant_label": "codex_causal_rank_65"
   },
   "git_dirty": true,
-  "git_hash": "1cfe8d636d7d9bc0d27f6d7fbcfd8bbb235920e7",
-  "timestamp_utc": "2026-07-16T06:24:31Z"
+  "git_hash": "8f1e42cf88a0c3f85ea2adea85494228620c93aa",
+  "timestamp_utc": "2026-07-18T01:41:59Z"
 }
