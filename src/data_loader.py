@@ -125,6 +125,7 @@ MARKET_TO_CURRENCY = {
     "SW": "CHF",
     "LN": "GBP",
     "DC": "DKK",
+    "SM": "EUR",  # Spain (ITX, IBE) — S11 expansion, decision log §S11
 }
 
 # Raw quote convention -> USD per one unit of local currency. ``inverse``

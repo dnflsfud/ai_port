@@ -50,6 +50,13 @@ class PipelineConfig:
         "PLTR": "2020-09-30", "GEV": "2024-04-02", "BE": "2018-07-25",
         "285A": "2024-12-18", "SNDK": "2025-02-24",
         "ARM": "2023-09-14", "CEG": "2022-02-02",
+        # S11 150-name expansion (decision log §S11). IPO listings:
+        "DELL": "2018-12-28", "ABNB": "2020-12-10", "UMG": "2021-09-21",
+        # Corporate-action continuity masks — pre-event history belongs to a
+        # different economic entity (GE Vernova spin, Ingersoll-Rand spin,
+        # BAM manager split), so only post-event data enters training.
+        # Dates re-verified against first valid workbook data at refresh.
+        "GE": "2024-04-02", "TT": "2020-03-02", "BN": "2022-12-12",
     })
 
     # ------------------------------------------------------------------

@@ -25,7 +25,22 @@ def test_listing_mask_fields_default_on_for_valid_100_name_history():
         "SNDK": "2025-02-24",
         "ARM": "2023-09-14",
         "CEG": "2022-02-02",
+        # S11 expansion — IPO listings
+        "DELL": "2018-12-28",
+        "ABNB": "2020-12-10",
+        "UMG": "2021-09-21",
+        # S11 expansion — corporate-action continuity masks (post-event only)
+        "GE": "2024-04-02",
+        "TT": "2020-03-02",
+        "BN": "2022-12-12",
     }
+
+
+def test_spain_market_suffix_maps_to_eur():
+    from src.data_loader import MARKET_TO_CURRENCY, FX_QUOTE_SPECS
+    assert MARKET_TO_CURRENCY["SM"] == "EUR"
+    # EUR conversion spec must already exist — S11 adds no new FX pair.
+    assert "EUR" in FX_QUOTE_SPECS
 
 
 def _make_repo(root):

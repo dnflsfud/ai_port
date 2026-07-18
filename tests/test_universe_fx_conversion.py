@@ -88,6 +88,13 @@ def test_usd_and_listing_guardrails_are_enabled_for_100_name_regime():
         "SNDK": "2025-02-24",
         "ARM": "2023-09-14",
         "CEG": "2022-02-02",
+        # S11 150-name expansion (decision log §S11)
+        "DELL": "2018-12-28",
+        "ABNB": "2020-12-10",
+        "UMG": "2021-09-21",
+        "GE": "2024-04-02",
+        "TT": "2020-03-02",
+        "BN": "2022-12-12",
     }
 
 
