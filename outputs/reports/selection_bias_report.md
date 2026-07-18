@@ -1,41 +1,41 @@
 # Selection Bias Analysis Report
 
-Generated: 2026-07-11 16:28:19
+Generated: 2026-07-18 14:09:36
 
 ## 1. Summary Verdict
-- **FAIL** -- DSR p=0.1128, Adjusted SR=0.43, MinTRL=1.0yr
+- **FAIL** -- DSR p=0.1693, Adjusted SR=0.33, MinTRL=1.1yr
 
 ## 2. Deflated Sharpe Ratio (Bailey & Lopez de Prado, 2014)
-- Observed SR: 1.661
-- Number of trials (N): 412
-- Expected max SR under null: 1.231
-- sigma(SR): 0.3547
-- Deflated SR: 1.212 (p-value: 0.1128)
-- Skewness: 0.288, Kurtosis: 6.296
-- Observations: 1972 trading days
+- Observed SR: 1.545
+- Number of trials (N): 413
+- Expected max SR under null: 1.211
+- sigma(SR): 0.3488
+- Deflated SR: 0.957 (p-value: 0.1693)
+- Skewness: 0.554, Kurtosis: 7.907
+- Observations: 1993 trading days
 - Verdict: **FAIL -- 다중 비교 보정 후 유의하지 않음**
 
 ## 3. Minimum Track Record Length
-- Required: 1.0 years (244 trading days)
-- Available: 7.8 years (1972 trading days)
+- Required: 1.1 years (276 trading days)
+- Available: 7.9 years (1993 trading days)
 - Verdict: **SUFFICIENT**
 
 ## 4. Grid Search Bias (Haircut)
-- Combinations tested: 412
-- Observed SR: 1.661
-- Haircut: 1.231
-- Adjusted SR: 0.430
+- Combinations tested: 413
+- Observed SR: 1.545
+- Haircut: 1.211
+- Adjusted SR: 0.334
 - Verdict: **PASS**
 
 ## 5. Universe Survivorship
 - Backtest start: 2018-11-27
-- Late entrants (data starts >30d after backtest): None
-- Verdict: **CLEAN**
+- Late entrants (data starts >30d after backtest): PLTR (from 2020-10-01), GEV (from 2024-04-03), SNDK (from 2025-02-25), CEG (from 2022-02-03), ARM (from 2023-09-15), 285A (from 2024-12-19)
+- Verdict: **WARN -- 6개 종목 생존 편향 의심**
 
 ## 6. Sub-period Stability
-- Period 1 (2018-11-27 ~ 2021-06-02): IR = 0.721 [PASS]
-- Period 2 (2021-06-03 ~ 2023-12-08): IR = 0.947 [PASS]
-- Period 3 (2023-12-11 ~ 2026-06-11): IR = 2.961 [PASS]
+- Period 1 (2018-11-27 ~ 2021-06-11): IR = 0.706 [PASS]
+- Period 2 (2021-06-14 ~ 2023-12-28): IR = 0.992 [PASS]
+- Period 3 (2023-12-29 ~ 2026-07-16): IR = 2.721 [PASS]
 - Verdict: **STABLE**
 
 ## References

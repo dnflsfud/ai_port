@@ -155,9 +155,16 @@
       "param_space": "lgbm objective=rank_xendcg + causal_validation_enabled=true + execution_signal_lag_days=1 (single pre-registered challenger config)",
       "trials": 1,
       "result": "IR 1.695 vs causal-discipline S0' 0.902 (dIR +0.79 > +0.36 1SE; subperiod P1 0.752/P2 0.772/P3 3.080, all-positive 3/3) -> §2-4 adoption bar met, comparison_gate PASS 7/7. Promotion package pending this DSR/selection-bias gate."
+    },
+    {
+      "script": "run_variant.py --variant variants/arm_s10_minchild30.yaml",
+      "phase": "S10.2 degeneracy arm (2026-07-18, pre-registered in decision log S10.2 before execution)",
+      "param_space": "lgbm_params.min_child_samples 60 -> 30 (single pre-registered parameter)",
+      "trials": 1,
+      "result": "E1 FAIL: degenerate_rate 65.6% (21/32) vs baseline 53.1% - hypothesis refuted, degeneracy worsened. dIR -0.137 (noise band), sub dIR -0.429/-0.239/+0.339. Not adopted; production unchanged; HOLD stays on degenerate check."
     }
   ],
-  "n_trials_total": 412,
+  "n_trials_total": 413,
   "notes": [
     "396 is a conservative lower bound. Actual N is likely higher once",
     "ad-hoc config.py tweaks over the research period are counted.",
@@ -174,6 +181,9 @@
     "(both fixes, new baseline), decomposition arm A (causal_val_only), arm B (exec_lag_only),",
     "and challenger codex_causal_rank_65 (rank_xendcg, IR 1.695, promotion candidate). S0' counted",
     "as a distinct config (IR changed 1.481->0.902, not a byte-identical parity recheck).",
-    "N 408 -> 412."
+    "N 408 -> 412.",
+    "2026-07-18: +1 S10.2 degeneracy arm (min_child_samples 30), pre-registered, E1 FAIL,",
+    "not adopted (no flip). N 412 -> 413. S10.1 sector-limit recalibration is a report-only",
+    "diagnostic threshold change (no weight/metric impact) and is NOT counted as a trial."
   ]
 }
