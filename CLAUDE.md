@@ -61,9 +61,10 @@
 
 ## 3. S0 상태 — 아직 미완 (codex #2 해소)
 
-> **(2026-07-16 갱신)** S0의 유니버스·회계 기준은 100종·unhedged USD로 재정의되었다(결정
-> 로그 §S9 — production IR 1.599/TE 4.42%/beta 1.067, challenger IR 1.011). 아래 65종
-> 서술은 역사 기록으로 유지한다.
+> **(2026-07-16 갱신, 2026-07-18 재인증)** S0의 유니버스·회계 기준은 100종·unhedged USD로
+> 재정의되었다(결정 로그 §S9). §S9의 production 수치(IR 1.599/TE 4.42%)는 ex-ante TE 캡
+> 0.045 시절 산출물 — 커밋된 config(캡 0.035) 기준 유효 baseline은 §S9.1: production
+> IR 1.570/TE 3.72%/beta 1.054, challenger IR 1.011. 아래 65종 서술은 역사 기록으로 유지한다.
 
 > **ECOS 설치 ≠ S0 확정.** 설치는 끝났지만 **S0(baseline 재인증)은 PENDING**이다.
 
