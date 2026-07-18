@@ -124,7 +124,7 @@
   "rows_until_next_rebalance": 3,
   "is_rebalance_data_as_of": false,
   "next_rebalance_is_estimate": true,
-  "exported_at_utc": "2026-07-18T03:33:06.037782+00:00",
+  "exported_at_utc": "2026-07-18T04:59:10.897084+00:00",
   "source_metrics_sha256": "d6e787923b95f325abc554f83ac58227253dda63bf4c36a73488e75f7bd1300f",
   "source_metrics_mtime_utc": "2026-07-18T01:32:57.849362+00:00",
   "portfolio_version": "universe100-usd-v1",

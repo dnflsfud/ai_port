@@ -80,7 +80,7 @@ def test_operating_guardrail_defaults():
     assert c.max_tail_ffill_days == 10
     assert c.fail_on_stale_tail_ffill is False
     assert c.max_name_active_risk_share == 0.35
-    assert c.max_sector_active_risk_share == 0.75
+    assert c.max_sector_active_risk_share == 0.85
 
 
 def test_operating_guardrail_validation():

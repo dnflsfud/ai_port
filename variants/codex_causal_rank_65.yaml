@@ -113,5 +113,5 @@ overrides:
   # Operating guardrails / solver protocol.
   allow_scs_on_ecos_exception: false
   max_name_active_risk_share: 0.35
-  max_sector_active_risk_share: 0.75
+  max_sector_active_risk_share: 0.85  # recalibrated 2026-07-18, decision log S10.1
   dr_alpha_enabled: false

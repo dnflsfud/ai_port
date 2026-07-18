@@ -115,7 +115,7 @@ overrides:
   # Operating guardrails / solver protocol.
   allow_scs_on_ecos_exception: false
   max_name_active_risk_share: 0.35
-  max_sector_active_risk_share: 0.75
+  max_sector_active_risk_share: 0.85  # recalibrated 2026-07-18, decision log S10.1
   # CS-DR-Alpha — disabled after the 2026-06-10 honest re-validation (above).
   # Engine + harness remain available for research:
   #   scripts/run_dr_alpha.py (single/grid), scripts/run_dr_ablation.py (2x2).

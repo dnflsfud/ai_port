@@ -423,7 +423,11 @@ class PipelineConfig:
     # ------------------------------------------------------------------
     allow_scs_on_ecos_exception: bool = False
     max_name_active_risk_share: float = 0.35
-    max_sector_active_risk_share: float = 0.75
+    # 0.75 (uncalibrated vendored value) sat below the last-2y median (0.769)
+    # of the 100-name book — a permanent alarm, not a control. 0.85 = full-period
+    # P90 (0.827) rounded up to 0.05; flags only top-decile concentration.
+    # Calibration: decision log §S10.1 (2026-07-18, 94-rebalance reconstruction).
+    max_sector_active_risk_share: float = 0.85
 
     # ------------------------------------------------------------------
     # Backtest
