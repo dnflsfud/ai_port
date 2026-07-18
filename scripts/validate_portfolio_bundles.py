@@ -354,6 +354,7 @@ def validate_bundle(bundle_dir: Path) -> dict:
     holdings = _read_json(bundle_dir / "holdings.json")
     operations = _read_json(bundle_dir / "operations.json")
     currency = _read_json(bundle_dir / "currency.json")
+    risk = _read_json(bundle_dir / "risk.json")
     for name in REQUIRED_FILES:
         if name.endswith(".json"):
             _read_json(bundle_dir / name)
@@ -488,7 +489,22 @@ def validate_bundle(bundle_dir: Path) -> dict:
     if meta.get("causal_validation_enabled") and meta.get("causal_validation_ok") is not True:
         raise ValueError(f"{bundle_dir}: causal validation audit failed")
 
-    return {**meta, "performance": perf}
+    risk_guardrails = risk.get("guardrails") or {}
+    if not isinstance(risk_guardrails, dict):
+        risk_guardrails = {}
+    try:
+        model_quality = _read_json(metrics_path).get("model_quality") or {}
+    except Exception:
+        model_quality = {}
+    if not isinstance(model_quality, dict):
+        model_quality = {}
+
+    return {
+        **meta,
+        "performance": perf,
+        "_risk_guardrails": risk_guardrails,
+        "_model_quality": model_quality,
+    }
 
 
 def evaluate_challenger(production: dict, challenger: dict) -> dict:
@@ -517,6 +533,60 @@ def evaluate_challenger(production: dict, challenger: dict) -> dict:
         "checks": checks,
         "subperiod_ir_wins": sub_wins,
     }
+
+
+def evaluate_production(record: dict) -> dict:
+    """Report-only production HOLD gate. Never raises; never blocks validation."""
+    guardrails = record.get("_risk_guardrails") or {}
+    model_quality = record.get("_model_quality") or {}
+    perf = record.get("performance") or {}
+    data_quality = perf.get("data_quality") or {}
+
+    def _num(value):
+        try:
+            result = float(value)
+        except (TypeError, ValueError):
+            return None
+        if result != result or result in (float("inf"), float("-inf")):
+            return None
+        return result
+
+    def _not_breached(key):
+        breached = guardrails.get(key)
+        return None if breached is None else not bool(breached)
+
+    degenerate_rate = _num(model_quality.get("degenerate_rate"))
+    max_degenerate = _num(model_quality.get("max_degenerate_model_rate"))
+    tracking_error = _num(perf.get("tracking_error"))
+    tail_days = _num(data_quality.get("tail_ffill_days"))
+    max_tail_days = _num(data_quality.get("max_tail_ffill_days"))
+
+    checks = {
+        "estimated_te_ok": _not_breached("estimated_te_breached"),
+        "name_active_risk_ok": _not_breached("top_name_active_risk_breached"),
+        "sector_active_risk_ok": _not_breached("top_sector_active_risk_breached"),
+        "degenerate_rate_ok": (
+            None if degenerate_rate is None or max_degenerate is None
+            else degenerate_rate <= max_degenerate
+        ),
+        "realized_te_within_guard": None if tracking_error is None else tracking_error <= 0.045,
+        "stale_tail_ok": (
+            None if tail_days is None or max_tail_days is None else tail_days <= max_tail_days
+        ),
+    }
+    status = "HOLD" if any(v is False for v in checks.values()) else "PRODUCTION"
+    values = {
+        "top_sector": guardrails.get("top_sector"),
+        "top_sector_active_risk_share": guardrails.get("top_sector_active_risk_share"),
+        "top_name": guardrails.get("top_name"),
+        "top_name_active_risk_share": guardrails.get("top_name_active_risk_share"),
+        "degenerate_rate": degenerate_rate,
+        "max_degenerate_model_rate": max_degenerate,
+        "tracking_error": tracking_error,
+        "tail_ffill_days": tail_days,
+        "max_tail_ffill_days": max_tail_days,
+    }
+    return {"status": status, "checks": checks, "values": values}
 
 
 def build_registry(bundle_dirs: list[Path]) -> dict:
@@ -551,12 +621,13 @@ def build_registry(bundle_dirs: list[Path]) -> dict:
     if len(challengers) != 1:
         raise ValueError("exactly one challenger portfolio is required")
     gate = evaluate_challenger(production, challengers[0])
+    production_gate = evaluate_production(production)
 
     ordered = sorted(records, key=lambda r: (r.get("portfolio_role") != "production", r["id"]))
     entries = []
     for row in ordered:
-        item = {k: v for k, v in row.items() if k != "performance"}
-        item["status"] = "PRODUCTION" if row is production else gate["status"]
+        item = {k: v for k, v in row.items() if k != "performance" and not k.startswith("_")}
+        item["status"] = production_gate["status"] if row is production else gate["status"]
         entries.append(item)
     return {
         "schema_version": 1,
@@ -564,6 +635,7 @@ def build_registry(bundle_dirs: list[Path]) -> dict:
         "stale_after_hours": 96,
         "data_as_of": production["data_as_of"],
         "comparison_gate": gate,
+        "production_gate": production_gate,
         "portfolios": entries,
     }
 

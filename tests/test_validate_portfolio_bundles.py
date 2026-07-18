@@ -10,13 +10,25 @@ import pytest
 from scripts.validate_portfolio_bundles import build_registry, validate_bundle
 
 
-def _write_bundle(root: Path, name: str, role: str, *, universe=("AAA", "BBB"), as_of="2026-06-11"):
+def _write_bundle(
+    root: Path,
+    name: str,
+    role: str,
+    *,
+    universe=("AAA", "BBB"),
+    as_of="2026-06-11",
+    risk_guardrails=None,
+    model_quality=None,
+):
     run_dir = root / f"run_{name}"
     bundle = root / f"bundle_{name}"
     run_dir.mkdir()
     bundle.mkdir()
     metrics = run_dir / "metrics.json"
-    metrics.write_text(json.dumps({"label": name, "metrics": {"information_ratio": 1.0}}), encoding="utf-8")
+    metrics_payload = {"label": name, "metrics": {"information_ratio": 1.0}}
+    if model_quality is not None:
+        metrics_payload["model_quality"] = model_quality
+    metrics.write_text(json.dumps(metrics_payload), encoding="utf-8")
     metrics_hash = hashlib.sha256(metrics.read_bytes()).hexdigest()
     universe_hash = hashlib.sha256("\n".join(universe).encode()).hexdigest()
     as_of_ts = pd.Timestamp(as_of)
@@ -160,8 +172,10 @@ def _write_bundle(root: Path, name: str, role: str, *, universe=("AAA", "BBB"), 
         },
     }
     (bundle / "currency.json").write_text(json.dumps(currency), encoding="utf-8")
-    for fname in ("features.json", "contribution.json", "risk.json", "monitoring.json", "feature_attribution.json"):
+    for fname in ("features.json", "contribution.json", "monitoring.json", "feature_attribution.json"):
         (bundle / fname).write_text("{}", encoding="utf-8")
+    risk_payload = {"guardrails": risk_guardrails} if risk_guardrails is not None else {}
+    (bundle / "risk.json").write_text(json.dumps(risk_payload), encoding="utf-8")
     returns = {"date": [as_of], "portfolio_ret": [0.0]}
     for column in (
         "portfolio_local_gross_ret", "portfolio_fx_effect", "portfolio_usd_gross_ret",
@@ -307,3 +321,62 @@ def test_registry_rejects_rebalance_schedule_mismatch(tmp_path):
     ops_path.write_text(json.dumps(ops), encoding="utf-8")
     with pytest.raises(ValueError, match="next_expected_rebalance_date mismatch"):
         build_registry([production, challenger])
+
+
+def test_production_gate_holds_on_sector_active_risk_breach(tmp_path):
+    production = _write_bundle(
+        tmp_path, "prod", "production",
+        risk_guardrails={
+            "estimated_te_breached": False,
+            "top_name_active_risk_breached": False,
+            "top_sector_active_risk_breached": True,
+            "top_sector": "Technology",
+            "top_sector_active_risk_share": 0.786829,
+        },
+    )
+    challenger = _write_bundle(tmp_path, "causal", "challenger")
+    registry = build_registry([production, challenger])
+    prod_entry = next(p for p in registry["portfolios"] if p["portfolio_role"] == "production")
+    assert prod_entry["status"] == "HOLD"
+    assert registry["production_gate"]["status"] == "HOLD"
+    assert registry["production_gate"]["checks"]["sector_active_risk_ok"] is False
+
+
+def test_production_gate_holds_on_degenerate_rate(tmp_path):
+    production = _write_bundle(
+        tmp_path, "prod", "production",
+        model_quality={"degenerate_rate": 0.5, "max_degenerate_model_rate": 0.25},
+    )
+    challenger = _write_bundle(tmp_path, "causal", "challenger")
+    registry = build_registry([production, challenger])
+    prod_entry = next(p for p in registry["portfolios"] if p["portfolio_role"] == "production")
+    assert prod_entry["status"] == "HOLD"
+    assert registry["production_gate"]["checks"]["degenerate_rate_ok"] is False
+
+
+def test_production_gate_passes_when_all_clear(tmp_path):
+    production = _write_bundle(
+        tmp_path, "prod", "production",
+        risk_guardrails={
+            "estimated_te_breached": False,
+            "top_name_active_risk_breached": False,
+            "top_sector_active_risk_breached": False,
+        },
+        model_quality={"degenerate_rate": 0.1, "max_degenerate_model_rate": 0.25},
+    )
+    challenger = _write_bundle(tmp_path, "causal", "challenger")
+    registry = build_registry([production, challenger])
+    prod_entry = next(p for p in registry["portfolios"] if p["portfolio_role"] == "production")
+    assert prod_entry["status"] == "PRODUCTION"
+    assert registry["production_gate"]["status"] == "PRODUCTION"
+
+
+def test_production_gate_default_fixture_passes_and_strips_private_keys(tmp_path):
+    production = _write_bundle(tmp_path, "prod", "production")
+    challenger = _write_bundle(tmp_path, "causal", "challenger")
+    registry = build_registry([production, challenger])
+    prod_entry = next(p for p in registry["portfolios"] if p["portfolio_role"] == "production")
+    assert prod_entry["status"] == "PRODUCTION"  # None checks are not violations
+    assert "production_gate" in registry
+    for entry in registry["portfolios"]:
+        assert not any(k.startswith("_") for k in entry)

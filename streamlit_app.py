@@ -700,6 +700,16 @@ def main() -> None:
     fx_coverage_ok = bool(universe_size and fx_mapped == universe_size and not fx_gaps)
     currency_summary = (currency or {}).get("summary") or {}
 
+    production_gate = data["registry"].get("production_gate")
+    if production_gate:
+        _pg_status = production_gate.get("status")
+        production_gate_chip = (
+            f"<span class='chip {'chip-ok' if _pg_status == 'PRODUCTION' else 'chip-warn'}'>"
+            f"Prod gate {_pg_status}</span>"
+        )
+    else:
+        production_gate_chip = ""
+
     st.title("Pictet Portfolio Monitor — USD")
     st.markdown(
         "<div class='note'>Operating dashboard for the 100-name universe, unhedged USD performance, FX attribution, risk and rebalance controls.</div>",
@@ -717,7 +727,8 @@ def main() -> None:
         f"<span class='chip {'chip-ok' if fx_coverage_ok else 'chip-warn'}'>FX mapped {fx_mapped or 'n/a'}/{universe_size or 'n/a'}</span>"
         f"<span class='chip chip-ok'>Non-USD {pct(currency_summary.get('non_usd_target_weight'), 1)}</span>"
         + (f"<span class='chip {'chip-ok' if challenger_meta.get('status') == 'PASS' else 'chip-warn'}'>"
-           f"{chal_name} {challenger_meta.get('status', 'not built')}</span>" if challenger else "") +
+           f"{chal_name} {challenger_meta.get('status', 'not built')}</span>" if challenger else "")
+        + production_gate_chip +
         "</div>",
         unsafe_allow_html=True,
     )
