@@ -11,6 +11,7 @@ implementer (sha256-verified). Target imported INSIDE test bodies so
 does not exist yet -> ImportError).
 """
 
+import json
 import types
 
 import numpy as np
@@ -310,3 +311,33 @@ def test_cached_result_compatibility_accepts_exact_universe_and_asof():
     validate_cached_result_compatibility(
         _cached_result(tickers), tickers, data_returns
     )
+
+
+def test_provenance_meta_copies_run_manifest_git_and_checksums(tmp_path):
+    from scripts.export_operating_data import (
+        PORTFOLIO_VERSION,
+        _sha256,
+        build_provenance_meta,
+    )
+
+    manifest_path = tmp_path / "experiment_manifest.json"
+    manifest_path.write_text(
+        json.dumps({"git_hash": "a" * 40, "git_dirty": False}),
+        encoding="utf-8",
+    )
+    meta = build_provenance_meta(tmp_path)
+    assert PORTFOLIO_VERSION == "universe100-usd-v1"
+    assert meta["portfolio_version"] == "universe100-usd-v1"
+    assert meta["git_hash"] == "a" * 40
+    assert meta["git_dirty"] is False
+    assert meta["source_manifest_sha256"] == _sha256(manifest_path)
+
+
+def test_provenance_meta_tolerates_missing_manifest(tmp_path):
+    from scripts.export_operating_data import build_provenance_meta
+
+    meta = build_provenance_meta(tmp_path)  # no experiment_manifest.json present
+    assert meta["portfolio_version"] == "universe100-usd-v1"
+    assert meta["git_hash"] is None
+    assert meta["git_dirty"] is None
+    assert meta["source_manifest_sha256"] is None

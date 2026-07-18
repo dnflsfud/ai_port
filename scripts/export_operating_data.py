@@ -56,6 +56,10 @@ if str(ROOT) not in sys.path:
 DEFAULT_VARIANT = ROOT / "variants" / "iter15_65tkr_reb21_vtg.yaml"
 DEFAULT_OPERATING_DIR = ROOT / "outputs" / "operating"
 
+# Code contract version for the operating bundle; bumped when the exported
+# meta/schema meaning changes materially.
+PORTFOLIO_VERSION = "universe100-usd-v1"
+
 # (display_name, portfolio_role) defaults used when the variant yaml is silent
 # (e.g. the argument-free export path). Unknown labels stay challenger so an
 # unrecognized run can never seize the single production slot.
@@ -78,6 +82,32 @@ def _sha256(path: Path) -> Optional[str]:
         for chunk in iter(lambda: fh.read(1024 * 1024), b""):
             h.update(chunk)
     return h.hexdigest()
+
+
+def build_provenance_meta(run_dir: Path) -> dict:
+    """Provenance fields for the operating bundle meta.
+
+    Records the code version and the git identity of the *backtest run* — the
+    git_hash/git_dirty are copied from run_dir/experiment_manifest.json (NOT
+    recomputed here) so the bundle points at the commit that produced it. Also
+    checksums that manifest. Missing/unparseable manifest -> None fields.
+    """
+    manifest_path = run_dir / "experiment_manifest.json"
+    git_hash = None
+    git_dirty = None
+    if manifest_path.exists():
+        try:
+            run_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            git_hash = run_manifest.get("git_hash")
+            git_dirty = run_manifest.get("git_dirty")
+        except Exception:
+            pass
+    return {
+        "portfolio_version": PORTFOLIO_VERSION,
+        "source_manifest_sha256": _sha256(manifest_path),
+        "git_hash": git_hash,
+        "git_dirty": git_dirty,
+    }
 
 
 def _safe_float(x, ndigits: Optional[int] = 6):
@@ -1524,6 +1554,7 @@ def main(argv=None) -> int:
             datetime.fromtimestamp(metrics_path.stat().st_mtime, timezone.utc).isoformat()
             if metrics_path.exists() else None
         ),
+        **build_provenance_meta(run_dir),
         "causal_validation_enabled": bool(getattr(cfg, "causal_validation_enabled", False)),
         "causal_validation_ok": model_quality.get("causal_validation_ok"),
         "execution_signal_lag_days": int(getattr(cfg, "execution_signal_lag_days", 0)),

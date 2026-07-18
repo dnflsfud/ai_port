@@ -715,11 +715,11 @@ DEFAULT_CONFIG = PipelineConfig()
 # =============================================================================
 
 
-def _git_hash() -> Optional[str]:
+def _git_hash(repo: Optional[Path] = None) -> Optional[str]:
     try:
         out = subprocess.check_output(
             ["git", "rev-parse", "HEAD"],
-            cwd=Path(__file__).resolve().parents[1],
+            cwd=repo or Path(__file__).resolve().parents[1],
             stderr=subprocess.DEVNULL,
         )
         return out.decode().strip()
@@ -727,11 +727,13 @@ def _git_hash() -> Optional[str]:
         return None
 
 
-def _git_dirty() -> Optional[bool]:
+def _git_dirty(repo: Optional[Path] = None) -> Optional[bool]:
+    # Exclude outputs/ so a backtest that regenerates artefacts before the
+    # manifest is written is not reported as a dirty working tree.
     try:
         out = subprocess.check_output(
-            ["git", "status", "--porcelain"],
-            cwd=Path(__file__).resolve().parents[1],
+            ["git", "status", "--porcelain", "--", ".", ":(exclude)outputs"],
+            cwd=repo or Path(__file__).resolve().parents[1],
             stderr=subprocess.DEVNULL,
         )
         return bool(out.decode().strip())
