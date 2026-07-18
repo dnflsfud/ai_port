@@ -7,7 +7,7 @@ import hashlib
 import json
 import os
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pandas as pd
@@ -471,7 +471,9 @@ def validate_bundle(bundle_dir: Path) -> dict:
         raise ValueError(f"{bundle_dir}: source metrics hash mismatch")
     exported_at = datetime.fromisoformat(str(meta["exported_at_utc"]).replace("Z", "+00:00"))
     metrics_mtime = datetime.fromtimestamp(metrics_path.stat().st_mtime, timezone.utc)
-    if exported_at < metrics_mtime:
+    # 1s grace: st_mtime has 100ns precision vs exported_at's 1us truncation,
+    # so a same-microsecond write can make mtime appear later than now().
+    if exported_at < metrics_mtime - timedelta(seconds=1):
         raise ValueError(f"{bundle_dir}: bundle predates its source metrics")
 
     try:

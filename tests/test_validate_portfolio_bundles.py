@@ -1,5 +1,6 @@
 import hashlib
 import json
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -278,6 +279,18 @@ def test_bundle_warns_stale_tail_when_fail_on_false(tmp_path):
     }
     perf_path.write_text(json.dumps(perf), encoding="utf-8")
     # Policy is warn-only: bundle validates despite exceeding the limit.
+    assert validate_bundle(bundle)["id"] == "prod"
+
+
+def test_bundle_tolerates_subsecond_metrics_mtime_skew(tmp_path):
+    # NTFS mtime has 100ns precision while exported_at_utc is truncated to
+    # microseconds, so mtime can land up to 1us "after" a later now() call.
+    bundle = _write_bundle(tmp_path, "prod", "production")
+    meta = json.loads((bundle / "portfolio.json").read_text(encoding="utf-8"))
+    exported = datetime.fromisoformat(meta["exported_at_utc"])
+    exported_ns = int(exported.timestamp()) * 1_000_000_000 + exported.microsecond * 1_000
+    metrics = tmp_path / "run_prod" / "metrics.json"
+    os.utime(metrics, ns=(exported_ns + 500, exported_ns + 500))
     assert validate_bundle(bundle)["id"] == "prod"
 
 
