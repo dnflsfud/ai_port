@@ -53,6 +53,11 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from scripts.validate_portfolio_bundles import (  # noqa: E402
+    MAX_CONSECUTIVE_STALE_RETRAINS,
+    max_stale_depth,
+)
+
 DEFAULT_VARIANT = ROOT / "variants" / "iter15_65tkr_reb21_vtg.yaml"
 DEFAULT_OPERATING_DIR = ROOT / "outputs" / "operating"
 
@@ -1400,6 +1405,7 @@ def main(argv=None) -> int:
     monthly.index.name = "month"
 
     model_quality = getattr(res, "model_quality", None) or {}
+    model_stale_depth = max_stale_depth(model_quality)
     data_quality = getattr(res, "data_quality", None) or getattr(data, "data_quality", None) or {}
     tail_ffill_days = data_quality.get("tail_ffill_days")
     max_tail_ffill_days = data_quality.get(
@@ -1437,6 +1443,14 @@ def main(argv=None) -> int:
                 model_quality.get("degenerate_rate") is not None
                 and model_quality.get("max_degenerate_model_rate") is not None
                 and model_quality.get("degenerate_rate") > model_quality.get("max_degenerate_model_rate")
+            ),
+            # S12.1: the production gate binds on consecutive stale depth;
+            # the overall degenerate rate above stays observation-only.
+            "model_max_stale_depth": model_stale_depth,
+            "model_max_consecutive_stale_retrains": MAX_CONSECUTIVE_STALE_RETRAINS,
+            "model_stale_depth_breached": (
+                model_stale_depth is not None
+                and model_stale_depth > MAX_CONSECUTIVE_STALE_RETRAINS
             ),
             "tail_ffill_days": tail_ffill_days,
             "max_tail_ffill_days": max_tail_ffill_days,

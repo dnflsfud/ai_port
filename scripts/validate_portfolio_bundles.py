@@ -535,6 +535,32 @@ def evaluate_challenger(production: dict, challenger: dict) -> dict:
     }
 
 
+# S12.1 (2026-07-22): pre-registered consecutive-stale-depth limit. Runs of
+# <= 7 degenerate retrains are the empirically cleared range (S11.10 reuse
+# diagnosis: no damage detected); deeper runs are untested territory.
+MAX_CONSECUTIVE_STALE_RETRAINS = 7
+
+
+def max_stale_depth(model_quality: dict):
+    """Longest run of consecutive degenerate retrains, derived from the
+    retrain order (split_audit) and the degenerate event dates (events).
+    Returns None when either input is missing (fail-closed upstream)."""
+    audit = model_quality.get("split_audit")
+    events = model_quality.get("events")
+    if not isinstance(audit, list) or not audit or not isinstance(events, list):
+        return None
+    try:
+        degenerate_dates = {event["date"] for event in events}
+        order = [entry["prediction_date"] for entry in audit]
+    except (KeyError, TypeError):
+        return None
+    longest = current = 0
+    for date in order:
+        current = current + 1 if date in degenerate_dates else 0
+        longest = max(longest, current)
+    return longest
+
+
 def evaluate_production(record: dict) -> dict:
     """Report-only production HOLD gate. Never raises; never blocks validation."""
     guardrails = record.get("_risk_guardrails") or {}
@@ -556,7 +582,7 @@ def evaluate_production(record: dict) -> dict:
         return None if breached is None else not bool(breached)
 
     degenerate_rate = _num(model_quality.get("degenerate_rate"))
-    max_degenerate = _num(model_quality.get("max_degenerate_model_rate"))
+    stale_depth = max_stale_depth(model_quality)
     tracking_error = _num(perf.get("tracking_error"))
     tail_days = _num(data_quality.get("tail_ffill_days"))
     max_tail_days = _num(data_quality.get("max_tail_ffill_days"))
@@ -565,9 +591,11 @@ def evaluate_production(record: dict) -> dict:
         "estimated_te_ok": _not_breached("estimated_te_breached"),
         "name_active_risk_ok": _not_breached("top_name_active_risk_breached"),
         "sector_active_risk_ok": _not_breached("top_sector_active_risk_breached"),
-        "degenerate_rate_ok": (
-            None if degenerate_rate is None or max_degenerate is None
-            else degenerate_rate <= max_degenerate
+        # S12.1: overall degenerate rate is observation-only; the gate binds
+        # on consecutive stale depth (S11.10 reuse diagnosis).
+        "stale_depth_ok": (
+            None if stale_depth is None
+            else stale_depth <= MAX_CONSECUTIVE_STALE_RETRAINS
         ),
         "realized_te_within_guard": None if tracking_error is None else tracking_error <= 0.045,
         "stale_tail_ok": (
@@ -583,7 +611,8 @@ def evaluate_production(record: dict) -> dict:
         "top_name": guardrails.get("top_name"),
         "top_name_active_risk_share": guardrails.get("top_name_active_risk_share"),
         "degenerate_rate": degenerate_rate,
-        "max_degenerate_model_rate": max_degenerate,
+        "max_stale_depth": stale_depth,
+        "max_consecutive_stale_retrains": MAX_CONSECUTIVE_STALE_RETRAINS,
         "tracking_error": tracking_error,
         "tail_ffill_days": tail_days,
         "max_tail_ffill_days": max_tail_days,

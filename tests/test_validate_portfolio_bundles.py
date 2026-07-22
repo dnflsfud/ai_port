@@ -342,16 +342,54 @@ def test_production_gate_holds_on_sector_active_risk_breach(tmp_path):
     assert registry["production_gate"]["checks"]["sector_active_risk_ok"] is False
 
 
-def test_production_gate_holds_on_degenerate_rate(tmp_path):
+def _model_quality_from_flags(flags: str):
+    """Build a model_quality block whose retrain sequence follows ``flags``
+    ('D' = degenerate retrain, '.' = healthy), matching the shapes that
+    walk_forward_train exports (split_audit order + events dates)."""
+    dates = [f"2020-{1 + i // 28:02d}-{1 + i % 28:02d}" for i in range(len(flags))]
+    return {
+        "degenerate_rate": flags.count("D") / max(len(flags), 1),
+        "max_degenerate_model_rate": 0.25,
+        "split_audit": [{"prediction_date": d} for d in dates],
+        "events": [{"date": d} for d, f in zip(dates, flags) if f == "D"],
+    }
+
+
+def test_production_gate_holds_on_stale_depth(tmp_path):
+    # S12.1: 8 consecutive degenerate retrains exceed the pre-registered
+    # cleared range (<= 7) -> HOLD.
     production = _write_bundle(
         tmp_path, "prod", "production",
-        model_quality={"degenerate_rate": 0.5, "max_degenerate_model_rate": 0.25},
+        model_quality=_model_quality_from_flags("..DDDDDDDD.."),
     )
     challenger = _write_bundle(tmp_path, "causal", "challenger")
     registry = build_registry([production, challenger])
     prod_entry = next(p for p in registry["portfolios"] if p["portfolio_role"] == "production")
     assert prod_entry["status"] == "HOLD"
-    assert registry["production_gate"]["checks"]["degenerate_rate_ok"] is False
+    assert registry["production_gate"]["checks"]["stale_depth_ok"] is False
+    assert registry["production_gate"]["values"]["max_stale_depth"] == 8
+
+
+def test_production_gate_allows_high_rate_when_stale_depth_ok(tmp_path):
+    # S12.1: the overall degenerate rate is observation-only; the gate binds
+    # on consecutive stale depth (S11.10 reuse diagnosis found no damage in
+    # the cleared range even at ~65% overall rate).
+    production = _write_bundle(
+        tmp_path, "prod", "production",
+        risk_guardrails={
+            "estimated_te_breached": False,
+            "top_name_active_risk_breached": False,
+            "top_sector_active_risk_breached": False,
+        },
+        model_quality=_model_quality_from_flags("..DD..D.DDDDDDD.D"),
+    )
+    challenger = _write_bundle(tmp_path, "causal", "challenger")
+    registry = build_registry([production, challenger])
+    gate = registry["production_gate"]
+    assert gate["status"] == "PRODUCTION"
+    assert gate["checks"]["stale_depth_ok"] is True
+    assert gate["values"]["max_stale_depth"] == 7
+    assert gate["values"]["degenerate_rate"] == pytest.approx(11 / 17)
 
 
 def test_production_gate_passes_when_all_clear(tmp_path):
@@ -362,7 +400,7 @@ def test_production_gate_passes_when_all_clear(tmp_path):
             "top_name_active_risk_breached": False,
             "top_sector_active_risk_breached": False,
         },
-        model_quality={"degenerate_rate": 0.1, "max_degenerate_model_rate": 0.25},
+        model_quality=_model_quality_from_flags("...."),
     )
     challenger = _write_bundle(tmp_path, "causal", "challenger")
     registry = build_registry([production, challenger])
@@ -387,7 +425,7 @@ def test_production_gate_fails_closed_when_checks_missing_and_strips_private_key
 
 
 def test_production_gate_holds_when_single_check_missing(tmp_path):
-    # Guardrails all clear but model_quality absent -> degenerate_rate_ok is
+    # Guardrails all clear but model_quality absent -> stale_depth_ok is
     # None -> fail-closed HOLD (missing evidence is not a pass).
     production = _write_bundle(
         tmp_path, "prod", "production",
@@ -400,4 +438,4 @@ def test_production_gate_holds_when_single_check_missing(tmp_path):
     challenger = _write_bundle(tmp_path, "causal", "challenger")
     registry = build_registry([production, challenger])
     assert registry["production_gate"]["status"] == "HOLD"
-    assert registry["production_gate"]["checks"]["degenerate_rate_ok"] is None
+    assert registry["production_gate"]["checks"]["stale_depth_ok"] is None

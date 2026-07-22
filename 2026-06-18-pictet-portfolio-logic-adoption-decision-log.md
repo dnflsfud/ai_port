@@ -1252,3 +1252,70 @@ min_child 60→30(§S10.2)·val_window 252(§S11.5 Arm B)는 반증 완료.
   유의차도 아님 — "손상 미검출"이 정직한 결론). (c) 게이트 재캘리브레이션
   (총량률 → 예: 연속 재사용 깊이 상한)에 실측 근거 제공; ④ 차단형 전환의
   근거는 약화. 본 진단은 설명력 — 게이트 변경은 별도 사전등록/결정 필요.
+
+---
+
+## S12 — 외부 GPT 리뷰 후속 시퀀스 (2026-07-22 사용자 승인)
+
+> 배경: 외부 GPT 리뷰의 평가·개선 제안을 코드·결정 로그 대조로 검증
+> (Fable 세션, Explore 3-agent 교차확인). 사실관계 7항 중 5 TRUE·2 PARTIAL.
+> 특히 objective 지적은 §S11.10 잔존 가설과, 퇴화 가드 지적은 §S11.10
+> 부기 실측과 독립 수렴. 사용자 승인 순서: **① 퇴화 게이트 재정의(거버넌스)
+> → ② objective swap 단일 arm → ③ EWMA full refresh(+스케일 제거 청소)
+> → ④ mu 보정 최소 버전 → ⑤ PCA 표준화 → ⑥ 비용 모델**. 성능 arm은
+> 각각 단일 사전등록 파라미터·ΔIR +0.36 바(§2.4)·vs S0(150)″.
+> 기각된 GPT 제안: PIT 유니버스 재구축(§S11 생존편향 정책 유지)·직접
+> 리스크 예산(현 하드캡+가드레일 설계 의도적)·1.25× 즉시 폐지(챌린저
+> 차단자는 DSR/노이즈밴드임을 확인).
+
+### S12.1 (2026-07-22) — 퇴화 게이트 재정의: 총량률 → 연속 stale depth (거버넌스)
+
+**사전등록 (구현 전 기록)**:
+- **성격**: 성능 주장 없음 — 게이트/모니터링 거버넌스 변경. IR 바 비적용.
+- **근거**: §S11.10 부기 — 재사용 손상 실측 증거 없음(production ic_pipe
+  신선 +0.003 vs 재사용 +0.037, 방향 역), degenerate_rate는 손상 대리지표로
+  실측 근거 없음. 유일 잠재 리스크 = 초장기 연속 재사용(age 7 꼬리, N=3,
+  ic_h20 −0.088, 비유의).
+- **실측 (2026-07-22 재인증 번들, metrics.model_quality events×split_audit
+  유도)**: 최대 연속 퇴화 재학습 — production **7**(run 집합 {1,2,5,7}),
+  challenger **3**. §S11.10 부기의 "max age 7"과 정확히 일치(동일 지표의
+  두 표현임을 확인).
+- **설계**: production HOLD 게이트(§S9.2 체크 6종)에서 `degenerate_rate_ok`
+  제거(값은 관찰 지표로 유지), 신설 **`stale_depth_ok` = 최대 연속 퇴화
+  재학습 ≤ 7**. 유도는 `split_audit` 재학습 순서 × `events` 날짜(재실행
+  불필요·기존 번들 호환). **한도 7 근거**: 부기에서 depth ≤7 전 구간 손상
+  미검출(7 꼬리만 비유의 음) — 실측 무해 구간의 상한을 허용하고 **8+는
+  미검증 영역이므로 HOLD**. fail-closed 유지(events/split_audit 부재 →
+  None → HOLD). 파이프라인 내부 경고(max_degenerate_model_rate 0.25·
+  fail_on_degenerate_model_rate)는 불변 — 게이트만 교체.
+- **모니터링**: operating monitoring.json 가드레일 블록에
+  `model_max_stale_depth`·`model_stale_depth_breached` 추가
+  (`model_degenerate_rate`는 관찰값으로 병기).
+- **합격기준**: (1) `<PY> -m pytest tests/test_validate_portfolio_bundles.py
+  -q` PASS — 신규 케이스: rate 높아도 depth≤7이면 PRODUCTION·depth 8+는
+  HOLD·model_quality 부재는 fail-closed HOLD. (2) `<PY> scripts/
+  validate_portfolio_bundles.py --bundle outputs/operating --bundle
+  outputs/operating_codex_causal_rank_65` → production_gate 체크 6종 전부
+  True·status PRODUCTION(퇴화율 56.25%는 values 관찰로 잔존). (3) 대시보드
+  JSON 계약 비파괴(필드 추가만).
+- **예상 결과**: 잔존 HOLD 1건(degenerate_rate)이 근거 있는 형태로 해소 →
+  §S9.2 도입 이래 최초 production_gate=PRODUCTION.
+
+**결과 (2026-07-22 구현·검증 완료 — 합격기준 전부 충족)**:
+- 구현: validator `stale_depth_ok`(split_audit×events 유도·fail-closed·한도
+  상수 `MAX_CONSECUTIVE_STALE_RETRAINS = 7`)
+  + values에 `max_stale_depth`/한도 병기, `degenerate_rate`는 관찰값 유지;
+  export monitoring 가드레일에 `model_max_stale_depth`·
+  `model_stale_depth_breached` 추가(차기 export부터 산출물 반영). 파이프라인
+  내부 경고(max_degenerate_model_rate 0.25)는 불변.
+- 검증: 전체 스위트 **301 PASS**(신규 게이트 케이스 3종 포함). 실번들 검증
+  → production_gate 체크 6종 전부 True·**status PRODUCTION — §S9.2 도입
+  이래 최초**. production max_stale_depth **7**(한도 7)·challenger 3.
+  degenerate_rate 0.5625는 values 관찰로 잔존.
+- 부수 수리(별도 커밋): `test_universe_fx_conversion` 항등성 테스트 1건이
+  c6d9584(07-22 스케줄 `git add -A` 스윕 커밋 — 11:30 테스트 통과 시점과
+  12:44 커밋 사이에 트리가 더 변경되어 **테스트 미검증 상태가 커밋됨**,
+  289→299개 수집 격차로 확인)에서 적색: §S11.4 자동 추론이 픽스처 첫
+  날짜를 eligibility로 해석해 상장일 당일 raw 수익률을 inclusive 마스킹
+  (동작은 인증 설계 그대로) — 테스트에서 `listing_auto_infer_enabled=False`
+  로 변환 항등성 검증 의도만 복원. **동작 코드 불변**.
