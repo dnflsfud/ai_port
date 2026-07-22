@@ -624,6 +624,12 @@ def walk_forward_train(
     degenerate_retrains = 0
     degenerate_events = []
     split_audit = []
+    # S12.3: full-refresh / re-entry evidence (recorded only when the
+    # periodic refresh is enabled — keys stay absent on the parity path).
+    refresh_interval = int(getattr(config, "ewma_full_refresh_interval", 0) or 0)
+    refresh_dates: List[str] = []
+    reentry_events: List[Dict] = []
+    prev_selected: Optional[set] = None
 
     # EWMA Feature Importance Tracker
     ewma_tracker = EWMAFeatureTracker(config)
@@ -667,6 +673,24 @@ def walk_forward_train(
             # EWMA: 이전 재훈련 결과 기반으로 active feature 선택 (candidate)
             candidate_features = ewma_tracker.get_active_features(feature_names)
             n_dropped = len(feature_names) - len(candidate_features)
+
+            # S12.3: classify this selection as a periodic full refresh or a
+            # normal EWMA selection; a normal selection regaining a feature
+            # absent from the previous normal selection is a re-entry (the
+            # mechanism the refresh exists to enable).
+            if refresh_interval > 0 and ewma_tracker.is_ready():
+                if ewma_tracker.n_updates % refresh_interval == 0:
+                    refresh_dates.append(t_date.strftime("%Y-%m-%d"))
+                else:
+                    selected = set(candidate_features)
+                    if prev_selected is not None:
+                        reentered = sorted(selected - prev_selected)
+                        if reentered:
+                            reentry_events.append({
+                                "date": t_date.strftime("%Y-%m-%d"),
+                                "features": reentered,
+                            })
+                    prev_selected = selected
 
             # EWMA: candidate feature 의 weight 벡터 (numpy 레벨 적용)
             fw = ewma_tracker.get_feature_weights(feature_names)
@@ -799,6 +823,15 @@ def walk_forward_train(
             ),
             "split_audit": split_audit,
         })
+    if refresh_interval > 0:
+        ewma_tracker.model_quality["ewma_full_refresh"] = {
+            "interval": refresh_interval,
+            "refresh_dates": refresh_dates,
+            "reentry_events": reentry_events,
+            "reentry_feature_count": int(
+                len({f for e in reentry_events for f in e["features"]})
+            ),
+        }
     max_rate = float(getattr(config, "max_degenerate_model_rate", 0.25))
     if degenerate_rate > max_rate:
         msg = (

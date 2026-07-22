@@ -1,7 +1,7 @@
 {
-  "label": "codex_causal_rank_65",
+  "label": "parity_s12_3_no_ewma_scale",
   "tuning_mode": "production",
-  "manifest_path": "variants\\codex_causal_rank_65.yaml",
+  "manifest_path": "variants\\parity_s12_3_no_ewma_scale.yaml",
   "overrides": {
     "model_objective": "cross_sectional_rank",
     "causal_validation_enabled": true,
@@ -36,6 +36,7 @@
     "ewma_min_retrains": 2,
     "ewma_drop_pct": 0.05,
     "ewma_min_features": 60,
+    "ewma_feature_scaling_enabled": false,
     "feature_mode": "core",
     "min_model_trees": 10,
     "max_degenerate_model_rate": 0.25,
@@ -1032,5 +1033,5 @@
     "ECOS": 192
   },
   "optimizer_solver_fallback_rate": 0.0,
-  "elapsed_sec": 538.8
+  "elapsed_sec": 612.2
 }

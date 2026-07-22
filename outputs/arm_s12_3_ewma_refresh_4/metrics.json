@@ -1,7 +1,7 @@
 {
-  "label": "codex_causal_rank_65",
+  "label": "arm_s12_3_ewma_refresh_4",
   "tuning_mode": "production",
-  "manifest_path": "variants\\codex_causal_rank_65.yaml",
+  "manifest_path": "variants\\arm_s12_3_ewma_refresh_4.yaml",
   "overrides": {
     "model_objective": "cross_sectional_rank",
     "causal_validation_enabled": true,
@@ -36,6 +36,7 @@
     "ewma_min_retrains": 2,
     "ewma_drop_pct": 0.05,
     "ewma_min_features": 60,
+    "ewma_full_refresh_interval": 4,
     "feature_mode": "core",
     "min_model_trees": 10,
     "max_degenerate_model_rate": 0.25,
@@ -100,33 +101,33 @@
     "dr_alpha_enabled": false
   },
   "metrics": {
-    "annual_return": 0.28153513416489173,
-    "annual_vol": 0.2054492827657226,
-    "sharpe_ratio": 1.3703388513939527,
-    "active_return": 0.06226086647352136,
-    "tracking_error": 0.038403727231607676,
-    "information_ratio": 1.6212193701417186,
+    "annual_return": 0.2785434053340228,
+    "annual_vol": 0.20530801668269047,
+    "sharpe_ratio": 1.3567098344947714,
+    "active_return": 0.059748122988639185,
+    "tracking_error": 0.03843861186687295,
+    "information_ratio": 1.5543777490084425,
     "max_drawdown": -0.3027790149548619,
-    "avg_annual_turnover": 0.7416891411128763,
-    "avg_annual_turnover_one_way": 0.37084457055643816,
-    "avg_ic": 0.029788976707679982,
-    "annual_tc": 0.0007416891411128763,
+    "avg_annual_turnover": 0.7363424108305178,
+    "avg_annual_turnover_one_way": 0.3681712054152589,
+    "avg_ic": 0.02558675670785666,
+    "annual_tc": 0.0007363424108305178,
     "sp500_annual_return": 0.1451660405270334,
     "sp500_annual_vol": 0.19683083383293662,
     "sp500_sharpe": 0.7375167685884289,
-    "sp500_active_return": 0.12591261419152588,
-    "sp500_tracking_error": 0.0655921851636673,
-    "sp500_information_ratio": 1.9196282892138066,
-    "sp500_beta": 1.010724261342454,
+    "sp500_active_return": 0.122994272215317,
+    "sp500_tracking_error": 0.06539546996027498,
+    "sp500_information_ratio": 1.8807766392692167,
+    "sp500_beta": 1.0102777002151233,
     "spx_annual_return": 0.1451660405270334,
     "spx_annual_vol": 0.19683083383293662,
     "spx_sharpe": 0.7375167685884289,
-    "realized_beta": 1.0397846799137613,
-    "realized_active_beta": 0.0397846799137614,
+    "realized_beta": 1.0389802391404956,
+    "realized_active_beta": 0.03898023914049535,
     "sub_periods": {
-      "P1_ir": 1.7158024557072848,
-      "P2_ir": 0.7489420151286963,
-      "P3_ir": 2.37663875057419
+      "P1_ir": 1.656163919549244,
+      "P2_ir": 0.4847900387312017,
+      "P3_ir": 2.461079483386735
     }
   },
   "model_quality": {
@@ -154,16 +155,23 @@
       },
       {
         "date": "2020-05-07",
-        "n_trees": 7,
+        "n_trees": 4,
         "min_model_trees": 10,
-        "candidate_features": 60,
+        "candidate_features": 61,
+        "reused_prev_model": true
+      },
+      {
+        "date": "2020-08-04",
+        "n_trees": 3,
+        "min_model_trees": 10,
+        "candidate_features": 61,
         "reused_prev_model": true
       },
       {
         "date": "2020-10-30",
-        "n_trees": 5,
+        "n_trees": 8,
         "min_model_trees": 10,
-        "candidate_features": 60,
+        "candidate_features": 61,
         "reused_prev_model": true
       },
       {
@@ -190,13 +198,6 @@
       {
         "date": "2022-07-11",
         "n_trees": 2,
-        "min_model_trees": 10,
-        "candidate_features": 60,
-        "reused_prev_model": true
-      },
-      {
-        "date": "2023-01-03",
-        "n_trees": 7,
         "min_model_trees": 10,
         "candidate_features": 60,
         "reused_prev_model": true
@@ -703,7 +704,20 @@
         "forward_horizon": 20,
         "causal_validation_ok": true
       }
-    ]
+    ],
+    "ewma_full_refresh": {
+      "interval": 4,
+      "refresh_dates": [
+        "2020-05-07",
+        "2020-08-04",
+        "2020-10-30",
+        "2021-01-27",
+        "2023-01-03",
+        "2025-03-06"
+      ],
+      "reentry_events": [],
+      "reentry_feature_count": 0
+    }
   },
   "data_quality": {
     "intersection_dates": 3255,
@@ -1032,5 +1046,5 @@
     "ECOS": 192
   },
   "optimizer_solver_fallback_rate": 0.0,
-  "elapsed_sec": 538.8
+  "elapsed_sec": 524.7
 }

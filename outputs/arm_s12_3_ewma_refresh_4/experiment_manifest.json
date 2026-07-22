@@ -45,7 +45,7 @@
     "ewma_drop_pct": 0.05,
     "ewma_enabled": true,
     "ewma_feature_scaling_enabled": true,
-    "ewma_full_refresh_interval": 0,
+    "ewma_full_refresh_interval": 4,
     "ewma_importance_type": "split",
     "ewma_min_features": 60,
     "ewma_min_retrains": 2,
@@ -213,12 +213,12 @@
     "vtg_scale": 0.0
   },
   "extra": {
-    "description": "Fixed-150 causal production portfolio. Uses date-grouped LightGBM rank_xendcg, purged/embargoed validation, and a one-trading-day execution signal lag. The legacy label/output path is retained for automation compatibility; the universe is the validated 150-name Universe_Meta set (decision log \u00a7S11.3). Benchmark, overlays, optimizer and transaction-cost assumptions remain pinned to the canonical iter15_65tkr_reb21_vtg portfolio design.\n",
-    "manifest_path": "variants\\codex_causal_rank_65.yaml",
+    "description": "Pre-registered single-parameter arm (decision log S12.3(ii), 2026-07-22): identical to codex_causal_rank_65 except ewma_full_refresh_interval 4 - every 4th EWMA update trains on the FULL feature list so dropped features can earn importance again (the drop path is otherwise one-way). Endpoints: E1 dIR > +0.36 with sub-period sign consistency; E2 reentry_feature_count >= 1. Guards G1-G7 vs the S0(150)'' baseline. Not a production variant.\n",
+    "manifest_path": "variants\\arm_s12_3_ewma_refresh_4.yaml",
     "tuning_mode": "production",
-    "variant_label": "codex_causal_rank_65"
+    "variant_label": "arm_s12_3_ewma_refresh_4"
   },
   "git_dirty": true,
   "git_hash": "62fa2e68d69f277f148c1002196ccc59d0c367b9",
-  "timestamp_utc": "2026-07-22T05:58:47Z"
+  "timestamp_utc": "2026-07-22T06:09:33Z"
 }
