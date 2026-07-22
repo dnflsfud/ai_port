@@ -1319,3 +1319,94 @@ min_child 60→30(§S10.2)·val_window 252(§S11.5 Arm B)는 반증 완료.
   날짜를 eligibility로 해석해 상장일 당일 raw 수익률을 inclusive 마스킹
   (동작은 인증 설계 그대로) — 테스트에서 `listing_auto_infer_enabled=False`
   로 변환 항등성 검증 의도만 복원. **동작 코드 불변**.
+
+### S12.2 (2026-07-22) — objective swap 단일 arm: rank_xendcg → regression
+
+**사전등록 (실행 전 기록)**:
+- **가설**: §S11.10 잔존 objective 특성 가설 — rank_xendcg의 NDCG@[5,10]
+  중심 손실이 (a) purged 검증창에서 정체해 퇴화(조기종료)를 유발하고
+  (b) 하위 순위·언더웨이트 품질을 직접 최적화하지 않음(외부 GPT 리뷰
+  지적과 수렴). 동일 프레임에서 objective만 바꾸면 격리 검증 가능
+  (challenger 40.6% vs production 56.25% 격차는 confounded — 프레임 상이).
+- **단일 사전약정 변경**(의미상 1건 — 결합 3필드): `model_objective:
+  cross_sectional_rank → regression` + `lgbm_params.objective: rank_xendcg
+  → regression` + `lgbm_params.metric: ndcg → mse`(challenger iter15의
+  정본 regression 설정). 그 외 전부 production 핀 유지(lr 0.02·causal
+  validation·EMA·overlays·optimizer). `rank_relevance_levels`/`rank_eval_at`
+  은 잔존하나 regression 경로에서 inert. 스윕 금지. 참고: 스윕 커밋에
+  포함된 미문서 `symmetric_rank` 브랜치(config 208·model_trainer 385-416,
+  default-inert)는 본 arm과 무관 — 별도 사전등록 전 사용 금지.
+- **실행**: `<PY> run_variant.py --variant
+  variants/arm_s12_2_objective_regression.yaml --no-cache` — ECOS·seed 42·
+  단일 실행.
+- **판정 기준 (vs S0(150)″ production IR 1.681/TE 3.61%/turnover 74.6%/
+  beta 1.041/퇴화율 56.25%/sub 1.669·1.218·2.265)**:
+  - **E1 (§2.4 채택 바)**: ΔIR > **+0.36** AND 서브기간 3구간 Δ 부호 일관.
+  - **E2 (objective 가설 판정)**: `model_quality.degenerate_rate` ≤ **0.45**
+    (challenger regression 실측 40.6% 동수준 이하로 하락 시 가설 지지).
+  - Do-no-harm 가드: G1 ΔIR > −0.36 · G2 TE ≤ 4.5% · G3 beta ∈ [0.95,
+    1.05] · G4 fallback ≤ 5%·ECOS-only(SCS 0) · G5 causal_validation_ok ·
+    G6 turnover ≤ 93.3%(1.25×) · G7 집중 캐릭터 보존(§5).
+  - 관찰(게이트 아님): max_stale_depth(S12.1)·n_trees 분포·MDD·IC.
+- **해석 매트릭스**: E1 통과 → §8 flip 후보(단일 flip·DSR 해킷 별도).
+  E1 실패·E2 통과 → **objective 가설 실증(설명력)** — 성능 채택 없음,
+  rank+regression mu-combination(§S11.9 잔존 후보) 설계 근거로 기록.
+  E1·E2 모두 실패 → objective 가설 기각, 퇴화 원인 미해명으로 기록.
+
+**결과 (2026-07-22 실행 완주, ECOS 192·fallback 0) — E1 FAIL·E2 PASS →
+불채택·objective 가설 실증**:
+- **E1 FAIL**: IR **1.565**(Δ **−0.116**, 노이즈 대역 내) + 서브기간
+  1.403/1.281/1.903 → Δ −0.266/**+0.063**/−0.362 **부호 비일관**.
+- **E2 PASS**: degenerate_rate **40.6%(13/32)** ≤ 0.45 — challenger
+  regression의 40.6%와 **정확히 동수준**. 동일 프레임 격리에서 objective
+  단독 교체가 퇴화율 56.25→40.6%를 재현 → **§S11.10 잔존 objective 특성
+  가설(rank_xendcg NDCG 정체) 실증 확정**. max_stale_depth 3(vs production
+  7) — 신선도도 개선.
+- 가드: G1 Δ−0.116 OK / G2 TE 2.97% OK / G3 beta 1.018 OK / G4 ECOS-only
+  OK / G5 causal_ok OK / **G6 위반: turnover 107.9% > 93.3%(1.25×)** —
+  regression 신호는 순위 안정성이 낮아 회전이 challenger(108.3%)처럼 증가.
+  G7 캐릭터: TE·active 성격 유지(관찰).
+- **판정: 불채택·프로덕션 무변경(no-flip)**. 퇴화의 원인은 이제
+  설명됨(objective 특성) — 단 성능·회전 게이트가 교체를 정당화하지 않음.
+  관찰: P2(최약 구간)만 +0.063 개선 — rank는 P1/P3(추세 구간)에서,
+  regression은 P2(횡보)에서 상대 우위라는 상보성 단서 → §S11.9 잔존
+  후보(rank+regression mu-combination)의 설계 근거로 기록. IC 0.0498
+  (production 0.0214 대비 높음 — IC와 IR의 괴리는 회전·순위 안정성 경유).
+
+### S12.3 (2026-07-22) — EWMA 스케일 무효 검증 + 주기적 full refresh arm
+
+**사전등록 (실행 전 기록)**:
+- **배경 (GPT 지적 ③, 코드 검증으로 확정)**: (a) EWMA feature scaling
+  (√(ewma/mean)·clip[0.5,2] 양수 곱)은 tree split 순서 불변 — 실효 의심;
+  (b) 탈락 피처는 update가 active만 갱신해 감쇠만 하므로 **재진입 경로
+  없음**(일방향 경로 의존). 스윕 커밋 c6d9584에 병행 세션의 인프라가 이미
+  존재: `ewma_feature_scaling_enabled`(기본 True)·
+  `ewma_full_refresh_interval`(기본 0) — config 253·256, **기본값이 파리티
+  보존**. 미인증 스윕 코드였으므로 본 절에서 검증 후 사용: 오늘 기준선
+  재현(IR 1.6809 = S0(150)″)이 기본 경로 파리티의 실증이고, 트래커 단위
+  테스트(test_pit_sp500_ai_v2)+ 신규 walk-forward 테스트 2종이 동작 검증.
+- **플러밍 (본 세션 추가)**: `model_quality.ewma_full_refresh` —
+  interval>0일 때만 키 생성(파리티 안전): refresh_dates·reentry_events·
+  reentry_feature_count. 테스트: OFF 키 부재 + ON 기록·full set 학습 확인
+  (스위트 303 PASS).
+- **(i) 스케일 무효 파리티 런 — arm 아님, IR 게이트 비적용**:
+  `variants/parity_s12_3_no_ewma_scale.yaml` = production 사본 +
+  `ewma_feature_scaling_enabled: false`(out_dir 분리). **판정**: metrics의
+  성과 블록·degenerate 지표가 인증 기준선(outputs/codex_causal_rank_65)과
+  **완전 일치**하면 "스케일링은 실증 no-op" → 청소 판정 완료(제거 대신
+  플래그·문서화, 향후 기본 OFF 전환 근거). 불일치면 스케일링 실효 있음 →
+  기본 ON 유지·차이 기록(이 경우 '청소' 없음).
+- **(ii) full refresh arm — 단일 사전약정 파라미터**:
+  `variants/arm_s12_3_ewma_refresh_4.yaml` = production 사본 +
+  **`ewma_full_refresh_interval: 4`**(재훈련 63d × 4 ≈ 연 1회 refresh).
+  스윕 금지.
+  - **E1 (§2.4 채택 바)**: ΔIR > +0.36 AND 서브기간 3구간 Δ 부호 일관
+    (vs S0(150)″ IR 1.681).
+  - **E2 (기전)**: `reentry_feature_count ≥ 1` — 탈락 피처 재진입 실증.
+  - 가드 G1–G7 (§S12.2와 동일 정의).
+  - 해석: E1 통과 → §8 flip 후보(DSR 별도). E1 실패·E2 통과 → 경로 의존
+    해소 기전 실증·성능 무득 → 불채택·설명력 기록. E2 실패 → refresh가
+    재진입을 못 만듦(core whitelist 포화 — active가 이미 floor 60 부근 —
+    가설) 기록.
+- **실행 순서**: S12.2 완료 후 (i) → (ii), 각각 `--no-cache`·ECOS·seed 42·
+  단일 실행.
