@@ -73,6 +73,7 @@ def compute_specific_returns(
     dates = returns.index
     tickers = returns.columns
     n_dates = len(dates)
+    vol_standardize = bool(getattr(config, "pca_vol_standardize", False))
 
     # Forward cumulative returns
     fwd_ret = compute_forward_returns(returns, horizon)
@@ -110,8 +111,17 @@ def compute_specific_returns(
         # PCA fitting
         try:
             actual_n = min(n_components, n_eligible - 1)
+            if vol_standardize:
+                # S12.5: per-ticker trailing vol from the same window;
+                # zero / non-finite vol columns fall back to 1.0 (identity).
+                sigma = hist_clean.values.std(axis=0, ddof=1)
+                sigma = np.where(np.isfinite(sigma) & (sigma > 1e-12), sigma, 1.0)
+                hist_fit = hist_clean.values / sigma
+            else:
+                sigma = None
+                hist_fit = hist_clean.values
             pca = PCA(n_components=actual_n)
-            pca.fit(hist_clean.values)
+            pca.fit(hist_fit)
         except (ValueError, np.linalg.LinAlgError) as e:
             n_pca_failed += 1
             logger.warning("[TargetEngine] PCA failed at t=%d (%s): %s", t, dates[t].strftime('%Y-%m-%d'), e)
@@ -124,8 +134,9 @@ def compute_specific_returns(
             n_skipped_fwd_nan += 1
             continue
 
-        # Common component 계산
-        factors = pca.transform(fwd_t)  # shape (1, actual_n)
+        # Common component 계산 (표준화 시 동일 σ 공간에서 사영)
+        fwd_fit = fwd_t / sigma if sigma is not None else fwd_t
+        factors = pca.transform(fwd_fit)  # shape (1, actual_n)
 
         if n_remove < actual_n:
             # Partial PCA: PC1~PC(n_remove)만 제거, 나머지는 유지
@@ -137,7 +148,9 @@ def compute_specific_returns(
             common = pca.inverse_transform(factors)
 
         # Specific return = forward return - common component
-        spec = fwd_t - common
+        spec = fwd_fit - common
+        if sigma is not None:
+            spec = spec * sigma  # return 단위로 복원
         specific_ret.iloc[t, np.flatnonzero(eligible)] = spec.flatten()
 
     # C7: emit a summary so silent failures surface in the log

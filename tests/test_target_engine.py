@@ -96,3 +96,76 @@ def test_thin_eligible_universe_is_skipped_not_crashed():
     got = compute_specific_returns(returns, **KW)
     # eligible < 2인 구간은 예외 없이 전부 NaN이어야 한다
     assert got.iloc[KW["lookback"]: 40].isna().all().all()
+
+
+# ---------------------------------------------------------------------------
+# §S12.5: pca_vol_standardize — OFF 파리티 + ON은 inline 참조 구현과 항등
+# ---------------------------------------------------------------------------
+from src.config import PipelineConfig  # noqa: E402
+
+
+def _reference_vol_standardized(returns, n_components, n_remove, lookback, horizon):
+    """§S12.5 표준화 PCA의 inline 참조 구현 (σ 표준화 후 σ 복원)."""
+    dates = returns.index
+    tickers = returns.columns
+    cum = (1 + returns).cumprod()
+    fwd = cum.shift(-horizon) / cum - 1
+    out = pd.DataFrame(np.nan, index=dates, columns=tickers)
+    for t in range(lookback, len(dates) - horizon):
+        hist = returns.iloc[t - lookback: t]
+        hist_clean = hist.loc[hist.notna().all(axis=1)]
+        if len(hist_clean) < lookback // 2:
+            continue
+        sigma = hist_clean.values.std(axis=0, ddof=1)
+        sigma = np.where(np.isfinite(sigma) & (sigma > 1e-12), sigma, 1.0)
+        actual_n = min(n_components, len(tickers) - 1)
+        pca = PCA(n_components=actual_n)
+        pca.fit(hist_clean.values / sigma)
+        fwd_t = fwd.iloc[t].values.reshape(1, -1)
+        if np.any(np.isnan(fwd_t)):
+            continue
+        fwd_scaled = fwd_t / sigma
+        factors = pca.transform(fwd_scaled)
+        if n_remove < actual_n:
+            fp = factors.copy()
+            fp[:, n_remove:] = 0
+            common = pca.inverse_transform(fp)
+        else:
+            common = pca.inverse_transform(factors)
+        out.iloc[t] = ((fwd_scaled - common) * sigma).flatten()
+    return out
+
+
+def test_pca_vol_standardize_off_is_flag_inert():
+    returns = _panel()
+    got_default = compute_specific_returns(returns, **KW)
+    got_off = compute_specific_returns(
+        returns, config=PipelineConfig(pca_vol_standardize=False), **KW
+    )
+    assert np.allclose(
+        got_default.values, got_off.values, atol=0.0, equal_nan=True
+    )
+
+
+def test_pca_vol_standardize_matches_inline_reference():
+    returns = _panel()
+    got = compute_specific_returns(
+        returns, config=PipelineConfig(pca_vol_standardize=True), **KW
+    )
+    ref = _reference_vol_standardized(returns, **KW)
+    assert np.allclose(got.values, ref.values, atol=1e-12, equal_nan=True)
+    # 표준화 결과는 raw PCA와 실제로 달라야 한다(무의미한 no-op 방지)
+    raw = _reference_full_basis(returns, **KW)
+    finite = ~np.isnan(ref.values)
+    assert not np.allclose(ref.values[finite], raw.values[finite], atol=1e-10)
+
+
+def test_pca_vol_standardize_guards_zero_vol_column():
+    returns = _panel()
+    returns["T0"] = 0.0  # 상수(무변동) 열 -> sigma 0 -> 1.0 폴백, 크래시 금지
+    got = compute_specific_returns(
+        returns, config=PipelineConfig(pca_vol_standardize=True), **KW
+    )
+    assert np.isfinite(
+        got.iloc[KW["lookback"]: len(returns) - KW["horizon"]].values
+    ).all()

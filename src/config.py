@@ -101,6 +101,11 @@ class PipelineConfig:
     pca_components: int = 5
     pca_n_remove: int = 2
     pca_lookback: int = 252
+    # S12.5 (2026-07-22, default-OFF): standardize each ticker's window by
+    # its trailing vol before the PCA fit so factors reflect correlation
+    # structure instead of vol magnitude, then rescale the specific return
+    # back to return units. OFF preserves the certified raw-returns PCA.
+    pca_vol_standardize: bool = False
     forward_horizon: int = 20
 
     # ------------------------------------------------------------------
