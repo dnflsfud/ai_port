@@ -371,12 +371,33 @@ def test_production_gate_passes_when_all_clear(tmp_path):
     assert registry["production_gate"]["status"] == "PRODUCTION"
 
 
-def test_production_gate_default_fixture_passes_and_strips_private_keys(tmp_path):
+def test_production_gate_fails_closed_when_checks_missing_and_strips_private_keys(tmp_path):
+    # Fail-closed (2026-07-21): the default fixture has no risk_guardrails and
+    # no model_quality, so 4 checks are None (missing) — PRODUCTION requires
+    # every check to be explicitly True, so missing checks mean HOLD.
     production = _write_bundle(tmp_path, "prod", "production")
     challenger = _write_bundle(tmp_path, "causal", "challenger")
     registry = build_registry([production, challenger])
     prod_entry = next(p for p in registry["portfolios"] if p["portfolio_role"] == "production")
-    assert prod_entry["status"] == "PRODUCTION"  # None checks are not violations
+    assert prod_entry["status"] == "HOLD"
+    assert registry["production_gate"]["status"] == "HOLD"
     assert "production_gate" in registry
     for entry in registry["portfolios"]:
         assert not any(k.startswith("_") for k in entry)
+
+
+def test_production_gate_holds_when_single_check_missing(tmp_path):
+    # Guardrails all clear but model_quality absent -> degenerate_rate_ok is
+    # None -> fail-closed HOLD (missing evidence is not a pass).
+    production = _write_bundle(
+        tmp_path, "prod", "production",
+        risk_guardrails={
+            "estimated_te_breached": False,
+            "top_name_active_risk_breached": False,
+            "top_sector_active_risk_breached": False,
+        },
+    )
+    challenger = _write_bundle(tmp_path, "causal", "challenger")
+    registry = build_registry([production, challenger])
+    assert registry["production_gate"]["status"] == "HOLD"
+    assert registry["production_gate"]["checks"]["degenerate_rate_ok"] is None

@@ -67,11 +67,11 @@ def _patch_raw(monkeypatch, raw):
     )
 
 
-def test_fallback_universe_has_exact_100_workbook_order():
-    assert len(TICKERS) == 100
-    assert len(set(TICKERS)) == 100
+def test_fallback_universe_has_exact_150_workbook_order():
+    assert len(TICKERS) == 150
+    assert len(set(TICKERS)) == 150
     assert TICKERS[:5] == ["AAPL", "MSFT", "GOOGL", "AMZN", "META"]
-    assert TICKERS[-5:] == ["AZN", "SHEL", "HSBA", "NOVOB", "RIO"]
+    assert TICKERS[-5:] == ["KO", "ULVR", "ECL", "AI", "IBE"]
 
 
 def test_usd_and_listing_guardrails_are_enabled_for_100_name_regime():
@@ -95,6 +95,13 @@ def test_usd_and_listing_guardrails_are_enabled_for_100_name_regime():
         "GE": "2024-04-02",
         "TT": "2020-03-02",
         "BN": "2022-12-12",
+        # S11.4 coverage audit — unregistered leading-constant backfills
+        "ANET": "2014-06-06",
+        "RACE": "2015-10-21",
+        "LITE": "2015-07-27",
+        "VST": "2016-10-05",
+        "SPOT": "2018-04-03",
+        "VRT": "2018-08-01",
     }
 
 

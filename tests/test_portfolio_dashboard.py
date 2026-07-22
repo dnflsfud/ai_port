@@ -44,7 +44,11 @@ def test_operating_bundle_loads_registry_path_without_streamlit(tmp_path):
 def test_comparison_returns_aligns_both_portfolios_and_one_benchmark():
     dates = pd.bdate_range("2026-01-01", periods=3)
     production = pd.DataFrame(
-        {"portfolio_cum": [1.0, 1.1, 1.2], "benchmark_cum": [1.0, 1.05, 1.1]},
+        {
+            "portfolio_cum": [1.0, 1.1, 1.2],
+            "benchmark_cum": [1.0, 1.05, 1.1],
+            "sp500_cum": [1.0, 1.03, 1.08],
+        },
         index=dates,
     )
     challenger = pd.DataFrame(
@@ -52,8 +56,11 @@ def test_comparison_returns_aligns_both_portfolios_and_one_benchmark():
         index=dates,
     )
     out = build_comparison_returns(production, challenger, "Legacy S0", "Causal Rank 65")
-    assert list(out.columns) == ["Legacy S0", "Benchmark", "Causal Rank 65"]
+    assert list(out.columns) == [
+        "Legacy S0", "Benchmark", "S&P 500", "Causal Rank 65"
+    ]
     assert out.iloc[-1]["Causal Rank 65"] == 1.25
+    assert out.iloc[-1]["S&P 500"] == 1.08
 
 
 def test_summarize_currency_period_filters_and_sums_exact_effects():

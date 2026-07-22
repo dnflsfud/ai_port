@@ -91,6 +91,30 @@ def get_sector_map_from_meta() -> Dict[str, str]:
     return TICKER_SECTOR.copy()
 
 
+def build_ticker_meta(meta) -> Dict[str, Dict[str, str]]:
+    """Universe_Meta 기반 티커 메타 (§S11.4 Phase 3).
+
+    Sector는 워크북 Universe_Meta(정본)에서, style/sub는 정적 TICKER_META
+    fallback에서 가져온다. 워크북에 없는 정보는 중립값('Other'/'N/A').
+    ``meta``는 UniverseData.meta 형태(index=티커, 'sector' 컬럼)를 기대한다.
+    """
+    result: Dict[str, Dict[str, str]] = {}
+    sectors = meta["sector"] if "sector" in meta.columns else None
+    for ticker in meta.index:
+        static = TICKER_META.get(str(ticker), {})
+        sector = None
+        if sectors is not None:
+            value = sectors.get(ticker)
+            if value is not None and str(value) not in ("nan", ""):
+                sector = str(value)
+        result[str(ticker)] = {
+            "sector": sector or static.get("sector", "Other"),
+            "style": static.get("style", "Other"),
+            "sub": static.get("sub", "N/A"),
+        }
+    return result
+
+
 # ---------------------------------------------------------------------------
 # Asset-rotation buckets (used by analytics.classify_sector_rotation).
 # -----------------------------------------------------------------------------

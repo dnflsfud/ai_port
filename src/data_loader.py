@@ -111,6 +111,13 @@ TICKERS = [
     "TMO", "BSX", "BKNG", "PM", "WMB", "CEG", "VST", "DLR", "ARM",
     "SPOT", "RACE", "285A", "6857", "SU", "SIE", "RHM", "ALV", "MC",
     "NESN", "RR/", "SAP", "ASML", "AZN", "SHEL", "HSBA", "NOVOB", "RIO",
+    # Expansion 2026-07-20 (50) -- decision log §S11/§S11.2, Universe_Meta order
+    "QCOM", "TXN", "ADBE", "NOW", "ACN", "IBM", "ADI", "DELL",
+    "8035", "IFX", "MS", "SCHW", "AXP", "PGR", "AON", "CME", "KKR",
+    "BN", "C", "LSEG", "ZURN", "CS", "8306", "DIS", "CMCSA", "VZ",
+    "T", "TTWO", "PUB", "7974", "DTE", "UMG", "LOW", "TJX", "SBUX",
+    "ABNB", "7203", "ITX", "ABT", "DHR", "VRTX", "ROG", "GE", "TT",
+    "ABBN", "KO", "ULVR", "ECL", "AI", "IBE",
 ]
 
 # Bloomberg listing suffix -> local trading currency. Universe_Meta is the
@@ -150,12 +157,25 @@ FALLBACK_TICKER_CURRENCY = {
     "RR/": "GBP", "AZN": "GBP", "SHEL": "GBP", "HSBA": "GBP",
     "RIO": "GBP",
     "NOVOB": "DKK",
+    # Expansion 2026-07-20 (non-USD 17 of 50) -- decision log §S11
+    "8035": "JPY", "8306": "JPY", "7974": "JPY", "7203": "JPY",
+    "IFX": "EUR", "DTE": "EUR", "CS": "EUR", "PUB": "EUR",
+    "AI": "EUR", "UMG": "EUR", "ITX": "EUR", "IBE": "EUR",
+    "ZURN": "CHF", "ROG": "CHF", "ABBN": "CHF",
+    "LSEG": "GBP", "ULVR": "GBP",
 }
 
 SENT_TREND_SHEETS = {
     "Sent_Trend_Momentum_Timeseries",
     "Sent_Trend_21d_Timeseries",
 }
+
+# Sheets exempt from the post-align listing re-mask (§S11.4): the PCA target
+# engine requires a dense cross-section, so Daily_Returns keeps its first-pass
+# mask + cross-sectional median refill (ghost constants replaced by the
+# per-date median return of LISTED names). Label/PnL leakage is blocked by the
+# targets/predictions cell masks in run_backtest.
+LISTING_REMASK_EXEMPT_SHEETS = {"Daily_Returns"}
 
 # 날짜 인덱스가 아닌 메타/요약 시트 (전처리에서 제외)
 SKIP_SHEETS = {"Universe_Meta", "Summary_Stats", "BusinessDays", "Factor_Meta", "Earnings_Timeline"}
@@ -388,16 +408,112 @@ def load_universe_meta(raw: Dict[str, pd.DataFrame]) -> pd.DataFrame:
     return meta
 
 
+def _infer_eligibility_from_price(
+    prices: pd.Series,
+    min_flat_run: int = 5,
+    rtol: float = 1e-10,
+    atol: float = 1e-12,
+) -> Optional[pd.Timestamp]:
+    """Infer the first economically usable price observation.
+
+    Some vendor panels backfill an unlisted security with one constant price.
+    A normal series starts at its first non-null value; a leading constant run
+    of at least ``min_flat_run`` observations starts at its first subsequent
+    price change instead.  The function only looks at the raw price history.
+    """
+    series = pd.to_numeric(prices, errors="coerce").dropna()
+    if series.empty:
+        return None
+    series = series.sort_index()
+    first_value = float(series.iloc[0])
+    same_as_first = np.isclose(
+        series.to_numpy(dtype=float), first_value, rtol=rtol, atol=atol,
+        equal_nan=False,
+    )
+    change_positions = np.flatnonzero(~same_as_first)
+    if len(change_positions) and int(change_positions[0]) >= int(min_flat_run):
+        return pd.Timestamp(series.index[int(change_positions[0])])
+    return pd.Timestamp(series.index[0])
+
+
+def resolve_listing_dates(
+    meta: pd.DataFrame,
+    raw: Dict[str, pd.DataFrame],
+    config: PipelineConfig,
+) -> Tuple[Dict[str, str], Dict[str, str]]:
+    """Resolve an eligibility date for every universe member.
+
+    Precedence is explicit configuration (corporate-action overrides), then an
+    optional date column in ``Universe_Meta``, then raw ``PX_LAST`` inference.
+    This makes newly appended metadata rows inherit the same point-in-time rule
+    without requiring a code change.
+    """
+    tickers = list(meta.index)
+    resolved: Dict[str, str] = {}
+    sources: Dict[str, str] = {}
+
+    if getattr(config, "listing_auto_infer_enabled", True) and "PX_LAST" in raw:
+        prices = raw["PX_LAST"].copy()
+        prices = _standardize_columns(prices)
+        prices = _standardize_index(prices)
+        prices = _filter_tickers(prices, tickers=tickers)
+        for ticker in tickers:
+            if ticker not in prices.columns:
+                continue
+            inferred = _infer_eligibility_from_price(
+                prices[ticker],
+                min_flat_run=getattr(config, "listing_flat_min_run", 5),
+                rtol=getattr(config, "listing_flat_rtol", 1e-10),
+                atol=getattr(config, "listing_flat_atol", 1e-12),
+            )
+            if inferred is not None:
+                resolved[ticker] = inferred.strftime("%Y-%m-%d")
+                sources[ticker] = "px_last_inferred"
+
+    meta_columns = {
+        str(column).strip().casefold(): column for column in meta.columns
+    }
+    for configured_name in getattr(config, "listing_meta_columns", []):
+        actual_column = meta_columns.get(str(configured_name).strip().casefold())
+        if actual_column is None:
+            continue
+        for ticker, value in meta[actual_column].items():
+            if ticker not in tickers or pd.isna(value) or not str(value).strip():
+                continue
+            try:
+                timestamp = pd.Timestamp(value)
+            except (TypeError, ValueError):
+                logger.warning(
+                    "Ignoring invalid %s=%r for %s",
+                    actual_column, value, ticker,
+                )
+                continue
+            resolved[ticker] = timestamp.strftime("%Y-%m-%d")
+            sources[ticker] = f"meta:{actual_column}"
+
+    for ticker, value in getattr(config, "listing_dates", {}).items():
+        if ticker not in tickers:
+            continue
+        timestamp = pd.Timestamp(value)
+        resolved[ticker] = timestamp.strftime("%Y-%m-%d")
+        sources[ticker] = "config_override"
+
+    return resolved, sources
+
+
 def preprocess_sheets(
     raw: Dict[str, pd.DataFrame],
     tickers: Optional[List[str]] = None,
     company_to_ticker: Optional[Dict[str, str]] = None,
+    listing_dates: Optional[Dict[str, str]] = None,
 ) -> Dict[str, pd.DataFrame]:
     """
     모든 시트를 전처리하여 반환.
     - DatetimeIndex 통일
     - Sent_Trend 컬럼 매핑
     - 티커 필터링
+    - (선택) 상장 전 1차 마스킹 — 임퓨트 median에 유령 백필이 섞이지 않도록
+      _fill_missing보다 먼저 적용. listing_dates=None이면 기존 동작과 동일.
     - 결측치 처리
     """
     processed: Dict[str, pd.DataFrame] = {}
@@ -427,6 +543,14 @@ def preprocess_sheets(
 
         # 수치형 변환
         df = df.apply(pd.to_numeric, errors="coerce")
+
+        # 상장 전 1차 마스킹 (§S11.4): _fill_missing 전에 걸어 유령 상수가
+        # 횡단면 median에 못 섞이게 한다. Daily_Returns는 상장일 수익률이
+        # 유령 기준가 대비 계산이므로 inclusive=True.
+        if listing_dates:
+            df = mask_pre_listing(
+                df, listing_dates, inclusive=(sheet_name == "Daily_Returns")
+            )
 
         # 결측치 처리
         df = _fill_missing(df)
@@ -851,6 +975,9 @@ class UniverseData:
         self.meta = load_universe_meta(self.raw)
         self.data_quality: Dict = {}
         self.full_universe = list(self.meta.index)
+        self.listing_dates, self.listing_date_sources = resolve_listing_dates(
+            self.meta, self.raw, self.config
+        )
         self.company_to_ticker = build_company_to_ticker(
             self.meta,
             tickers=self.full_universe,
@@ -882,6 +1009,10 @@ class UniverseData:
             self.raw,
             tickers=self.full_universe,
             company_to_ticker=self.company_to_ticker,
+            listing_dates=(
+                self.listing_dates
+                if self.config.listing_mask_enabled else None
+            ),
         )
         self.sheets = align_dates(
             self.sheets,
@@ -889,34 +1020,48 @@ class UniverseData:
             diagnostics=self.data_quality,
         )
 
-        # Pre-listing backfill masking (OFF by default). Applied AFTER
-        # align/impute so align_dates' cross-sectional median fill can't
-        # back-fill the masked pre-listing cells. See config.listing_mask_enabled.
+        # Pre-listing masking, 2nd pass (§S11.4). The 1st pass ran inside
+        # preprocess_sheets BEFORE the impute so ghost backfill stays out of
+        # the cross-sectional medians; align/impute then refills the masked
+        # cells, so this re-mask pins every per-ticker sheet back to NaN
+        # pre-listing (level sheets keep the listing-day observation).
+        # Daily_Returns is exempt — see LISTING_REMASK_EXEMPT_SHEETS.
         if self.config.listing_mask_enabled:
-            listing_dates = self.config.listing_dates
-            n_masked = 0
-            # Daily_Returns 시트는 PCA 타깃 엔진이 dense 횡단면을 요구해 시트 마스킹
-            # 제외 — 라벨 오염은 run_backtest의 targets 셀 마스킹이, PnL은 예측
-            # 마스킹(w=0)이 차단 (2026-07-02 ablation에서 확인).
-            for sheet_key, inclusive in (
-                ("PX_LAST", False),
-                ("CUR_MKT_CAP", False),
-            ):
-                if sheet_key not in self.sheets:
+            listing_dates = self.listing_dates
+            mask_counts: Dict[str, int] = {}
+            for sheet_key in list(self.sheets):
+                if sheet_key in LISTING_REMASK_EXEMPT_SHEETS:
                     continue
                 before = int(self.sheets[sheet_key].isna().sum().sum())
                 self.sheets[sheet_key] = mask_pre_listing(
-                    self.sheets[sheet_key], listing_dates, inclusive=inclusive
+                    self.sheets[sheet_key], listing_dates, inclusive=False
                 )
                 after = int(self.sheets[sheet_key].isna().sum().sum())
-                n_masked += after - before
+                if after > before:
+                    mask_counts[sheet_key] = after - before
             if self.raw_returns is not None:
                 self.raw_returns = mask_pre_listing(
                     self.raw_returns, listing_dates, inclusive=True
                 )
+            self.data_quality["listing_mask"] = {
+                "masked_cells_by_sheet": mask_counts,
+                "total_masked_cells": int(sum(mask_counts.values())),
+                "resolved_ticker_count": int(len(listing_dates)),
+                "unresolved_tickers": sorted(
+                    set(self.full_universe).difference(listing_dates)
+                ),
+                "source_counts": {
+                    str(source): int(count)
+                    for source, count in pd.Series(
+                        list(self.listing_date_sources.values()), dtype=object
+                    ).value_counts().items()
+                },
+                "dates": dict(listing_dates),
+            }
             logger.info(
-                "[UniverseData] listing mask applied: %d cell(s) masked across "
-                "PX_LAST/CUR_MKT_CAP (+ raw_returns)", n_masked,
+                "[UniverseData] listing re-mask applied: %d cell(s) across "
+                "%d sheet(s) (+ raw_returns; Daily_Returns exempt)",
+                sum(mask_counts.values()), len(mask_counts),
             )
 
         # ---------------------------------------------------------------
@@ -1024,6 +1169,23 @@ class UniverseData:
                 sum(currency != "USD" for currency in self.currency_map.values())
             ),
         }
+
+        # Point-in-time universe guard (§S11.4): membership must match the
+        # configured size exactly — a silently shrunken universe (missing
+        # workbook column, dropped essential-sheet ticker) fails fast here
+        # instead of backtesting/publishing 149 names.
+        expected = getattr(self.config, "expected_universe_size", None)
+        if expected is not None:
+            meta_count = self.data_quality["universe"]["meta_count"]
+            if (meta_count is not None and meta_count != expected) or (
+                len(self.tickers) != expected
+            ):
+                raise ValueError(
+                    f"expected_universe_size={expected} but Universe_Meta has "
+                    f"{meta_count} row(s) and {len(self.tickers)} ticker(s) "
+                    f"survived the essential-sheet intersection "
+                    f"(missing: {self.missing_tickers})"
+                )
 
         self.dates = self.sheets[next(iter(self.sheets))].index
 
@@ -1248,6 +1410,24 @@ class UniverseData:
     @property
     def returns(self) -> pd.DataFrame:
         return self.sheets["Daily_Returns"]
+
+    @property
+    def returns_masked(self) -> pd.DataFrame:
+        """§S11.7 point-in-time 뷰: 상장 전(상장일 포함) 셀이 NaN인 Daily_Returns.
+
+        피처 계층(횡단면 순위·시장평균·베타)과 PCA 타깃 엔진은 이 뷰를
+        소비한다. dense `returns`는 시뮬레이션 P&L 경로용으로 유지(0-가중
+        유령이 불활성이라 dense가 안전). 공분산 경로는 별도의 마스킹된
+        `raw_returns`를 쓴다(backtest의 risk_returns). 마스크 비활성 시
+        `returns`와 동일 객체를 돌려줘 바이트 동일 파리티를 보장한다.
+        """
+        cfg = self.config
+        listing_dates = getattr(
+            self, "listing_dates", getattr(cfg, "listing_dates", None)
+        )
+        if getattr(cfg, "listing_mask_enabled", False) and listing_dates:
+            return mask_pre_listing(self.returns, listing_dates, inclusive=True)
+        return self.returns
 
     @property
     def market_cap(self) -> pd.DataFrame:

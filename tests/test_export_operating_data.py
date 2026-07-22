@@ -253,10 +253,10 @@ def test_latest_trade_plan_rejects_turnover_from_previous_targets():
         )
 
 
-def test_production_label_keeps_legacy_id_but_displays_100():
+def test_production_label_keeps_legacy_id_but_displays_150():
     from scripts.export_operating_data import _LABEL_DEFAULTS
 
-    assert _LABEL_DEFAULTS["codex_causal_rank_65"] == ("Causal Rank 100", "production")
+    assert _LABEL_DEFAULTS["codex_causal_rank_65"] == ("Causal Rank 150", "production")
 
 
 def _cached_result(tickers, as_of="2026-06-11"):
@@ -326,8 +326,8 @@ def test_provenance_meta_copies_run_manifest_git_and_checksums(tmp_path):
         encoding="utf-8",
     )
     meta = build_provenance_meta(tmp_path)
-    assert PORTFOLIO_VERSION == "universe100-usd-v1"
-    assert meta["portfolio_version"] == "universe100-usd-v1"
+    assert PORTFOLIO_VERSION == "universe150-usd-pit-sp500-v2"
+    assert meta["portfolio_version"] == "universe150-usd-pit-sp500-v2"
     assert meta["git_hash"] == "a" * 40
     assert meta["git_dirty"] is False
     assert meta["source_manifest_sha256"] == _sha256(manifest_path)
@@ -337,7 +337,7 @@ def test_provenance_meta_tolerates_missing_manifest(tmp_path):
     from scripts.export_operating_data import build_provenance_meta
 
     meta = build_provenance_meta(tmp_path)  # no experiment_manifest.json present
-    assert meta["portfolio_version"] == "universe100-usd-v1"
+    assert meta["portfolio_version"] == "universe150-usd-pit-sp500-v2"
     assert meta["git_hash"] is None
     assert meta["git_dirty"] is None
     assert meta["source_manifest_sha256"] is None

@@ -67,3 +67,40 @@ def test_align_dates_can_fail_fast_on_stale_weekday_tail():
                 fail_on_stale_tail_ffill=True,
             ),
         )
+
+
+# ---------------------------------------------------------------------------
+# §S11.7: returns_masked — 상장 전 NaN 뷰 (피처·PCA 소비용). dense returns는
+# 시뮬레이션 P&L용으로 불변(공분산 경로는 마스킹된 raw_returns 사용).
+# ---------------------------------------------------------------------------
+def _masked_view_data(config):
+    from src.data_loader import UniverseData
+
+    idx = pd.bdate_range("2020-09-28", periods=5)
+    dense = pd.DataFrame({"AAA": [0.01] * 5, "NEW": [0.02] * 5}, index=idx)
+    data = UniverseData.__new__(UniverseData)
+    data.sheets = {"Daily_Returns": dense}
+    data.config = config
+    return data
+
+
+def test_returns_masked_masks_through_listing_day():
+    from src.config import PipelineConfig
+
+    data = _masked_view_data(PipelineConfig(listing_dates={"NEW": "2020-09-30"}))
+    out = data.returns_masked
+    # inclusive=True: 상장일 수익률도 가짜(백필 기준가 대비)이므로 NaN
+    assert out["NEW"].loc[:"2020-09-30"].isna().all()
+    assert out["NEW"].loc["2020-10-01":].notna().all()
+    assert out["AAA"].notna().all()
+    # dense 원본은 불변
+    assert data.returns["NEW"].notna().all()
+
+
+def test_returns_masked_is_identity_when_mask_disabled():
+    from src.config import PipelineConfig
+
+    data = _masked_view_data(
+        PipelineConfig(listing_mask_enabled=False, listing_dates={"NEW": "2020-09-30"})
+    )
+    assert data.returns_masked is data.returns

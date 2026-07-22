@@ -280,7 +280,8 @@ def build_lean_momentum_composites(
     that dominated 2023-24).
     """
     feats: Dict[str, pd.DataFrame] = {}
-    returns = data.returns.reindex(columns=tickers)
+    # §S11.7: PIT 뷰(상장 전 NaN) — 모멘텀 횡단면 순위에서 유령 제외.
+    returns = data.returns_masked.reindex(columns=tickers)
 
     # Cross-sectional momentum rank composite (5 horizons, then average).
     # Skip-1 momentum to avoid short-term reversal bias.

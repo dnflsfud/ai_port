@@ -1,0 +1,2233 @@
+{
+  "surface": "report",
+  "manifest": {
+    "version": 1,
+    "surface": "report",
+    "title": "유니버스 150종목 확장 추천",
+    "description": "현행 100종목에 추가할 50종목의 구조적 추천과 데이터 승인 게이트",
+    "generatedAt": "2026-07-18T00:00:00+09:00",
+    "sources": [
+      {
+        "id": "src-analysis",
+        "label": "100-to-150 structural universe analysis",
+        "path": "outputs/universe_150_recommendation/universe_150_results.json"
+      },
+      {
+        "id": "src-workbook",
+        "label": "ai_signal_data.xlsx — Universe_Meta"
+      },
+      {
+        "id": "src-framework",
+        "label": "Prior 65-to-100 selection framework",
+        "path": "outputs/universe_100_comparison/universe_100_comparison_results.json"
+      },
+      {
+        "id": "src-loader",
+        "label": "Supported Bloomberg market suffixes and currencies",
+        "path": "src/data_loader.py"
+      },
+      {
+        "id": "src-summary-sql",
+        "label": "Universe expansion headline query",
+        "path": "outputs/universe_150_recommendation/universe_150_analysis.sqlite",
+        "query": {
+          "engine": "SQLite",
+          "language": "sql",
+          "sql": "SELECT * FROM summary;",
+          "description": "Headline name-count, sector, and region shares.",
+          "executed_at": "2026-07-18T00:00:00+09:00",
+          "tables_used": [
+            "summary"
+          ]
+        }
+      },
+      {
+        "id": "src-sector-sql",
+        "label": "Sector mix query",
+        "path": "outputs/universe_150_recommendation/universe_150_analysis.sqlite",
+        "query": {
+          "engine": "SQLite",
+          "language": "sql",
+          "sql": "SELECT sector, metric, value, current_names, add_names, final_names, current_share, final_share FROM sector_mix_long ORDER BY final_names DESC, sector, metric;",
+          "description": "Current and proposed name counts by project sector.",
+          "executed_at": "2026-07-18T00:00:00+09:00",
+          "tables_used": [
+            "sector_mix_long"
+          ]
+        }
+      },
+      {
+        "id": "src-region-sql",
+        "label": "Economic-domicile region query",
+        "path": "outputs/universe_150_recommendation/universe_150_analysis.sqlite",
+        "query": {
+          "engine": "SQLite",
+          "language": "sql",
+          "sql": "SELECT region, metric, value, current_names, add_names, final_names, current_share, final_share FROM region_mix_long ORDER BY final_names DESC, region, metric;",
+          "description": "Current and proposed shares by economic domicile.",
+          "executed_at": "2026-07-18T00:00:00+09:00",
+          "tables_used": [
+            "region_mix_long"
+          ]
+        }
+      },
+      {
+        "id": "src-candidates-sql",
+        "label": "Recommended 50-name query",
+        "path": "outputs/universe_150_recommendation/universe_150_analysis.sqlite",
+        "query": {
+          "engine": "SQLite",
+          "language": "sql",
+          "sql": "SELECT selection_order, ticker, name, sector, subindustry, country, region, peer_anchor, priority, structural_score, data_gate, rationale FROM candidates ORDER BY selection_order;",
+          "description": "The reviewed 50-name structural recommendation.",
+          "executed_at": "2026-07-18T00:00:00+09:00",
+          "tables_used": [
+            "candidates"
+          ]
+        }
+      },
+      {
+        "id": "src-currency-sql",
+        "label": "Candidate listing-currency query",
+        "path": "outputs/universe_150_recommendation/universe_150_analysis.sqlite",
+        "query": {
+          "engine": "SQLite",
+          "language": "sql",
+          "sql": "SELECT currency, market, add_names FROM currency_mix ORDER BY add_names DESC, currency;",
+          "description": "Listing currency and Bloomberg suffix counts for the 50 candidates.",
+          "executed_at": "2026-07-18T00:00:00+09:00",
+          "tables_used": [
+            "currency_mix"
+          ]
+        }
+      },
+      {
+        "id": "src-europe",
+        "label": "STOXX Europe 600 current components",
+        "href": "https://www.stoxx.com/download/indices/components/SXXGR.pdf"
+      },
+      {
+        "id": "src-japan",
+        "label": "Nikkei 225 current components",
+        "href": "https://indexes.nikkei.co.jp/en/nkave/index/component"
+      },
+      {
+        "id": "src-nasdaq",
+        "label": "Nasdaq-100 companies",
+        "href": "https://www.nasdaq.com/solutions/global-indexes/nasdaq-100/companies"
+      },
+      {
+        "id": "src-ea",
+        "label": "EA definitive acquisition agreement",
+        "href": "https://www.ea.com/news/ea-announces-agreement-to-be-acquired"
+      }
+    ],
+    "cards": [
+      {
+        "id": "card-final",
+        "dataset": "summary",
+        "sourceId": "src-summary-sql",
+        "description": "구조 제안의 최종 종목 수",
+        "metrics": [
+          {
+            "label": "제안 종목 수",
+            "field": "final_names",
+            "format": "number"
+          },
+          {
+            "label": "현재",
+            "field": "current_names",
+            "format": "number"
+          }
+        ]
+      },
+      {
+        "id": "card-add",
+        "dataset": "summary",
+        "sourceId": "src-summary-sql",
+        "description": "경제적 본거지 기준 미국 30·비미국 20",
+        "metrics": [
+          {
+            "label": "신규 종목",
+            "field": "add_names",
+            "format": "number"
+          },
+          {
+            "label": "미국",
+            "field": "add_us_names",
+            "format": "number"
+          },
+          {
+            "label": "비미국",
+            "field": "add_non_us_names",
+            "format": "number"
+          }
+        ]
+      },
+      {
+        "id": "card-tech",
+        "dataset": "summary",
+        "sourceId": "src-summary-sql",
+        "description": "종목 수 기준 기술주 비중",
+        "metrics": [
+          {
+            "label": "최종 기술주 비중",
+            "field": "final_tech_share",
+            "format": "percent"
+          },
+          {
+            "label": "현재",
+            "field": "current_tech_share",
+            "format": "percent"
+          },
+          {
+            "label": "변화",
+            "field": "tech_share_change",
+            "format": "percent",
+            "signed": true
+          }
+        ]
+      },
+      {
+        "id": "card-global",
+        "dataset": "summary",
+        "sourceId": "src-summary-sql",
+        "description": "경제적 본거지 기준 비미국 종목 비중",
+        "metrics": [
+          {
+            "label": "최종 비미국 비중",
+            "field": "final_non_us_share",
+            "format": "percent"
+          },
+          {
+            "label": "현재",
+            "field": "current_non_us_share",
+            "format": "percent"
+          },
+          {
+            "label": "변화",
+            "field": "non_us_share_change",
+            "format": "percent",
+            "signed": true
+          }
+        ]
+      }
+    ],
+    "charts": [
+      {
+        "id": "chart-sector",
+        "title": "현재 및 제안 유니버스의 섹터별 종목 수",
+        "subtitle": "기술주는 35개에서 43개로 늘지만 전체 비중은 35.0%에서 28.7%로 하락",
+        "intent": "comparison",
+        "question": "50개 추가 후 섹터별 종목 수 구조는 어떻게 바뀌는가?",
+        "type": "bar",
+        "dataset": "sector_mix_long",
+        "sourceId": "src-sector-sql",
+        "encodings": {
+          "x": {
+            "field": "sector",
+            "type": "nominal",
+            "label": "섹터"
+          },
+          "y": {
+            "field": "value",
+            "type": "quantitative",
+            "format": "number",
+            "label": "종목 수"
+          },
+          "color": {
+            "field": "metric",
+            "type": "nominal",
+            "label": "구분"
+          },
+          "tooltip": [
+            {
+              "field": "add_names",
+              "type": "quantitative",
+              "label": "신규"
+            },
+            {
+              "field": "final_share",
+              "type": "quantitative",
+              "format": "percent",
+              "label": "최종 비중"
+            }
+          ]
+        },
+        "valueFormat": "number",
+        "layout": "full",
+        "palette": {
+          "kind": "categorical"
+        },
+        "settings": {
+          "orientation": "horizontal",
+          "groupMode": "grouped",
+          "sort": "descending",
+          "categoryLabelPolicy": "wrap",
+          "showValues": true
+        },
+        "legend": {
+          "position": "bottom",
+          "title": "구분"
+        },
+        "surface": {
+          "surface": "card",
+          "viewMode": "visualization"
+        }
+      },
+      {
+        "id": "chart-region",
+        "title": "현재 및 제안 유니버스의 지역별 종목 수 비중",
+        "subtitle": "경제적 본거지 기준 미국 비중은 74.0%에서 69.3%로 완화",
+        "intent": "comparison",
+        "question": "50개 추가 후 경제적 본거지 편중은 어떻게 바뀌는가?",
+        "type": "bar",
+        "dataset": "region_mix_long",
+        "sourceId": "src-region-sql",
+        "encodings": {
+          "x": {
+            "field": "region",
+            "type": "nominal",
+            "label": "지역"
+          },
+          "y": {
+            "field": "value",
+            "type": "quantitative",
+            "format": "percent",
+            "label": "종목 수 비중"
+          },
+          "color": {
+            "field": "metric",
+            "type": "nominal",
+            "label": "구분"
+          },
+          "tooltip": [
+            {
+              "field": "current_names",
+              "type": "quantitative",
+              "label": "현재"
+            },
+            {
+              "field": "add_names",
+              "type": "quantitative",
+              "label": "신규"
+            },
+            {
+              "field": "final_names",
+              "type": "quantitative",
+              "label": "최종"
+            }
+          ]
+        },
+        "valueFormat": "percent",
+        "layout": "full",
+        "palette": {
+          "kind": "categorical"
+        },
+        "settings": {
+          "orientation": "horizontal",
+          "groupMode": "grouped",
+          "sort": "descending",
+          "categoryLabelPolicy": "wrap",
+          "showValues": true
+        },
+        "legend": {
+          "position": "bottom",
+          "title": "구분"
+        },
+        "surface": {
+          "surface": "card",
+          "viewMode": "visualization"
+        }
+      }
+    ],
+    "tables": [
+      {
+        "id": "table-candidates",
+        "title": "추천 신규 50종목",
+        "subtitle": "구조 점수는 기대수익 순위가 아니라 분산·데이터·비교군·유동성·독립성의 구현 우선순위",
+        "dataset": "candidates",
+        "sourceId": "src-candidates-sql",
+        "defaultSort": {
+          "field": "structural_score",
+          "direction": "desc"
+        },
+        "density": "dense",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "selection_order",
+            "label": "순번",
+            "format": "number"
+          },
+          {
+            "field": "ticker",
+            "label": "티커",
+            "type": "text"
+          },
+          {
+            "field": "name",
+            "label": "종목명",
+            "type": "text"
+          },
+          {
+            "field": "sector",
+            "label": "섹터",
+            "type": "text"
+          },
+          {
+            "field": "subindustry",
+            "label": "하위산업",
+            "type": "text"
+          },
+          {
+            "field": "country",
+            "label": "본거지",
+            "type": "text"
+          },
+          {
+            "field": "peer_anchor",
+            "label": "기존 비교군",
+            "type": "text"
+          },
+          {
+            "field": "structural_score",
+            "label": "구조 점수",
+            "format": "number"
+          },
+          {
+            "field": "priority",
+            "label": "적재 우선",
+            "type": "text"
+          },
+          {
+            "field": "data_gate",
+            "label": "데이터 상태",
+            "type": "text"
+          },
+          {
+            "field": "rationale",
+            "label": "선정 이유",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "id": "table-currency",
+        "title": "신규 50종목의 상장 통화와 시장 접미사",
+        "subtitle": "USD·EUR·JPY·GBP·CHF만 사용하여 새 FX 통화를 추가하지 않음",
+        "dataset": "currency_mix",
+        "sourceId": "src-currency-sql",
+        "defaultSort": {
+          "field": "add_names",
+          "direction": "desc"
+        },
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          {
+            "field": "currency",
+            "label": "통화",
+            "type": "text"
+          },
+          {
+            "field": "market",
+            "label": "접미사",
+            "type": "text"
+          },
+          {
+            "field": "add_names",
+            "label": "종목 수",
+            "format": "number"
+          }
+        ]
+      }
+    ],
+    "blocks": [
+      {
+        "id": "title",
+        "type": "markdown",
+        "body": "# 유니버스 150종목 확장 추천",
+        "layout": "full"
+      },
+      {
+        "id": "executive-summary",
+        "type": "markdown",
+        "sourceId": "src-analysis",
+        "body": "## Executive Summary\n\n- **추가 50종목은 확장해도 좋습니다.** 다만 100→150의 목적은 종목 수 자체가 아니라 교차단면 비교군을 넓히고 기술·미국 편중을 낮추는 것입니다.\n- **권고 배분은 기술 8개·비기술 42개, 경제적 본거지 기준 미국 30개·비미국 20개입니다.** 최종 기술주 종목 수 비중은 35.0%에서 28.7%, 미국 비중은 74.0%에서 69.3%가 됩니다.\n- **현행 파이프라인의 통화·접미사 범위 안에서만 골랐습니다.** 신규 50개는 USD·EUR·JPY·GBP·CHF를 사용하며 새 FX 통화를 요구하지 않습니다.\n- **이 명단은 구조 추천이지 즉시 운영 승인안은 아닙니다.** 50개 모두 신규 데이터가 미적재 상태이므로 가격 1,260거래일·필수 시트·기업행사·캘린더 검증을 통과한 뒤 편입해야 합니다."
+      },
+      {
+        "id": "metrics",
+        "type": "metric-strip",
+        "cardIds": [
+          "card-final",
+          "card-add",
+          "card-tech",
+          "card-global"
+        ],
+        "layout": "full"
+      },
+      {
+        "id": "sector-story",
+        "type": "markdown",
+        "sourceId": "src-analysis",
+        "body": "## 기술주 수는 늘리되 기술주 비중은 낮춘다\n\n기술 후보는 QCOM·NXPI·SNPS·NOW·CRWD·IBM·IFX·8035의 8개로 제한했습니다. 기존 AI 공급망을 그대로 복제하기보다 EDA, 사이버보안, 워크플로, IT서비스, 자동차·전력 반도체를 보강합니다. 비기술 42개는 보험, 거래소, 생명과학 도구, 의료기기, 물류, 규제형 유틸리티, 주거·헬스케어 REIT, 금광 등 현재 얕은 비교군에 배분했습니다.\n\n**의미:** 확장이 퇴화를 완화한다면 단순 표본 수보다 섹터 안의 유효 동종사 수가 늘어난 효과로 설명할 수 있습니다."
+      },
+      {
+        "id": "sector-chart",
+        "type": "chart",
+        "chartId": "chart-sector",
+        "layout": "full"
+      },
+      {
+        "id": "sector-note",
+        "type": "markdown",
+        "body": "### 읽는 법\n\n막대는 실제 자본 비중이 아니라 종목 수입니다. 최종 자본 편중은 150종목 시가총액 벤치마크와 최적화 결과를 다시 계산해야 판단할 수 있습니다."
+      },
+      {
+        "id": "candidate-story",
+        "type": "markdown",
+        "sourceId": "src-analysis",
+        "body": "## 추천 50종목은 비교군 공백을 채우는 순서로 골랐다\n\n기존 100종목과의 단순 티커 중복과 내부 축약 티커 충돌을 제거했습니다. A/B/C는 매수 매력도가 아니라 데이터 적재 순서입니다. 구조 점수는 이전 65→100 확장과 같은 가중치인 분산 30%, 데이터 준비도 20%, 동종사 유용성 20%, 유동성·품질 15%, 테마·소유구조 독립성 15%를 사용했습니다."
+      },
+      {
+        "id": "candidate-table",
+        "type": "table",
+        "tableId": "table-candidates",
+        "layout": "full"
+      },
+      {
+        "id": "region-story",
+        "type": "markdown",
+        "sourceId": "src-region-sql",
+        "body": "## 지역 비중은 이전 확장의 70대30 기조를 유지한다\n\n현행 100종목은 경제적 본거지 기준 미국 74개·비미국 26개로 추정됩니다. 미국 30개와 비미국 20개를 더하면 최종 미국 104개(69.3%)·비미국 46개(30.7%)가 되어 65→100 때 의도한 약 70대30 기조를 유지합니다. 일본은 2개에서 7개, 유럽(영국 제외)은 13개에서 24개로 늘어납니다.\n\n**의미:** 지역 분산을 늘리되 미국 대형주 중심의 데이터 품질과 유동성을 버리지 않는 절충안입니다."
+      },
+      {
+        "id": "region-chart",
+        "type": "chart",
+        "chartId": "chart-region",
+        "layout": "full"
+      },
+      {
+        "id": "region-note",
+        "type": "markdown",
+        "body": "### 분류 기준\n\n지역은 상장 거래소가 아니라 경제적 본거지 기준입니다. 원본 워크북에는 국가 필드가 없어 기존 100개는 수동 매핑했으며, 운영 편입 전 공급사 국가 분류와 재대사해야 합니다."
+      },
+      {
+        "id": "currency-story",
+        "type": "markdown",
+        "sourceId": "src-currency-sql",
+        "body": "## 새 FX 통화 없이 구현할 수 있다\n\n현행 로더가 지원하는 `US`, `GR`, `FP`, `JP`, `SW`, `LN` 접미사만 사용했습니다. 이 때문에 스페인 접미사 `IBE SM`은 제외하고 `RWE GR`로 대체했고, 캐나다 CNQ·ENB는 미국 상장 보통주를 사용합니다."
+      },
+      {
+        "id": "currency-table",
+        "type": "table",
+        "tableId": "table-currency",
+        "layout": "full"
+      },
+      {
+        "id": "next-steps",
+        "type": "markdown",
+        "body": "## 권장 적용 순서\n\n1. **유니버스만 바꾸는 단일 arm으로 사전등록**합니다. `val_window`, 학습률, 정규화와 동시 변경하지 않습니다.\n2. **D1 데이터 게이트**를 적용합니다: 1,260거래일 가격, 필수 재무·컨센서스 시트, 현지 휴장일, 기업행사, FX 정합성.\n3. **섀도 백테스트**에서 100종목 대 150종목을 같은 기간·비용·하이퍼파라미터로 비교합니다.\n4. **기존 성공 기준을 유지**합니다: 퇴화율 목표와 IR·회전율·추적오차·섹터/국가 위험 가드를 사전에 고정합니다.\n5. **실패 시 해석을 분리**합니다. 데이터 게이트 실패와 모델 성과 실패를 같은 실패로 합치지 않습니다."
+      },
+      {
+        "id": "questions",
+        "type": "markdown",
+        "body": "## 추가 확인할 질문\n\n- 50개 모두 필수 시트에서 동일한 날짜 범위와 회계 단위로 공급되는가?\n- CB·MDT·NXPI처럼 미국 상장 해외 기업의 공급사 국가·통화·펀더멘털 매핑은 일관적인가?\n- 휴장일이 다른 종목을 월간 리밸런싱 시점에 어떤 규칙으로 정렬할 것인가?\n- 퇴화율 개선이 특정 섹터나 지역의 표본 증가에만 의존하지 않는가?"
+      },
+      {
+        "id": "caveats",
+        "type": "markdown",
+        "sourceId": "src-analysis",
+        "body": "## 가정과 유의사항\n\n- 이번 점수는 구조·구현 점수이며 밸류에이션, 목표가, 단기 모멘텀을 반영한 매수 순위가 아닙니다.\n- 현재 국가 비중은 `Universe_Meta`에 국가 필드가 없어 수동으로 분류했습니다. Linde는 이전 분석과 같이 영국, Fabrinet은 태국 기준을 유지했습니다.\n- 신규 50개의 실제 가격·재무·컨센서스 커버리지는 아직 원본 엑셀에 없으므로 검증할 수 없습니다. 따라서 최종 신뢰도는 **조건부 공유 가능**입니다.\n- 유니버스 확장은 교차단면 표본과 동종사 비교에는 도움이 될 수 있지만, 시간축 검증창 자체가 불안정한 문제를 자동으로 해결하지는 않습니다.\n- EA는 진행 중인 비상장화 거래 때문에 제외했습니다. GE Aerospace는 2024년 분할 전후의 사업 연속성 문제로 제외했습니다."
+      }
+    ]
+  },
+  "snapshot": {
+    "version": 1,
+    "status": "ready",
+    "generatedAt": "2026-07-18T00:00:00+09:00",
+    "datasets": {
+      "summary": [
+        {
+          "current_names": 100,
+          "add_names": 50,
+          "final_names": 150,
+          "add_us_names": 30,
+          "add_non_us_names": 20,
+          "current_tech_share": 0.35,
+          "final_tech_share": 0.2866666666666667,
+          "tech_share_change": -0.0633333333333333,
+          "current_non_us_share": 0.26,
+          "final_non_us_share": 0.30666666666666664,
+          "non_us_share_change": 0.046666666666666634,
+          "supported_candidate_currencies": 5
+        }
+      ],
+      "sector_mix_long": [
+        {
+          "sector": "Technology",
+          "metric": "현재 100",
+          "value": 35,
+          "current_names": 35,
+          "add_names": 8,
+          "final_names": 43,
+          "current_share": 0.35,
+          "final_share": 0.2866666666666667
+        },
+        {
+          "sector": "Technology",
+          "metric": "제안 150",
+          "value": 43,
+          "current_names": 35,
+          "add_names": 8,
+          "final_names": 43,
+          "current_share": 0.35,
+          "final_share": 0.2866666666666667
+        },
+        {
+          "sector": "Industrials",
+          "metric": "현재 100",
+          "value": 14,
+          "current_names": 14,
+          "add_names": 7,
+          "final_names": 21,
+          "current_share": 0.14,
+          "final_share": 0.14
+        },
+        {
+          "sector": "Industrials",
+          "metric": "제안 150",
+          "value": 21,
+          "current_names": 14,
+          "add_names": 7,
+          "final_names": 21,
+          "current_share": 0.14,
+          "final_share": 0.14
+        },
+        {
+          "sector": "Financials",
+          "metric": "현재 100",
+          "value": 11,
+          "current_names": 11,
+          "add_names": 6,
+          "final_names": 17,
+          "current_share": 0.11,
+          "final_share": 0.11333333333333333
+        },
+        {
+          "sector": "Financials",
+          "metric": "제안 150",
+          "value": 17,
+          "current_names": 11,
+          "add_names": 6,
+          "final_names": 17,
+          "current_share": 0.11,
+          "final_share": 0.11333333333333333
+        },
+        {
+          "sector": "Healthcare",
+          "metric": "현재 100",
+          "value": 10,
+          "current_names": 10,
+          "add_names": 6,
+          "final_names": 16,
+          "current_share": 0.1,
+          "final_share": 0.10666666666666667
+        },
+        {
+          "sector": "Healthcare",
+          "metric": "제안 150",
+          "value": 16,
+          "current_names": 10,
+          "add_names": 6,
+          "final_names": 16,
+          "current_share": 0.1,
+          "final_share": 0.10666666666666667
+        },
+        {
+          "sector": "Consumer Discretionary",
+          "metric": "현재 100",
+          "value": 7,
+          "current_names": 7,
+          "add_names": 5,
+          "final_names": 12,
+          "current_share": 0.07,
+          "final_share": 0.08
+        },
+        {
+          "sector": "Consumer Discretionary",
+          "metric": "제안 150",
+          "value": 12,
+          "current_names": 7,
+          "add_names": 5,
+          "final_names": 12,
+          "current_share": 0.07,
+          "final_share": 0.08
+        },
+        {
+          "sector": "Consumer Staples",
+          "metric": "현재 100",
+          "value": 5,
+          "current_names": 5,
+          "add_names": 4,
+          "final_names": 9,
+          "current_share": 0.05,
+          "final_share": 0.06
+        },
+        {
+          "sector": "Consumer Staples",
+          "metric": "제안 150",
+          "value": 9,
+          "current_names": 5,
+          "add_names": 4,
+          "final_names": 9,
+          "current_share": 0.05,
+          "final_share": 0.06
+        },
+        {
+          "sector": "Energy",
+          "metric": "현재 100",
+          "value": 5,
+          "current_names": 5,
+          "add_names": 3,
+          "final_names": 8,
+          "current_share": 0.05,
+          "final_share": 0.05333333333333334
+        },
+        {
+          "sector": "Energy",
+          "metric": "제안 150",
+          "value": 8,
+          "current_names": 5,
+          "add_names": 3,
+          "final_names": 8,
+          "current_share": 0.05,
+          "final_share": 0.05333333333333334
+        },
+        {
+          "sector": "Communication Services",
+          "metric": "현재 100",
+          "value": 3,
+          "current_names": 3,
+          "add_names": 3,
+          "final_names": 6,
+          "current_share": 0.03,
+          "final_share": 0.04
+        },
+        {
+          "sector": "Communication Services",
+          "metric": "제안 150",
+          "value": 6,
+          "current_names": 3,
+          "add_names": 3,
+          "final_names": 6,
+          "current_share": 0.03,
+          "final_share": 0.04
+        },
+        {
+          "sector": "Materials",
+          "metric": "현재 100",
+          "value": 3,
+          "current_names": 3,
+          "add_names": 3,
+          "final_names": 6,
+          "current_share": 0.03,
+          "final_share": 0.04
+        },
+        {
+          "sector": "Materials",
+          "metric": "제안 150",
+          "value": 6,
+          "current_names": 3,
+          "add_names": 3,
+          "final_names": 6,
+          "current_share": 0.03,
+          "final_share": 0.04
+        },
+        {
+          "sector": "Real Estate",
+          "metric": "현재 100",
+          "value": 4,
+          "current_names": 4,
+          "add_names": 2,
+          "final_names": 6,
+          "current_share": 0.04,
+          "final_share": 0.04
+        },
+        {
+          "sector": "Real Estate",
+          "metric": "제안 150",
+          "value": 6,
+          "current_names": 4,
+          "add_names": 2,
+          "final_names": 6,
+          "current_share": 0.04,
+          "final_share": 0.04
+        },
+        {
+          "sector": "Utilities",
+          "metric": "현재 100",
+          "value": 3,
+          "current_names": 3,
+          "add_names": 3,
+          "final_names": 6,
+          "current_share": 0.03,
+          "final_share": 0.04
+        },
+        {
+          "sector": "Utilities",
+          "metric": "제안 150",
+          "value": 6,
+          "current_names": 3,
+          "add_names": 3,
+          "final_names": 6,
+          "current_share": 0.03,
+          "final_share": 0.04
+        }
+      ],
+      "region_mix_long": [
+        {
+          "region": "United States",
+          "metric": "현재 100",
+          "value": 0.74,
+          "current_names": 74,
+          "add_names": 30,
+          "final_names": 104,
+          "current_share": 0.74,
+          "final_share": 0.6933333333333334
+        },
+        {
+          "region": "United States",
+          "metric": "제안 150",
+          "value": 0.6933333333333334,
+          "current_names": 74,
+          "add_names": 30,
+          "final_names": 104,
+          "current_share": 0.74,
+          "final_share": 0.6933333333333334
+        },
+        {
+          "region": "Europe ex-UK",
+          "metric": "현재 100",
+          "value": 0.13,
+          "current_names": 13,
+          "add_names": 11,
+          "final_names": 24,
+          "current_share": 0.13,
+          "final_share": 0.16
+        },
+        {
+          "region": "Europe ex-UK",
+          "metric": "제안 150",
+          "value": 0.16,
+          "current_names": 13,
+          "add_names": 11,
+          "final_names": 24,
+          "current_share": 0.13,
+          "final_share": 0.16
+        },
+        {
+          "region": "United Kingdom",
+          "metric": "현재 100",
+          "value": 0.07,
+          "current_names": 7,
+          "add_names": 2,
+          "final_names": 9,
+          "current_share": 0.07,
+          "final_share": 0.06
+        },
+        {
+          "region": "United Kingdom",
+          "metric": "제안 150",
+          "value": 0.06,
+          "current_names": 7,
+          "add_names": 2,
+          "final_names": 9,
+          "current_share": 0.07,
+          "final_share": 0.06
+        },
+        {
+          "region": "Japan",
+          "metric": "현재 100",
+          "value": 0.02,
+          "current_names": 2,
+          "add_names": 5,
+          "final_names": 7,
+          "current_share": 0.02,
+          "final_share": 0.04666666666666667
+        },
+        {
+          "region": "Japan",
+          "metric": "제안 150",
+          "value": 0.04666666666666667,
+          "current_names": 2,
+          "add_names": 5,
+          "final_names": 7,
+          "current_share": 0.02,
+          "final_share": 0.04666666666666667
+        },
+        {
+          "region": "South Korea",
+          "metric": "현재 100",
+          "value": 0.02,
+          "current_names": 2,
+          "add_names": 0,
+          "final_names": 2,
+          "current_share": 0.02,
+          "final_share": 0.013333333333333334
+        },
+        {
+          "region": "South Korea",
+          "metric": "제안 150",
+          "value": 0.013333333333333334,
+          "current_names": 2,
+          "add_names": 0,
+          "final_names": 2,
+          "current_share": 0.02,
+          "final_share": 0.013333333333333334
+        },
+        {
+          "region": "Canada",
+          "metric": "현재 100",
+          "value": 0.0,
+          "current_names": 0,
+          "add_names": 2,
+          "final_names": 2,
+          "current_share": 0.0,
+          "final_share": 0.013333333333333334
+        },
+        {
+          "region": "Canada",
+          "metric": "제안 150",
+          "value": 0.013333333333333334,
+          "current_names": 0,
+          "add_names": 2,
+          "final_names": 2,
+          "current_share": 0.0,
+          "final_share": 0.013333333333333334
+        },
+        {
+          "region": "Asia ex-Japan/Korea",
+          "metric": "현재 100",
+          "value": 0.02,
+          "current_names": 2,
+          "add_names": 0,
+          "final_names": 2,
+          "current_share": 0.02,
+          "final_share": 0.013333333333333334
+        },
+        {
+          "region": "Asia ex-Japan/Korea",
+          "metric": "제안 150",
+          "value": 0.013333333333333334,
+          "current_names": 2,
+          "add_names": 0,
+          "final_names": 2,
+          "current_share": 0.02,
+          "final_share": 0.013333333333333334
+        }
+      ],
+      "candidates": [
+        {
+          "selection_order": 1,
+          "ticker": "QCOM US",
+          "bloomberg_ticker": "QCOM US Equity",
+          "simple_ticker": "QCOM",
+          "market": "US",
+          "currency": "USD",
+          "name": "Qualcomm",
+          "sector": "Technology",
+          "subindustry": "Wireless / edge semiconductors",
+          "country": "United States",
+          "region": "United States",
+          "peer_anchor": "AVGO, AMD",
+          "rationale": "모바일·엣지·연결성 반도체 비교군",
+          "diversification_score": 4,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 3,
+          "structural_score": 88,
+          "priority": "C",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 2,
+          "ticker": "NXPI US",
+          "bloomberg_ticker": "NXPI US Equity",
+          "simple_ticker": "NXPI",
+          "market": "US",
+          "currency": "USD",
+          "name": "NXP Semiconductors",
+          "sector": "Technology",
+          "subindustry": "Automotive / industrial semiconductors",
+          "country": "Netherlands",
+          "region": "Europe ex-UK",
+          "peer_anchor": "TSLA, TER",
+          "rationale": "자동차·산업용 반도체로 AI 서버 편중 완화",
+          "diversification_score": 5,
+          "data_readiness_score": 4,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 4,
+          "structural_score": 93,
+          "priority": "C",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 3,
+          "ticker": "SNPS US",
+          "bloomberg_ticker": "SNPS US Equity",
+          "simple_ticker": "SNPS",
+          "market": "US",
+          "currency": "USD",
+          "name": "Synopsys",
+          "sector": "Technology",
+          "subindustry": "EDA software",
+          "country": "United States",
+          "region": "United States",
+          "peer_anchor": "CDNS",
+          "rationale": "Cadence와 직접 비교 가능한 EDA 동종사",
+          "diversification_score": 4,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 3,
+          "structural_score": 88,
+          "priority": "C",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 4,
+          "ticker": "NOW US",
+          "bloomberg_ticker": "NOW US Equity",
+          "simple_ticker": "NOW",
+          "market": "US",
+          "currency": "USD",
+          "name": "ServiceNow",
+          "sector": "Technology",
+          "subindustry": "Workflow software",
+          "country": "United States",
+          "region": "United States",
+          "peer_anchor": "CRM, SAP, ORCL",
+          "rationale": "기업용 워크플로 소프트웨어 비교군",
+          "diversification_score": 4,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 4,
+          "liquidity_quality_score": 5,
+          "independence_score": 4,
+          "structural_score": 87,
+          "priority": "C",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 5,
+          "ticker": "CRWD US",
+          "bloomberg_ticker": "CRWD US Equity",
+          "simple_ticker": "CRWD",
+          "market": "US",
+          "currency": "USD",
+          "name": "CrowdStrike",
+          "sector": "Technology",
+          "subindustry": "Cybersecurity",
+          "country": "United States",
+          "region": "United States",
+          "peer_anchor": "PANW",
+          "rationale": "사이버보안 단일 비교군을 두 종목으로 확장",
+          "diversification_score": 4,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 3,
+          "structural_score": 88,
+          "priority": "C",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 6,
+          "ticker": "IBM US",
+          "bloomberg_ticker": "IBM US Equity",
+          "simple_ticker": "IBM",
+          "market": "US",
+          "currency": "USD",
+          "name": "IBM",
+          "sector": "Technology",
+          "subindustry": "Hybrid cloud / IT services",
+          "country": "United States",
+          "region": "United States",
+          "peer_anchor": "ORCL, SAP, CSCO",
+          "rationale": "메인프레임·IT서비스로 반도체와 다른 기술 수익원",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 4,
+          "liquidity_quality_score": 5,
+          "independence_score": 5,
+          "structural_score": 96,
+          "priority": "B",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 7,
+          "ticker": "IFX GR",
+          "bloomberg_ticker": "IFX GR Equity",
+          "simple_ticker": "IFX",
+          "market": "GR",
+          "currency": "EUR",
+          "name": "Infineon Technologies",
+          "sector": "Technology",
+          "subindustry": "Power / automotive semiconductors",
+          "country": "Germany",
+          "region": "Europe ex-UK",
+          "peer_anchor": "ETN, TSLA",
+          "rationale": "유럽 전력·자동차 반도체 비교군",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 4,
+          "structural_score": 97,
+          "priority": "A",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 8,
+          "ticker": "8035 JP",
+          "bloomberg_ticker": "8035 JP Equity",
+          "simple_ticker": "8035",
+          "market": "JP",
+          "currency": "JPY",
+          "name": "Tokyo Electron",
+          "sector": "Technology",
+          "subindustry": "Semiconductor equipment",
+          "country": "Japan",
+          "region": "Japan",
+          "peer_anchor": "LRCX, AMAT, KLAC",
+          "rationale": "일본 전공정 장비 동종사로 장비 신호 밀도 강화",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 4,
+          "structural_score": 97,
+          "priority": "A",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 9,
+          "ticker": "TDG US",
+          "bloomberg_ticker": "TDG US Equity",
+          "simple_ticker": "TDG",
+          "market": "US",
+          "currency": "USD",
+          "name": "TransDigm Group",
+          "sector": "Industrials",
+          "subindustry": "Aerospace components / aftermarket",
+          "country": "United States",
+          "region": "United States",
+          "peer_anchor": "RR/, LMT",
+          "rationale": "항공 부품·애프터마켓이라는 독립 수익원",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 4,
+          "independence_score": 5,
+          "structural_score": 97,
+          "priority": "A",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 10,
+          "ticker": "RTX US",
+          "bloomberg_ticker": "RTX US Equity",
+          "simple_ticker": "RTX",
+          "market": "US",
+          "currency": "USD",
+          "name": "RTX",
+          "sector": "Industrials",
+          "subindustry": "Aerospace / defense systems",
+          "country": "United States",
+          "region": "United States",
+          "peer_anchor": "LMT, RHM",
+          "rationale": "방산과 민항 시스템의 혼합 비교군",
+          "diversification_score": 4,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 3,
+          "structural_score": 88,
+          "priority": "C",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 11,
+          "ticker": "URI US",
+          "bloomberg_ticker": "URI US Equity",
+          "simple_ticker": "URI",
+          "market": "US",
+          "currency": "USD",
+          "name": "United Rentals",
+          "sector": "Industrials",
+          "subindustry": "Equipment rental",
+          "country": "United States",
+          "region": "United States",
+          "peer_anchor": "CAT, DE",
+          "rationale": "장비 판매와 다른 렌털·설비투자 사이클",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 4,
+          "liquidity_quality_score": 5,
+          "independence_score": 5,
+          "structural_score": 96,
+          "priority": "B",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 12,
+          "ticker": "UPS US",
+          "bloomberg_ticker": "UPS US Equity",
+          "simple_ticker": "UPS",
+          "market": "US",
+          "currency": "USD",
+          "name": "UPS",
+          "sector": "Industrials",
+          "subindustry": "Parcel logistics",
+          "country": "United States",
+          "region": "United States",
+          "peer_anchor": "UNP",
+          "rationale": "철도 외 육상 물류 비교군",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 4,
+          "liquidity_quality_score": 5,
+          "independence_score": 5,
+          "structural_score": 96,
+          "priority": "B",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 13,
+          "ticker": "ROK US",
+          "bloomberg_ticker": "ROK US Equity",
+          "simple_ticker": "ROK",
+          "market": "US",
+          "currency": "USD",
+          "name": "Rockwell Automation",
+          "sector": "Industrials",
+          "subindustry": "Industrial automation",
+          "country": "United States",
+          "region": "United States",
+          "peer_anchor": "HON, SIE, SU",
+          "rationale": "공장 자동화의 직접 동종사",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 4,
+          "independence_score": 4,
+          "structural_score": 94,
+          "priority": "B",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 14,
+          "ticker": "7011 JP",
+          "bloomberg_ticker": "7011 JP Equity",
+          "simple_ticker": "7011",
+          "market": "JP",
+          "currency": "JPY",
+          "name": "Mitsubishi Heavy Industries",
+          "sector": "Industrials",
+          "subindustry": "Heavy industry / aerospace / power",
+          "country": "Japan",
+          "region": "Japan",
+          "peer_anchor": "GEV, RHM, RR/",
+          "rationale": "일본 중공업·발전·항공의 복합 비교군",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 4,
+          "liquidity_quality_score": 5,
+          "independence_score": 4,
+          "structural_score": 93,
+          "priority": "C",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 15,
+          "ticker": "AIR FP",
+          "bloomberg_ticker": "AIR FP Equity",
+          "simple_ticker": "AIR",
+          "market": "FP",
+          "currency": "EUR",
+          "name": "Airbus",
+          "sector": "Industrials",
+          "subindustry": "Commercial aerospace",
+          "country": "France",
+          "region": "Europe ex-UK",
+          "peer_anchor": "RR/, LMT",
+          "rationale": "민항 OEM을 추가해 엔진·방산 편중 완화",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 4,
+          "structural_score": 97,
+          "priority": "A",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 16,
+          "ticker": "PGR US",
+          "bloomberg_ticker": "PGR US Equity",
+          "simple_ticker": "PGR",
+          "market": "US",
+          "currency": "USD",
+          "name": "Progressive",
+          "sector": "Financials",
+          "subindustry": "Property & casualty insurance",
+          "country": "United States",
+          "region": "United States",
+          "peer_anchor": "ALV",
+          "rationale": "미국 자동차보험 언더라이팅 비교군",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 5,
+          "structural_score": 100,
+          "priority": "A",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 17,
+          "ticker": "CB US",
+          "bloomberg_ticker": "CB US Equity",
+          "simple_ticker": "CB",
+          "market": "US",
+          "currency": "USD",
+          "name": "Chubb",
+          "sector": "Financials",
+          "subindustry": "Global property & casualty insurance",
+          "country": "Switzerland",
+          "region": "Europe ex-UK",
+          "peer_anchor": "ALV, PGR",
+          "rationale": "글로벌 손해보험 비교군",
+          "diversification_score": 5,
+          "data_readiness_score": 4,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 5,
+          "structural_score": 96,
+          "priority": "B",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 18,
+          "ticker": "CME US",
+          "bloomberg_ticker": "CME US Equity",
+          "simple_ticker": "CME",
+          "market": "US",
+          "currency": "USD",
+          "name": "CME Group",
+          "sector": "Financials",
+          "subindustry": "Derivatives exchange",
+          "country": "United States",
+          "region": "United States",
+          "peer_anchor": "SPGI",
+          "rationale": "은행이 아닌 거래소·파생상품 인프라",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 4,
+          "structural_score": 97,
+          "priority": "A",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 19,
+          "ticker": "LSEG LN",
+          "bloomberg_ticker": "LSEG LN Equity",
+          "simple_ticker": "LSEG",
+          "market": "LN",
+          "currency": "GBP",
+          "name": "London Stock Exchange Group",
+          "sector": "Financials",
+          "subindustry": "Market infrastructure / data",
+          "country": "United Kingdom",
+          "region": "United Kingdom",
+          "peer_anchor": "SPGI",
+          "rationale": "거래소·지수·데이터 수익의 직접 비교군",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 5,
+          "structural_score": 100,
+          "priority": "A",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 20,
+          "ticker": "MUV2 GR",
+          "bloomberg_ticker": "MUV2 GR Equity",
+          "simple_ticker": "MUV2",
+          "market": "GR",
+          "currency": "EUR",
+          "name": "Munich Re",
+          "sector": "Financials",
+          "subindustry": "Reinsurance",
+          "country": "Germany",
+          "region": "Europe ex-UK",
+          "peer_anchor": "ALV",
+          "rationale": "재보험 가격 사이클이라는 독립 신호",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 5,
+          "structural_score": 100,
+          "priority": "A",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 21,
+          "ticker": "BNP FP",
+          "bloomberg_ticker": "BNP FP Equity",
+          "simple_ticker": "BNP",
+          "market": "FP",
+          "currency": "EUR",
+          "name": "BNP Paribas",
+          "sector": "Financials",
+          "subindustry": "European banking",
+          "country": "France",
+          "region": "Europe ex-UK",
+          "peer_anchor": "JPM, HSBA",
+          "rationale": "유럽 대형은행 비교군; SAN 티커 충돌 회피",
+          "diversification_score": 4,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 4,
+          "liquidity_quality_score": 5,
+          "independence_score": 5,
+          "structural_score": 90,
+          "priority": "C",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 22,
+          "ticker": "MRK US",
+          "bloomberg_ticker": "MRK US Equity",
+          "simple_ticker": "MRK",
+          "market": "US",
+          "currency": "USD",
+          "name": "Merck",
+          "sector": "Healthcare",
+          "subindustry": "Pharmaceuticals",
+          "country": "United States",
+          "region": "United States",
+          "peer_anchor": "LLY, ABBV, REGN",
+          "rationale": "대형 제약 비교군의 폭 확대",
+          "diversification_score": 4,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 4,
+          "structural_score": 91,
+          "priority": "C",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 23,
+          "ticker": "AMGN US",
+          "bloomberg_ticker": "AMGN US Equity",
+          "simple_ticker": "AMGN",
+          "market": "US",
+          "currency": "USD",
+          "name": "Amgen",
+          "sector": "Healthcare",
+          "subindustry": "Biotechnology",
+          "country": "United States",
+          "region": "United States",
+          "peer_anchor": "REGN, LLY",
+          "rationale": "성숙 바이오의 현금흐름·파이프라인 비교군",
+          "diversification_score": 4,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 4,
+          "structural_score": 91,
+          "priority": "C",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 24,
+          "ticker": "DHR US",
+          "bloomberg_ticker": "DHR US Equity",
+          "simple_ticker": "DHR",
+          "market": "US",
+          "currency": "USD",
+          "name": "Danaher",
+          "sector": "Healthcare",
+          "subindustry": "Life-science tools",
+          "country": "United States",
+          "region": "United States",
+          "peer_anchor": "TMO",
+          "rationale": "Thermo Fisher와 직접 비교 가능한 도구 기업",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 5,
+          "structural_score": 100,
+          "priority": "A",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 25,
+          "ticker": "MDT US",
+          "bloomberg_ticker": "MDT US Equity",
+          "simple_ticker": "MDT",
+          "market": "US",
+          "currency": "USD",
+          "name": "Medtronic",
+          "sector": "Healthcare",
+          "subindustry": "Medical devices",
+          "country": "Ireland",
+          "region": "Europe ex-UK",
+          "peer_anchor": "BSX, ISRG",
+          "rationale": "의료기기 비교군을 수술로봇 밖으로 확장",
+          "diversification_score": 5,
+          "data_readiness_score": 4,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 5,
+          "structural_score": 96,
+          "priority": "B",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 26,
+          "ticker": "ROG SW",
+          "bloomberg_ticker": "ROG SW Equity",
+          "simple_ticker": "ROG",
+          "market": "SW",
+          "currency": "CHF",
+          "name": "Roche Holding",
+          "sector": "Healthcare",
+          "subindustry": "Pharma / diagnostics",
+          "country": "Switzerland",
+          "region": "Europe ex-UK",
+          "peer_anchor": "AZN, TMO",
+          "rationale": "제약과 진단의 결합 비교군",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 5,
+          "structural_score": 100,
+          "priority": "A",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 27,
+          "ticker": "GILD US",
+          "bloomberg_ticker": "GILD US Equity",
+          "simple_ticker": "GILD",
+          "market": "US",
+          "currency": "USD",
+          "name": "Gilead Sciences",
+          "sector": "Healthcare",
+          "subindustry": "Biopharma",
+          "country": "United States",
+          "region": "United States",
+          "peer_anchor": "REGN, ABBV",
+          "rationale": "항바이러스·종양 중심의 방어적 바이오",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 4,
+          "liquidity_quality_score": 5,
+          "independence_score": 5,
+          "structural_score": 96,
+          "priority": "B",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 28,
+          "ticker": "TJX US",
+          "bloomberg_ticker": "TJX US Equity",
+          "simple_ticker": "TJX",
+          "market": "US",
+          "currency": "USD",
+          "name": "TJX Companies",
+          "sector": "Consumer Discretionary",
+          "subindustry": "Off-price retail",
+          "country": "United States",
+          "region": "United States",
+          "peer_anchor": "WMT, COST",
+          "rationale": "가격민감 소비와 재고 정상화 비교군",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 5,
+          "structural_score": 100,
+          "priority": "A",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 29,
+          "ticker": "NKE US",
+          "bloomberg_ticker": "NKE US Equity",
+          "simple_ticker": "NKE",
+          "market": "US",
+          "currency": "USD",
+          "name": "Nike",
+          "sector": "Consumer Discretionary",
+          "subindustry": "Global apparel / footwear",
+          "country": "United States",
+          "region": "United States",
+          "peer_anchor": "MC, RACE",
+          "rationale": "대중 브랜드·재고·중국 소비 신호",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 4,
+          "liquidity_quality_score": 5,
+          "independence_score": 5,
+          "structural_score": 96,
+          "priority": "B",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 30,
+          "ticker": "MAR US",
+          "bloomberg_ticker": "MAR US Equity",
+          "simple_ticker": "MAR",
+          "market": "US",
+          "currency": "USD",
+          "name": "Marriott International",
+          "sector": "Consumer Discretionary",
+          "subindustry": "Lodging",
+          "country": "United States",
+          "region": "United States",
+          "peer_anchor": "BKNG",
+          "rationale": "온라인 여행과 호텔 운영을 연결하는 비교군",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 5,
+          "structural_score": 100,
+          "priority": "A",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 31,
+          "ticker": "7203 JP",
+          "bloomberg_ticker": "7203 JP Equity",
+          "simple_ticker": "7203",
+          "market": "JP",
+          "currency": "JPY",
+          "name": "Toyota Motor",
+          "sector": "Consumer Discretionary",
+          "subindustry": "Automobiles",
+          "country": "Japan",
+          "region": "Japan",
+          "peer_anchor": "TSLA, RACE",
+          "rationale": "대중 내연·하이브리드 자동차 비교군",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 5,
+          "structural_score": 100,
+          "priority": "A",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 32,
+          "ticker": "9983 JP",
+          "bloomberg_ticker": "9983 JP Equity",
+          "simple_ticker": "9983",
+          "market": "JP",
+          "currency": "JPY",
+          "name": "Fast Retailing",
+          "sector": "Consumer Discretionary",
+          "subindustry": "Apparel retail",
+          "country": "Japan",
+          "region": "Japan",
+          "peer_anchor": "MC, WMT",
+          "rationale": "일본·아시아 의류 소매 신호",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 4,
+          "liquidity_quality_score": 5,
+          "independence_score": 5,
+          "structural_score": 96,
+          "priority": "B",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 33,
+          "ticker": "PEP US",
+          "bloomberg_ticker": "PEP US Equity",
+          "simple_ticker": "PEP",
+          "market": "US",
+          "currency": "USD",
+          "name": "PepsiCo",
+          "sector": "Consumer Staples",
+          "subindustry": "Beverages / snacks",
+          "country": "United States",
+          "region": "United States",
+          "peer_anchor": "PG, NESN",
+          "rationale": "음료와 스낵의 방어적 현금흐름",
+          "diversification_score": 4,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 4,
+          "structural_score": 91,
+          "priority": "C",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 34,
+          "ticker": "MDLZ US",
+          "bloomberg_ticker": "MDLZ US Equity",
+          "simple_ticker": "MDLZ",
+          "market": "US",
+          "currency": "USD",
+          "name": "Mondelez International",
+          "sector": "Consumer Staples",
+          "subindustry": "Packaged food",
+          "country": "United States",
+          "region": "United States",
+          "peer_anchor": "NESN",
+          "rationale": "글로벌 스낵·가격전가 비교군",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 5,
+          "structural_score": 100,
+          "priority": "A",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 35,
+          "ticker": "OR FP",
+          "bloomberg_ticker": "OR FP Equity",
+          "simple_ticker": "OR",
+          "market": "FP",
+          "currency": "EUR",
+          "name": "L'Oreal",
+          "sector": "Consumer Staples",
+          "subindustry": "Beauty / personal care",
+          "country": "France",
+          "region": "Europe ex-UK",
+          "peer_anchor": "PG, MC",
+          "rationale": "뷰티 소비와 브랜드 파워 비교군",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 4,
+          "liquidity_quality_score": 5,
+          "independence_score": 4,
+          "structural_score": 93,
+          "priority": "C",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 36,
+          "ticker": "DGE LN",
+          "bloomberg_ticker": "DGE LN Equity",
+          "simple_ticker": "DGE",
+          "market": "LN",
+          "currency": "GBP",
+          "name": "Diageo",
+          "sector": "Consumer Staples",
+          "subindustry": "Spirits",
+          "country": "United Kingdom",
+          "region": "United Kingdom",
+          "peer_anchor": "PM, NESN",
+          "rationale": "주류·프리미엄 소비의 독립 비교군",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 4,
+          "liquidity_quality_score": 5,
+          "independence_score": 5,
+          "structural_score": 96,
+          "priority": "B",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 37,
+          "ticker": "SLB US",
+          "bloomberg_ticker": "SLB US Equity",
+          "simple_ticker": "SLB",
+          "market": "US",
+          "currency": "USD",
+          "name": "SLB",
+          "sector": "Energy",
+          "subindustry": "Oilfield services",
+          "country": "United States",
+          "region": "United States",
+          "peer_anchor": "XOM, SHEL, MPC",
+          "rationale": "원유 생산자가 아닌 유전 서비스 사이클",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 5,
+          "structural_score": 100,
+          "priority": "A",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 38,
+          "ticker": "CNQ US",
+          "bloomberg_ticker": "CNQ US Equity",
+          "simple_ticker": "CNQ",
+          "market": "US",
+          "currency": "USD",
+          "name": "Canadian Natural Resources",
+          "sector": "Energy",
+          "subindustry": "Upstream oil & gas",
+          "country": "Canada",
+          "region": "Canada",
+          "peer_anchor": "XOM, SHEL",
+          "rationale": "캐나다 장수명 자산의 상류 비교군",
+          "diversification_score": 5,
+          "data_readiness_score": 4,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 4,
+          "structural_score": 93,
+          "priority": "C",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 39,
+          "ticker": "ENB US",
+          "bloomberg_ticker": "ENB US Equity",
+          "simple_ticker": "ENB",
+          "market": "US",
+          "currency": "USD",
+          "name": "Enbridge",
+          "sector": "Energy",
+          "subindustry": "Midstream / pipelines",
+          "country": "Canada",
+          "region": "Canada",
+          "peer_anchor": "WMB",
+          "rationale": "북미 파이프라인·규제형 현금흐름 비교군",
+          "diversification_score": 5,
+          "data_readiness_score": 4,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 4,
+          "structural_score": 93,
+          "priority": "C",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 40,
+          "ticker": "DUK US",
+          "bloomberg_ticker": "DUK US Equity",
+          "simple_ticker": "DUK",
+          "market": "US",
+          "currency": "USD",
+          "name": "Duke Energy",
+          "sector": "Utilities",
+          "subindustry": "Regulated electric utility",
+          "country": "United States",
+          "region": "United States",
+          "peer_anchor": "NEE, CEG, VST",
+          "rationale": "규제형 전력의 방어적 비교군",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 5,
+          "structural_score": 100,
+          "priority": "A",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 41,
+          "ticker": "SO US",
+          "bloomberg_ticker": "SO US Equity",
+          "simple_ticker": "SO",
+          "market": "US",
+          "currency": "USD",
+          "name": "Southern Company",
+          "sector": "Utilities",
+          "subindustry": "Regulated electric / gas utility",
+          "country": "United States",
+          "region": "United States",
+          "peer_anchor": "NEE, CEG, VST",
+          "rationale": "미국 남동부 규제형 유틸리티",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 5,
+          "structural_score": 100,
+          "priority": "A",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 42,
+          "ticker": "RWE GR",
+          "bloomberg_ticker": "RWE GR Equity",
+          "simple_ticker": "RWE",
+          "market": "GR",
+          "currency": "EUR",
+          "name": "RWE",
+          "sector": "Utilities",
+          "subindustry": "European power / renewables",
+          "country": "Germany",
+          "region": "Europe ex-UK",
+          "peer_anchor": "NEE, CEG, VST",
+          "rationale": "지원되는 EUR 접미사로 유럽 전력 비교군 확보",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 5,
+          "structural_score": 100,
+          "priority": "A",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 43,
+          "ticker": "WELL US",
+          "bloomberg_ticker": "WELL US Equity",
+          "simple_ticker": "WELL",
+          "market": "US",
+          "currency": "USD",
+          "name": "Welltower",
+          "sector": "Real Estate",
+          "subindustry": "Healthcare REIT",
+          "country": "United States",
+          "region": "United States",
+          "peer_anchor": "AMT, EQIX, PLD, DLR",
+          "rationale": "데이터센터·물류 밖 헬스케어 부동산",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 5,
+          "structural_score": 100,
+          "priority": "A",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 44,
+          "ticker": "AVB US",
+          "bloomberg_ticker": "AVB US Equity",
+          "simple_ticker": "AVB",
+          "market": "US",
+          "currency": "USD",
+          "name": "AvalonBay Communities",
+          "sector": "Real Estate",
+          "subindustry": "Residential REIT",
+          "country": "United States",
+          "region": "United States",
+          "peer_anchor": "PLD, DLR",
+          "rationale": "주거 임대와 금리 민감도 비교군",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 5,
+          "structural_score": 100,
+          "priority": "A",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 45,
+          "ticker": "DIS US",
+          "bloomberg_ticker": "DIS US Equity",
+          "simple_ticker": "DIS",
+          "market": "US",
+          "currency": "USD",
+          "name": "Walt Disney",
+          "sector": "Communication Services",
+          "subindustry": "Media / entertainment / parks",
+          "country": "United States",
+          "region": "United States",
+          "peer_anchor": "NFLX",
+          "rationale": "스트리밍 외 콘텐츠·파크 수익원",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 4,
+          "structural_score": 97,
+          "priority": "A",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 46,
+          "ticker": "TTWO US",
+          "bloomberg_ticker": "TTWO US Equity",
+          "simple_ticker": "TTWO",
+          "market": "US",
+          "currency": "USD",
+          "name": "Take-Two Interactive",
+          "sector": "Communication Services",
+          "subindustry": "Interactive entertainment",
+          "country": "United States",
+          "region": "United States",
+          "peer_anchor": "NFLX, SPOT",
+          "rationale": "게임 콘텐츠라는 새로운 비교군; EA 기업행사 회피",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 5,
+          "structural_score": 100,
+          "priority": "A",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 47,
+          "ticker": "9432 JP",
+          "bloomberg_ticker": "9432 JP Equity",
+          "simple_ticker": "9432",
+          "market": "JP",
+          "currency": "JPY",
+          "name": "NTT",
+          "sector": "Communication Services",
+          "subindustry": "Telecommunications",
+          "country": "Japan",
+          "region": "Japan",
+          "peer_anchor": "TMUS",
+          "rationale": "일본 통신·데이터 인프라 비교군",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 5,
+          "structural_score": 100,
+          "priority": "A",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 48,
+          "ticker": "NEM US",
+          "bloomberg_ticker": "NEM US Equity",
+          "simple_ticker": "NEM",
+          "market": "US",
+          "currency": "USD",
+          "name": "Newmont",
+          "sector": "Materials",
+          "subindustry": "Gold mining",
+          "country": "United States",
+          "region": "United States",
+          "peer_anchor": "FCX, RIO",
+          "rationale": "금 가격 민감도로 구리·철광석 편중 완화",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 5,
+          "structural_score": 100,
+          "priority": "A",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 49,
+          "ticker": "APD US",
+          "bloomberg_ticker": "APD US Equity",
+          "simple_ticker": "APD",
+          "market": "US",
+          "currency": "USD",
+          "name": "Air Products and Chemicals",
+          "sector": "Materials",
+          "subindustry": "Industrial gases",
+          "country": "United States",
+          "region": "United States",
+          "peer_anchor": "LIN",
+          "rationale": "Linde의 직접 산업가스 비교군",
+          "diversification_score": 4,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 4,
+          "structural_score": 91,
+          "priority": "C",
+          "data_gate": "D1 미적재"
+        },
+        {
+          "selection_order": 50,
+          "ticker": "BAS GR",
+          "bloomberg_ticker": "BAS GR Equity",
+          "simple_ticker": "BAS",
+          "market": "GR",
+          "currency": "EUR",
+          "name": "BASF",
+          "sector": "Materials",
+          "subindustry": "Diversified chemicals",
+          "country": "Germany",
+          "region": "Europe ex-UK",
+          "peer_anchor": "LIN, RIO",
+          "rationale": "유럽 범용·특수화학 사이클 비교군",
+          "diversification_score": 5,
+          "data_readiness_score": 5,
+          "peer_usefulness_score": 5,
+          "liquidity_quality_score": 5,
+          "independence_score": 5,
+          "structural_score": 100,
+          "priority": "A",
+          "data_gate": "D1 미적재"
+        }
+      ],
+      "currency_mix": [
+        {
+          "currency": "USD",
+          "market": "US",
+          "add_names": 35
+        },
+        {
+          "currency": "JPY",
+          "market": "JP",
+          "add_names": 5
+        },
+        {
+          "currency": "EUR",
+          "market": "GR",
+          "add_names": 4
+        },
+        {
+          "currency": "EUR",
+          "market": "FP",
+          "add_names": 3
+        },
+        {
+          "currency": "GBP",
+          "market": "LN",
+          "add_names": 2
+        },
+        {
+          "currency": "CHF",
+          "market": "SW",
+          "add_names": 1
+        }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "src-analysis",
+      "label": "100-to-150 structural universe analysis",
+      "path": "outputs/universe_150_recommendation/universe_150_results.json"
+    },
+    {
+      "id": "src-workbook",
+      "label": "ai_signal_data.xlsx — Universe_Meta"
+    },
+    {
+      "id": "src-framework",
+      "label": "Prior 65-to-100 selection framework",
+      "path": "outputs/universe_100_comparison/universe_100_comparison_results.json"
+    },
+    {
+      "id": "src-loader",
+      "label": "Supported Bloomberg market suffixes and currencies",
+      "path": "src/data_loader.py"
+    },
+    {
+      "id": "src-summary-sql",
+      "label": "Universe expansion headline query",
+      "path": "outputs/universe_150_recommendation/universe_150_analysis.sqlite",
+      "query": {
+        "engine": "SQLite",
+        "language": "sql",
+        "sql": "SELECT * FROM summary;",
+        "description": "Headline name-count, sector, and region shares.",
+        "executed_at": "2026-07-18T00:00:00+09:00",
+        "tables_used": [
+          "summary"
+        ]
+      }
+    },
+    {
+      "id": "src-sector-sql",
+      "label": "Sector mix query",
+      "path": "outputs/universe_150_recommendation/universe_150_analysis.sqlite",
+      "query": {
+        "engine": "SQLite",
+        "language": "sql",
+        "sql": "SELECT sector, metric, value, current_names, add_names, final_names, current_share, final_share FROM sector_mix_long ORDER BY final_names DESC, sector, metric;",
+        "description": "Current and proposed name counts by project sector.",
+        "executed_at": "2026-07-18T00:00:00+09:00",
+        "tables_used": [
+          "sector_mix_long"
+        ]
+      }
+    },
+    {
+      "id": "src-region-sql",
+      "label": "Economic-domicile region query",
+      "path": "outputs/universe_150_recommendation/universe_150_analysis.sqlite",
+      "query": {
+        "engine": "SQLite",
+        "language": "sql",
+        "sql": "SELECT region, metric, value, current_names, add_names, final_names, current_share, final_share FROM region_mix_long ORDER BY final_names DESC, region, metric;",
+        "description": "Current and proposed shares by economic domicile.",
+        "executed_at": "2026-07-18T00:00:00+09:00",
+        "tables_used": [
+          "region_mix_long"
+        ]
+      }
+    },
+    {
+      "id": "src-candidates-sql",
+      "label": "Recommended 50-name query",
+      "path": "outputs/universe_150_recommendation/universe_150_analysis.sqlite",
+      "query": {
+        "engine": "SQLite",
+        "language": "sql",
+        "sql": "SELECT selection_order, ticker, name, sector, subindustry, country, region, peer_anchor, priority, structural_score, data_gate, rationale FROM candidates ORDER BY selection_order;",
+        "description": "The reviewed 50-name structural recommendation.",
+        "executed_at": "2026-07-18T00:00:00+09:00",
+        "tables_used": [
+          "candidates"
+        ]
+      }
+    },
+    {
+      "id": "src-currency-sql",
+      "label": "Candidate listing-currency query",
+      "path": "outputs/universe_150_recommendation/universe_150_analysis.sqlite",
+      "query": {
+        "engine": "SQLite",
+        "language": "sql",
+        "sql": "SELECT currency, market, add_names FROM currency_mix ORDER BY add_names DESC, currency;",
+        "description": "Listing currency and Bloomberg suffix counts for the 50 candidates.",
+        "executed_at": "2026-07-18T00:00:00+09:00",
+        "tables_used": [
+          "currency_mix"
+        ]
+      }
+    },
+    {
+      "id": "src-europe",
+      "label": "STOXX Europe 600 current components",
+      "href": "https://www.stoxx.com/download/indices/components/SXXGR.pdf"
+    },
+    {
+      "id": "src-japan",
+      "label": "Nikkei 225 current components",
+      "href": "https://indexes.nikkei.co.jp/en/nkave/index/component"
+    },
+    {
+      "id": "src-nasdaq",
+      "label": "Nasdaq-100 companies",
+      "href": "https://www.nasdaq.com/solutions/global-indexes/nasdaq-100/companies"
+    },
+    {
+      "id": "src-ea",
+      "label": "EA definitive acquisition agreement",
+      "href": "https://www.ea.com/news/ea-announces-agreement-to-be-acquired"
+    }
+  ]
+}

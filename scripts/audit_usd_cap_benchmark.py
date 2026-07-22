@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Audit the production benchmark as a 100-name USD cap-weighted index."""
+"""Audit the production benchmark as a 150-name USD cap-weighted index."""
 from __future__ import annotations
 
 import argparse
@@ -21,6 +21,16 @@ from src.data_loader import UniverseData
 from src.harness import build_override_config
 
 
+EXPECTED_UNIVERSE_SIZE = 150  # §S11.3 (2026-07-20): 100 -> 150
+
+
+def _check_universe(tickers) -> None:
+    if len(tickers) != EXPECTED_UNIVERSE_SIZE or len(set(tickers)) != EXPECTED_UNIVERSE_SIZE:
+        raise ValueError(
+            f"expected {EXPECTED_UNIVERSE_SIZE} unique benchmark members, got {len(tickers)}"
+        )
+
+
 def _drift(weights: np.ndarray, returns: np.ndarray) -> np.ndarray:
     gross = np.asarray(weights, dtype=float) * (1.0 + np.asarray(returns, dtype=float))
     total = float(gross.sum())
@@ -39,8 +49,7 @@ def audit(variant_path: Path, result_path: Path | None = None) -> dict:
     tickers = list(data.tickers)
     bm_fn = get_benchmark_fn(data, tickers, config=cfg)
 
-    if len(tickers) != 100 or len(set(tickers)) != 100:
-        raise ValueError(f"expected 100 unique benchmark members, got {len(tickers)}")
+    _check_universe(tickers)
     if cfg.base_currency != "USD" or not cfg.convert_returns_to_usd:
         raise ValueError("portfolio return accounting is not configured in USD")
     if cfg.benchmark_type != "cap_weighted":

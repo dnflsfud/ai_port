@@ -58,6 +58,14 @@ SPEC_LISTING_DATES = {
     "GE": "2024-04-02",
     "TT": "2020-03-02",
     "BN": "2022-12-12",
+    # S11.4 coverage audit (decision log §S11.4): leading-constant-run scan
+    # of the refreshed 150-name workbook surfaced six unregistered backfills.
+    "ANET": "2014-06-06",
+    "RACE": "2015-10-21",
+    "LITE": "2015-07-27",
+    "VST": "2016-10-05",
+    "SPOT": "2018-04-03",
+    "VRT": "2018-08-01",
 }
 
 

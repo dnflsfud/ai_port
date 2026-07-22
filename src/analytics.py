@@ -11,7 +11,6 @@ import numpy as np
 import pandas as pd
 from typing import Dict, List, Optional, Tuple
 
-from src.metadata import TICKER_META
 
 
 def _resolve_bm_weights(
@@ -280,16 +279,28 @@ def compute_monthly_ow_explanation_rows(
     group_contributions: Dict,
     n_months: int = 6,
     bm_weights_history: Optional[Dict] = None,
+    ticker_meta: Optional[Dict[str, Dict[str, str]]] = None,
 ) -> List[Dict]:
     """Compute detailed monthly OW explanation rows.
 
     Returns a list of dicts ready to be turned into a DataFrame.
 
+    `ticker_meta` (§S11.4, 2026-07-21 필수화): Universe_Meta 기반
+    build_ticker_meta(data.meta) 결과를 주입한다. None이면 60/150 스테일
+    정적 TICKER_META를 무음 사용하게 되므로 ValueError. 레거시 정적 동작이
+    필요하면 ticker_meta=TICKER_META를 명시적으로 넘긴다.
+
     See `compute_monthly_regime_rows` re: `bm_weights_history`.
     """
-    ticker_sectors = {t: TICKER_META.get(t, {}).get("sector", "Other") for t in tickers}
-    ticker_styles = {t: TICKER_META.get(t, {}).get("style", "Other") for t in tickers}
-    ticker_subs = {t: TICKER_META.get(t, {}).get("sub", "N/A") for t in tickers}
+    if ticker_meta is None:
+        raise ValueError(
+            "ticker_meta is required — pass build_ticker_meta(data.meta) "
+            "(or TICKER_META explicitly for the legacy static behaviour)"
+        )
+    meta_map = ticker_meta
+    ticker_sectors = {t: meta_map.get(t, {}).get("sector", "Other") for t in tickers}
+    ticker_styles = {t: meta_map.get(t, {}).get("style", "Other") for t in tickers}
+    ticker_subs = {t: meta_map.get(t, {}).get("sub", "N/A") for t in tickers}
 
     rebal_dates = sorted(portfolio_weights.keys(), reverse=True)
     if not rebal_dates:
@@ -436,15 +447,27 @@ def compute_style_sector_tilt_rows(
     portfolio_weights: Dict,
     tickers: List[str],
     bm_weights_history: Optional[Dict] = None,
+    ticker_meta: Optional[Dict[str, Dict[str, str]]] = None,
 ) -> List[Dict]:
     """Compute per-rebalancing sector & style active-weight rows.
 
     Returns a list of dicts ready to be turned into a DataFrame.
 
+    `ticker_meta` (§S11.4, 2026-07-21 필수화): Universe_Meta 기반
+    build_ticker_meta(data.meta) 결과를 주입한다. None이면 60/150 스테일
+    정적 TICKER_META를 무음 사용하게 되므로 ValueError. 레거시 정적 동작이
+    필요하면 ticker_meta=TICKER_META를 명시적으로 넘긴다.
+
     See `compute_monthly_regime_rows` re: `bm_weights_history`.
     """
-    ticker_sectors = {t: TICKER_META.get(t, {}).get("sector", "Other") for t in tickers}
-    ticker_styles = {t: TICKER_META.get(t, {}).get("style", "Other") for t in tickers}
+    if ticker_meta is None:
+        raise ValueError(
+            "ticker_meta is required — pass build_ticker_meta(data.meta) "
+            "(or TICKER_META explicitly for the legacy static behaviour)"
+        )
+    meta_map = ticker_meta
+    ticker_sectors = {t: meta_map.get(t, {}).get("sector", "Other") for t in tickers}
+    ticker_styles = {t: meta_map.get(t, {}).get("style", "Other") for t in tickers}
     all_sectors = sorted(set(ticker_sectors.values()))
     all_styles = sorted(set(ticker_styles.values()))
 

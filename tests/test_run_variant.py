@@ -54,3 +54,55 @@ def test_roundtrip_and_absent():
         assert loaded is not None
         pd.testing.assert_frame_equal(loaded, targets, check_exact=True)
         assert run_variant.load_phase3_checkpoint("WRONG", output_dir=tmp) is None
+
+
+# ---------------------------------------------------------------------------
+# Point-in-time universe guard on the cache-reuse branch (§S11.4). The cached
+# branch never constructs UniverseData, so its __init__ guard cannot fire —
+# check_cached_universe is the only checkpoint for stale-universe checkpoints.
+# ---------------------------------------------------------------------------
+def _ns_data(n):
+    import types
+    return types.SimpleNamespace(tickers=[f"T{i}" for i in range(n)])
+
+
+def test_check_cached_universe_none_is_inert():
+    cfg = PipelineConfig()  # expected_universe_size defaults to None
+    run_variant.check_cached_universe(_ns_data(3), cfg)  # no raise
+
+
+def test_check_cached_universe_match_passes():
+    import types
+
+    from src.data_loader import TICKERS
+
+    cfg = PipelineConfig(expected_universe_size=150)
+    # Canonical composition in reversed order: the guard is order-insensitive
+    # (a cached panel's column order is internally consistent).
+    data = types.SimpleNamespace(tickers=list(reversed(TICKERS)))
+    run_variant.check_cached_universe(data, cfg)  # no raise
+
+
+def test_check_cached_universe_mismatch_raises():
+    import pytest
+
+    cfg = PipelineConfig(expected_universe_size=150)
+    with pytest.raises(ValueError):
+        run_variant.check_cached_universe(_ns_data(149), cfg)
+
+
+def test_check_cached_universe_composition_mismatch_raises():
+    """개수는 150으로 같아도 구성이 현행 TICKERS와 다르면 (예: 교체 이전
+    슬레이트의 스테일 캐시) 캐시 재사용을 거부해야 한다 (2026-07-21)."""
+    import types
+
+    import pytest
+
+    from src.data_loader import TICKERS
+
+    cfg = PipelineConfig(expected_universe_size=150)
+    swapped = list(TICKERS)
+    swapped[0] = "ZZZZ_STALE"
+    data = types.SimpleNamespace(tickers=swapped)
+    with pytest.raises(ValueError, match="composition"):
+        run_variant.check_cached_universe(data, cfg)

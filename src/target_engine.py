@@ -88,11 +88,20 @@ def compute_specific_returns(
     for t in range(lookback, n_dates - horizon):
         n_attempted += 1
         # 과거 lookback일 일간 수익률로 PCA fitting
-        hist_returns = returns.iloc[t - lookback: t].copy()
+        hist_returns = returns.iloc[t - lookback: t]
 
-        # 결측치가 너무 많으면 스킵
-        valid_mask = hist_returns.notna().all(axis=1)
-        hist_clean = hist_returns.loc[valid_mask]
+        # §S11.7 PIT eligibility: 창에 NaN(상장 전)이 있는 열은 PCA 기저와
+        # 타깃 대상에서 제외. dense 입력이면 전 열 eligible — 기존과 항등.
+        eligible = hist_returns.notna().all(axis=0).values
+        n_eligible = int(eligible.sum())
+        if n_eligible < 2:
+            n_skipped_sparse += 1
+            continue
+        hist_e = hist_returns.iloc[:, eligible]
+
+        # 결측치가 너무 많으면 스킵 (행 단위 잔여 결측 위생)
+        valid_mask = hist_e.notna().all(axis=1)
+        hist_clean = hist_e.loc[valid_mask]
 
         if len(hist_clean) < lookback // 2:
             n_skipped_sparse += 1
@@ -100,7 +109,7 @@ def compute_specific_returns(
 
         # PCA fitting
         try:
-            actual_n = min(n_components, len(tickers) - 1)
+            actual_n = min(n_components, n_eligible - 1)
             pca = PCA(n_components=actual_n)
             pca.fit(hist_clean.values)
         except (ValueError, np.linalg.LinAlgError) as e:
@@ -108,8 +117,8 @@ def compute_specific_returns(
             logger.warning("[TargetEngine] PCA failed at t=%d (%s): %s", t, dates[t].strftime('%Y-%m-%d'), e)
             continue
 
-        # 시점 t의 forward return
-        fwd_t = fwd_ret.iloc[t].values.reshape(1, -1)
+        # 시점 t의 forward return (eligible 열만)
+        fwd_t = fwd_ret.iloc[t].values[eligible].reshape(1, -1)
 
         if np.any(np.isnan(fwd_t)):
             n_skipped_fwd_nan += 1
@@ -129,7 +138,7 @@ def compute_specific_returns(
 
         # Specific return = forward return - common component
         spec = fwd_t - common
-        specific_ret.iloc[t] = spec.flatten()
+        specific_ret.iloc[t, np.flatnonzero(eligible)] = spec.flatten()
 
     # C7: emit a summary so silent failures surface in the log
     if n_attempted > 0:
@@ -295,7 +304,11 @@ def build_targets(data: UniverseData, n_remove: int = None, config: PipelineConf
     # dropped tickers, Daily_Returns may still contain extra columns that
     # assembly/backtest will never use — we skip them here to keep the
     # PCA / specific-return pipeline shape-aligned with the rest.
-    returns = data.returns.loc[:, list(data.tickers)]
+    # §S11.7: PIT 뷰(상장 전 NaN) 소비 — 표준 경로의 eligibility-aware PCA가
+    # 창별 비적격 열을 제외한다. multi-horizon 경로는 horizon별로 표준 엔진을
+    # 재호출하므로 동일하게 eligibility-aware(§S11.9 arm에서 활성). regime
+    # 경로만 행 단위 결측 위생 상태로 남아 있다(활성화 전 수정 필수, §S11.7 부기).
+    returns = data.returns_masked.loc[:, list(data.tickers)]
 
     # P2 infrastructure hook: multi-horizon target blend (OFF by default).
     mh_enabled = getattr(config, "multi_horizon_targets_enabled", False)

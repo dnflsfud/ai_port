@@ -10,7 +10,9 @@ from src.features.utils import cs_rank
 
 def build_price_features(data: UniverseData) -> Dict[str, pd.DataFrame]:
     features: Dict[str, pd.DataFrame] = {}
-    returns = data.returns
+    # §S11.7: PIT 뷰(상장 전 NaN) — 유령의 합성 수익률이 횡단면 순위·시장평균·
+    # 베타 계산에 참여하지 않도록 dense returns 대신 masked 뷰를 소비한다.
+    returns = data.returns_masked
     prices = data.prices
     mktcap = data.market_cap
 
@@ -86,8 +88,10 @@ def build_price_features(data: UniverseData) -> Dict[str, pd.DataFrame]:
         features[f"min_ret_{w}d"] = returns.rolling(w, min_periods=w).min()
 
     # --- Positive return ratio (2) ---
+    # NaN > 0 == False라서 상장 전 셀이 0.0으로 새지 않도록 notna로 가드.
     for w in [21, 63]:
-        features[f"pos_ret_ratio_{w}d"] = (returns > 0).astype(float).rolling(w, min_periods=w).mean()
+        pos = (returns > 0).astype(float).where(returns.notna())
+        features[f"pos_ret_ratio_{w}d"] = pos.rolling(w, min_periods=w).mean()
 
     # --- Downside deviation & Up/Down ratio (3) ---
     neg_ret = returns.clip(upper=0)
@@ -113,7 +117,9 @@ def build_price_features(data: UniverseData) -> Dict[str, pd.DataFrame]:
         features[f"idio_vol_{w}d"] = resid.rolling(w, min_periods=w).std() * np.sqrt(252)
 
     # --- Trend consistency (1) ---
+    # 위 pos_ret_ratio와 동일한 NaN>0 가드.
     ret5d = returns.rolling(5, min_periods=5).sum()
-    features["trend_consist_63d"] = (ret5d > 0).astype(float).rolling(63, min_periods=21).mean()
+    trend = (ret5d > 0).astype(float).where(ret5d.notna())
+    features["trend_consist_63d"] = trend.rolling(63, min_periods=21).mean()
 
     return features

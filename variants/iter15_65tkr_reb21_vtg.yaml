@@ -1,5 +1,5 @@
 label: iter15_65tkr_reb21_vtg
-display_name: Legacy S0 (100)
+display_name: Legacy S0 (150)
 portfolio_role: challenger
 description: >
   PRODUCTION. iter15_65tkr_reb21 + post-prediction value-trap gate.
@@ -116,6 +116,7 @@ overrides:
   allow_scs_on_ecos_exception: false
   max_name_active_risk_share: 0.35
   max_sector_active_risk_share: 0.85  # recalibrated 2026-07-18, decision log S10.1
+  expected_universe_size: 150  # point-in-time membership guard, decision log S11.4
   # CS-DR-Alpha — disabled after the 2026-06-10 honest re-validation (above).
   # Engine + harness remain available for research:
   #   scripts/run_dr_alpha.py (single/grid), scripts/run_dr_ablation.py (2x2).

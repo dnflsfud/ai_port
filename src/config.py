@@ -43,9 +43,21 @@ class PipelineConfig:
     # NaN-mask the pre-listing constant backfill in the
     # source xlsx — PLTR/GEV/BE plus new members 285A/SNDK/ARM/CEG carry
     # pre-listing history that can pollute the cap-weighted BM, open a zero-vol
-    # free-OW path, and contaminate the training panel. VRT is excluded — it
-    # has genuine SPAC-predecessor trading history.
+    # free-OW path, and contaminate the training panel.
     listing_mask_enabled: bool = True
+    # Resolve an eligibility start for every Universe_Meta member. Explicit
+    # ``listing_dates`` remain authoritative (and may represent a spin/split
+    # continuity date), while new names are picked up from an optional
+    # Universe_Meta Listing_Date/IPO_Date column or a leading-flat PX_LAST
+    # audit. This keeps the rule active when the universe is expanded.
+    listing_auto_infer_enabled: bool = True
+    listing_meta_columns: List[str] = field(default_factory=lambda: [
+        "Eligibility_Start_Date", "Listing_Date", "IPO_Date",
+        "First_Trade_Date",
+    ])
+    listing_flat_min_run: int = 5
+    listing_flat_rtol: float = 1e-10
+    listing_flat_atol: float = 1e-12
     listing_dates: Dict[str, str] = field(default_factory=lambda: {
         "PLTR": "2020-09-30", "GEV": "2024-04-02", "BE": "2018-07-25",
         "285A": "2024-12-18", "SNDK": "2025-02-24",
@@ -57,7 +69,28 @@ class PipelineConfig:
         # BAM manager split), so only post-event data enters training.
         # Dates re-verified against first valid workbook data at refresh.
         "GE": "2024-04-02", "TT": "2020-03-02", "BN": "2022-12-12",
+        # S11.4 coverage audit (decision log §S11.4): leading-constant-run
+        # scan of the refreshed workbook surfaced six unregistered backfills.
+        # Dates = first real observation in the panel (audited). VRT keeps its
+        # genuine SPAC-predecessor history — only the constant backfill BEFORE
+        # 2018-08-01 (GSAH unit trading start) is masked.
+        "ANET": "2014-06-06", "RACE": "2015-10-21", "LITE": "2015-07-27",
+        "VST": "2016-10-05", "SPOT": "2018-04-03", "VRT": "2018-08-01",
     })
+    # Point-in-time universe guard (§S11.4): expected member count of
+    # Universe_Meta ∩ essential sheets. None disables the check (synthetic
+    # test workbooks); production variants pin 150. Pre-listing dates may
+    # hold fewer LISTED names — this guards membership, not per-date counts.
+    expected_universe_size: Optional[int] = None
+
+    # Sector active-risk soft penalty (§S11.5 candidate, default-OFF).
+    # Convex proxy for the report-only guardrail (top-sector share of the
+    # Euler-decomposed active TE, which is a non-DCP ratio): penalise
+    # sum over sectors of the sector-masked active vector's quad form,
+    # Σ_s (m_s∘a)'C(m_s∘a). Single pre-registered weight — no sweeps.
+    # Adoption is judged by the export guardrail share dropping, not by IR.
+    sector_active_risk_penalty_enabled: bool = False
+    sector_active_risk_penalty: float = 5.0
 
     # ------------------------------------------------------------------
     # Target (PCA)
@@ -172,11 +205,17 @@ class PipelineConfig:
     # Alternative cross-sectional ranking model.  All switches are OFF by
     # default so the canonical regression portfolio remains byte-for-byte on
     # its historical execution path.
-    model_objective: str = "regression"  # regression | cross_sectional_rank
+    model_objective: str = "regression"  # regression | cross_sectional_rank | symmetric_rank
     causal_validation_enabled: bool = False
     execution_signal_lag_days: int = 0
     rank_relevance_levels: int = 10
     rank_eval_at: List[int] = field(default_factory=lambda: [5, 10])
+    # Symmetric alternative to top-heavy NDCG: transform each date's forward
+    # returns to [-1, 1] cross-sectional ranks, then fit a robust regressor.
+    # This gives top and bottom names equal loss weight and is opt-in until its
+    # candidate variant passes the existing OOS/promotion gates.
+    symmetric_rank_loss: str = "huber"
+    symmetric_rank_metric: str = "l2"
     # REDESIGN R-9 (2026-04-14): 0.8 → 0.5 — P2 IR -0.343 회복 시도.
     # 2021-2023 금리급등기에서 model이 regime shift에 느리게 적응 (ema가 옛 signal 끌어안음).
     # alpha 0.5는 50% 새 signal + 50% prior. Forensics 권장.
@@ -209,6 +248,18 @@ class PipelineConfig:
     ewma_min_retrains: int = 2       # cold start: uniform until N retrains
     ewma_drop_pct: float = 0.05     # drop bottom 5% features by EWMA importance
     ewma_min_features: int = 60      # never drop below this many features
+    # Positive feature rescaling is mostly inert for tree splits. Keep the
+    # legacy switch for reproducibility, but new candidate variants disable it.
+    ewma_feature_scaling_enabled: bool = True
+    # Every N accepted EWMA updates, train once on the full feature set so a
+    # previously dropped feature can re-enter. 0 preserves the legacy path.
+    ewma_full_refresh_interval: int = 0
+    # Importance used by the EWMA selector. ``permutation`` is computed on the
+    # validation fold; ``stability`` penalizes unstable recent gain importance.
+    ewma_importance_type: str = "split"
+    ewma_permutation_repeats: int = 3
+    ewma_permutation_max_samples: int = 10000
+    ewma_stability_window: int = 4
 
     # ------------------------------------------------------------------
     # Features  — REDESIGN C++ (2026-04-11 PM)
@@ -234,6 +285,10 @@ class PipelineConfig:
     # CUR_MKT_CAP) so the optimizer's active budget aligns with the
     # market's actual concentration.
     benchmark_type: str = "cap_weighted"  # {"cap_weighted", "equal_weight"}
+    # Independent comparison benchmark. The internal cap/EW benchmark remains
+    # the optimizer anchor; S&P 500 is reported alongside it.
+    sp500_benchmark_enabled: bool = True
+    sp500_factor_ticker: str = "SPX"
 
     # ------------------------------------------------------------------
     # Optimizer  — REDESIGN E (2026-04)
@@ -483,6 +538,16 @@ class PipelineConfig:
     # Uses the same non-interpolated raw returns / trailing `cov_lookback`
     # window as the covariance estimator. OFF by default (byte-identical).
     mu_vol_scaling_enabled: bool = False
+    # Past-only OOF alpha calibration. Converts unit-free z-scores to expected
+    # DAILY excess return units using matured IC, trailing idiosyncratic risk,
+    # and shrinkage toward zero. Opt-in; mutually exclusive with the legacy
+    # median-normalized mu-vol scaling.
+    alpha_calibration_enabled: bool = False
+    alpha_calibration_lookback: int = 252
+    alpha_calibration_min_observations: int = 63
+    alpha_calibration_prior_observations: int = 63
+    alpha_calibration_min_ic: float = 0.0
+    alpha_calibration_max_ic: float = 0.10
 
     # ------------------------------------------------------------------
     # S8 (2026-07-07) — news_trend sentiment feature arm
@@ -568,10 +633,13 @@ class PipelineConfig:
             raise ValueError("min_model_trees must be >= 1")
         if not (0.0 <= self.max_degenerate_model_rate <= 1.0):
             raise ValueError("max_degenerate_model_rate must be in [0, 1]")
-        if self.model_objective not in ("regression", "cross_sectional_rank"):
+        if self.model_objective not in (
+            "regression", "cross_sectional_rank", "symmetric_rank"
+        ):
             raise ValueError(
-                "model_objective must be 'regression' or "
-                f"'cross_sectional_rank', got {self.model_objective!r}"
+                "model_objective must be 'regression', "
+                "'cross_sectional_rank', or 'symmetric_rank'; "
+                f"got {self.model_objective!r}"
             )
         if self.execution_signal_lag_days < 0:
             raise ValueError("execution_signal_lag_days must be >= 0")
@@ -579,6 +647,43 @@ class PipelineConfig:
             raise ValueError("rank_relevance_levels must be in [2, 31]")
         if not self.rank_eval_at or any(int(k) <= 0 for k in self.rank_eval_at):
             raise ValueError("rank_eval_at must contain positive integers")
+        if self.symmetric_rank_loss not in ("huber", "regression_l1", "regression"):
+            raise ValueError(
+                "symmetric_rank_loss must be huber, regression_l1, or regression"
+            )
+        if self.ewma_full_refresh_interval < 0:
+            raise ValueError("ewma_full_refresh_interval must be >= 0")
+        if self.ewma_importance_type not in (
+            "split", "gain", "permutation", "stability"
+        ):
+            raise ValueError(
+                "ewma_importance_type must be split, gain, permutation, or stability"
+            )
+        if self.ewma_permutation_repeats < 1:
+            raise ValueError("ewma_permutation_repeats must be >= 1")
+        if self.ewma_permutation_max_samples < 2:
+            raise ValueError("ewma_permutation_max_samples must be >= 2")
+        if self.ewma_stability_window < 2:
+            raise ValueError("ewma_stability_window must be >= 2")
+        if self.listing_flat_min_run < 1:
+            raise ValueError("listing_flat_min_run must be >= 1")
+        if self.listing_flat_rtol < 0 or self.listing_flat_atol < 0:
+            raise ValueError("listing flat tolerances must be >= 0")
+        if not self.sp500_factor_ticker:
+            raise ValueError("sp500_factor_ticker must be non-empty")
+        if self.alpha_calibration_lookback < 1:
+            raise ValueError("alpha_calibration_lookback must be >= 1")
+        if self.alpha_calibration_min_observations < 1:
+            raise ValueError("alpha_calibration_min_observations must be >= 1")
+        if self.alpha_calibration_prior_observations < 0:
+            raise ValueError("alpha_calibration_prior_observations must be >= 0")
+        if self.alpha_calibration_min_ic > self.alpha_calibration_max_ic:
+            raise ValueError("alpha_calibration_min_ic must be <= max_ic")
+        if self.alpha_calibration_enabled and self.mu_vol_scaling_enabled:
+            raise ValueError(
+                "alpha_calibration_enabled and mu_vol_scaling_enabled are "
+                "mutually exclusive"
+            )
         if self.max_tail_ffill_days < 0:
             raise ValueError("max_tail_ffill_days must be >= 0")
         self.base_currency = str(self.base_currency).upper()
@@ -595,6 +700,11 @@ class PipelineConfig:
             )
         if self.max_name_active_risk_share <= 0:
             raise ValueError("max_name_active_risk_share must be > 0")
+        if (self.expected_universe_size is not None
+                and self.expected_universe_size <= 0):
+            raise ValueError("expected_universe_size must be None or > 0")
+        if self.sector_active_risk_penalty <= 0:
+            raise ValueError("sector_active_risk_penalty must be > 0")
         if self.max_sector_active_risk_share <= 0:
             raise ValueError("max_sector_active_risk_share must be > 0")
         if self.projection_fallback_mode not in ("target", "prev"):

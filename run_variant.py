@@ -253,6 +253,39 @@ def _phase12_upstream_token(output_dir: str = "outputs") -> str:
     return "|".join(parts)
 
 
+def check_cached_universe(data, cfg) -> None:
+    """Point-in-time universe guard for the cache-reuse branch (§S11.4).
+
+    The cached branch never constructs UniverseData, so the __init__ guard
+    cannot fire — this is the only checkpoint against a stale-universe
+    Phase 1 checkpoint. Inert when expected_universe_size is None.
+    """
+    expected = getattr(cfg, "expected_universe_size", None)
+    if expected is None:
+        return
+    if len(data.tickers) != expected:
+        raise ValueError(
+            f"cached Phase 1 universe has {len(data.tickers)} ticker(s), "
+            f"expected {expected} — rerun with --no-cache"
+        )
+    # Composition check (2026-07-21): a stale 150-name cache from before a
+    # slate swap has the right COUNT but the wrong names. Compare against the
+    # canonical TICKERS constant (kept in sync with Universe_Meta) whenever
+    # the expected size matches it. Order-insensitive: a cached panel's own
+    # column order is internally consistent.
+    from src.data_loader import TICKERS
+    if expected == len(TICKERS):
+        cached, canon = set(map(str, data.tickers)), set(TICKERS)
+        if cached != canon:
+            missing = sorted(canon - cached)
+            extra = sorted(cached - canon)
+            raise ValueError(
+                "cached Phase 1 universe composition differs from current "
+                f"TICKERS (missing={missing[:5]}, extra={extra[:5]}) — "
+                "rerun with --no-cache"
+            )
+
+
 def run(manifest_path: Path, no_cache: bool = False) -> int:
     manifest = load_manifest(manifest_path)
     label = manifest["label"]
@@ -336,6 +369,12 @@ def run(manifest_path: Path, no_cache: bool = False) -> int:
         "factor_neutral_enabled", "factor_neutral_penalty",
         "factor_neutral_axes", "factor_neutral_loadings",
         "max_name_active_risk_share", "max_sector_active_risk_share",
+        # Sector active-risk soft penalty — MVO objective only (same class
+        # as factor_neutral) => cache-safe.
+        "sector_active_risk_penalty_enabled", "sector_active_risk_penalty",
+        # Universe-size guard — pure fail-fast check, changes no pipeline
+        # output; the cache branch is covered by check_cached_universe.
+        "expected_universe_size",
     })
     overrides = manifest.get("overrides") or {}
     unsafe_keys = []
@@ -363,6 +402,7 @@ def run(manifest_path: Path, no_cache: bool = False) -> int:
         print("[run_variant] reusing Phase 1/2/4 checkpoints "
               "(overrides are Phase 5/6/post-prediction-only)")
         data = cp1["data"]
+        check_cached_universe(data, cfg)
         panel = cp2["panel"]
         feature_names = cp2["feature_names"]
         feature_groups = cp2["feature_groups"]

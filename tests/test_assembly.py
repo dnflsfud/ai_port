@@ -127,3 +127,33 @@ def test_extra_whitelist_adds_only_news_trend():
         assert d not in features  # non-whitelist dummies still pruned
     assert feature_groups.get("Sellside") == ["eps_rev", NEWS_TREND]
     assert "Junk" not in feature_groups
+
+
+# ---------------------------------------------------------------------------
+# §S11.7: lean momentum 컴포짓은 dense returns가 아니라 상장 전 NaN 뷰
+# (returns_masked)를 소비해야 한다.
+# ---------------------------------------------------------------------------
+def test_lean_momentum_uses_masked_returns():
+    from types import SimpleNamespace
+
+    import numpy as np
+    import pandas as pd
+
+    from src.features.assembly import build_lean_momentum_composites
+
+    n_dates, listing_pos = 80, 70
+    dates = pd.bdate_range("2022-01-03", periods=n_dates)
+    rng = np.random.default_rng(3)
+    tickers = ["AAA", "BBB", "NEW"]
+    dense = pd.DataFrame(
+        rng.normal(0.0, 0.02, size=(n_dates, 3)), index=dates, columns=tickers
+    )
+    masked = dense.copy()
+    masked.iloc[:listing_pos, 2] = np.nan
+    prices = (1 + dense).cumprod() * 100.0
+    data = SimpleNamespace(returns=dense, returns_masked=masked, prices=prices)
+
+    feats = build_lean_momentum_composites(data, tickers)
+    # NEW는 실데이터 10일뿐 -> mom21/mom63 미형성 -> accel 전 구간 NaN
+    assert feats["mom_accel_21_63"]["NEW"].isna().all()
+    assert np.isfinite(feats["mom_accel_21_63"]["AAA"].iloc[-1])

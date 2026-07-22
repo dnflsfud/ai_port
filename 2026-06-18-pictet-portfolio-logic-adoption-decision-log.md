@@ -765,3 +765,490 @@ cap-weighted 내부 벤치마크 ±10%p 하드 밴드(`sector_deviation`)가 제
   리프레시(데스크탑) → ③ ai_signal_data 150 재생성 + Universe_Meta 확장 → ④ 마스크 일자
   검증 + 커버리지·임퓨테이션 보고(금융주 FCF류 결측 예상) → ⑤ 새 S0(150) ECOS 재인증 →
   §S11.1 기록.
+
+## S11.2 (슬레이트 개정: MMC → AON) — 2026-07-20
+
+(§S11.1 = 2026-07-19 리프레시 게이트 사용자 오버라이드·universe_config 150 선적용,
+별도 세션 수행 — 메모리 기록 참조.)
+
+- **트리거/근거(실측 2026-07-20)**: `RL_Universe_Data.xlsx` Universe_Meta 150종 중
+  **MMC 유일 Missing** — 가격 소스 `Data/S&P500.xlsx`에 MMC 열 부재(PX_LAST 등).
+  FactSet 측도 `D_Factset_re_study.xlsx` 실데이터가 아직 100종(§S11 리프레시 전)이라
+  신규 50종 전체 미수신 상태이나, 가격 소스까지 비는 구조적 공백은 MMC가 유일.
+- **교체안(사용자 확정)**: MMC(보험 브로커) → **AON US Equity**(동일 업종 보험 브로커,
+  USD, MSCI World, 2013 이전 상장). 섹터 배분(Fin 24)·통화 믹스(USD 33)·FX 페어 0
+  불변 — §S11 슬레이트 방법론 유지. oppor `S&P500` 풀 시트에는 AON 열이 기존재(CQ1의
+  MMC 열은 유니버스 외 풀 항목으로 보존).
+- **적용(2026-07-20)**: `Data/oppor.xlsx` tickers 시트 DM1 `MMC US Equity`→`AON US
+  Equity` · `re_study/Factset_re_study.xlsx` 13시트 각 1건 `MMC-US^`→`AON-US^`(잔여
+  MMC 0) · `universe_config.py`/`test_universe_config.py` MMC→AON(§S11.2 주석 부기).
+  `run_data_pipeline.bat`은 티커 하드코딩 없음 — universe CHECK 경유 자동 반영.
+  백업: `oppor.backup_20260720_aon.xlsx`, `Factset_re_study.backup_20260720_aon.xlsx`.
+- **검증(PASS)**: 계약·파이프라인 테스트 11/11 PASS · `validate_universe()` 150/150 ·
+  factset 13시트 AON-US^ 각 1개·MMC-US^ 0개 · oppor tickers AON 존재/MMC 부재
+  (여분 `442580 KS` 1종은 기존 유니버스 외 항목, 금회 편집 무관).
+- **후속**: §S11 잔여 단계 동일 — 리프레시 시 AON 13시트 수신·first-valid 확인,
+  새 S0(150) 재인증 전까지 ai_port TICKERS(100) 불변. `Data/S&P500.xlsx`의 잔존
+  MMC 열(BEST_EPS·BEST_SALES 헤더)은 파이프라인이 무시하므로 방치 가능.
+
+## S11.3 (새 S0(150) ECOS 재인증 + ai_port 150 확장) — 2026-07-20
+
+**이 절이 150종 유니버스의 새 단일 비교 기준(S0)이다. §S11 선언에 따라 100종 이전
+수치(§S9.1 IR 1.570/TE 3.72% 등)와의 직접 비교 금지.** 솔버 ECOS 단일 프로토콜,
+`--no-cache` full rebuild, seed 42, 단독 arm(파라미터 변경 0 — variant overrides
+무변경, 표시 텍스트만 갱신).
+
+- **전제 검증(2026-07-20, 병렬 조사 5종)**: 사용자 데스크탑 리프레시(13:39~14:15) 후
+  `ai_signal_data.xlsx` Universe_Meta **150행 전원 Available**(AON 포함·MMC 0),
+  핵심 시트 date+150열·universe_config 순서 일치·섹터 불일치 0. `D_Factset` 12시트
+  151열 리프레시 확인(AON 4948/4948). **주의(실측)**: PX_LAST·Daily_Returns는 상장 전
+  구간이 상수 백필(ABNB 68.0 고정 등)이라 채움률≠실존 — listing mask가 필수 방어선이며,
+  백테스트 로그에서 마스크 13종(PLTR GEV BE 285A SNDK ARM CEG + S11 6종 DELL ABNB
+  UMG GE TT BN) 적용 확인(잔여 ④ 해소).
+- **코드 확장(248 PASS)**: `src/data_loader.py` TICKERS 100→150(+50, Universe_Meta
+  순서)·FALLBACK_TICKER_CURRENCY +17(비USD) · 핀 갱신: `test_universe_fx_conversion`
+  150/tail-5, `audit_usd_cap_benchmark` 게이트 150(`_check_universe` 추출+신규 테스트
+  3), `export_operating_data` PORTFOLIO_VERSION **universe150-usd-v1**·표시명
+  "Causal Rank 150"/"Legacy S0 (150)"(+테스트 핀 3), streamlit 칩 150, variant
+  yaml 표시 텍스트. 엔진은 meta-driven(Universe_Meta 정본)이라 TICKERS는 fallback
+  정합용 — 출력 변화는 데이터(150) 기인이지 코드 기인이 아님.
+- **S0(150) production — codex_causal_rank_65 (Causal Rank 150), ECOS**:
+  **IR 1.522** · active 5.45% · **TE 3.58%**(실현, ex-ante 캡 0.035·est TE 3.50%
+  바인딩) · **realized_beta 1.048**(active_beta +0.048) · turnover 74.5%(양방향)/
+  37.3%(편도) · MDD −31.19% · IC 0.0189 · P1/P2/P3 = 1.549/0.784/2.187(전부 양) ·
+  Sharpe 1.31 · 솔버 {ECOS:190}·SCS fallback 0%·optimizer fallback 1/95(1.1%) ·
+  541s. active share L1 0.405(편도 20.3%) — 집중 캐릭터 유지(§2.5).
+- **S0(150) challenger — iter15_65tkr_reb21_vtg (Legacy S0 (150)), ECOS**:
+  IR 1.160 · active 3.67% · TE 3.16%(캡 0.045 레거시 핀) · realized_beta 1.026 ·
+  turnover 103.2%/51.6% · MDD −30.26% · IC 0.0277 · P1/P2/P3 = 0.579/0.720/1.956 ·
+  543.6s. registry comparison_gate FAIL/RESEARCH 표시는 승격 후 방향 반전으로 정상.
+- **P2 게이트 재판정**: realized_beta 1.048 ≈ 1.0 → **P2(beta-neutral) shelve 유지**(§3).
+- **Production HOLD 게이트(§S9.2, report-only) = HOLD — 체크 3건 False**:
+  ① `sector_active_risk_ok` FALSE — Technology active-risk share **0.957 > 0.85**
+  (§S10 재캘리브레이션 한도; 100종 시절 0.787→150 전환으로 재돌파. 150 유니버스의
+  섹터 구성 변화 기인 — 한도 재캘리브레이션 또는 제약 조정은 **새 사전등록 대상**),
+  ② `name_active_risk_ok` FALSE — top name STX **0.446**(단일 종목 active-risk 집중),
+  ③ `degenerate_rate_ok` FALSE — **59.4% > 25%**(기존 잔존 HOLD 사유; challenger는
+  31.2%). TE(0.0358≤0.045)·stale tail(1.0d≤10d)은 OK. 발행·업로드는 계속(report-only).
+- **커버리지·임퓨테이션 보고(잔여 ④)**: 금융주 FCF/CAPEX/GM/EV-EBITDA류 **컬럼 부재**
+  (BN·ZURN·8306 FCF 등, §S11 예상 결측 — 로더가 부재→NaN 처리) · SHORT_INT_RATIO
+  비미국 30종 부재(median 대체) · RR/ FactSet 시트 만성 전량 결측(리프레시 전과 동일,
+  별도 조사 후보) · TSM FCF 부재. metadata.py TICKER_META는 65종 스테일(85종 부재)
+  — 최적화 무관(섹터는 Universe_Meta 사용), 리포팅 개선 백로그.
+- **DSR/selection-bias**: 유니버스 전환은 arm 선택이 아님(§S9 입장 일관) — 게이트
+  비해당, 본 절 기록으로 갈음.
+- **비교 금지 선언**: 이후 모든 arm·ablation은 본 §S11.3 수치를 기준으로만 비교한다.
+  PCA 타깃이 150 전체 수익률로 재적합되었으므로 100종 시절 결과와의 델타는 무의미.
+
+## S11.4 (point-in-time 유니버스 — 전 시트 상장 전 마스킹 + 재인증) — 2026-07-20
+
+**§S11.3은 "마스크 결함 하 중간 인증"으로 격하한다.** 외부(GPT) 리뷰 지적을 자체
+검증으로 확인: 시트 마스킹이 PX_LAST·CUR_MKT_CAP(+targets/predictions 셀)만 커버,
+재무·컨센서스 19개 시트의 상장 전 백필이 미마스킹 상태로 피처 횡단면에 유입
+(실측: ABNB BEST_EPS −0.582×2,535행, BEST_PE_RATIO 10,399.662, BEST_ROE 64.941 —
+전부 비-NaN 상수라 임퓨트 median의 오염원이기도 함). §2.1 데이터 정확성 계층
+예외로 default-ON 적용하되, 전 기간 피처·타깃이 바뀌므로 단일 arm으로 묶어
+새 S0(150)′ ECOS 재인증을 수행한다.
+
+- **정책(사용자 지시 2026-07-20)**: 종목은 **상장일 이후에만 유니버스에 편입**되며
+  상장 전 시점의 유니버스는 150 미만이 정상이다(point-in-time membership).
+  pre-IPO 진성 관측(NEWS_SENTIMENT 상장 전 뉴스, TG_Price 개시 목표가)도 일관성을
+  위해 마스킹한다 — 정보 손실은 인지된 트레이드오프.
+- **변경 세트(단일 arm, 261 PASS)**:
+  1. **이중 마스킹**: preprocess 1차(임퓨트 전 — 유령이 `_fill_missing`/`align_dates`
+     median에 못 섞임) + align 후 2차 재마스킹(전 시트 inclusive=False).
+     Daily_Returns만 2차 제외(PCA dense 요구; 1차 마스킹+median 재충전으로 유령
+     0.0 → 당일 상장종목 median 수익률로 대체). raw_returns(cov 경로)는
+     inclusive=True 유지. 시트별 마스킹 셀 수를 `data_quality["listing_mask"]`로 기록.
+  2. **breadth 분모**: conditioning.py 4곳(shape[1] → 날짜별 notna 수, 0-division
+     가드). production은 feature_mode=core라 breadth류가 화이트리스트 밖 —
+     모델 입력 무변(full/lean·진단만 변경). attribution.py:355 진단 분모는
+     모델 경로 밖이라 보류(백로그).
+  3. **expected_universe_size 가드**: config default None(합성 픽스처 보호),
+     production·challenger variant에 150 지정. UniverseData __init__ +
+     캐시 재사용 분기(check_cached_universe) 양쪽 검문. SAFE_FOR_CACHE_REUSE 등재.
+  4. **listing_dates 커버리지 감사(선행 동일값 런 ≥15일 스캔)**: 미등재 백필 6종
+     발견·등록 — ANET 2014-06-06 / RACE 2015-10-21 / LITE 2015-07-27 /
+     VST 2016-10-05 / SPOT 2018-04-03 / **VRT 2018-08-01**(상수 백필 구간만 마스킹;
+     2018-08 이후 GSAH SPAC 실역사는 보존 — 기존 "VRT 제외" 결정의 정신 유지).
+     핀 테스트 3곳 동기(19종). 잔여: GE/TT/BN형(비상수·타 실체) 추가 후보는
+     자동 탐지 불가 — 등록된 6건 외 미확인 명단 없음으로 종결.
+- **재인증(사전등록)**: production(codex_causal_rank_65)·challenger(iter15) 각
+  ECOS·`--no-cache`·seed 42, 파라미터 변경 0. 결과는 아래에 추가 기록.
+- **재인증 결과(2026-07-20, ECOS·--no-cache) — 이 수치가 새 단일 기준 S0(150)′**:
+  - **production (Causal Rank 150)**: **IR 1.371** · active 5.01% · **TE 3.65%** ·
+    realized_beta **1.040** · turnover 74.1%(양방향)/37.1%(편도) · MDD −31.37% ·
+    P1/P2/P3 = 1.535/0.714/1.971(전부 양) · IC 0.0214 · optimizer fallback 0/95 ·
+    솔버 {ECOS:190}·SCS 0%. (metrics elapsed 21,912s는 시스템 절전 추정 아티팩트 —
+    challenger 998s와 동급 연산.)
+  - **challenger (Legacy S0 (150))**: IR 1.228 · active 3.65% · TE 2.97% ·
+    realized_beta 1.021 · turnover 103.6%/51.8% · MDD −31.17% ·
+    P1/P2/P3 = 1.014/0.547/2.289 · IC 0.0259.
+  - **P2 게이트**: realized_beta 1.040 ≈ 1.0 → **P2 shelve 유지**.
+  - §S11.3(마스크 결함 인증) 대비 방향 참고(액션 근거 아님): production IR
+    1.522→1.371, challenger 1.160→1.228 — 유령 데이터 제거로 production의 우위
+    폭이 줄었으며, 이는 §S11.3 수치 일부가 오염 기인이었음을 시사.
+- **HOLD 게이트 재측정 — 3건 → 2건**:
+  - `name_active_risk_ok` **TRUE로 해소**: top name STX 0.446 → **6857 0.235**
+    (<0.35). STX 집중은 상장 전 유령 데이터 아티팩트였음이 확인됨.
+  - `sector_active_risk_ok` FALSE 잔존: Technology **0.886** (>0.85, 근소 초과;
+    §S11.3의 0.957에서 −0.071).
+  - `degenerate_rate_ok` FALSE 잔존: **56.25%**(18/32) (§S11.3 59.4%에서 소폭 개선;
+    challenger는 31.2%→40.6%로 악화 — 방향 혼재, 마스킹과 퇴화의 인과 불명).
+  - est TE 3.50%(캡 바인딩)·실현 TE 3.65%≤0.045·stale tail 1.0d OK.
+
+## S11.5 (HOLD 잔존 2건 — 사전등록 arm) — 2026-07-20
+
+사용자 승인(2026-07-20 "phase2,3도 진행해") 하에 §S10.2 양식으로 사전등록.
+비교 기준은 §S11.4 S0(150)′(production IR 1.371/TE 3.65%/Tech share 0.886/
+퇴화율 56.25%). 두 arm은 서로 다른 계층(optimizer vs model)이라 독립 평가하되,
+**production flip은 §8대로 한 번에 1개**만.
+
+- **Arm A — 섹터 active-risk soft penalty**: `sector_active_risk_penalty_enabled=
+  true`, **λ=5.0 단일 사전약정**(스윕 금지). 볼록 프록시 Σ_s (m_s∘a)'C(m_s∘a)를
+  MVO objective에 가산(§4.1 inline 패턴, OFF 시 int 0 바이트동일 — 파리티·방향성
+  단위테스트 등재). 캐시 안전(MVO objective만 변경).
+  **E1**: export guardrail `top_sector_active_risk_share` < 0.85.
+  **가드**: G1 ΔIR ≥ −0.36, G2 실현 TE ≤ 0.045, G3 active return > 0 및
+  집중 캐릭터 보존(무음 bm 붕괴 시 FAIL, §2.5), G4 optimizer fallback ≤ 5%,
+  G5 P1/P2/P3 부호 전부 양 유지.
+- **Arm B — 퇴화율: val_window 126→252 단일 사전등록**(§S10.2 종결부의 잔존 후보
+  {val_window, lr} 중 단일 선택; 선택 근거 = §S9.2 D0 "신호가 126d 검증창에
+  일반화되지 않는 레짐" 가설의 직접 검증. lr은 이번에 시도하지 않음).
+  캐시 불안전 → `--no-cache` full run.
+  **E1**: `model_quality.degenerate_rate` ≤ 0.25.
+  **가드**: §S10.2 G1-G5 동일(ΔIR ≥ −0.36 · TE ≤ 0.045 · 캐릭터 보존 ·
+  fallback ≤ 5% · 서브기간 부호).
+- 결과·판정은 아래에 추가 기록.
+- **Arm A 결과(2026-07-20, ECOS·--no-cache·seed 42) — E1 FAIL(무력 용량)·불채택**:
+  λ=5.0 arm의 전 지표가 §S11.4 production과 인쇄 자릿수까지 동일(IR 1.371/TE
+  3.65%/turnover 74.1%/P1-P3 동일) — penalty가 수치적으로 무력했다.
+  원인(실측): 옵티마이저 mu는 z-score 스케일(2026-06-22 median|mu|=0.840,
+  P90=1.819)인데 penalty는 일간 분산 단위(Tech 한계기울기 median 2|C·a_s|=
+  3.23e-05) — 균형 λ* ≈ **26,000**. 사전약정 5.0은 4자릿수 부족.
+- **전기간 재구성 진단(§S10.1 방법 동일, 95회, PIT 기준)**: top-sector share
+  median 0.496 / P90 **0.749** / max 0.945 / 위반율(>0.85) **6.3%**;
+  최근 24회 median 0.626 / P90 0.889 / 위반율 20.8%. Technology 최상위 73/95.
+  **판정: 한도 0.85는 새 기준선에서도 적정 캘리브레이션**(전기간 P90 < 한도).
+  현재 0.886 위반은 만성이 아니라 endpoint 꼬리 스파이크(§S10.1의 만성 case —
+  최근 위반율 58.3% — 와 다름).
+- **Arm A 종결**: λ* 재시도는 하지 않는다 — (i) 전기간 위반 6.3%짜리 꼬리 문제에
+  전 95회 리밸런스를 왜곡할 초대형 penalty는 §2.5(캐릭터 보존)·§S10.1 선례
+  (만성일 때만 조치)와 상충, (ii) 결과를 본 뒤의 2차 λ는 outcome 선택 편향 우려.
+  인프라(default-OFF·파리티 테스트)는 유지하고, **발동 조건을 사전등록**:
+  최근 24회 위반율이 §S10.1 수준(≥50%)으로 만성화되면 λ≈26,000 단일 사전약정
+  arm 착수. 그 전까지 sector HOLD는 "정상 작동 중인 report-only 경보"로 유지.
+  (부수 증거: λ=5 arm이 production과 완전 동일한 결과를 낸 것은 신설 penalty
+  코드 경로의 무해성(≈OFF 파리티)에 대한 경험적 확인을 겸한다.)
+- **Arm B 결과(2026-07-20, ECOS·--no-cache·seed 42) — E1 FAIL·불채택**:
+  degenerate_rate **53.125%**(17/32) > 0.25 — baseline 56.25% 대비 −3.1pp에
+  불과. **"신호가 126d 검증창에 일반화되지 않는다"는 D0 가설도 사실상 반증**
+  (252d로 늘려도 대부분 즉시 조기종료 유지 — 원인은 검증창 길이가 아님).
+  가드 참고치(비액션): IR 1.507(Δ+0.136, 노이즈 대역)·TE 3.70%·beta 1.040·
+  P1/P2/P3 = 1.511/0.451/2.478·fallback 0/95 — G1-G5 전부 통과했으나 §2.4에
+  따라 노이즈 대역 ΔIR은 채택 근거가 아니며, 사전약정 endpoint FAIL이므로
+  불채택(§S10.2 선례와 동일한 규율).
+- **§S11.5 종결**: 퇴화 원인 후보 중 min_child(§S10.2)·val_window(본 절) 2개
+  반증 완료. 잔존 후보는 lr 0.02→0.03 단일 — **새 사전등록·사용자 승인 대기**
+  (본 절 사전등록이 "lr은 이번에 시도하지 않음"을 명시했으므로 연속 시도 금지).
+  구조 가설(D0 즉시 조기종료가 rank_xendcg+NDCG 특성일 가능성 — challenger
+  회귀 objective는 퇴화율 40.6%로 낮음)은 후속 조사 후보로만 기록.
+- **HOLD 최종 상태(§S11.4 기준)**: `sector_active_risk`(0.886, endpoint 꼬리 —
+  정상 작동 경보·발동 조건 등재)·`degenerate_rate`(56.25%, 후보 2개 반증·
+  lr 대기) 2건 잔존, report-only로 발행 계속. name 게이트는 PIT 데이터 수정으로
+  해소(6857 0.235).
+
+## S11.6 (GPT 리뷰 후속 — 위생 수정 3건 + Daily_Returns 오염 실측) — 2026-07-21
+
+GPT-5.6 리뷰 4건을 코드 대조로 전부 사실 확인. 사용자 지시: "A그룹부터 진행하고
+⑤는 진단 먼저" — A그룹(기준선 불변 위생 수정 3건)은 TDD로 적용, ⑤(returns 뷰
+분리)는 수정 전 실측 진단만 수행. ④(HOLD 차단형 전환)는 결정 대기로 미적용.
+
+- **A① production 게이트 fail-closed** (`scripts/validate_portfolio_bundles.py`):
+  기존 `any(v is False)→HOLD`는 체크 결측(None)이 PRODUCTION으로 통과하는
+  fail-open. `all(v is True)`일 때만 PRODUCTION으로 변경(결측=HOLD). 기존
+  fail-open을 핀으로 고정하던 테스트("None checks are not violations")를
+  fail-closed 계약으로 교체 + 부분 결측 테스트 추가. challenger 엔트리는
+  comparison gate 사용이라 무영향. 현 registry는 체크 6종 전부 실측값이라
+  오늘 라벨 변화 없음(HOLD 유지). report-only 정책 자체는 §S9.2 그대로.
+- **A② 캐시 유니버스 구성 가드** (`run_variant.py check_cached_universe`):
+  기존 len==150만 검사 → 구성이 다른 스테일 150종 캐시(예: MMC 시절)가 통과.
+  expected==len(TICKERS)일 때 set 비교(순서 무관) 추가, 불일치 시 missing/extra
+  5개씩 제시하며 ValueError. 정규 배치는 --no-cache라 산출물 무영향.
+- **A③ analytics ticker_meta 필수화** (`src/analytics.py` 2개 함수):
+  compute_style_sector_tilt_rows / compute_monthly_ow_explanation_rows의
+  None→정적 TICKER_META(60/150 스테일) 무음 fallback을 ValueError로 교체
+  (레거시 정적 동작은 ticker_meta=TICKER_META 명시로만). 운영 경로 호출부
+  0곳(무영향)·잠재 결함 제거. 테스트 전체 **273 PASS**.
+- **⑤ 진단(수정 없음, 읽기 전용)**: production config(pca 252/5/2, horizon 20)로
+  A(현행: 전 150열, 유령=당일 median) vs B(eligibility-aware: 윈도우 전체가
+  실데이터인 종목만) 엔진 수식 복제 비교. census: 시작일(2014-01) 유령
+  19/150(12.7%)→2025-02-21 소멸; 전체 fit 날짜의 **96.8%**가 오염 가능(252d
+  윈도우가 상장일 이후로도 걸침).
+  - EW 시장평균 |Δ|: mean 0.99bp/일·P90 2.17·max 11.7 (유령 존재일 n=2,890).
+  - momentum_126d 순위(pct) 이동(실상장 셀 402,053개): mean 0.0159(≈2.4슬롯),
+    **1슬롯 초과 66.1%·3슬롯 초과 31.9%** — rank 기반 모델에 유의미.
+  - PCA 타깃 |Δ|: **mean 22.5bp·P50 8.0·P90 42.1·max 2,548bp** — |fwd 20d|
+    median 447bp 대비 **5.1%**. |Δ|>10bp 셀 42.2%. 날짜별 Spearman median
+    0.9998·P10 0.9969·min 0.785(순위 구조는 대체로 보존, 꼬리 날짜 왜곡).
+  - 한계 명시: B는 "윈도우 전체 실데이터" 기준이라 Δ에는 유령 오염분과
+    신규상장 실데이터 제외분이 섞임(상장 전환기 부근은 상한 성격). GPT 소형
+    재현(avg 12bp)보다 실데이터 오염이 큼(avg 22.5bp).
+  - **판정**: 오염 실재·규모 유의(특히 피처 순위·타깃 스케일 5%). ⑤ 수정
+    (피처·횡단면=상장 전 NaN 뷰 / PCA=eligibility-aware) 진행 여부는 기준선
+    변경(재인증 필요)이므로 사용자 승인 대기 → **2026-07-21 사용자 승인,
+    §S11.7로 진행**.
+
+## S11.7 (사전등록 — PIT returns 이중 뷰: Daily_Returns 예외 제거) — 2026-07-21
+
+**성격**: 데이터 정확성 계층(§2.1 예외 범주). 성능 arm이 아니므로 IR endpoint
+없음 — §S11.6 실측(fit 날짜 96.8% 오염·momentum 순위 1슬롯 초과 66%·PCA 타깃
+mean 22.5bp)이 근거. 단독 구조 변경(다른 파라미터 동시 변경 금지). 완료 시
+**새 기준선 S0(150)″** 선언, §S11.4 수치와 직접 비교 금지(진단 참고만).
+
+**설계(사전 확정)**:
+- `data.returns`(dense·median-fill)는 유지 — 시뮬레이션 P&L 경로는 0-가중
+  유령이 불활성이므로 dense가 안전하고 정확. *(정정 2026-07-21: 공분산은
+  dense가 아니라 이미 마스킹된 `raw_returns`를 사용 — backtest risk_returns.
+  실제 구현이 본 서술보다 안전했음. GPT 후속 리뷰 P3 반영.)*
+- `data.returns_masked` 뷰 신설: 상장 전(상장일 포함, inclusive=True) NaN.
+  `listing_mask_enabled=False`면 `returns`와 동일 객체(파리티 핸들).
+- 소비처 전환 5곳: `features/price.py`·`features/conditioning.py`·
+  `features/assembly.py`(lean momentum)·`features/macro_cross.py`·
+  `target_engine.build_targets`.
+- 엔진 eligibility-aware: fit 창(252d) 전체가 실데이터인 열만 PCA 기저·타깃
+  대상. 비적격 열(상장 전+상장 후 252d 미만)은 해당일 타깃 NaN. dense 입력이면
+  기존 알고리즘과 **항등**(파리티).
+- 비교 연산자 가드 2곳(price.py `pos_ret_ratio`·`trend_consist`): NaN>0=False가
+  0.0으로 새는 것을 `.where(notna)`로 차단.
+
+**합격기준(판정 가능)**:
+1. dense-parity 테스트: NaN 없는 패널에서 신규 엔진 출력 == 기존 알고리즘
+   inline 참조 (atol 1e-12).
+2. ghost-exclusion 테스트: 유령 열이 있어도 실상장 열 타깃은 eligible-only
+   참조와 일치·날짜 스킵 없음, 유령 열은 창 중첩 구간 NaN.
+3. 피처 모듈별 masked-소비 계약 테스트(price/conditioning/assembly/macro_cross)
+   + `returns_masked` 계약(마스크 ON: 상장일까지 NaN, OFF: 동일 객체).
+4. 전체 테스트 suite PASS.
+5. 재인증: production+challenger `--no-cache`·ECOS·seed 42, fallback 0/95,
+   집중 캐릭터 보존(§5: TE 가드 4.5% 이내·active share 성격 유지). IR 변동은
+   채택/기각 판정 대상이 아님(데이터 정확성 수정) — 결과를 S0(150)″로 기록.
+
+**결과 (2026-07-21) — 합격기준 전부 충족, S0(150)″ 확정**:
+- 구현: `returns_masked` 뷰(data_loader)·소비처 5곳 전환·엔진 창별 열
+  eligibility(비적격 열 타깃 NaN, `n_eligible<2` 스킵 가드)·비교 가드 2곳.
+  신규/갱신 테스트 11건 포함 **전체 284 PASS** (dense-parity·ghost-exclusion·
+  소비처 계약·returns_masked 계약 전부 green; red→green TDD 준수).
+- **재인증(ECOS·--no-cache·seed 42) — 새 기준선 S0(150)″**:
+  - production(codex_causal_rank_65): **IR 1.681 / TE 3.61% / realized_beta
+    1.041**(P2 shelve 유지) / turnover 74.6% / MDD −30.8% / 서브기간
+    1.669·1.218·2.265 전부 양 / ECOS 190·SCS fallback 0%·optimizer fallback
+    1/95(1.1%) / 퇴화율 56.25%(18/32) / causal_validation_ok / 679.9s.
+  - challenger(iter15): **IR 1.915 / TE 3.56% / beta 1.026** / turnover
+    108.3% / 서브기간 1.284·1.240·2.675 / 퇴화율 40.6% / 725.6s.
+  - 해석: 오염 제거로 양쪽 IR이 §S11.4 대비 상승(1.371→1.681, 1.228→1.915).
+    유령 median 시계열이 횡단면 신호를 희석하고 있었음을 시사. §2 규율에
+    따라 §S11.4 수치와의 ΔIR은 채택 근거가 아니며(데이터 정확성 수정),
+    S0(150)″가 이후 유일 비교 기준.
+- **게이트 갱신(export+validator, fail-closed 로직 §S11.6-A① 적용)**:
+  - production HOLD **2→1건**: `sector_active_risk_ok` **True**(0.840<0.85) —
+    §S11.5의 "endpoint 꼬리 스파이크" 판정이 데이터 정화만으로 해소된 것으로
+    확인(λ≈26k 발동 조건은 등재 유지·현재 비발동). top_name STX 0.243(<0.35).
+    잔존 HOLD는 `degenerate_rate` 56.25% 단독(lr 후보 사전등록 대기).
+  - comparison gate RESEARCH/FAIL 유지: 7종 중 `turnover_within_1_25x`만
+    실패(108.3/74.6=1.45×), IR/active/TE/beta/MDD/sub_wins(2) 통과.
+    challenger 우위 관찰은 §8·DSR 게이트 대상 — 본 절에서는 비액션 기록만.
+  - est TE 3.50%(캡 3.5% 준수)·est vol 18.8%·realized TE 4.5% 가드 이내 —
+    §5 집중 캐릭터 보존 확인.
+- **부기(2026-07-21, GPT 후속 리뷰 반영)**:
+  - *P2 잔여*: `compute_specific_returns_regime_weighted`(regime-weighted PCA
+    연구 분기, `regime_pca_weighted_enabled` default-OFF)는 eligibility-aware가
+    아님 — `hist.notna().all(axis=1)` 행 제거만 수행해, masked 입력에서 신규
+    상장 1종이 기존 종목의 과거 행 전체를 지운다(GPT 소형 재현: 표준 39셀 vs
+    regime 0셀). 두 기준선 모두 OFF라 S0(150)″ 수치·게이트 무영향.
+    **활성화 전 수정 필수(pre-enable requirement)** — 해당 arm 사전등록 시
+    eligibility 이식을 선행 조건으로 한다. multi-horizon 경로는 표준 함수를
+    내부 호출하므로 정상.
+  - *P3 정정*: 위 설계 bullet의 공분산 서술 정정 완료(코드 주석·acceptance
+    테스트 주석·메모리 동기). 계산 오류 아님 — 문서 정확성 정정.
+
+## S11.8 (multi-horizon 사전 단계 — IC 감쇠 진단 + 인과 분할 선결 수정) — 2026-07-21
+
+**동기**: Brini & Kolm(JFDS Spring 2026, PPO 동적 거래) 검토 — 거래비용 하
+최적 거래는 알파 기간구조를 요구(GP aim portfolio). DJIA 실증에서 단일
+horizon 예측만으로는 단일기간 Markowitz와 동일, 기간구조(h=1/2/5/10) 추가
+시 유의미 개선, 장기 노이즈 증가(시나리오 3)에도 우위 유지. Pictet PDF
+p32("horizon combination" 로드맵)·p13(장단기 동인 상이)과 정합. arm 착수
+전 사전 질문: "현 20d 신호에 버려지는 느린 알파 성분이 실재하는가."
+
+**(a) IC 감쇠 진단 (읽기 전용, 재실행 없음)**:
+- 방법: S0(150)″ 산출물 `backtest_result.pkl`의 `pre_overlay_predictions`
+  (§4.2 정본 패널; `raw_predictions`는 감도) × `data.returns_masked`(PIT·USD,
+  production config로 로드). 리밸런스 95일에서 t+1 기점 h일 누적수익률과의
+  횡단면 Spearman IC, 창 완전 유효 종목만·최소 30종. 창: 1–5/1–10/1–20/
+  1–40/1–63/**21–63(보유기간 이후)**. 스크립트: 세션 스크래치패드
+  `diag_ic_decay.py`(일회성 진단, 저장소 미포함).
+- **결과 — production(rank, pre-overlay)**: IC가 감쇠하지 않고 증가.
+  h05 0.048 / h20 0.053 / h40 0.068 / h63 **0.080**(t 3.6) /
+  **post21_63 0.069**(t 3.4, 양성 64%, 전·후반 +0.025/+0.113 부호 일관).
+  naive t는 창 중첩(21d 간격 vs 63d 창 ~3×)으로 부풀려짐 — 보정 시 ~2.4
+  수준, 부호 일관이 정직한 판정. raw(pre-EMA)와 사실상 동일.
+- **결과 — challenger(regression)**: h40 정점 0.044 후 감쇠,
+  post21_63 0.021(t 1.55)·전반기 음(−0.009/+0.051) — 느린 성분 신뢰 불가.
+- **판정**: multi-horizon arm의 전제("보유기간 종료 후에도 지급되는 느린
+  알파") **production 신호에 대해 통과**. 21d 리밸런스가 미실현 알파를
+  반복 폐기 중이라는 직접 증거 — 논문의 turnover 감쇠 메커니즘 기대 유효.
+  단, 이 진단은 "현 신호의 느린 성분" 존재 증명이며 "63d 전용 모델의 추가
+  신호"는 arm 본실험 대상. IC 수치는 arm 채택 근거 아님(설명력 진단).
+- 부수 기록: 진단 중 C: 잔여 0B 상태 발견(일시적 — 원인 프로세스 미상,
+  이후 자연 회복 10.5GB) → 사용자 승인으로 Temp 스크래치패드 정리(~9MB)·
+  hibernation off(+6.3GB), 잔여 16.9GB에서 본 기록 작성.
+
+**(b) 인과 분할 선결 수정 (pre-enable requirement 이행)**:
+- 결함: `train_and_predict`가 분할 horizon으로 `config.forward_horizon`(20)을
+  전달(model_trainer.py) — `multi_horizon_targets_enabled` 시 블렌드 타깃에
+  63d 성분이 포함되면 라벨 실현창(63d)이 embargo(20d)를 초과해 train/val
+  라벨 중첩(누수). `src/rl/dr_walkforward.py`의 "embargo≥horizon 강제"
+  가드와 동일 클래스의 공백.
+- 수정: `effective_label_horizon(config)` 헬퍼 — mh OFF(기본)면
+  `forward_horizon` 그대로(파리티), ON이면 `max(forward_horizon,
+  max(mh_weights keys))`. 분할 호출부가 이 값을 사용.
+- 파리티: 두 기준선 모두 mh OFF → 분할 입력 불변 → 바이트 동일(코드 경로
+  검증은 단위테스트, 재인증 불요 판단 — 산술 변경 없음).
+
+## S11.9 (사전등록 — multi-horizon 블렌드 타깃 arm) — 2026-07-21
+
+**사전등록 (실행 전 기록)**. 사용자 승인: 설계 1안(블렌드 타깃), lr arm보다
+선행. §S11.8 진단 통과가 전제.
+
+- **가설**: §S11.8이 실증한 느린 알파(보유기간 이후 21–63d IC 0.069)를
+  타깃에 반영하면 (i) 예측 신호의 회전이 줄어 turnover 하락, (ii) IR
+  비손상~개선. 근거: Brini&Kolm(JFDS 2026) 시나리오 2·3(기간구조의 비용
+  인지 거래 가치, 장기 노이즈에도 우위 유지)·GP aim portfolio, Pictet
+  p32 "horizon combination" 로드맵.
+- **단일 사전약정 파라미터**: `multi_horizon_weights = {20: 0.7, 63: 0.3}`
+  (+enable 플래그). 근거: 인증 20d 타깃 우세 보존(0.7)·진단이 지목한 63d
+  성분(0.3). 스윕 금지 — 이 맵 1개만 판정. 블렌드 산술은 기존 인프라
+  그대로(sqrt(252/H) 연율화, 셀은 전 horizon 유효 시에만 값).
+- **실행**: `<PY> run_variant.py --variant variants/arm_s11_9_mh_blend.yaml
+  --no-cache` — ECOS·seed 42·단일 프로세스. variant는 production 사본 +
+  mh 2필드(role: research). target 필드 변경이라 캐시 자동 비활성이나
+  --no-cache 명시.
+- **판정 기준 (vs S0(150)″ production IR 1.681/TE 3.61%/turnover 74.6%/
+  beta 1.041)**:
+  - E1 (IR 채택 바): ΔIR > +0.36 & 서브기간 3구간 부호 일관.
+    |ΔIR| < 0.36 → 노이즈(설명력 기록만).
+  - E2 (메커니즘 공동 판정): avg_annual_turnover ≤ 67.1%(상대 ≥10% 감소).
+  - 가드(위반 시 FAIL): G1 realized TE ≤ 4.5% · G2 realized_beta ∈
+    [0.95, 1.05] · G3 optimizer fallback ≤ 5% · G4 ECOS-only(SCS 0) ·
+    G5 causal_validation_ok=True + 분할 audit embargo=63(§S11.8(b) 발동
+    확인) · G6 집중 캐릭터 보존(§5, 무음 bm 붕괴 없음).
+  - 관찰(게이트 아님): 퇴화율·MDD·ic_series·유효 타깃 셀 수.
+  - 해석 매트릭스: E1&E2 → §8 flip 후보(DSR 별도) / E1만 → flip 후보
+    (메커니즘 미확인 부기) / E2만 → "메커니즘 확인·IR 중립" 기록 후
+    2모델(mu 결합) 설계 검토로 이관 / 둘 다 미충족 → 불채택·OFF.
+- **기계적 기대 차이(사전 명시)**: 63d 성분으로 학습 라벨 테일 NaN이
+  20d 대비 ~43거래일 확대(트레이너 dropna 처리·예측 생성은 무영향),
+  Phase 3 PCA 2회로 실행시간 증가.
+
+**결과 (2026-07-21 실행, 834s) — E1·E2 모두 미충족 → 불채택·OFF**:
+- 발동 검증: 블렌드 로그 horizons=[20,63] weights=[0.7,0.3] 확인,
+  분할 audit 32건 전원 embargo_days=63·forward_horizon=63·causal_ok=True —
+  **§S11.8(b) 선결 수정 정상 발동(G5 통과)**. 유효 타깃 셀 409,684·최종
+  라벨 2026-04-22(사전 명시한 테일 확대와 일치).
+- **E1 FAIL**: IR **1.370**(ΔIR **−0.311** vs 1.681 — |Δ|<0.36 노이즈 대역
+  이나 음수). 서브기간 IR 0.792/0.514/2.566 → Δ −0.877/−0.704/+0.301
+  **부호 비일관**(P1·P2 훼손, P3만 개선).
+- **E2 FAIL**: avg_annual_turnover **72.6%**(기준 ≤67.1%) — 상대 −2.6%뿐.
+  타깃을 느리게 섞어도 신호 회전은 거의 불변 = **가설의 핵심 메커니즘
+  미발현**.
+- 가드: G1 TE 3.76% OK / **G2 realized_beta 1.056 위반**(>1.05, 부기) /
+  G3 optimizer fallback 0/95 OK / G4 ECOS 190·SCS 0 OK / G5 상기 OK /
+  G6 TE·active 성격 유지(단 beta 상승이 경계 신호).
+- 관찰: 퇴화율 50%(16/32; production 56.25% 대비 소폭↓ — 63d 성분이
+  검증 개선을 약간 도움, 게이트 비대상). MDD −31.9%.
+- **해석**: §S11.8의 느린 알파는 실재하나, **블렌드 타깃은 기간구조를
+  학습 전에 붕괴시켜 이를 포착하지 못함** — Brini&Kolm 시나리오 2의
+  이득이 "horizon 분리 상태 유지"에서 나온다는 해석과 정합. 63d 노이즈
+  혼입이 전·중반 구간 rank 학습을 희석(P1/P2 급락)한 것으로 보임.
+  매트릭스 판정: 둘 다 미충족 → **불채택, default-OFF 유지, 프로덕션
+  무변경(no-flip)**. E2-only 시의 2모델 이관 조건도 미충족 — 2모델(mu
+  결합) 설계는 자동 진행하지 않고 별도 사전등록+승인 대상으로 남김.
+  잔존 등록 후보: lr 0.02→0.03(퇴화율 HOLD 겨냥, 사전등록 대기).
+
+## S11.10 (사전등록 — 퇴화율 arm: learning_rate 0.02→0.03) — 2026-07-21
+
+**사전등록 (실행 전 기록)**. 사용자 승인(§S11.9 종료 후 1안 지시). 퇴화율
+HOLD(production 56.25% > 게이트 25%) 겨냥 **잔존 마지막 등록 후보** —
+min_child 60→30(§S10.2)·val_window 252(§S11.5 Arm B)는 반증 완료.
+
+- **가설**: D0 진단(§S7)의 "구조적 즉시 조기종료(best_iter median 1)"는
+  lr 0.02에서 그루당 기여가 too-small이라 purged 검증창의 개선이 노이즈에
+  묻히기 때문 — lr 0.03(그루당 기여 +50%)이면 진짜 신호의 검증 개선이
+  patience(100) 내 가시화되어 퇴화율 하락. 참고: 0.02는 "was 0.03 — V2
+  안정성" 주석의 인하값(원복 실험). **사전 명시 리스크**: Pictet p34는
+  low lr을 강건성 요소로 명시 — 퇴화율 개선과 IR 훼손이 교환될 수 있음
+  (그래서 do-no-harm 가드가 공동 판정).
+- **단일 사전약정 파라미터**: `lgbm_params.learning_rate: 0.02 → 0.03`.
+  `n_estimators` 800 유지(early stopping이 실그루수 결정 — 상한 불변으로
+  단일 변경 보존). 스윕 금지.
+- **실행**: `<PY> run_variant.py --variant variants/arm_s11_10_lr_003.yaml
+  --no-cache` — ECOS·seed 42·단일 프로세스. variant는 production 사본 +
+  lr 1필드(role: research).
+- **판정 기준 (vs S0(150)″ production IR 1.681/TE 3.61%/turnover 74.6%/
+  beta 1.041/퇴화율 56.25%)**:
+  - **E1 (HOLD 해소 기준, §S11.5b 관례)**: `model_quality.degenerate_rate`
+    ≤ **0.25**.
+  - Do-no-harm 가드(위반 시 채택 불가): G1 ΔIR > −0.36(노이즈 대역 내
+    하락까지 허용, 그 이상 훼손 불가) · G2 realized TE ≤ 4.5% · G3
+    realized_beta ∈ [0.95, 1.05] · G4 optimizer fallback ≤ 5%·ECOS-only
+    (SCS 0) · G5 causal_validation_ok=True · G6 turnover ≤ 93.3%
+    (1.25×) · G7 집중 캐릭터 보존(§5).
+  - 관찰(게이트 아님): n_trees 분포·best_iter, MDD, ic_series.
+  - 해석 매트릭스: E1+가드 전부 통과 → §8 flip 후보(단일 flip·DSR 해킷
+    별도, HOLD 해소). E1 미충족·부분 개선(<56.25%) → 불채택·설명력 기록.
+    악화(≥56.25%) → **lr 가설 반증 — 퇴화율 등록 후보 소진**, objective
+    특성 가설(rank_xendcg, §S11.5 구조 단서)만 잔존함을 기록.
+
+**결과 (2026-07-21 실행 3회차 완주, 738s) — E1 FAIL·lr 가설 반증·불채택**:
+- 실행 이력: 1·2회차 외부 중단(1차 ~7분 진행·2차 출력 0줄, 산출물 미생성
+  — 오염 없음; 배터리 방전 모드 중 발생, §S9.1 전례와 정합하나 원인 미확정),
+  3회차 완주.
+- **E1 FAIL**: degenerate_rate **56.25%(18/32)** — 기준선과 **정확히 동일**
+  (0.0pp 이동). 매트릭스 ≥56.25% 분기 → **lr 가설 반증**. 다만 n_trees
+  분포는 이동: [2,8,8,5,8,9,8,2,2,4,2,1,6,2,1,9,1,8] — 기준선(대부분 1~2)
+  대비 8~9그루 근접 실패가 다수. **그루당 기여 증대는 실재했으나 10그루
+  문턱을 못 넘김** — "검증창 개선 불가시" 구조가 lr로 안 풀린다는 뜻으로,
+  objective 특성 가설(rank_xendcg NDCG 정체)을 강화.
+- 가드(참고 — E1 실패로 채택 불가): G1 IR 1.564(Δ−0.117, 노이즈 대역 내)
+  OK / G2 TE 3.74% OK / G3 beta 1.047 OK / G4 fallback 0/95·ECOS 190·
+  SCS 0 OK / G5 causal_ok OK / G6 turnover 73.4% OK / G7 캐릭터 유지 OK.
+  서브기간 1.378/0.742/2.622.
+- **판정: 불채택·프로덕션 무변경(no-flip). 퇴화율 등록 후보 소진** —
+  min_child(§S10.2)·val_window(§S11.5)·lr(본 절) 전부 반증. 잔존 설명은
+  objective 특성(rank_xendcg; challenger 회귀 40.6% vs production 56.25%,
+  동일 인과규율 하 격차)뿐. 후속 선택지(각각 별도 사전등록/결정 필요):
+  (a) objective 교체 실험(사실상 §8 challenger 승격 논의와 중첩 — DSR
+  게이트 대상), (b) HOLD 정책 결정(④ 차단형 전환 여부, §S11.6 미결),
+  (c) 퇴화율 게이트 한도 재캘리브레이션(§S10.1 섹터 한도 전례의 실측
+  기반 방식 — 단, "재학습 신선도" 지표의 의미가 훼손되지 않는 선에서).
+
+**부기 (2026-07-21, 재사용 손상 진단 — 읽기 전용, 액션 없음)**:
+- 질문: 퇴화 재학습의 이전 모델 재사용이 예측 품질을 실제로 해치는가.
+- 방법: 리밸런스 95일을 모델 age(마지막 성공 재학습 이후 연속 퇴화
+  횟수)로 분류 — production 신선(age0) 41일 vs 재사용(age≥1) 54일
+  (최장 age 7). 지표 2종: 파이프라인 `ic_series`(예측 vs 타깃)·h20 IC
+  (§S11.8 방식, 예측 vs t+1..t+20 총수익률). 스크립트 세션 스크래치패드
+  `diag_stale_model_ic.py`.
+- **결과 — 재사용 손상 증거 없음, 방향은 오히려 역**:
+  - production ic_pipe: 신선 +0.003 vs 재사용 **+0.037**(Welch p=0.29,
+    양 반기 모두 재사용 우위). ic_h20: +0.044 vs +0.060(p=0.72, 동일 방향).
+  - challenger ic_pipe: +0.032 vs +0.071(p=0.12, 동일 방향), ic_h20 동률.
+  - 유일한 음(−) 구간은 production age 7(N=3, ic_h20 −0.088) — 표본 미소,
+    "초장기 연속 재사용"만 잠재 리스크로 표시.
+- 해석: 퇴화 재학습은 "incumbent를 못 이김"(§S7 D0)의 표현이므로 재사용
+  구간은 검증을 한 번 통과한 강한 모델이 지배 — fallback 설계가 의도대로
+  작동 중. **degenerate_rate는 손상의 대리지표로서 실측 근거 없음**(단
+  유의차도 아님 — "손상 미검출"이 정직한 결론). (c) 게이트 재캘리브레이션
+  (총량률 → 예: 연속 재사용 깊이 상한)에 실측 근거 제공; ④ 차단형 전환의
+  근거는 약화. 본 진단은 설명력 — 게이트 변경은 별도 사전등록/결정 필요.

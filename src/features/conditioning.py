@@ -31,7 +31,9 @@ def build_conditioning_features(data: UniverseData, config=None) -> Dict[str, pd
     # tickers that were dropped by other sheets but present in returns.
     tickers = list(data.tickers)
     n = len(tickers)
-    returns = data.returns
+    # §S11.7: PIT 뷰(상장 전 NaN) — regime 시장 통계(ew_ret·평균 vol·분산도)에
+    # 유령의 합성 수익률이 참여하지 않도록 masked 뷰를 소비한다.
+    returns = data.returns_masked
 
     def bcast(vals_1d):
         """1D array/series -> broadcast to (dates x tickers)."""
@@ -97,9 +99,11 @@ def build_conditioning_features(data: UniverseData, config=None) -> Dict[str, pd
     cs_disp_21 = returns.rolling(21, min_periods=21).mean().std(axis=1)
     features["regime_dispersion_21d"] = bcast(cs_disp_21)
 
-    # Market breadth
+    # Market breadth — denominator is the per-date valid (listed) count, not
+    # the fixed universe width (§S11.4 point-in-time universe).
     ma50 = data.prices.rolling(50, min_periods=50).mean()
-    breadth = (data.prices > ma50).sum(axis=1) / data.prices.shape[1]
+    valid_n_ma50 = ma50.notna().sum(axis=1).replace(0, np.nan)
+    breadth = (data.prices > ma50).sum(axis=1) / valid_n_ma50
     features["regime_breadth_50d"] = bcast(breadth)
 
     # --- BINARY regime flags (핵심: standalone IR~=0, interaction에서 강력) ---
@@ -188,7 +192,10 @@ def build_conditioning_features(data: UniverseData, config=None) -> Dict[str, pd
     # helper defaults to None to stay consistent with the sellside call.
     eps_rev = get_cleaned_revision(data, "Factset_EPS_Revision", config=config)
     if eps_rev is not None:
-        rev_pos_pct = (eps_rev > 0).sum(axis=1) / eps_rev.shape[1]
+        rev_pos_pct = (
+            (eps_rev > 0).sum(axis=1)
+            / eps_rev.notna().sum(axis=1).replace(0, np.nan)
+        )
         features["regime_rev_breadth_eps"] = bcast(rev_pos_pct)
         features["is_rev_expansion"] = bcast((rev_pos_pct > 0.6).astype(float))
     else:
@@ -196,13 +203,19 @@ def build_conditioning_features(data: UniverseData, config=None) -> Dict[str, pd
 
     sales_rev = get_cleaned_revision(data, "Factset_Sales_Revision", config=config)
     if sales_rev is not None:
-        rev_pos_s = (sales_rev > 0).sum(axis=1) / sales_rev.shape[1]
+        rev_pos_s = (
+            (sales_rev > 0).sum(axis=1)
+            / sales_rev.notna().sum(axis=1).replace(0, np.nan)
+        )
         features["regime_rev_breadth_sales"] = bcast(rev_pos_s)
     else:
         logger.debug("conditioning: Factset_Sales_Revision missing — skipping regime_rev_breadth_sales")
     try:
         news = data.get_sheet("NEWS_SENTIMENT_DAILY_AVG")
-        sent_pos = (news > 0).sum(axis=1) / news.shape[1]
+        sent_pos = (
+            (news > 0).sum(axis=1)
+            / news.notna().sum(axis=1).replace(0, np.nan)
+        )
         features["regime_sent_breadth"] = bcast(sent_pos)
     except KeyError:
         logger.debug("conditioning: NEWS_SENTIMENT_DAILY_AVG missing — skipping regime_sent_breadth")

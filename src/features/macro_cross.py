@@ -88,7 +88,8 @@ def build_macro_cross_features(
     common_dates = data.dates.intersection(factor_px.index)
 
     # ── Ticker-specific base signals (aligned to common_dates) ──
-    returns = data.returns.loc[:, tickers]
+    # §S11.7: PIT 뷰(상장 전 NaN) — mom/vol 횡단면 z-score에서 유령 제외.
+    returns = data.returns_masked.loc[:, tickers]
     ret_aligned = returns.reindex(index=common_dates)
 
     mom63 = ret_aligned.rolling(63, min_periods=63).sum()

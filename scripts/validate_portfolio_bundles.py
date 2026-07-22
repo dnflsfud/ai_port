@@ -574,7 +574,9 @@ def evaluate_production(record: dict) -> dict:
             None if tail_days is None or max_tail_days is None else tail_days <= max_tail_days
         ),
     }
-    status = "HOLD" if any(v is False for v in checks.values()) else "PRODUCTION"
+    # Fail-closed (2026-07-21): PRODUCTION requires every check explicitly
+    # True — a missing input (None) is not evidence of passing.
+    status = "PRODUCTION" if all(v is True for v in checks.values()) else "HOLD"
     values = {
         "top_sector": guardrails.get("top_sector"),
         "top_sector_active_risk_share": guardrails.get("top_sector_active_risk_share"),

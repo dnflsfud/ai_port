@@ -1,0 +1,30 @@
+label: exp_pit_sp500_ai_v2_permutation
+description: >
+  OOS comparison arm for the PIT/S&P500/symmetric-rank candidate, using
+  validation-fold permutation importance for EWMA feature selection.
+out_dir: outputs/exp_pit_sp500_ai_v2_permutation
+tuning_mode: tuning
+overrides:
+  train_cutoff_date: "2024-12-31"
+  enforce_oos_holdout: true
+  listing_mask_enabled: true
+  listing_auto_infer_enabled: true
+  sp500_benchmark_enabled: true
+  sp500_factor_ticker: SPX
+  model_objective: symmetric_rank
+  symmetric_rank_loss: huber
+  symmetric_rank_metric: l2
+  causal_validation_enabled: true
+  ewma_enabled: true
+  ewma_feature_scaling_enabled: false
+  ewma_full_refresh_interval: 4
+  ewma_importance_type: permutation
+  ewma_permutation_repeats: 3
+  ewma_permutation_max_samples: 10000
+  mu_vol_scaling_enabled: false
+  alpha_calibration_enabled: true
+  alpha_calibration_lookback: 252
+  alpha_calibration_min_observations: 63
+  alpha_calibration_prior_observations: 63
+  alpha_calibration_min_ic: 0.0
+  alpha_calibration_max_ic: 0.10

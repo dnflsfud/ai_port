@@ -573,6 +573,35 @@ def _factor_penalty_expr(w, bm_weights, factor_loadings, config):
     return config.factor_neutral_penalty * cp.sum_squares(L.T @ (w - bm_weights))
 
 
+def _sector_active_risk_penalty_expr(w, bm_weights, cov_matrix, sector_map,
+                                     tickers, config):
+    """Soft penalty on sector active-risk concentration (§S11.5 candidate).
+
+    Convex proxy Σ_s (m_s∘a)'C(m_s∘a) for the non-DCP guardrail ratio
+    (top-sector share of Euler-decomposed active TE). Returns int 0 when
+    disabled or no sector map, so the objective is bit-identical when OFF.
+    """
+    if not getattr(config, "sector_active_risk_penalty_enabled", False):
+        return 0
+    if not sector_map:
+        return 0
+    sectors: Dict[str, np.ndarray] = {}
+    for i, ticker in enumerate(tickers):
+        sector = sector_map.get(ticker)
+        if sector is None:
+            continue
+        sectors.setdefault(str(sector), np.zeros(len(tickers)))[i] = 1.0
+    if not sectors:
+        return 0
+    active = w - bm_weights
+    wrapped = cp.psd_wrap(cov_matrix)
+    total = sum(
+        cp.quad_form(cp.multiply(mask, active), wrapped)
+        for mask in sectors.values()
+    )
+    return config.sector_active_risk_penalty * total
+
+
 def optimize_portfolio(
     expected_returns: pd.Series,
     cov_matrix: np.ndarray,
@@ -640,8 +669,13 @@ def optimize_portfolio(
         config=config,
     )
     factor_pen = _factor_penalty_expr(w, bm_weights, factor_loadings, config)
+    sector_risk_pen = _sector_active_risk_penalty_expr(
+        w, bm_weights, cov_matrix, sector_map,
+        list(expected_returns.index), config,
+    )
     objective = cp.Maximize(
-        ret - risk_aversion * risk - turnover_penalty * turnover - factor_pen
+        ret - risk_aversion * risk - turnover_penalty * turnover
+        - factor_pen - sector_risk_pen
     )
 
     prob = cp.Problem(objective, constraints)

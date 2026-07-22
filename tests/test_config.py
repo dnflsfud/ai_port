@@ -33,6 +33,13 @@ def test_listing_mask_fields_default_on_for_valid_100_name_history():
         "GE": "2024-04-02",
         "TT": "2020-03-02",
         "BN": "2022-12-12",
+        # S11.4 coverage audit — unregistered leading-constant backfills
+        "ANET": "2014-06-06",
+        "RACE": "2015-10-21",
+        "LITE": "2015-07-27",
+        "VST": "2016-10-05",
+        "SPOT": "2018-04-03",
+        "VRT": "2018-08-01",
     }
 
 

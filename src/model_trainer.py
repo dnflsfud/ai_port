@@ -35,6 +35,7 @@ class EWMAFeatureTracker:
         self.feature_names: Optional[List[str]] = None
         self.n_updates: int = 0
         self.history: List[Dict] = []  # [{date, importances}] for export
+        self.raw_importance_history: List[np.ndarray] = []
 
     def init_full_features(self, all_feature_names: List[str]) -> None:
         """전체 feature 목록으로 초기화. walk_forward_train 시작 시 1회 호출."""
@@ -48,7 +49,20 @@ class EWMAFeatureTracker:
         active_features가 전체 feature_names의 부분집합일 수 있으므로,
         전체 배열에서 해당 위치만 업데이트한다.
         """
-        raw_imp = model.feature_importances_.astype(float)
+        importance_type = getattr(self.config, "ewma_importance_type", "split")
+        booster = getattr(model, "booster_", None)
+        permutation = getattr(model, "_ewma_permutation_importance", None)
+        if importance_type == "permutation" and permutation is not None:
+            raw_imp = np.asarray(permutation, dtype=float)
+        elif booster is not None:
+            raw_imp = booster.feature_importance(
+                importance_type=(
+                    "gain" if importance_type in ("permutation", "stability")
+                    else importance_type
+                )
+            ).astype(float)
+        else:
+            raw_imp = model.feature_importances_.astype(float)
 
         # Normalize to sum=1
         total = raw_imp.sum()
@@ -62,6 +76,18 @@ class EWMAFeatureTracker:
         for i, fname in enumerate(active_features):
             full_idx = self.feature_names.index(fname)
             full_imp[full_idx] = norm_imp[i]
+
+        self.raw_importance_history.append(full_imp.copy())
+        if importance_type == "stability":
+            window = int(getattr(self.config, "ewma_stability_window", 4))
+            recent = np.vstack(self.raw_importance_history[-window:])
+            mean_imp = recent.mean(axis=0)
+            std_imp = recent.std(axis=0, ddof=0)
+            coefficient_of_variation = std_imp / np.maximum(mean_imp, 1e-12)
+            full_imp = mean_imp / (1.0 + coefficient_of_variation)
+            stable_total = full_imp.sum()
+            if stable_total > 0:
+                full_imp = full_imp / stable_total
 
         alpha = self.config.ewma_alpha
         self.ewma_importance = alpha * full_imp + (1 - alpha) * self.ewma_importance
@@ -90,6 +116,12 @@ class EWMAFeatureTracker:
         if not self.config.ewma_enabled or not self.is_ready():
             return list(feature_names)
 
+        refresh_interval = int(
+            getattr(self.config, "ewma_full_refresh_interval", 0)
+        )
+        if refresh_interval > 0 and self.n_updates % refresh_interval == 0:
+            return list(feature_names)
+
         n_total = len(feature_names)
         n_drop = int(n_total * self.config.ewma_drop_pct)
         n_keep = max(n_total - n_drop, self.config.ewma_min_features)
@@ -106,7 +138,11 @@ class EWMAFeatureTracker:
         sqrt(ewma / mean) 으로 scaling → 중요 feature 증폭, 약한 feature 감쇠.
         Cold start 기간에는 None 반환 (uniform).
         """
-        if not self.config.ewma_enabled or not self.is_ready():
+        if (
+            not self.config.ewma_enabled
+            or not self.is_ready()
+            or not getattr(self.config, "ewma_feature_scaling_enabled", True)
+        ):
             return None
 
         mean_imp = self.ewma_importance.mean()
@@ -216,6 +252,62 @@ def prepare_rank_data(
     return np.vstack(x_parts), np.concatenate(y_parts), groups
 
 
+def prepare_symmetric_rank_data(
+    panel: pd.DataFrame,
+    targets: pd.DataFrame,
+    feature_names: List[str],
+    dates: pd.DatetimeIndex,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Build continuous top/bottom-symmetric labels in ``[-1, 1]``.
+
+    Within each date the best/worst observations are equidistant from zero.
+    Unlike NDCG, the lower tail is part of the direct training loss, matching
+    long/underweight portfolio construction.
+    """
+    mask = panel.index.get_level_values("date").isin(dates)
+    X_panel = panel.loc[mask, feature_names].sort_index()
+    target_stacked = targets.stack()
+    target_stacked.index.names = ["date", "ticker"]
+    y_panel = target_stacked.reindex(X_panel.index)
+    valid = y_panel.notna() & X_panel.notna().all(axis=1)
+    X_valid = X_panel.loc[valid]
+    y_valid = y_panel.loc[valid]
+
+    x_parts: List[np.ndarray] = []
+    y_parts: List[np.ndarray] = []
+    for _date, x_group in X_valid.groupby(level="date", sort=True):
+        if len(x_group) < 2:
+            continue
+        y_group = y_valid.reindex(x_group.index).astype(float)
+        ranks = y_group.rank(method="average", ascending=True).to_numpy()
+        symmetric = 2.0 * (ranks - 1.0) / (len(x_group) - 1.0) - 1.0
+        x_parts.append(x_group.to_numpy())
+        y_parts.append(symmetric.astype(float))
+
+    if not x_parts:
+        return (
+            np.empty((0, len(feature_names)), dtype=float),
+            np.empty((0,), dtype=float),
+        )
+    return np.vstack(x_parts), np.concatenate(y_parts)
+
+
+def effective_label_horizon(config) -> int:
+    """§S11.8(b): purge/embargo가 커버해야 하는 라벨 실현창(거래일).
+
+    multi-horizon 블렌드 타깃이 켜져 있으면 라벨에 최장 horizon의 미래
+    수익률이 섞이므로, causal split은 `forward_horizon`이 아니라 블렌드
+    최장 horizon으로 purge해야 한다(아니면 train/val 라벨 중첩 = 누수).
+    OFF(기본)면 `forward_horizon` 그대로 — 기존 분할과 동일(파리티).
+    """
+    horizon = int(config.forward_horizon)
+    if getattr(config, "multi_horizon_targets_enabled", False):
+        weights = getattr(config, "multi_horizon_weights", None) or {}
+        if weights:
+            horizon = max(horizon, max(int(h) for h in weights))
+    return horizon
+
+
 def build_walk_forward_split(
     all_dates: pd.DatetimeIndex,
     prediction_idx: int,
@@ -290,6 +382,14 @@ def train_model(
         X_val, y_val, val_groups = prepare_rank_data(
             panel, targets, feature_names, val_dates, levels
         )
+    elif objective == "symmetric_rank":
+        X_train, y_train = prepare_symmetric_rank_data(
+            panel, targets, feature_names, train_dates
+        )
+        X_val, y_val = prepare_symmetric_rank_data(
+            panel, targets, feature_names, val_dates
+        )
+        train_groups = val_groups = None
     else:
         X_train, y_train = _prepare_train_data(panel, targets, feature_names, train_dates)
         X_val, y_val = _prepare_train_data(panel, targets, feature_names, val_dates)
@@ -309,6 +409,11 @@ def train_model(
         params["objective"] = "rank_xendcg"
         params["metric"] = "ndcg"
         model = lgb.LGBMRanker(**params)
+    elif objective == "symmetric_rank":
+        params = dict(config.lgbm_params)
+        params["objective"] = getattr(config, "symmetric_rank_loss", "huber")
+        params["metric"] = getattr(config, "symmetric_rank_metric", "l2")
+        model = lgb.LGBMRegressor(**params)
     else:
         # Keep the canonical construction unchanged on the default path.
         model = lgb.LGBMRegressor(**config.lgbm_params)
@@ -338,6 +443,46 @@ def train_model(
         )
     else:
         model.fit(X_train, y_train)
+
+    if (
+        getattr(config, "ewma_importance_type", "split") == "permutation"
+        and len(X_val) >= 2
+    ):
+        try:
+            from sklearn.inspection import permutation_importance
+
+            max_samples = int(
+                getattr(config, "ewma_permutation_max_samples", 10000)
+            )
+            if len(X_val) > max_samples:
+                rng = np.random.default_rng(
+                    int(config.lgbm_params.get("random_state", 42))
+                )
+                sample_idx = np.sort(
+                    rng.choice(len(X_val), size=max_samples, replace=False)
+                )
+                permutation_x = X_val[sample_idx]
+                permutation_y = y_val[sample_idx]
+            else:
+                permutation_x = X_val
+                permutation_y = y_val
+            permutation_result = permutation_importance(
+                model,
+                permutation_x,
+                permutation_y,
+                scoring="neg_mean_squared_error",
+                n_repeats=int(getattr(config, "ewma_permutation_repeats", 3)),
+                random_state=int(config.lgbm_params.get("random_state", 42)),
+                n_jobs=1,
+            )
+            model._ewma_permutation_importance = np.maximum(
+                permutation_result.importances_mean, 0.0
+            )
+        except Exception as exc:
+            print(
+                "[ModelTrainer] permutation importance failed; "
+                f"falling back to gain ({exc})"
+            )
 
     return model
 
@@ -500,7 +645,7 @@ def walk_forward_train(
                     prediction_idx=t_idx,
                     train_window=train_window,
                     val_window=val_window,
-                    forward_horizon=int(config.forward_horizon),
+                    forward_horizon=effective_label_horizon(config),
                 )
                 train_dates = split["train_dates"]
                 val_dates = split["val_dates"]

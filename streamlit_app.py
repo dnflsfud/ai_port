@@ -275,8 +275,15 @@ def build_comparison_returns(
     """Align the two portfolio curves and retain one common benchmark curve."""
     if production.empty:
         return pd.DataFrame()
-    out = production[[c for c in ("portfolio_cum", "benchmark_cum") if c in production]].rename(
-        columns={"portfolio_cum": prod_name, "benchmark_cum": "Benchmark"}
+    out = production[[
+        c for c in ("portfolio_cum", "benchmark_cum", "sp500_cum")
+        if c in production
+    ]].rename(
+        columns={
+            "portfolio_cum": prod_name,
+            "benchmark_cum": "Benchmark",
+            "sp500_cum": "S&P 500",
+        }
     )
     if not challenger.empty and "portfolio_cum" in challenger:
         out = out.join(
@@ -712,7 +719,7 @@ def main() -> None:
 
     st.title("Pictet Portfolio Monitor — USD")
     st.markdown(
-        "<div class='note'>Operating dashboard for the 100-name universe, unhedged USD performance, FX attribution, risk and rebalance controls.</div>",
+        "<div class='note'>Operating dashboard for the 150-name universe, unhedged USD performance, FX attribution, risk and rebalance controls.</div>",
         unsafe_allow_html=True,
     )
     st.markdown(
@@ -723,7 +730,7 @@ def main() -> None:
         f"<span class='chip {'chip-ok' if overlay_ok else 'chip-warn'}'>Overlay {'KEEP all' if overlay_ok else 'Review'}</span>"
         f"<span class='chip {'chip-ok' if factor_ok else 'chip-warn'}'>Factor collapsed={stage3.get('collapsed')}</span>"
         f"<span class='chip chip-ok'>Base currency {(currency or {}).get('base_currency', 'USD')}</span>"
-        f"<span class='chip {'chip-ok' if universe_size == 100 else 'chip-warn'}'>Universe {universe_size or 'n/a'}</span>"
+        f"<span class='chip {'chip-ok' if universe_size == 150 else 'chip-warn'}'>Universe {universe_size or 'n/a'}</span>"
         f"<span class='chip {'chip-ok' if fx_coverage_ok else 'chip-warn'}'>FX mapped {fx_mapped or 'n/a'}/{universe_size or 'n/a'}</span>"
         f"<span class='chip chip-ok'>Non-USD {pct(currency_summary.get('non_usd_target_weight'), 1)}</span>"
         + (f"<span class='chip {'chip-ok' if challenger_meta.get('status') == 'PASS' else 'chip-warn'}'>"
@@ -806,6 +813,23 @@ def main() -> None:
     top_cols[4].metric("Max Drawdown", pct(perf.get("max_drawdown"), 1))
     top_cols[5].metric("Active Share", pct(holdings.get("active_share_one_way"), 2))
 
+    sp500_perf = perf.get("sp500") or {}
+    if sp500_perf and sp500_perf.get("annual_return") is not None:
+        st.caption("S&P 500 comparison")
+        sp500_cols = st.columns(4)
+        sp500_cols[0].metric(
+            "S&P 500 Return", pct(sp500_perf.get("annual_return"), 1)
+        )
+        sp500_cols[1].metric(
+            "Active vs S&P 500", pct(sp500_perf.get("active_return"), 2, signed=True)
+        )
+        sp500_cols[2].metric(
+            "IR vs S&P 500", num(sp500_perf.get("information_ratio"), 3)
+        )
+        sp500_cols[3].metric(
+            "Beta vs S&P 500", num(sp500_perf.get("beta"), 3)
+        )
+
     if challenger:
         st.caption(f"{chal_name} challenger")
         challenger_cols = st.columns(6)
@@ -881,7 +905,13 @@ def main() -> None:
             by_year = rows_df(perf.get("by_year_returns"))
             if not by_year.empty:
                 by_year = by_year.rename(columns={"name": "year"})
-                render_chart(grouped_bar_fig(by_year, "year", ["portfolio", "benchmark", "active"], "Calendar-year returns"))
+                year_series = [
+                    column for column in ("portfolio", "benchmark", "sp500", "active")
+                    if column in by_year.columns
+                ]
+                render_chart(grouped_bar_fig(
+                    by_year, "year", year_series, "Calendar-year returns"
+                ))
 
             monthly = rows_df(monitoring.get("monthly_returns"))
             if not monthly.empty:

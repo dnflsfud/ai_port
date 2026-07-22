@@ -29,7 +29,7 @@ from src.config import PipelineConfig, DEFAULT_CONFIG
 from src.data_loader import UniverseData, mask_pre_listing
 from src.feature_engine import build_all_features
 from src.target_engine import build_targets
-from src.model_trainer import walk_forward_train, TRAIN_WINDOW
+from src.model_trainer import walk_forward_train, TRAIN_WINDOW, effective_label_horizon
 from src.portfolio_optimizer import (
     estimate_covariance,
     optimize_portfolio,
@@ -154,6 +154,67 @@ def apply_mu_vol_scaling(
         scale = sig_eff / med
         out.loc[t] = predictions.loc[t].to_numpy() * scale  # NaN z stays NaN
     return out
+
+
+def apply_oof_alpha_calibration(
+    predictions: pd.DataFrame,
+    targets: pd.DataFrame,
+    risk_returns: pd.DataFrame,
+    config: PipelineConfig,
+) -> pd.DataFrame:
+    """Convert scores to daily expected-return units with past-only OOF IC.
+
+    The cross-sectional IC observed for signal date ``s`` is not usable until
+    its forward target has matured at ``s + effective_label_horizon``. Calibration
+    at date ``t`` therefore uses only lagged, matured OOF ICs and volatility
+    observations strictly before ``t``.  The rolling IC is shrunk toward zero
+    before converting a horizon score to a daily expected return:
+
+        mu_daily = z * sigma_daily * shrunk_IC / sqrt(horizon)
+    """
+    if not getattr(config, "alpha_calibration_enabled", False):
+        return predictions
+
+    horizon = max(1, int(effective_label_horizon(config)))
+    lookback = int(getattr(config, "alpha_calibration_lookback", 252))
+    min_obs = int(getattr(config, "alpha_calibration_min_observations", 63))
+    prior_obs = float(getattr(config, "alpha_calibration_prior_observations", 63))
+
+    aligned_targets = targets.reindex(
+        index=predictions.index, columns=predictions.columns
+    )
+    ic_values = []
+    for date in predictions.index:
+        pred_row = predictions.loc[date]
+        target_row = aligned_targets.loc[date]
+        valid = pred_row.notna() & target_row.notna()
+        if int(valid.sum()) < 3:
+            ic_values.append(np.nan)
+        else:
+            ic_values.append(
+                pred_row[valid].corr(target_row[valid], method="spearman")
+            )
+    raw_ic = pd.Series(ic_values, index=predictions.index, dtype=float)
+    matured_ic = raw_ic.shift(horizon)
+    rolling = matured_ic.rolling(lookback, min_periods=min_obs)
+    ic_mean = rolling.mean()
+    ic_count = rolling.count()
+    shrink_weight = ic_count / (ic_count + prior_obs)
+    calibrated_ic = (ic_mean * shrink_weight).clip(
+        lower=float(getattr(config, "alpha_calibration_min_ic", 0.0)),
+        upper=float(getattr(config, "alpha_calibration_max_ic", 0.10)),
+    ).fillna(0.0)
+
+    risk = risk_returns.reindex(
+        index=predictions.index, columns=predictions.columns
+    )
+    trailing_vol = risk.rolling(lookback, min_periods=min_obs).std(ddof=1).shift(1)
+    row_median = trailing_vol.median(axis=1)
+    trailing_vol = trailing_vol.T.fillna(row_median).T.fillna(0.0)
+
+    scale = calibrated_ic / np.sqrt(float(horizon))
+    calibrated = predictions.mul(trailing_vol).mul(scale, axis=0)
+    return calibrated.where(predictions.notna())
 
 
 def apply_growth_tilt(
@@ -646,6 +707,20 @@ class BacktestResult:
         return pd.Series(dtype=float)
 
     @property
+    def cumulative_sp500(self) -> pd.Series:
+        """Canonical S&P 500 cumulative series (``cumulative_spx`` alias)."""
+        return self.cumulative_spx
+
+    @property
+    def sp500_returns(self) -> pd.Series:
+        """Canonical name for the legacy ``spx_returns`` storage field."""
+        return self.spx_returns
+
+    @sp500_returns.setter
+    def sp500_returns(self, value: pd.Series) -> None:
+        self.spx_returns = value
+
+    @property
     def active_returns(self) -> pd.Series:
         return self.portfolio_returns - self.benchmark_returns
 
@@ -707,13 +782,33 @@ class BacktestResult:
 
         # S&P 500 metrics
         if len(self.spx_returns) > 0:
-            spx_metrics = compute_performance_metrics(
-                self.spx_returns.reindex(port.index, fill_value=0),
-                ann_factor=ann_factor,
-            )
-            result["spx_annual_return"] = spx_metrics.get("annual_return", 0)
-            result["spx_annual_vol"] = spx_metrics.get("annual_vol", 0)
-            result["spx_sharpe"] = spx_metrics.get("sharpe_ratio", 0)
+            comparison = pd.concat(
+                [port.rename("portfolio"), self.spx_returns.rename("sp500")],
+                axis=1,
+            ).dropna()
+            if not comparison.empty:
+                sp500_metrics = compute_performance_metrics(
+                    comparison["portfolio"], comparison["sp500"], ann_factor
+                )
+                sp500_only = compute_performance_metrics(
+                    comparison["sp500"], ann_factor=ann_factor
+                )
+                result.update({
+                    "sp500_annual_return": sp500_only.get("annual_return", 0),
+                    "sp500_annual_vol": sp500_only.get("annual_vol", 0),
+                    "sp500_sharpe": sp500_only.get("sharpe_ratio", 0),
+                    "sp500_active_return": sp500_metrics.get("active_return", 0),
+                    "sp500_tracking_error": sp500_metrics.get("tracking_error", 0),
+                    "sp500_information_ratio": sp500_metrics.get(
+                        "information_ratio", 0
+                    ),
+                    "sp500_beta": compute_beta(
+                        comparison["portfolio"], comparison["sp500"]
+                    ),
+                })
+                result["spx_annual_return"] = result["sp500_annual_return"]
+                result["spx_annual_vol"] = result["sp500_annual_vol"]
+                result["spx_sharpe"] = result["sp500_sharpe"]
 
         # Realized regression beta diagnostic (Pictet beta=1.0 규율 판정용).
         # 가중치/IR/TE에 영향 없는 read-only 진단. portfolio vs benchmark.
@@ -762,6 +857,12 @@ class BacktestResult:
                 f"  S&P 500 변동성:   {m['spx_annual_vol']:.2%}",
                 f"  S&P 500 Sharpe:   {m['spx_sharpe']:.2f}",
             ])
+            lines.extend([
+                f"  S&P 500 Active:   {m.get('sp500_active_return', 0):.2%}",
+                f"  S&P 500 TE:       {m.get('sp500_tracking_error', 0):.2%}",
+                f"  S&P 500 IR:       {m.get('sp500_information_ratio', 0):.2f}",
+                f"  S&P 500 Beta:     {m.get('sp500_beta', 0):.2f}",
+            ])
         lines.append("=" * 50)
         return "\n".join(lines)
 
@@ -800,13 +901,38 @@ _get_sector_map = get_sector_map
 # ---------------------------------------------------------------------------
 
 
-def make_ew_bm_fn(tickers: list):
-    """Equal-weight benchmark function: each name = 1/n."""
+def _listing_eligibility_mask(
+    t_date: pd.Timestamp,
+    tickers: list,
+    listing_dates: Optional[Dict[str, str]],
+) -> np.ndarray:
+    """Return the point-in-time eligible universe for ``t_date``."""
+    if not listing_dates:
+        return np.ones(len(tickers), dtype=bool)
+    timestamp = pd.Timestamp(t_date)
+    return np.asarray([
+        ticker not in listing_dates
+        or timestamp >= pd.Timestamp(listing_dates[ticker])
+        for ticker in tickers
+    ], dtype=bool)
+
+
+def make_ew_bm_fn(
+    tickers: list,
+    listing_dates: Optional[Dict[str, str]] = None,
+):
+    """Equal-weight benchmark over names eligible on each rebalance date."""
     n = len(tickers)
     ew = np.ones(n) / n
 
     def _fn(t_date, tickers_, n_):
-        return ew.copy() if n_ == n else np.ones(n_) / n_
+        if not listing_dates:
+            return ew.copy() if n_ == n else np.ones(n_) / n_
+        eligible = _listing_eligibility_mask(t_date, tickers_, listing_dates)
+        count = int(eligible.sum())
+        if count == 0:
+            raise ValueError(f"No benchmark-eligible names at {pd.Timestamp(t_date):%Y-%m-%d}")
+        return eligible.astype(float) / count
     return _fn
 
 
@@ -827,6 +953,7 @@ def make_capweight_bm_fn(data: UniverseData, tickers: list,
     mask_enabled = bool(
         config is not None and getattr(config, "listing_mask_enabled", False)
     )
+    listing_dates = getattr(data, "listing_dates", None) if mask_enabled else None
     mc = data.market_cap  # DataFrame dates x tickers
     # Make sure we have a forward-filled view aligned to tickers
     mc_aligned = mc.reindex(columns=tickers).ffill()
@@ -834,13 +961,19 @@ def make_capweight_bm_fn(data: UniverseData, tickers: list,
     uniform = np.ones(n) / n
 
     def _fn(t_date, tickers_, n_):
+        eligible = _listing_eligibility_mask(t_date, tickers_, listing_dates)
         if t_date in mc_aligned.index:
             row = mc_aligned.loc[t_date].values.astype(float)
         else:
             # As-of lookup for dates not in market_cap index
             asof = mc_aligned.index[mc_aligned.index <= t_date]
             if len(asof) == 0:
-                return uniform.copy()
+                count = int(eligible.sum())
+                if count == 0:
+                    raise ValueError(
+                        f"No benchmark-eligible names at {pd.Timestamp(t_date):%Y-%m-%d}"
+                    )
+                return eligible.astype(float) / count
             row = mc_aligned.loc[asof[-1]].values.astype(float)
 
         if not mask_enabled:
@@ -851,10 +984,15 @@ def make_capweight_bm_fn(data: UniverseData, tickers: list,
                 row[nan_mask] = medians[nan_mask]
         # Masked names (mask_enabled) skip median-fill → drop to 0 below.
         # If still NaN (no history at all), fall back to uniform
-        row = np.where(np.isfinite(row) & (row > 0), row, 0.0)
+        row = np.where(np.isfinite(row) & (row > 0) & eligible, row, 0.0)
         s = row.sum()
         if s <= 0:
-            return uniform.copy()
+            count = int(eligible.sum())
+            if count == 0:
+                raise ValueError(
+                    f"No benchmark-eligible names at {pd.Timestamp(t_date):%Y-%m-%d}"
+                )
+            return eligible.astype(float) / count
         return row / s
 
     return _fn
@@ -888,7 +1026,11 @@ def get_benchmark_fn(data: UniverseData, tickers: list,
                 "Active-return comparisons will be biased.",
                 exc,
             )
-    return make_ew_bm_fn(tickers)
+    listing_dates = (
+        getattr(data, "listing_dates", None)
+        if getattr(config, "listing_mask_enabled", False) else None
+    )
+    return make_ew_bm_fn(tickers, listing_dates=listing_dates)
 
 
 # ---------------------------------------------------------------------------
@@ -1506,9 +1648,10 @@ def run_backtest(
     # Pre-listing backfill masking (OFF by default). Mask targets BEFORE
     # walk_forward_train so phantom pre-listing rows never poison training.
     if getattr(config, "listing_mask_enabled", False):
-        targets = mask_pre_listing(targets, config.listing_dates, inclusive=True)
+        listing_dates = getattr(data, "listing_dates", config.listing_dates)
+        targets = mask_pre_listing(targets, listing_dates, inclusive=True)
         print(f"[Backtest] listing mask applied: targets "
-              f"({', '.join(config.listing_dates)})")
+              f"({len(listing_dates)} resolved names)")
 
     # Phase 4: 모델 학습 및 예측
     all_dates = data.dates
@@ -1560,14 +1703,15 @@ def run_backtest(
     # the overlays or the optimizer. NaN alpha lets the MVO pin w==bm, and the
     # masked cap-weighted BM already gives these names bm==0.
     if getattr(config, "listing_mask_enabled", False):
-        predictions = mask_pre_listing(predictions, config.listing_dates, inclusive=True)
+        listing_dates = getattr(data, "listing_dates", config.listing_dates)
+        predictions = mask_pre_listing(predictions, listing_dates, inclusive=True)
         if raw_predictions is not None:
             raw_predictions = mask_pre_listing(
-                raw_predictions, config.listing_dates, inclusive=True
+                raw_predictions, listing_dates, inclusive=True
             )
             result.raw_predictions = raw_predictions
         print(f"[Backtest] listing mask applied: predictions "
-              f"({', '.join(config.listing_dates)})")
+              f"({len(listing_dates)} resolved names)")
 
     # REDESIGN U (2026-04-14): PEAD post-process boost.
     # Stocks with positive pre-earnings revisions get +boost_w × decay × quality
@@ -1617,6 +1761,21 @@ def run_backtest(
         else:
             print("[Backtest] A1: z→mu vol scaling SKIPPED (raw_returns unavailable)")
 
+    if getattr(config, "alpha_calibration_enabled", False):
+        _calibration_risk = getattr(data, "raw_returns", None)
+        if _calibration_risk is not None:
+            _calibration_risk = _calibration_risk.reindex(index=data.returns.index)
+            predictions = apply_oof_alpha_calibration(
+                predictions, targets, _calibration_risk, config
+            )
+            print(
+                "[Backtest] past-only OOF alpha calibration applied "
+                f"(lookback={config.alpha_calibration_lookback}, "
+                f"horizon={effective_label_horizon(config)})"
+            )
+        else:
+            print("[Backtest] OOF alpha calibration SKIPPED (raw_returns unavailable)")
+
     # Causal challenger execution: delay the fully formed signal (including
     # overlays) and its raw counterpart together.  Default zero keeps the S0
     # path unchanged.
@@ -1653,8 +1812,18 @@ def run_backtest(
     print(f"[Backtest] Benchmark type: {getattr(config, 'benchmark_type', 'equal_weight')}")
 
     # S&P 500 수익률 (Factor_Returns에서 추출)
-    has_spx = data.has_factor_data() and "SPX" in data.factor_returns.columns
-    spx_factor = data.factor_returns["SPX"] if has_spx else None
+    sp500_ticker = str(getattr(config, "sp500_factor_ticker", "SPX"))
+    has_spx = bool(
+        getattr(config, "sp500_benchmark_enabled", True)
+        and data.has_factor_data()
+        and sp500_ticker in data.factor_returns.columns
+    )
+    spx_factor = data.factor_returns[sp500_ticker] if has_spx else None
+    if getattr(config, "sp500_benchmark_enabled", True) and not has_spx:
+        logger.warning(
+            "S&P 500 benchmark enabled but Factor_Returns[%r] is unavailable.",
+            sp500_ticker,
+        )
 
     # Optimizer with config forwarding
     # Factor-neutral live coverage accumulator (review M1). Stays all-zero and

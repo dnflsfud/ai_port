@@ -58,14 +58,14 @@ DEFAULT_OPERATING_DIR = ROOT / "outputs" / "operating"
 
 # Code contract version for the operating bundle; bumped when the exported
 # meta/schema meaning changes materially.
-PORTFOLIO_VERSION = "universe100-usd-v1"
+PORTFOLIO_VERSION = "universe150-usd-pit-sp500-v2"
 
 # (display_name, portfolio_role) defaults used when the variant yaml is silent
 # (e.g. the argument-free export path). Unknown labels stay challenger so an
 # unrecognized run can never seize the single production slot.
 _LABEL_DEFAULTS = {
-    "iter15_65tkr_reb21_vtg": ("Legacy S0 (100)", "challenger"),
-    "codex_causal_rank_65": ("Causal Rank 100", "production"),
+    "iter15_65tkr_reb21_vtg": ("Legacy S0 (150)", "challenger"),
+    "codex_causal_rank_65": ("Causal Rank 150", "production"),
 }
 
 
@@ -987,10 +987,16 @@ def main(argv=None) -> int:
     bm = res.benchmark_returns.reindex(port.index).ffill().fillna(0.0)
     cum_p = (1 + port).cumprod()
     cum_b = (1 + bm).cumprod()
+    sp500 = pd.Series(getattr(res, "spx_returns", pd.Series(dtype=float))).reindex(
+        port.index
+    )
+    cum_sp500 = (1 + sp500.fillna(0.0)).cumprod()
     dd = cum_p / cum_p.cummax() - 1.0
     ret_df = pd.DataFrame({
         "portfolio_ret": port, "benchmark_ret": bm,
-        "portfolio_cum": cum_p, "benchmark_cum": cum_b, "drawdown": dd,
+        "sp500_ret": sp500,
+        "portfolio_cum": cum_p, "benchmark_cum": cum_b,
+        "sp500_cum": cum_sp500, "drawdown": dd,
     })
     ret_df.index.name = "date"
 
@@ -1001,6 +1007,13 @@ def main(argv=None) -> int:
         p_r = float((1 + g).prod() - 1); b_r = float((1 + b_g).prod() - 1)
         by_year[int(yr)] = {"portfolio": round(p_r, 4), "benchmark": round(b_r, 4),
                             "active": round(p_r - b_r, 4)}
+        sp500_g = sp500.reindex(g.index).dropna()
+        if not sp500_g.empty:
+            sp500_r = float((1 + sp500_g).prod() - 1)
+            by_year[int(yr)].update({
+                "sp500": round(sp500_r, 4),
+                "active_vs_sp500": round(p_r - sp500_r, 4),
+            })
     # The cached pkl snapshots the loader's data_quality at backtest time; the
     # current loader's FX diagnostics are authoritative, so override the fx
     # block from fresh data.data_quality (same design as build_operating_quality_fields).
@@ -1025,6 +1038,21 @@ def main(argv=None) -> int:
         "total_return": float(cum_p.iloc[-1] - 1.0), "bm_total_return": float(cum_b.iloc[-1] - 1.0),
         "max_drawdown": float(dd.min()),
         "sub_period_ir": sub_period_irs(port, bm),
+        "sp500": {
+            "annual_return": m.get("sp500_annual_return"),
+            "annual_vol": m.get("sp500_annual_vol"),
+            "sharpe_ratio": m.get("sp500_sharpe"),
+            "active_return": m.get("sp500_active_return"),
+            "tracking_error": m.get("sp500_tracking_error"),
+            "information_ratio": m.get("sp500_information_ratio"),
+            "beta": m.get("sp500_beta"),
+            "total_return": (
+                float(cum_sp500.iloc[-1] - 1.0) if sp500.notna().any() else None
+            ),
+            "sub_period_ir": (
+                sub_period_irs(port, sp500) if sp500.notna().any() else {}
+            ),
+        },
         "by_year_returns": by_year,
         "optimizer_failure_rate": getattr(res, "optimizer_failure_rate", None),
         "optimizer_solver_counts": getattr(res, "optimizer_solver_counts", {}),
