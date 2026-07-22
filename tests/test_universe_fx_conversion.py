@@ -197,9 +197,15 @@ def test_usd_return_identity_preserves_local_and_raw_panels(monkeypatch):
         factor_prices=factor_prices,
     )
     _patch_raw(monkeypatch, raw)
+    # Auto-inferred eligibility would resolve to the fixture's first date and
+    # the S11.4 inclusive rule would mask that day's raw return — out of scope
+    # for this conversion-identity test, so inference is disabled.
     data = UniverseData(
         "unused.xlsx",
-        config=PipelineConfig(fx_source_path="missing.xlsx"),
+        config=PipelineConfig(
+            fx_source_path="missing.xlsx",
+            listing_auto_infer_enabled=False,
+        ),
     )
 
     expected = (1.0 + data.local_returns) * (1.0 + data.fx_returns) - 1.0
