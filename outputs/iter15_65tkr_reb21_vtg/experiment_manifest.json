@@ -49,6 +49,9 @@
     "ewma_importance_type": "split",
     "ewma_min_features": 60,
     "ewma_min_retrains": 2,
+    "ewma_permutation_max_samples": 10000,
+    "ewma_permutation_repeats": 3,
+    "ewma_stability_window": 4,
     "execution_signal_lag_days": 1,
     "expected_universe_size": 150,
     "factor_neutral_axes": [
@@ -161,6 +164,7 @@
     "pca_n_remove": 2,
     "pca_regime_vol_col": "VIX",
     "pca_regime_vol_threshold": 1.0,
+    "pca_vol_standardize": false,
     "pead_boost_enabled": true,
     "pead_boost_weight": 0.3,
     "pead_decay_days": 7.0,
@@ -214,7 +218,7 @@
     "tuning_mode": "production",
     "variant_label": "iter15_65tkr_reb21_vtg"
   },
-  "git_dirty": true,
-  "git_hash": "54159da2de4f831f8278cedc7231b9a6c8e48fce",
-  "timestamp_utc": "2026-07-22T03:17:56Z"
+  "git_dirty": false,
+  "git_hash": "2314eb1eabdbcef3122ba06220ab9938c5fed091",
+  "timestamp_utc": "2026-07-22T06:50:32Z"
 }
