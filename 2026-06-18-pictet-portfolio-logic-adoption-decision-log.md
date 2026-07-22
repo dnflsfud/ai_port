@@ -1575,6 +1575,33 @@ vs S0(150)‴) — E1 FAIL(전 구간 악화) → 불채택·종결**:
 - **판정: 불채택·OFF 유지·종결**. 인프라(플래그·참조 대조 테스트 4종)는
   잔존(default-OFF·파리티).
 
+### S12.Ω (2026-07-22) — 시퀀스 종합 판정·운영 반영
+
+- **6개 유닛 전 판정 완료 (GPT 리뷰 실행 항목 전수 처리)**:
+  | 유닛 | 판정 |
+  |---|---|
+  | S12.1 게이트 재정의 | **채택**(거버넌스) — HOLD 해소, §S9.2 이래 최초 PRODUCTION |
+  | S12.2 objective swap | 불채택 — E1 FAIL·**E2 PASS(가설 실증)**·G6 위반 |
+  | S12.3(i) 스케일 무효 | **no-op 입증**(동일 데이터 ON=OFF float 동일) — 청소 종결 |
+  | S12.3(ii) full refresh | 불채택 — E1·E2 FAIL(재진입 0, whitelist 포화) |
+  | S12.4 mu σ·z | 불채택·종결 — 두 레짐 모두 노이즈·P3 집중 |
+  | S12.5 PCA 표준화 | 불채택 — 전 서브기간 악화(raw PCA가 유효 설계) |
+  | S12.6 비용 민감도 | 진단 — 50bps에도 순위 불변, 1.25× 비바인딩 |
+- **프로덕션 플래그 변경 0건**(S12.1 게이트/모니터링 제외) — §2.1/§8 준수.
+  성능 arm 4종 전부 단일 사전등록·ΔIR +0.36 바 미달·no-flip.
+- **운영**: v2 데이터로 **07-21 리밸런싱 최초 등록**(last 07-21·next
+  08-19·150 trades·data_as_of 07-22), 두 번들 export·검증·commit f667df7·
+  push 완료. production_gate **PRODUCTION**(stale_depth 5/7). comparison
+  gate는 v2에서 RESEARCH/FAIL 3건(active_return·turnover 1.25×·sub_wins)
+  으로 확대 — challenger 승격 논거는 v2에서 오히려 약화(관찰).
+- **부기 (실행 환경)**: 세션 자식 프로세스로 띄운 장기 런이 7회 외부
+  중단(14:26 Modern Standby idle timeout 1건 실측, 나머지 원인 미확정) —
+  일회성 schtasks 태스크로 우회해 완주. **장기 런은 스케줄 태스크 경유가
+  이 머신의 안정 패턴**(매일 11:30 배치 무중단 전례) → 런북 후보.
+- 잔존 연구 후보(각각 별도 사전등록 필요): rank+regression
+  mu-combination(§S11.9·S12.2 P2 상보성 근거), HOLD 정책 ④ 차단형 전환
+  여부(§S11.6), challenger 승격(§8+DSR).
+
 ### S12.6 (2026-07-22) — 비용 모델 민감도 (읽기 전용 진단, arm 아님)
 
 **사전등록**: one_way_tc는 P&L 차감에만 쓰이고 가중치 결정에 불참 —
