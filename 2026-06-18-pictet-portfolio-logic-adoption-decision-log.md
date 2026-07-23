@@ -1647,3 +1647,62 @@ turnover, 95 리밸런스)**:
   차단자는 §8 DSR/노이즈밴드(ΔIR +0.234 < +0.36)임을 재확인. 게이트
   개정은 별도 사전등록 필요(본 진단은 자료). 스프레드·임팩트의 비선형
   비용은 범위 외(데이터 부재) — 모델링 필요 시 별도 설계.
+
+## S13 (유니버스 200 확장 — 슬레이트 확정·워크북 편집·게이트 등록) — 2026-07-23
+
+사용자 지시: 150에 50종 추가. §S11 방법론 승계(MSCI World 편입 + 섹터 이름수 ∝
+MSCI 비중 + 신규 FX 페어 0 + "학습 표본 구성" 프레이밍). 슬레이트는 외부 리뷰
+교차검증을 거침 — GPT 5.6 대안(방어섹터 17종 확대·Tech +5)을 팩트체크 후 3안
+(원안 MSCI 비례 / GPT 균형 / 병합 절충) 제시, **사용자가 원안 확정**. GPT안
+검증 기록: 중복 0·FX 코드 주장 정확(`data_loader.py:125`), 그러나 CRWD·ALC 마스크
+무플래그, 초대형 공백(BRK/B·INTU·RTX 등) 방치, En/Mat/RE/Ut 34% 배분은 §S11
+사전등록 방법론과 배치 — 원안 채택으로 해소.
+
+- **슬레이트 (50, 기준 2026-06-30 MSCI World 팩트시트 비중)**: Tech +15 (INTU SNPS
+  APH MSI CRWD NXPI KEYS ADSK WDAY WDC DDOG FTNT DSY 6146[디스코] 6981[무라타]) ·
+  Fin +8 (BRK/B CB ICE MCO PYPL COF BNP MUV2) · Ind +6 (RTX EMR AXON UBER AIR SAF) ·
+  HC +5 (MRK AMGN SYK MCK NOVN) · CD +4 (NKE ORLY DASH CFR[리치몬트]) · Comm +4
+  (TTD RBLX 9432[NTT] 9433[KDDI]) · St +3 (PEP MDLZ OR[로레알]) · En +2 (CVX TTE) ·
+  Mat +2 (NEM SHW) · Ut +1 (SO). 최종 200 = Tech 60/Fin 32/Ind 23/HC 19/CD 17/
+  Comm 16/St 10/En 7/Mat 7/Ut 5/RE 4. 통화: USD 37·EUR 7·JPY 4·CHF 2 —
+  **신규 FX 페어 0·신규 거래소 코드 0**.
+- **워크북 편집 (2026-07-23 완료, 검증 ALL PASS)**: `Data/oppor.xlsx` tickers
+  152→202 셀(EW1..GT1, Bloomberg 형식) · `re_study/Factset_re_study.xlsx` 13시트
+  각 +50열(r2='TICKER-CC^' FactSet 국가코드 US/FR/DE/CH/JP, BRK/B는 `BRK.B-US^`
+  NOVO.B 선례 표기; r3=시트별 마지막 열 FDS 수식 문자열 그대로 복제; 151→201열,
+  FwdEPS 시트만 135→185열). 백업: `oppor.backup_20260723_s13.xlsx`,
+  `Factset_re_study.backup_20260723_s13.xlsx`. 검증: 시트별 셀 수·tail-50 일치·
+  수식 균일·중복 0 (스크립트 fresh 재오픈 패스).
+- **universe_config 선적용 보류(§S11.1과 의도적 차이)**: 일일 run_data_pipeline이
+  UNIVERSE를 소비하므로 가격 소스에 50열이 생기기 전 200 승격 시 평일 런이
+  Missing/실패 위험(§S11.1은 일요일 선적용이라 무해). 적용 대기 블록 + 절차를
+  `outputs/s13_universe_config_append.py`로 스테이징(계약 테스트
+  `tests/test_s13_universe_config_append.py` 2 PASS — 50종·배분·중복 0·FX 0 고정).
+  **리프레시 직전에 적용**(EXPECTED 200 + UNIVERSE +50 + BRK/B FactSet 표기
+  오버라이드 + test_universe_config 핀 갱신).
+- **게이트 상태 (§S11 준용)**:
+  1. MSCI 편입 대조 — **PENDING**: 2026-06-30 구성 파일 기준 50종 증권 라인 대조가
+     리프레시 착수 조건(BHP LN 배제 선례).
+  2. FX/거래소 — **해당 없음**: 전 코드 기지원, 신규 페어 0.
+  3. 상장·기업행사 마스크 — **DONE(등록)**: IPO 6건 — TTD 2016-09-21, UBER
+     2019-05-10, CRWD 2019-06-12, DDOG 2019-09-19, DASH 2020-12-09, RBLX
+     2021-03-10. 기업행사 2건 — **WDC** 2025-02 SNDK 분사 RemainCo(GE/GEV 선례
+     기본 적용: 분사 이후만 학습 인정 — 잔여 이력 ~1.5y는 285A 선례로 허용),
+     **COF** 2025-05 Discover 흡수(마스크 여부 리프레시 시 first-valid·규모 단절
+     보고 후 판단). 일자는 리프레시 시 first-valid로 재검증. 관찰 플래그:
+     BRK/B 컨센서스 커버리지 희소(BEST_*/FDS 결측 가능 — MMC 계열 리스크).
+  4. 생존편향 정책 — **명시**: 2026-06-30 시점 기준 고정 200종. 과거 구간은
+     진단용, 신규 50종 정식 평가는 전향 구간.
+- **데이터 실재성 사전 점검**: oppor `S&P500` 풀 시트에 미국 37종 중 31종 열
+  기존재; **무열 6종 KEYS WDAY WDC AXON DASH RBLX + 비미국 13종은 리프레시 시
+  `Data/S&P500.xlsx` 18시트 신규 열 생성 확인 필수**(§S11.2 MMC 선례 — 가격 소스
+  열 부재가 하드 게이트).
+- **단독 arm 선언**: 150→200은 타깃 정의 변경(PCA 전체 유니버스 재적합) — S9/S11과
+  동일한 기준선 재정의 이벤트. 새 S0(200) 재인증 후 "200 이전 수치와 비교 금지"
+  선언, 다른 파라미터 변경과 동시 실행 금지. ai_port TICKERS(150)는 새 S0(200)
+  전까지 불변.
+- **잔여 단계(§S11 준용)**: ① MSCI 구성 파일 대조(게이트 1) → ② universe_config
+  200 적용(스테이징 블록) → ③ 데스크탑 리프레시 + 가격 소스 50열 생성 확인 →
+  ④ ai_signal_data 200 재생성 + Universe_Meta 확장 + 마스크 first-valid 검증 +
+  커버리지·임퓨테이션 보고 → ⑤ ai_port TICKERS 200 확장 + 새 S0(200) ECOS 재인증
+  → §S13.1 기록.
