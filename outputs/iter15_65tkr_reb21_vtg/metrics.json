@@ -94,12 +94,12 @@
     "dr_alpha_enabled": false
   },
   "metrics": {
-    "annual_return": 0.2759254866871528,
-    "annual_vol": 0.2024691237947126,
-    "sharpe_ratio": 1.36280278946097,
-    "active_return": 0.05709749527267327,
-    "tracking_error": 0.03473533835660194,
-    "information_ratio": 1.6437869321005503,
+    "annual_return": 0.2759211629508902,
+    "annual_vol": 0.20246907007935108,
+    "sharpe_ratio": 1.3627817959688953,
+    "active_return": 0.05708999119212366,
+    "tracking_error": 0.03473496590693048,
+    "information_ratio": 1.6435885195653177,
     "max_drawdown": -0.3030172298475946,
     "avg_annual_turnover": 1.077444418514409,
     "avg_annual_turnover_one_way": 0.5387222092572045,
@@ -115,8 +115,8 @@
     "spx_annual_return": 0.1451660405270334,
     "spx_annual_vol": 0.19683083383293662,
     "spx_sharpe": 0.7375167685884289,
-    "realized_beta": 1.0272309676828284,
-    "realized_active_beta": 0.02723096768282882,
+    "realized_beta": 1.0272308795309386,
+    "realized_active_beta": 0.02723087953093843,
     "sub_periods": {
       "P1_ir": 1.455234803651252,
       "P2_ir": 1.4380180772385351,
@@ -1005,5 +1005,5 @@
     "ECOS": 192
   },
   "optimizer_solver_fallback_rate": 0.0,
-  "elapsed_sec": 493.4
+  "elapsed_sec": 520.2
 }
