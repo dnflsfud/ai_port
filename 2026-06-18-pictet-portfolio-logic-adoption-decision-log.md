@@ -1712,3 +1712,37 @@ MSCI 비중 + 신규 FX 페어 0 + "학습 표본 구성" 프레이밍). 슬레�
 3단계·inclusive 규칙·방어선 7층(`파일:라인` 고정)·Daily_Returns 면제 근거·
 합격기준 명령·§S13 마스크 등록 8건·금지 4항. 인용한 합격기준 실행 확인:
 `test_listing_mask + test_pit_universe + test_pit_sp500_ai_v2` **28 PASS**.
+
+## S13.1 (universe_config 200 적용 + Fwd_OpCashflow 배선) — 2026-07-23
+
+사용자 지시 2건: ① run_data_pipeline에 유니버스 200 반영, ② D_Factset 신규
+`Fwd_OpCashflow` 시트를 ai_signal_data로 배선.
+
+- **리프레시 실측(선적용 리스크 소멸)**: 사용자가 §S13 워크북 편집 후 당일
+  리프레시 완료 — `Data/S&P500.xlsx` 12:09, PX_LAST/CUR_MKT_CAP 202셀(신규 50
+  표본 8/8 존재) · `D_Factset_re_study.xlsx` 15:53, 전 시트 r2=201(date+200,
+  꼬리 SHW/SO). §S13 게이트 ①(MSCI 대조)은 사용자 지시로 사실상 오버라이드
+  (§S11.1 선례) — 형식 대조는 미수행으로 기록.
+- **universe_config 200 적용 (TDD, machine/re_study — git 외부)**: 스테이징 블록
+  (`outputs/s13_universe_config_append.py`) 그대로 UNIVERSE +50 · EXPECTED 200 ·
+  `build_factset_ticker_map`에 BRK/B 점 표기 별칭 2종(`BRK.B-US^`/`BRK-B-US^`).
+  계약 테스트 갱신: §S11 블록은 [-100:-50] 위치로 이동 고정, §S13 tail-50·통화
+  믹스(USD 37/EUR 7/JPY 4/CHF 2)·신규 별칭 6종+BRK/B 사전등록.
+  `run_data_pipeline.bat` [CHECK] 문구 150→200.
+- **Fwd_OpCashflow 배선**: `create_universe_data.py` FACTSET_SHEETS를
+  원본→별칭 dict로 전환(기존 3종 출력명 `Factset_EPS_Revision` 등 **불변** —
+  ai_port 소비 계약), 신규 `'S&P500 Fwd_OpCashflow(1Y)' → 'Fwd_OpCashflow'`
+  (출력 `Factset_Fwd_OpCashflow` 22자, Excel 31자 제한 OK).
+  `create_ai_signal_data.py`는 RL_Universe_Data 전 시트 복사(:397-399)라
+  **무변경**으로 자동 전파. ai_port 측은 ESSENTIAL_SHEETS 밖(신규 시트가
+  유니버스 교집합·피처에 불참 = inert) — **피처 소비는 별도 사전등록 arm 대상**.
+- **검증**: machine/re_study 계약·스모크 테스트 red(8 FAIL) → 구현 → **14 PASS**.
+  실데이터 e2e(읽기 전용, create_universe_data FactSet 블록 재현): Fwd_OpCashflow
+  4,951행(2013-01-01~2026-07-22) · **200/200 티커 매칭** · BRK/B 매핑 OK ·
+  미매핑 잔여 0. 관찰: 은행류 OpCF 추정 전량 결측(JPM 0.000, §S11 금융주 결측
+  계열)·BRK/B 최신 NaN(컨센서스 희소 플래그 실증) — 로더 NaN 처리로 무해.
+- **잔여**: ⑴ 파이프라인 재생성 실행(`run_data_pipeline.bat` — 워크북 열림 상태
+  확인 후 단일 foreground 또는 명일 11:30 스케줄; 신규 50종 감성은 step 1
+  analyzer 실행 시 채워짐) → ⑵ ai_signal_data 200 검증(Universe_Meta 200
+  Available·마스크 first-valid — PIT 계약서 §5 체크리스트) → ⑶ ai_port TICKERS
+  200 확장 + 새 S0(200) ECOS 재인증(단독 arm, §S13 선언).
