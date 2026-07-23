@@ -1746,3 +1746,14 @@ MSCI 비중 + 신규 FX 페어 0 + "학습 표본 구성" 프레이밍). 슬레�
   analyzer 실행 시 채워짐) → ⑵ ai_signal_data 200 검증(Universe_Meta 200
   Available·마스크 first-valid — PIT 계약서 §5 체크리스트) → ⑶ ai_port TICKERS
   200 확장 + 새 S0(200) ECOS 재인증(단독 arm, §S13 선언).
+
+**부기 (2026-07-23, 어닝 날짜 단일 소스화 — 사용자 지시)**: 기존 흐름은
+`earnings_sp500.xlsx`(timeline) 1차 + S&P500.xlsx `Earnings_Date` combine_first
+보조였음 — 1차 소스가 **2026-03-21 이후 스테일**(이벤트 종료 03-20·신규 50종
+전무)인데 병합 우선권을 가져 03월 이전 구간을 스테일 값이 지배하는 구조.
+전환 판정 근거(읽기 전용 대조): 공유 140종·공유 기간(~03-20) 이벤트
+**6,544 vs 6,545(Δ+1)**, 종목별 편차 ±2 이내 — 이력 손실 없음. Earnings_Date는
+금일까지 갱신·200종 완비. `create_universe_data.py` step 8을 Earnings_Date 단일
+소스로 교체, `EARNINGS_FILE*`·`resolve_existing_path` 제거(고아 정리), 회귀 핀
+`test_earnings_single_source_is_sp500` 추가 — red 1 FAIL → 구현 → **15 PASS**.
+`earnings_sp500.xlsx` 파일 자체는 보존(타 소비자 미확인·삭제는 별도 판단).
