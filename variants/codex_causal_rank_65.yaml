@@ -1,5 +1,5 @@
 label: codex_causal_rank_65
-display_name: Causal Rank 150
+display_name: Causal Rank 200
 portfolio_role: production
 description: >
   Fixed-150 causal production portfolio. Uses date-grouped LightGBM rank_xendcg,

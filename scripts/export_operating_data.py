@@ -63,14 +63,14 @@ DEFAULT_OPERATING_DIR = ROOT / "outputs" / "operating"
 
 # Code contract version for the operating bundle; bumped when the exported
 # meta/schema meaning changes materially.
-PORTFOLIO_VERSION = "universe150-usd-pit-sp500-v2"
+PORTFOLIO_VERSION = "universe200-usd-pit-sp500-v2"
 
 # (display_name, portfolio_role) defaults used when the variant yaml is silent
 # (e.g. the argument-free export path). Unknown labels stay challenger so an
 # unrecognized run can never seize the single production slot.
 _LABEL_DEFAULTS = {
-    "iter15_65tkr_reb21_vtg": ("Legacy S0 (150)", "challenger"),
-    "codex_causal_rank_65": ("Causal Rank 150", "production"),
+    "iter15_65tkr_reb21_vtg": ("Legacy S0 (200)", "challenger"),
+    "codex_causal_rank_65": ("Causal Rank 200", "production"),
 }
 
 
