@@ -9,6 +9,14 @@ outputs/**/*.pkl
 outputs/**/*.pkl.sig
 outputs/checkpoints/
 outputs/csv/
+# research arms: the decision log is the record, not the run output.
+# run_and_upload.bat does `git add -A`, so anything left here is published.
+outputs/arm_*/
+outputs/*.log
+# scratch/tooling that must never reach the repo (2026-07-27: 7,269
+# node_modules files were swept into df81210 by the scheduled run).
+node_modules/
+outputs/rog_to_san/
 Pictet_Quest*.pdf
 .tmp_spreadsheet_audit/
 output/
