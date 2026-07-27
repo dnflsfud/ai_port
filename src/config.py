@@ -22,6 +22,34 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 
+# Sheets where some tickers legitimately have no data, mapped to the
+# CORE_FEATURE_WHITELIST features they feed (§S13.6). Banks have no traditional
+# FCF, no physical capex, undefined EBITDA and no gross-margin concept, so these
+# columns are absent from the workbook entirely. The assembly panel currently
+# fills the resulting NaN with the per-date cross-sectional median, which asserts
+# "exactly median" for 17 tickers rather than "unknown".
+ABSENT_FUNDAMENTAL_SHEET_FEATURES: Dict[str, tuple] = {
+    "BEST_CALCULATED_FCF": ("best_calculated_fcf_level_z", "cash_conversion_z"),
+    "BEST_CAPEX": ("best_capex_level_z", "capex_intensity_z"),
+    "BEST_EV_TO_BEST_EBITDA": ("best_ev_to_best_ebitda_level_z",),
+    "BEST_GROSS_MARGIN": (
+        "best_gross_margin_chg_63d",
+        "best_gross_margin_chg_252d",
+        "op_leverage_63d",
+    ),
+}
+
+# Features allowed to reach the model as NaN. The training row filter drops a
+# row when any OTHER feature is NaN; LightGBM handles these natively. With
+# ``absent_fundamental_nan_enabled=False`` the panel carries no NaN at all, so
+# tolerating them is a no-op and parity holds.
+NAN_TOLERANT_FEATURES: frozenset = frozenset(
+    name
+    for names in ABSENT_FUNDAMENTAL_SHEET_FEATURES.values()
+    for name in names
+)
+
+
 @dataclass
 class PipelineConfig:
     # ------------------------------------------------------------------
@@ -45,6 +73,12 @@ class PipelineConfig:
     # pre-listing history that can pollute the cap-weighted BM, open a zero-vol
     # free-OW path, and contaminate the training panel.
     listing_mask_enabled: bool = True
+    # Structural fundamental absence (§S13.6). ON keeps the
+    # ABSENT_FUNDAMENTAL_SHEET_FEATURES cells NaN for tickers whose source
+    # column is absent, instead of imputing the per-date cross-sectional median.
+    # OFF-default per §2.1: this moves weights, so it is a research arm until a
+    # gate clears it.
+    absent_fundamental_nan_enabled: bool = False
     # Resolve an eligibility start for every Universe_Meta member. Explicit
     # ``listing_dates`` remain authoritative (and may represent a spin/split
     # continuity date), while new names are picked up from an optional
@@ -76,6 +110,17 @@ class PipelineConfig:
         # 2018-08-01 (GSAH unit trading start) is masked.
         "ANET": "2014-06-06", "RACE": "2015-10-21", "LITE": "2015-07-27",
         "VST": "2016-10-05", "SPOT": "2018-04-03", "VRT": "2018-08-01",
+        # S13 200-name expansion (decision log §S13.3). PIT-contract §6
+        # pre-registered IPOs (audit-confirmed, inferred == registered):
+        "TTD": "2016-09-21", "UBER": "2019-05-10", "CRWD": "2019-06-12",
+        "DDOG": "2019-09-19", "DASH": "2020-12-09", "RBLX": "2021-03-10",
+        # S13.3 audit-surfaced spin backfills (first real observation):
+        "PYPL": "2015-07-07", "KEYS": "2014-10-21",
+        # Corporate-action continuity masks (PIT-contract §6): WDC = SNDK
+        # spin RemainCo (GE/GEV precedent, SNDK regular-way date); COF =
+        # Discover absorption, measured cap discontinuity +99.4% (1d +67.1%
+        # on 2025-05-19) — pre-merger history is a different economic entity.
+        "WDC": "2025-02-24", "COF": "2025-05-19",
     })
     # Point-in-time universe guard (§S11.4): expected member count of
     # Universe_Meta ∩ essential sheets. None disables the check (synthetic
@@ -562,6 +607,30 @@ class PipelineConfig:
     # identical panel. Do NOT flip before the gate passes
     # (ΔIR > +0.36 & sub-period sign consistency).
     news_trend_feature_enabled: bool = False
+
+    # ------------------------------------------------------------------
+    # S13.4 (2026-07-24) — surprise / fwd-OpCF feature arms
+    # ------------------------------------------------------------------
+    # Three pre-registered features conditionally added to the core
+    # whitelist (S8 mechanism): `eps_surprise` / `sales_surprise` (raw
+    # quarterly surprise % level, PEAD) and `fwd_opcf_yield`
+    # (Factset_Fwd_OpCashflow / local price). OFF by default: byte-
+    # identical panel. One flag per arm; do NOT flip before the gate
+    # passes (ΔIR > +0.36 & sub-period sign consistency).
+    eps_surprise_feature_enabled: bool = False
+    sales_surprise_feature_enabled: bool = False
+    fwd_opcf_feature_enabled: bool = False
+
+    # ------------------------------------------------------------------
+    # S13.5 (2026-07-28) — fwd_opcf revision arms (user-directed 3-window)
+    # ------------------------------------------------------------------
+    # fwd_opcf_rev_{63,126,252}d = safe_pct_change(Factset_Fwd_OpCashflow, N)
+    # (tg_mom idiom: |base| denominator preserves sign, 0 -> NaN). Three
+    # windows tested per user instruction — adoption additionally requires
+    # the 3-trial DSR haircut (no max-IR picking). OFF by default.
+    fwd_opcf_rev_63d_feature_enabled: bool = False
+    fwd_opcf_rev_126d_feature_enabled: bool = False
+    fwd_opcf_rev_252d_feature_enabled: bool = False
 
     # ------------------------------------------------------------------
     # Data freshness guardrail

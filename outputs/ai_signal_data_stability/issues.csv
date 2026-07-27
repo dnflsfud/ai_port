@@ -1,0 +1,13 @@
+severity,check,sheet,ticker,evidence,confidence
+Medium,extreme_daily_return,Daily_Returns,AMD,1 daily return(s) exceed 50% in absolute value,High
+Medium,extreme_daily_return,Daily_Returns,BE,1 daily return(s) exceed 50% in absolute value,High
+Medium,post_listing_essential_coverage,Factset_EPS_Revision,VRT,"coverage=79.94%, longest gap=402, trailing gap=0 business day(s)",High
+Medium,post_listing_essential_coverage,Factset_Sales_Revision,VRT,"coverage=79.94%, longest gap=402, trailing gap=0 business day(s)",High
+Medium,post_listing_essential_coverage,Factset_TG_Price,VRT,"coverage=80.39%, longest gap=393, trailing gap=0 business day(s)",High
+Low,missing_ticker_columns,BEST_CALCULATED_FCF,,"13 Universe_Meta ticker(s) absent: JPM, GS, WFC, BAC, TSM, HSBA, BN, ZURN, 8306, BRK/B, CB, COF",High
+Low,missing_ticker_columns,BEST_CAPEX,,"9 Universe_Meta ticker(s) absent: JPM, GS, WFC, BAC, HSBA, ZURN, 8306, CB, COF",High
+Low,missing_ticker_columns,BEST_EV_TO_BEST_EBITDA,,"7 Universe_Meta ticker(s) absent: JPM, WFC, BAC, HSBA, MS, 8306, CB",High
+Low,missing_ticker_columns,BEST_GROSS_MARGIN,,"9 Universe_Meta ticker(s) absent: WFC, BAC, AXP, PGR, C, 8306, CB, COF, MUV2",High
+Low,missing_ticker_columns,BEST_PEG_RATIO,,1 Universe_Meta ticker(s) absent: FN,High
+Low,missing_ticker_columns,BEST_PX_BPS_RATIO,,1 Universe_Meta ticker(s) absent: PM,High
+Low,missing_ticker_columns,SHORT_INT_RATIO,,"40 Universe_Meta ticker(s) absent: 000660, 005930, 285A, SU, SIE, RHM, ALV, MC, NESN, RR/, SAP, ASML",High

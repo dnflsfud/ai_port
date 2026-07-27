@@ -21,7 +21,7 @@ from src.data_loader import UniverseData
 from src.harness import build_override_config
 
 
-EXPECTED_UNIVERSE_SIZE = 150  # §S11.3 (2026-07-20): 100 -> 150
+EXPECTED_UNIVERSE_SIZE = 200  # §S13.3 (2026-07-24): 150 -> 200
 
 
 def _check_universe(tickers) -> None:

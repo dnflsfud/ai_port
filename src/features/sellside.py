@@ -351,6 +351,35 @@ def build_sellside_features(data: UniverseData, config=None) -> Dict[str, pd.Dat
         features["rev_combined"] = (eps_rev_cleaned + sales_rev_cleaned) / 2
         features["rev_breadth"] = ((eps_rev_cleaned > 0) & (sales_rev_cleaned > 0)).astype(float)
 
+    # --- Quarterly surprise + fwd OpCF yield (§S13.4, conditional extras) ---
+    # Raw pass-through: the surprise series is an event step function (latest
+    # reported quarter's surprise %), PIT-safe as downloaded — no spike
+    # cleaning (rollover artifacts are a revision-series phenomenon).
+    # Admission into the model is gated by the S13.4 config flags at the
+    # core-whitelist filter; building them here is unconditional (S8 idiom).
+    try:
+        features["eps_surprise"] = data.get_sheet("Factset_EPS_Surprise")
+    except KeyError:
+        logger.debug("sellside: Factset_EPS_Surprise missing — skipping eps_surprise")
+    try:
+        features["sales_surprise"] = data.get_sheet("Factset_Sales_Surprise")
+    except KeyError:
+        logger.debug("sellside: Factset_Sales_Surprise missing — skipping sales_surprise")
+    try:
+        opcf = data.get_sheet("Factset_Fwd_OpCashflow")
+        # Vendor CF/share estimates are quoted in local currency — divide by
+        # the matching local price (same unit contract as tg_upside above).
+        px_local = getattr(data, "local_prices", data.prices).replace(0, np.nan)
+        features["fwd_opcf_yield"] = opcf / px_local
+        # §S13.5: estimate-revision windows (user-directed 63/126/252d test).
+        # safe_pct_change uses the |base| denominator, so the revision keeps
+        # its economic sign even when the CF estimate crosses zero.
+        features["fwd_opcf_rev_63d"] = safe_pct_change(opcf, 63)
+        features["fwd_opcf_rev_126d"] = safe_pct_change(opcf, 126)
+        features["fwd_opcf_rev_252d"] = safe_pct_change(opcf, 252)
+    except KeyError:
+        logger.debug("sellside: Factset_Fwd_OpCashflow missing — skipping fwd_opcf_yield")
+
     # --- News Sentiment (~10) ---
     try:
         news = data.get_sheet("NEWS_SENTIMENT_DAILY_AVG")

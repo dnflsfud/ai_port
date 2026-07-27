@@ -67,11 +67,14 @@ def _patch_raw(monkeypatch, raw):
     )
 
 
-def test_fallback_universe_has_exact_150_workbook_order():
-    assert len(TICKERS) == 150
-    assert len(set(TICKERS)) == 150
+def test_fallback_universe_has_exact_200_workbook_order():
+    # §S13.3: 150 -> 200 expansion, Universe_Meta workbook order.
+    assert len(TICKERS) == 200
+    assert len(set(TICKERS)) == 200
     assert TICKERS[:5] == ["AAPL", "MSFT", "GOOGL", "AMZN", "META"]
-    assert TICKERS[-5:] == ["KO", "ULVR", "ECL", "AI", "IBE"]
+    assert TICKERS[145:150] == ["KO", "ULVR", "ECL", "AI", "IBE"]
+    assert TICKERS[150:155] == ["INTU", "SNPS", "APH", "MSI", "CRWD"]
+    assert TICKERS[-5:] == ["CVX", "TTE", "NEM", "SHW", "SO"]
 
 
 def test_usd_and_listing_guardrails_are_enabled_for_100_name_regime():
@@ -102,6 +105,20 @@ def test_usd_and_listing_guardrails_are_enabled_for_100_name_regime():
         "VST": "2016-10-05",
         "SPOT": "2018-04-03",
         "VRT": "2018-08-01",
+        # S13.3 — PIT-contract §6 pre-registered IPOs (audit-confirmed)
+        "TTD": "2016-09-21",
+        "UBER": "2019-05-10",
+        "CRWD": "2019-06-12",
+        "DDOG": "2019-09-19",
+        "DASH": "2020-12-09",
+        "RBLX": "2021-03-10",
+        # S13.3 audit-surfaced spin backfills
+        "PYPL": "2015-07-07",
+        "KEYS": "2014-10-21",
+        # S13.3 corporate-action continuity masks (WDC spin RemainCo,
+        # COF Discover absorption +99.4% cap discontinuity)
+        "WDC": "2025-02-24",
+        "COF": "2025-05-19",
     }
 
 

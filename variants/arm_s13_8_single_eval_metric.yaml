@@ -1,0 +1,125 @@
+label: arm_s13_8_single_eval_metric
+description: >
+  S13.8 arm: 조기종료 평가지표를 ndcg@5+@10 2개 -> ndcg@10 1개로 축소.
+  근거(실측): LightGBM 4.6.0 _EarlyStoppingCallback 은 메트릭을 순회하며 가장 먼저
+  stopping_rounds 만큼 정체한 메트릭에서 EarlyStopException(best_iter[i]) 를 던진다.
+  first_metric_only 는 기본 False 이고 model_trainer.py:449 는 이 인자를 넘기지 않는다.
+  따라서 best_iteration = min(argmax(ndcg@5), argmax(ndcg@10)) 이며, S0(200) 의 고유
+  모델 14개 전부(14/14)에서 이 항등식이 성립함을 확인했다. 그 결과 14개 중 6개가
+  ndcg@10 정점 이전에 잘렸다(손실 3~93 라운드). 노이즈도 @5 가 크다(diff std 0.0078
+  vs @10 0.0054, SNR 13.6 vs 14.7). 노이즈 지표를 2개 쓰면 조기 정체 확률이 p 에서
+  1-(1-p)^2 로 오르므로 이 구성 자체가 모델을 작게 만든다 — 퇴화율 56.25%(18/32)의
+  구조적 원인 가설.
+  rank_eval_at 의 소비처는 model_trainer.py:448 의 eval_at 단 한 곳이므로 이 변경은
+  조기종료 메트릭에만 작용한다(소스 수정 없음). 단일 사전등록 값, 스윕 없음
+  ([20] 등 다른 k 는 시도하지 않는다).
+  판정: (E1) 성능 - dIR > +0.36 & 서브기간 부호 일관이면 IR 근거 채택.
+        (E2) 메커니즘 - degenerate_rate 가 0.5625 에서 유의하게 하락해야 진단이 옳다.
+        E2 가 실패하면 "min-of-argmax 가 퇴화 원인"이라는 가설 자체가 반증되며,
+        E2 만 통과하고 E1 이 |dIR| < 0.36 이면 IR 은 비액션이고 운영 안정성
+        (모델 stale 기간 단축) 근거로 별도 판정한다. 어느 경로든 결정 로그 기록 후 flip.
+out_dir: outputs/arm_s13_8_single_eval_metric
+tuning_mode: production
+overrides:
+  # S13.8 single pre-registered change (the only delta vs S0(200)).
+  rank_eval_at: [10]
+
+  # Causal ranking model pins — identical to codex_causal_rank_65.
+  model_objective: cross_sectional_rank
+  causal_validation_enabled: true
+  execution_signal_lag_days: 1
+  rank_relevance_levels: 10
+  train_window: 1260
+  retrain_freq: 63
+  val_window: 126
+  prediction_ema_alpha: 0.5
+  early_stopping_rounds: 100
+  lgbm_params:
+    objective: rank_xendcg
+    metric: ndcg
+    learning_rate: 0.02
+    num_leaves: 31
+    max_depth: 5
+    min_child_samples: 60
+    subsample: 0.8
+    colsample_bytree: 0.8
+    reg_alpha: 0.3
+    reg_lambda: 2.0
+    n_estimators: 800
+    verbose: -1
+    random_state: 42
+  ewma_enabled: true
+  ewma_alpha: 0.3
+  ewma_min_retrains: 2
+  ewma_drop_pct: 0.05
+  ewma_min_features: 60
+  feature_mode: core
+  min_model_trees: 10
+  max_degenerate_model_rate: 0.25
+  fail_on_degenerate_model_rate: false
+  max_tail_ffill_days: 10
+  fail_on_stale_tail_ffill: false
+
+  # Benchmark / optimizer / execution pins.
+  benchmark_type: cap_weighted
+  risk_aversion: 1.0
+  turnover_penalty: 0.03
+  max_te_annual: 0.035
+  max_single_turnover: 0.15
+  sector_deviation: 0.10
+  cov_lookback: 126
+  bm_weight_floor: 0.02
+  max_active_share: 0.45
+  max_active_share_ceiling: null
+  max_weight: 0.15
+  max_active_per_stock: 0.04
+  use_score_based: false
+  portfolio_style: core_satellite
+  satellite_budget: 0.225
+  satellite_max_per_stock: 0.04
+  enforce_score_gated_ow: true
+  score_threshold_for_ow: 0.0
+  no_trade_band: 0.003
+  partial_rebalance_eta: 0.50
+  trailing_ic_window: 6
+  one_way_tc: 0.0010
+  rebalance_freq: 21
+
+  # Mega-cap / proportional-cap controls.
+  mega_cap_protection_enabled: true
+  mega_cap_bm_threshold: 0.04
+  mega_cap_wide_uw_cap: 0.10
+  mega_cap_funding_mode: true
+  mega_cap_funding_k: 4
+  mega_cap_funding_score_max: 0.0
+  bm_proportional_cap_enabled: false
+  bm_proportional_cap_bm_scale_at_top: 1.5
+  bm_proportional_cap_vol_scale_floor: 0.5
+  bm_proportional_cap_vol_lookback: 63
+
+  # Post-prediction overlays.
+  pead_boost_enabled: true
+  pead_boost_weight: 0.30
+  pead_decay_days: 7.0
+  pead_max_days: 21
+  growth_tilt_enabled: true
+  growth_tilt_weight: 0.25
+  growth_tilt_rev_weight: 0.50
+  growth_tilt_fundamental_weight: 0.50
+  growth_tilt_eps_skew: 0.50
+  growth_tilt_rev_eps_share: 0.50
+  growth_tilt_rev_sales_share: 0.50
+  growth_tilt_rev_tg_share: 0.00
+  signal_stability_lambda: 0.0
+  value_trap_gate_enabled: true
+  vtg_pe_z_threshold: -0.5
+  vtg_momentum_threshold: -0.5
+  vtg_accel_threshold: 0.5
+  vtg_scale: 0.0
+
+  # Operating guardrails / solver protocol.
+  allow_scs_on_ecos_exception: false
+  max_name_active_risk_share: 0.35
+  max_sector_active_risk_share: 0.85
+  expected_universe_size: 200
+  dr_alpha_enabled: false

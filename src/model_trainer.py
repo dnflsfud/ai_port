@@ -14,7 +14,24 @@ import numpy as np
 import lightgbm as lgb
 from typing import List, Dict, Tuple, Optional
 
-from src.config import PipelineConfig, DEFAULT_CONFIG
+from src.config import PipelineConfig, DEFAULT_CONFIG, NAN_TOLERANT_FEATURES
+
+
+def _valid_rows(X_panel: pd.DataFrame, y_panel: pd.Series) -> pd.Series:
+    """Training rows to keep: target present and no NaN in a required feature.
+
+    Features in ``NAN_TOLERANT_FEATURES`` are structurally absent for some
+    tickers (banks have no FCF/capex/EBITDA/gross margin), so a NaN there means
+    "unknown" and is passed to LightGBM's native missing handling instead of
+    deleting the row. Without this, enabling
+    ``absent_fundamental_nan_enabled`` would drop 17 tickers from every training
+    row while ``predict_cross_sectional`` still scored them.
+
+    With the flag OFF the panel carries no NaN, so this matches the previous
+    ``X_panel.notna().all(axis=1)`` exactly.
+    """
+    required = [c for c in X_panel.columns if c not in NAN_TOLERANT_FEATURES]
+    return y_panel.notna() & X_panel[required].notna().all(axis=1)
 
 
 # ---------------------------------------------------------------------------
@@ -198,7 +215,7 @@ def _prepare_train_data(
     y_panel = target_stacked.reindex(X_panel.index)
 
     # NaN 제거
-    valid = y_panel.notna() & X_panel.notna().all(axis=1)
+    valid = _valid_rows(X_panel, y_panel)
     X = X_panel.loc[valid].values
     y = y_panel.loc[valid].values
 
@@ -224,7 +241,7 @@ def prepare_rank_data(
     target_stacked = targets.stack()
     target_stacked.index.names = ["date", "ticker"]
     y_panel = target_stacked.reindex(X_panel.index)
-    valid = y_panel.notna() & X_panel.notna().all(axis=1)
+    valid = _valid_rows(X_panel, y_panel)
     X_valid = X_panel.loc[valid]
     y_valid = y_panel.loc[valid]
 
@@ -269,7 +286,7 @@ def prepare_symmetric_rank_data(
     target_stacked = targets.stack()
     target_stacked.index.names = ["date", "ticker"]
     y_panel = target_stacked.reindex(X_panel.index)
-    valid = y_panel.notna() & X_panel.notna().all(axis=1)
+    valid = _valid_rows(X_panel, y_panel)
     X_valid = X_panel.loc[valid]
     y_valid = y_panel.loc[valid]
 

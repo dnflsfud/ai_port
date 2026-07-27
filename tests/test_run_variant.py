@@ -76,7 +76,7 @@ def test_check_cached_universe_match_passes():
 
     from src.data_loader import TICKERS
 
-    cfg = PipelineConfig(expected_universe_size=150)
+    cfg = PipelineConfig(expected_universe_size=200)
     # Canonical composition in reversed order: the guard is order-insensitive
     # (a cached panel's column order is internally consistent).
     data = types.SimpleNamespace(tickers=list(reversed(TICKERS)))
@@ -92,7 +92,7 @@ def test_check_cached_universe_mismatch_raises():
 
 
 def test_check_cached_universe_composition_mismatch_raises():
-    """개수는 150으로 같아도 구성이 현행 TICKERS와 다르면 (예: 교체 이전
+    """개수는 200으로 같아도 구성이 현행 TICKERS와 다르면 (예: 교체 이전
     슬레이트의 스테일 캐시) 캐시 재사용을 거부해야 한다 (2026-07-21)."""
     import types
 
@@ -100,7 +100,7 @@ def test_check_cached_universe_composition_mismatch_raises():
 
     from src.data_loader import TICKERS
 
-    cfg = PipelineConfig(expected_universe_size=150)
+    cfg = PipelineConfig(expected_universe_size=200)
     swapped = list(TICKERS)
     swapped[0] = "ZZZZ_STALE"
     data = types.SimpleNamespace(tickers=swapped)

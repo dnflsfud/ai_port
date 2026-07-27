@@ -114,5 +114,5 @@ overrides:
   allow_scs_on_ecos_exception: false
   max_name_active_risk_share: 0.35
   max_sector_active_risk_share: 0.85  # recalibrated 2026-07-18, decision log S10.1
-  expected_universe_size: 150  # point-in-time membership guard, decision log S11.4
+  expected_universe_size: 200  # point-in-time membership guard, decision log S13.3
   dr_alpha_enabled: false

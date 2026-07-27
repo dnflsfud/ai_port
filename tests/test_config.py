@@ -40,6 +40,19 @@ def test_listing_mask_fields_default_on_for_valid_100_name_history():
         "VST": "2016-10-05",
         "SPOT": "2018-04-03",
         "VRT": "2018-08-01",
+        # S13.3 — PIT-contract §6 pre-registered IPOs (audit-confirmed)
+        "TTD": "2016-09-21",
+        "UBER": "2019-05-10",
+        "CRWD": "2019-06-12",
+        "DDOG": "2019-09-19",
+        "DASH": "2020-12-09",
+        "RBLX": "2021-03-10",
+        # S13.3 audit-surfaced spin backfills
+        "PYPL": "2015-07-07",
+        "KEYS": "2014-10-21",
+        # S13.3 corporate-action continuity masks
+        "WDC": "2025-02-24",
+        "COF": "2025-05-19",
     }
 
 

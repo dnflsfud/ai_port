@@ -1,0 +1,123 @@
+label: arm_s13_6_absent_fundamental_nan
+description: >
+  S13.6 arm: 구조적 결측 펀더멘털 피처 NaN 보존(ON). BEST_CALCULATED_FCF /
+  BEST_CAPEX / BEST_EV_TO_BEST_EBITDA / BEST_GROSS_MARGIN 은 은행권에서 워크북
+  컬럼 자체가 부재한다(no traditional FCF / no physical capex / EBITDA undefined /
+  no gross-margin concept). 현재 assembly 패널은 이 칸을 per-date 횡단면 median 으로
+  채워 17종(8306·AXP·BAC·BN·BRK/B·C·CB·COF·GS·HSBA·JPM·MS·MUV2·PGR·TSM·WFC·ZURN)에
+  대해 "정확히 시장 중앙값"을 매일 주장한다 — WFC·BAC·8306·CB 는 화이트리스트 61개
+  중 8개(13.1%)가 날조값이다. ON 이면 실측 부재 (티커 × 시트) 칸만 NaN 으로 남기고
+  LightGBM 네이티브 결측 처리에 위임한다. 워밍업 NaN 은 기존 median fill 유지.
+  단일 사전등록 플래그, 스윕 없음. S0(200) 정본 codex_causal_rank_65 +
+  absent_fundamental_nan_enabled 오버라이드만.
+  판정: (E1) ΔIR > +0.36 & 서브기간 부호 일관 이면 IR 근거 채택. |ΔIR| < 0.36 이면
+  IR 은 비액션이며, 리스팅 마스크(§2.1)와 동일하게 데이터 정확성 근거로 별도 판정한다
+  — 그 경우 근거는 "median 주입은 중립이 아니라 허위 진술"이고, 반대 증거는 결측이
+  섹터 지시자로 학습되는지 여부(피처 중요도·금융 섹터 active weight 이동)로 본다.
+  어느 경로든 결정 로그 기록 후에만 flip.
+out_dir: outputs/arm_s13_6_absent_fundamental_nan
+tuning_mode: production
+overrides:
+  # S13.6 single pre-registered flag (the only delta vs S0(200)).
+  absent_fundamental_nan_enabled: true
+
+  # Causal ranking model pins — identical to codex_causal_rank_65.
+  model_objective: cross_sectional_rank
+  causal_validation_enabled: true
+  execution_signal_lag_days: 1
+  rank_relevance_levels: 10
+  rank_eval_at: [5, 10]
+  train_window: 1260
+  retrain_freq: 63
+  val_window: 126
+  prediction_ema_alpha: 0.5
+  early_stopping_rounds: 100
+  lgbm_params:
+    objective: rank_xendcg
+    metric: ndcg
+    learning_rate: 0.02
+    num_leaves: 31
+    max_depth: 5
+    min_child_samples: 60
+    subsample: 0.8
+    colsample_bytree: 0.8
+    reg_alpha: 0.3
+    reg_lambda: 2.0
+    n_estimators: 800
+    verbose: -1
+    random_state: 42
+  ewma_enabled: true
+  ewma_alpha: 0.3
+  ewma_min_retrains: 2
+  ewma_drop_pct: 0.05
+  ewma_min_features: 60
+  feature_mode: core
+  min_model_trees: 10
+  max_degenerate_model_rate: 0.25
+  fail_on_degenerate_model_rate: false
+  max_tail_ffill_days: 10
+  fail_on_stale_tail_ffill: false
+
+  # Benchmark / optimizer / execution pins.
+  benchmark_type: cap_weighted
+  risk_aversion: 1.0
+  turnover_penalty: 0.03
+  max_te_annual: 0.035
+  max_single_turnover: 0.15
+  sector_deviation: 0.10
+  cov_lookback: 126
+  bm_weight_floor: 0.02
+  max_active_share: 0.45
+  max_active_share_ceiling: null
+  max_weight: 0.15
+  max_active_per_stock: 0.04
+  use_score_based: false
+  portfolio_style: core_satellite
+  satellite_budget: 0.225
+  satellite_max_per_stock: 0.04
+  enforce_score_gated_ow: true
+  score_threshold_for_ow: 0.0
+  no_trade_band: 0.003
+  partial_rebalance_eta: 0.50
+  trailing_ic_window: 6
+  one_way_tc: 0.0010
+  rebalance_freq: 21
+
+  # Mega-cap / proportional-cap controls.
+  mega_cap_protection_enabled: true
+  mega_cap_bm_threshold: 0.04
+  mega_cap_wide_uw_cap: 0.10
+  mega_cap_funding_mode: true
+  mega_cap_funding_k: 4
+  mega_cap_funding_score_max: 0.0
+  bm_proportional_cap_enabled: false
+  bm_proportional_cap_bm_scale_at_top: 1.5
+  bm_proportional_cap_vol_scale_floor: 0.5
+  bm_proportional_cap_vol_lookback: 63
+
+  # Post-prediction overlays.
+  pead_boost_enabled: true
+  pead_boost_weight: 0.30
+  pead_decay_days: 7.0
+  pead_max_days: 21
+  growth_tilt_enabled: true
+  growth_tilt_weight: 0.25
+  growth_tilt_rev_weight: 0.50
+  growth_tilt_fundamental_weight: 0.50
+  growth_tilt_eps_skew: 0.50
+  growth_tilt_rev_eps_share: 0.50
+  growth_tilt_rev_sales_share: 0.50
+  growth_tilt_rev_tg_share: 0.00
+  signal_stability_lambda: 0.0
+  value_trap_gate_enabled: true
+  vtg_pe_z_threshold: -0.5
+  vtg_momentum_threshold: -0.5
+  vtg_accel_threshold: 0.5
+  vtg_scale: 0.0
+
+  # Operating guardrails / solver protocol.
+  allow_scs_on_ecos_exception: false
+  max_name_active_risk_share: 0.35
+  max_sector_active_risk_share: 0.85
+  expected_universe_size: 200
+  dr_alpha_enabled: false

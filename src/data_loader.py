@@ -116,8 +116,15 @@ TICKERS = [
     "8035", "IFX", "MS", "SCHW", "AXP", "PGR", "AON", "CME", "KKR",
     "BN", "C", "LSEG", "ZURN", "CS", "8306", "DIS", "CMCSA", "VZ",
     "T", "TTWO", "PUB", "7974", "DTE", "UMG", "LOW", "TJX", "SBUX",
-    "ABNB", "7203", "ITX", "ABT", "DHR", "VRTX", "ROG", "GE", "TT",
+    "ABNB", "7203", "ITX", "ABT", "DHR", "VRTX", "SAN", "GE", "TT",
     "ABBN", "KO", "ULVR", "ECL", "AI", "IBE",
+    # Expansion 2026-07-24 (50) -- decision log §S13/§S13.3, Universe_Meta order
+    "INTU", "SNPS", "APH", "MSI", "CRWD", "NXPI", "KEYS", "ADSK",
+    "WDAY", "WDC", "DDOG", "FTNT", "DSY", "6146", "6981", "BRK/B",
+    "CB", "ICE", "MCO", "PYPL", "COF", "BNP", "MUV2", "RTX", "EMR",
+    "AXON", "UBER", "AIR", "SAF", "MRK", "AMGN", "SYK", "MCK", "NOVN",
+    "NKE", "ORLY", "DASH", "CFR", "TTD", "RBLX", "9432", "9433",
+    "PEP", "MDLZ", "OR", "CVX", "TTE", "NEM", "SHW", "SO",
 ]
 
 # Bloomberg listing suffix -> local trading currency. Universe_Meta is the
@@ -161,8 +168,14 @@ FALLBACK_TICKER_CURRENCY = {
     "8035": "JPY", "8306": "JPY", "7974": "JPY", "7203": "JPY",
     "IFX": "EUR", "DTE": "EUR", "CS": "EUR", "PUB": "EUR",
     "AI": "EUR", "UMG": "EUR", "ITX": "EUR", "IBE": "EUR",
-    "ZURN": "CHF", "ROG": "CHF", "ABBN": "CHF",
+    "ZURN": "CHF", "ABBN": "CHF",
+    "SAN": "EUR",
     "LSEG": "GBP", "ULVR": "GBP",
+    # Expansion 2026-07-24 (non-USD 13 of 50) -- decision log §S13.3
+    "DSY": "EUR", "BNP": "EUR", "MUV2": "EUR", "AIR": "EUR",
+    "SAF": "EUR", "OR": "EUR", "TTE": "EUR",
+    "6146": "JPY", "6981": "JPY", "9432": "JPY", "9433": "JPY",
+    "NOVN": "CHF", "CFR": "CHF",
 }
 
 SENT_TREND_SHEETS = {

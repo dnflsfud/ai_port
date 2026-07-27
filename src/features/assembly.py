@@ -13,7 +13,11 @@ from typing import Dict, List, Tuple
 
 logger = logging.getLogger(__name__)
 
-from src.config import DEFAULT_CONFIG, PipelineConfig
+from src.config import (
+    ABSENT_FUNDAMENTAL_SHEET_FEATURES,
+    DEFAULT_CONFIG,
+    PipelineConfig,
+)
 from src.data_loader import UniverseData, TICKERS
 from src.features.utils import cross_sectional_zscore, clip_outliers, cs_rank, safe_pct_change, rolling_tsz
 from src.features.accounting import build_accounting_features
@@ -25,6 +29,44 @@ from src.features.interaction import build_sector_interaction_features
 from src.features.regime import build_regime_features
 from src.features.short_interest import build_short_interest_features
 from src.features.macro_cross import build_macro_cross_features
+
+def apply_absent_fundamental_nan(
+    panel: pd.DataFrame,
+    optional_missing: Dict[str, List[str]] | None,
+    enabled: bool,
+) -> pd.DataFrame:
+    """Restore NaN where a ticker's source fundamental column is absent (§S13.6).
+
+    ``optional_missing`` is UniverseData's {sheet: [tickers absent from it]}
+    record, i.e. whole-column absence — banks carry no FCF/capex/EBITDA/gross
+    margin. Those cells reach the panel as NaN and are then imputed with the
+    per-date cross-sectional median, which states "exactly median" instead of
+    "unknown". Re-NaN them so LightGBM's native missing handling decides.
+
+    Only whole-column absence is reverted. Rolling-window warm-up NaN keeps its
+    existing median fill, so the scope matches the observed-absence rule rather
+    than blanking a feature's early history for every ticker.
+
+    ``enabled=False`` returns the frame untouched (§2.1 parity).
+    """
+    if not enabled or not optional_missing:
+        return panel
+
+    tickers = panel.index.get_level_values("ticker")
+    for sheet, feature_names in ABSENT_FUNDAMENTAL_SHEET_FEATURES.items():
+        absent = optional_missing.get(sheet) or []
+        columns = [name for name in feature_names if name in panel.columns]
+        if not absent or not columns:
+            continue
+        rows = tickers.isin(absent)
+        if rows.any():
+            panel.loc[rows, columns] = np.nan
+            logger.info(
+                "[FeatureEngine] %s absent for %d ticker(s) -> %d feature(s) left NaN: %s",
+                sheet, len(absent), len(columns), ", ".join(sorted(absent)),
+            )
+    return panel
+
 
 # EPS/Sales/Margin: 변화율·가속도만 중요, level 자체는 제거
 LEVEL_SKIP_SHEETS = {"BEST_EPS", "BEST_SALES", "BEST_GROSS_MARGIN", "OPER_MARGIN"}
@@ -595,8 +637,25 @@ def build_all_features(
     # A+C+D+E run's feature importance ranking. This drops 239 -> 85 while
     # preserving the top features per style axis.
     if feature_mode == "core":
-        extra = {"news_trend"} if getattr(config, "news_trend_feature_enabled", False) else None
-        apply_core_filter(all_features, feature_groups, extra_whitelist=extra)
+        # Conditional extras (S8 news_trend + S13.4 surprise/opcf arms).
+        # All-OFF -> None -> byte-identical to the legacy filter.
+        extra = set()
+        if getattr(config, "news_trend_feature_enabled", False):
+            extra.add("news_trend")
+        if getattr(config, "eps_surprise_feature_enabled", False):
+            extra.add("eps_surprise")
+        if getattr(config, "sales_surprise_feature_enabled", False):
+            extra.add("sales_surprise")
+        if getattr(config, "fwd_opcf_feature_enabled", False):
+            extra.add("fwd_opcf_yield")
+        if getattr(config, "fwd_opcf_rev_63d_feature_enabled", False):
+            extra.add("fwd_opcf_rev_63d")
+        if getattr(config, "fwd_opcf_rev_126d_feature_enabled", False):
+            extra.add("fwd_opcf_rev_126d")
+        if getattr(config, "fwd_opcf_rev_252d_feature_enabled", False):
+            extra.add("fwd_opcf_rev_252d")
+        apply_core_filter(all_features, feature_groups,
+                          extra_whitelist=(extra or None))
 
     # CS Z-score: conditioning / factor / regime(broadcast)는 제외
     skip_zscore = (set(feature_groups.get("Conditioning", []))
@@ -670,6 +729,12 @@ def build_all_features(
     per_date_median = panel.groupby(level="date").transform("median")
     panel = panel.fillna(per_date_median)
     panel = panel.fillna(0.0)
+
+    panel = apply_absent_fundamental_nan(
+        panel,
+        getattr(data, "optional_missing", None),
+        enabled=getattr(config, "absent_fundamental_nan_enabled", False),
+    )
 
     print(f"[FeatureEngine] 총 피처 수: {len(feature_names)}")
     for group, names in feature_groups.items():

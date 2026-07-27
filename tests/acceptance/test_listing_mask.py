@@ -66,6 +66,20 @@ SPEC_LISTING_DATES = {
     "VST": "2016-10-05",
     "SPOT": "2018-04-03",
     "VRT": "2018-08-01",
+    # S13.3 (decision log §S13.3): 200-name expansion — PIT-contract §6
+    # pre-registered IPOs (audit-confirmed), audit-surfaced spin backfills
+    # (PYPL/KEYS), corporate-action continuity masks (WDC spin RemainCo,
+    # COF Discover absorption +99.4% cap discontinuity).
+    "TTD": "2016-09-21",
+    "UBER": "2019-05-10",
+    "CRWD": "2019-06-12",
+    "DDOG": "2019-09-19",
+    "DASH": "2020-12-09",
+    "RBLX": "2021-03-10",
+    "PYPL": "2015-07-07",
+    "KEYS": "2014-10-21",
+    "WDC": "2025-02-24",
+    "COF": "2025-05-19",
 }
 
 
