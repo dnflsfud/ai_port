@@ -31083,18 +31083,18 @@
     },
     {
       "date": "2026-07-27",
-      "active_return_63d_ann": 0.057497,
-      "tracking_error_63d_ann": 0.056284,
-      "information_ratio_63d": 1.021553,
-      "beta_63d": 1.063842,
-      "active_return_126d_ann": 0.135576,
-      "tracking_error_126d_ann": 0.051205,
-      "information_ratio_126d": 2.647721,
-      "beta_126d": 1.06263,
-      "active_return_252d_ann": 0.161146,
-      "tracking_error_252d_ann": 0.060061,
-      "information_ratio_252d": 2.683041,
-      "beta_252d": 1.128321
+      "active_return_63d_ann": 0.056821,
+      "tracking_error_63d_ann": 0.056295,
+      "information_ratio_63d": 1.009332,
+      "beta_63d": 1.063913,
+      "active_return_126d_ann": 0.135237,
+      "tracking_error_126d_ann": 0.051213,
+      "information_ratio_126d": 2.640695,
+      "beta_126d": 1.062675,
+      "active_return_252d_ann": 0.160977,
+      "tracking_error_252d_ann": 0.060065,
+      "information_ratio_252d": 2.680058,
+      "beta_252d": 1.128352
     }
   ],
   "monthly_returns": [
@@ -31652,9 +31652,9 @@
     },
     {
       "month": "2026-07",
-      "portfolio_ret": -0.039589,
-      "benchmark_ret": -0.037,
-      "active": -0.002588
+      "portfolio_ret": -0.040171,
+      "benchmark_ret": -0.037421,
+      "active": -0.00275
     }
   ],
   "drawdown_events": [

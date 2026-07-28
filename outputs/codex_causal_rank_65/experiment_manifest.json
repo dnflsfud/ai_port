@@ -40,6 +40,7 @@
     "dr_alpha_val_months": 6,
     "dr_alpha_warm_start": true,
     "early_stopping_rounds": 100,
+    "earnings_calendar_feature_enabled": false,
     "enforce_oos_holdout": false,
     "enforce_score_gated_ow": true,
     "eps_surprise_feature_enabled": false,
@@ -86,6 +87,7 @@
     "growth_tilt_rev_tg_share": 0.0,
     "growth_tilt_rev_weight": 0.5,
     "growth_tilt_weight": 0.25,
+    "interaction_features_enabled": false,
     "lgbm_params": {
       "colsample_bytree": 0.8,
       "learning_rate": 0.02,
@@ -185,6 +187,7 @@
     "pead_boost_weight": 0.3,
     "pead_decay_days": 7.0,
     "pead_max_days": 21,
+    "peer_earnings_cascade_feature_enabled": false,
     "portfolio_style": "core_satellite",
     "prediction_ema_alpha": 0.5,
     "projection_fallback_mode": "target",
@@ -227,7 +230,10 @@
     "vtg_accel_threshold": 0.5,
     "vtg_momentum_threshold": -0.5,
     "vtg_pe_z_threshold": -0.5,
-    "vtg_scale": 0.0
+    "vtg_scale": 0.0,
+    "winner_trim_lambda": 1.0,
+    "winner_trim_protection_enabled": false,
+    "winner_trim_quantile": 0.8
   },
   "extra": {
     "description": "Fixed-150 causal production portfolio. Uses date-grouped LightGBM rank_xendcg, purged/embargoed validation, and a one-trading-day execution signal lag. The legacy label/output path is retained for automation compatibility; the universe is the validated 150-name Universe_Meta set (decision log \u00a7S11.3). Benchmark, overlays, optimizer and transaction-cost assumptions remain pinned to the canonical iter15_65tkr_reb21_vtg portfolio design.\n",
@@ -236,6 +242,6 @@
     "variant_label": "codex_causal_rank_65"
   },
   "git_dirty": true,
-  "git_hash": "eb7aa990567af58f94cb017b163dbd920bef177b",
-  "timestamp_utc": "2026-07-27T03:00:44Z"
+  "git_hash": "dd655da5ec88fe7ab95f0c3762a374e126eb8417",
+  "timestamp_utc": "2026-07-28T03:11:31Z"
 }

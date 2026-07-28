@@ -162,9 +162,107 @@
       "param_space": "lgbm_params.min_child_samples 60 -> 30 (single pre-registered parameter)",
       "trials": 1,
       "result": "E1 FAIL: degenerate_rate 65.6% (21/32) vs baseline 53.1% - hypothesis refuted, degeneracy worsened. dIR -0.137 (noise band), sub dIR -0.429/-0.239/+0.339. Not adopted; production unchanged; HOLD stays on degenerate check."
+    },
+    {
+      "script": "universe_scale_rebaselines_S9_S11_S13",
+      "phase": "Adopted structural re-baselines (2026-07-16..07-26): 100-ticker unhedged-USD (S9), 150-ticker + PIT double-masking (S11.4), 200-ticker + SAN (S13.3). 1 trial each per redesign precedent.",
+      "param_space": "universe/accounting coordinated change sets",
+      "trials": 3,
+      "result": "All three adopted as new S0 baselines (S9 1.599-era -> S9.1 1.570; S11.4 1.371; S13.3 1.5529)."
+    },
+    {
+      "script": "exp_S11_5_arms",
+      "phase": "S11.5 (2026-07-20): sector_active_risk_penalty lambda=5; val_window 252. Two single pre-registered arms.",
+      "param_space": "2 single-flag arms",
+      "trials": 2,
+      "result": "Both E1 FAIL, not adopted. mu is z-scale so lambda*~26k would be needed (penalty inert at 5)."
+    },
+    {
+      "script": "exp_S11_9_mh_blend",
+      "phase": "S11.9 (2026-07-21): multi-horizon target blend arm.",
+      "param_space": "multi_horizon_targets_enabled (single pre-registered blend)",
+      "trials": 1,
+      "result": "E1/E2 FAIL: term-structure collapse, turnover unchanged. Not adopted."
+    },
+    {
+      "script": "exp_S11_10_lr",
+      "phase": "S11.10 (2026-07-21): lgbm learning_rate 0.03 degeneracy arm.",
+      "param_space": "lr=0.03 (single pre-registered value)",
+      "trials": 1,
+      "result": "E1 FAIL: degenerate rate unchanged 56.25% (n_trees moved 8~9 only). Degeneracy candidate axis exhausted."
+    },
+    {
+      "script": "exp_S12_arms",
+      "phase": "S12 (2026-07-22): GPT-review follow-ups - stale-depth gate <=7 + 4 performance arms (objective hypothesis, mu scaling, refresh re-entry, PCA standardization).",
+      "param_space": "5 single pre-registered configs",
+      "trials": 5,
+      "result": "stale-depth gate ADOPTED (first PRODUCTION flip of the S-series). 4 performance arms all rejected (hypothesis 40.6% disproven / scaling no-op / re-entry 0 / PCA worse all sub-periods)."
+    },
+    {
+      "script": "exp_S13_4_surprise_opcf",
+      "phase": "S13.4 (2026-07-26): EPS surprise / sales surprise / Fwd_OpCashflow level - three feature-admission arms on the 200 universe.",
+      "param_space": "3 single-flag feature arms",
+      "trials": 3,
+      "result": "All E1 FAIL, dIR all negative, P2 consistently down. Not adopted."
+    },
+    {
+      "script": "exp_S13_5_fwd_opcf_rev",
+      "phase": "S13.5 (2026-07-26): Fwd_OpCashflow revision windows 63/126/252.",
+      "param_space": "3 single-flag feature arms",
+      "trials": 3,
+      "result": "All E1 FAIL -> Fwd_OpCashflow axis exhausted."
+    },
+    {
+      "script": "exp_S13_6_absent_nan",
+      "phase": "S13.6 (2026-07-27): honest-NaN for absent fundamentals (banks) instead of median fill.",
+      "param_space": "absent_fundamental_nan_enabled (single flag)",
+      "trials": 1,
+      "result": "E1 FAIL dIR -0.388. Effect follows the MASK not the sector (fin +0.017 vs TSM -0.185) - median fill vindicated post-hoc."
+    },
+    {
+      "script": "exp_S13_8_single_eval_metric",
+      "phase": "S13.8 (2026-07-27): rank_eval_at [5,10]->[10] after root-causing degeneracy to best_iteration=min(argmax ndcg@5, argmax ndcg@10) (14/14 empirical).",
+      "param_space": "rank_eval_at=[10] (single pre-registered change)",
+      "trials": 1,
+      "result": "E2 confirmed (degenerate 18/32->11/32, trees 42.4->81.0) but E1 non-action dIR -0.0829. Not adopted; ndcg@5 discovered to act as implicit capacity regularizer."
+    },
+    {
+      "script": "exp_S13_9_earnings_calendar",
+      "phase": "S13.9 (2026-07-27): admit the 8 existing earnings-calendar conditioning features (model previously saw timing only via PEAD overlay).",
+      "param_space": "earnings_calendar_feature_enabled (single 8-feature block)",
+      "trials": 1,
+      "result": "E1 FAIL dIR -0.1932 despite IC +92% (0.0162->0.0311) and both counter-evidence checks passing (first in 19 arms). Damage localized: 21d prediction persistence 0.850->0.615."
+    },
+    {
+      "script": "exp_S13_10_peer_earnings",
+      "phase": "S13.10 (2026-07-27): relational peer-earnings cascade (3 features, first non-single-stock block).",
+      "param_space": "peer_earnings_cascade_feature_enabled (single 3-feature block)",
+      "trials": 1,
+      "result": "E1 FAIL dIR -0.0752, IC flat; peer_earn_lead_lag #1 split (6.88%) with 54% between-ticker variance = name-identity leak (design defect, not axis refutation). Spawned the >30% between-ticker pre-check rule."
+    },
+    {
+      "script": "exp_S13_11_eta_2x2",
+      "phase": "S13.11 (2026-07-27): 2x2 factorial eta {0.5,1.0} x features {S0, S13.9} to isolate execution-signal-speed interaction.",
+      "param_space": "partial_rebalance_eta=1.00 on both feature sets (2 cells)",
+      "trials": 2,
+      "result": "Interaction +0.2418 (direction supported; iter17 rollback vindicated) but only ~11% of S13.9 loss recovered; eta recovery paid entirely in TE (IR +0.02). No cell beats S0. Not adopted."
+    },
+    {
+      "script": "exp_S13_13_interaction_block",
+      "phase": "S13.13 (2026-07-27): 5-feature nonlinear block - 4 products of core-parent CS z-scores + mom_consistency_252. Pre-checked structurally (persistence/btv/redundancy), IC untouched. NOTE: an initial 4-feature launch was killed UNOBSERVED before the user widened the block (not a trial).",
+      "param_space": "interaction_features_enabled (single 5-feature block)",
+      "trials": 1,
+      "result": "E1 FAIL dIR -0.0809 BUT first arm ever to improve book spec capture (+0.11%/yr) and degeneracy (0.500->0.375); entire loss is carry gap -0.42%/yr. Established carry-loss ~ 3%/yr per unit book divergence."
+    },
+    {
+      "script": "exp_S13_14_ix_winner_protect",
+      "phase": "S13.14 (2026-07-28): combined arm - interaction block + winner-trim hinge penalty lambda=1.0 on trailing-252d top-quintile (carrier diagnosis: PLTR/NVDA/TSLA composition, not factor exposures).",
+      "param_space": "interaction_features_enabled + winner_trim_protection_enabled (pre-registered combination, lambda/quantile fixed)",
+      "trials": 1,
+      "result": "E1 FAIL dIR -0.1157. Hinge could not move the book (divergence 0.129->0.128): mega-winner underweight is a FORMATION problem (positions never built), not liquidation - meanwhile rotation freeze erased the spec gain (3.41->3.21). Interaction axis closed."
     }
   ],
-  "n_trials_total": 413,
+  "n_trials_total": 439,
   "notes": [
     "396 is a conservative lower bound. Actual N is likely higher once",
     "ad-hoc config.py tweaks over the research period are counted.",
@@ -184,6 +282,10 @@
     "N 408 -> 412.",
     "2026-07-18: +1 S10.2 degeneracy arm (min_child_samples 30), pre-registered, E1 FAIL,",
     "not adopted (no flip). N 412 -> 413. S10.1 sector-limit recalibration is a report-only",
-    "diagnostic threshold change (no weight/metric impact) and is NOT counted as a trial."
+    "diagnostic threshold change (no weight/metric impact) and is NOT counted as a trial.",
+    "2026-07-28: backfilled +26 configs covering S11.5..S13.14 (inventory had stopped at S10.2).",
+    "N 413 -> 439. NOT counted: S11.8/S13.12 (measurement-only diagnoses on existing artifacts),",
+    "S13.7 (pre-check disqualified the arm before any backtest), the aborted 4-feature S13.13",
+    "launch (killed unobserved before amendment), and byte-identical parity/vintage rechecks."
   ]
 }

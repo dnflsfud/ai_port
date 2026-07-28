@@ -100,12 +100,12 @@
     "dr_alpha_enabled": false
   },
   "metrics": {
-    "annual_return": 0.2541463767036549,
-    "annual_vol": 0.20210705433404375,
-    "sharpe_ratio": 1.257483948499889,
-    "active_return": 0.053657790982860165,
-    "tracking_error": 0.03731468617681765,
-    "information_ratio": 1.4379804972390717,
+    "annual_return": 0.2540788865595127,
+    "annual_vol": 0.202107343170069,
+    "sharpe_ratio": 1.2571482192297723,
+    "active_return": 0.05365900476277452,
+    "tracking_error": 0.03731468210144894,
+    "information_ratio": 1.4380131825025229,
     "max_drawdown": -0.3273476618252341,
     "avg_annual_turnover": 0.6905445266735903,
     "avg_annual_turnover_one_way": 0.34527226333679517,
@@ -121,8 +121,8 @@
     "spx_annual_return": 0.1429703922929153,
     "spx_annual_vol": 0.19673222602395443,
     "spx_sharpe": 0.7267258404096286,
-    "realized_beta": 1.059397978074184,
-    "realized_active_beta": 0.0593979780741841,
+    "realized_beta": 1.059397976251152,
+    "realized_active_beta": 0.05939797625115191,
     "sub_periods": {
       "P1_ir": 1.478614725918766,
       "P2_ir": 0.7874238946050125,
@@ -1085,5 +1085,5 @@
     "ECOS": 192
   },
   "optimizer_solver_fallback_rate": 0.0,
-  "elapsed_sec": 836.3
+  "elapsed_sec": 852.5
 }

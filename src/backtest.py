@@ -31,6 +31,7 @@ from src.feature_engine import build_all_features
 from src.target_engine import build_targets
 from src.model_trainer import walk_forward_train, TRAIN_WINDOW, effective_label_horizon
 from src.portfolio_optimizer import (
+    compute_winner_mask,
     estimate_covariance,
     optimize_portfolio,
     print_optimizer_config,
@@ -1857,6 +1858,15 @@ def run_backtest(
                 factor_loadings = None
                 _fn_telemetry["dates"] += 1
                 _fn_telemetry["inert_dates"] += 1  # loadings unavailable -> penalty off
+        # S13.14 winner-trim protection: mask from the same look-ahead-free
+        # hist_returns window the covariance uses. Stays None when disabled
+        # so the optimizer path is bit-identical (winner_pen -> 0).
+        winner_mask = None
+        if getattr(config, "winner_trim_protection_enabled", False):
+            winner_mask = compute_winner_mask(
+                hist_returns,
+                quantile=float(getattr(config, "winner_trim_quantile", 0.8)),
+            )
         return optimize_portfolio(
             expected_returns=pred_row,
             cov_matrix=cov_matrix,
@@ -1866,6 +1876,7 @@ def run_backtest(
             config=config,
             diagnostics=diagnostics,
             factor_loadings=factor_loadings,
+            winner_mask=winner_mask,
         )
 
     # Delegate to simulate_portfolio (the shared inner loop)

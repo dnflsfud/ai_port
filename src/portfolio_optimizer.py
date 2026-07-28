@@ -573,6 +573,48 @@ def _factor_penalty_expr(w, bm_weights, factor_loadings, config):
     return config.factor_neutral_penalty * cp.sum_squares(L.T @ (w - bm_weights))
 
 
+def compute_winner_mask(hist_returns, quantile: float = 0.8,
+                        window: int = 252, min_obs: int = 126):
+    """Trailing-``window`` cumulative-return top-quantile mask (§S13.14).
+
+    ``hist_returns`` is the same strictly-before-rebalance frame the
+    covariance estimator uses, so the mask is look-ahead-free by
+    construction. Names with fewer than ``min_obs`` valid rows in the
+    window never qualify. Returns None (penalty inert) when history is
+    too short or the threshold is undefined.
+    """
+    if hist_returns is None or len(hist_returns) < min_obs:
+        return None
+    tail = hist_returns.tail(window)
+    cum = (1 + tail).prod() - 1
+    cum[tail.notna().sum() < min_obs] = np.nan
+    thresh = cum.quantile(quantile)
+    if not np.isfinite(thresh):
+        return None
+    return (cum >= thresh).fillna(False).astype(float).values
+
+
+def _winner_trim_penalty_expr(w, prev_weights, winner_mask, config):
+    """Soft hinge penalty on trimming trailing winners (§S13.14):
+    lambda * sum(mask * pos(prev_w - w)).
+
+    Only weight REDUCTIONS of masked names are penalised — adding to a
+    winner is free. Returns int 0 when disabled, maskless, or the mask is
+    empty/non-finite, so the objective is bit-identical when OFF.
+    """
+    if not getattr(config, "winner_trim_protection_enabled", False):
+        return 0
+    if winner_mask is None:
+        return 0
+    mask = np.asarray(winner_mask, dtype=float)
+    if mask.shape != (len(prev_weights),) or not np.all(np.isfinite(mask)):
+        return 0
+    if not np.any(mask):
+        return 0
+    lam = float(getattr(config, "winner_trim_lambda", 1.0))
+    return lam * cp.sum(cp.multiply(mask, cp.pos(prev_weights - w)))
+
+
 def _sector_active_risk_penalty_expr(w, bm_weights, cov_matrix, sector_map,
                                      tickers, config):
     """Soft penalty on sector active-risk concentration (§S11.5 candidate).
@@ -615,6 +657,7 @@ def optimize_portfolio(
     config: PipelineConfig = None,
     diagnostics: Optional[Dict[str, Any]] = None,
     factor_loadings: Optional[np.ndarray] = None,
+    winner_mask: Optional[np.ndarray] = None,
 ) -> np.ndarray:
     """Optimise the target portfolio under the configured hard constraints."""
     config = config or DEFAULT_CONFIG
@@ -673,9 +716,10 @@ def optimize_portfolio(
         w, bm_weights, cov_matrix, sector_map,
         list(expected_returns.index), config,
     )
+    winner_pen = _winner_trim_penalty_expr(w, prev_weights, winner_mask, config)
     objective = cp.Maximize(
         ret - risk_aversion * risk - turnover_penalty * turnover
-        - factor_pen - sector_risk_pen
+        - factor_pen - sector_risk_pen - winner_pen
     )
 
     prob = cp.Problem(objective, constraints)

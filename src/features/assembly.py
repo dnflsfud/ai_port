@@ -16,9 +16,14 @@ logger = logging.getLogger(__name__)
 from src.config import (
     ABSENT_FUNDAMENTAL_SHEET_FEATURES,
     DEFAULT_CONFIG,
+    EARNINGS_CALENDAR_FEATURES,
+    INTERACTION_FEATURES,
+    PEER_EARNINGS_FEATURES,
     PipelineConfig,
 )
 from src.data_loader import UniverseData, TICKERS
+from src.features.peer_earnings import build_peer_earnings_features
+from src.features.interactions import build_interaction_features
 from src.features.utils import cross_sectional_zscore, clip_outliers, cs_rank, safe_pct_change, rolling_tsz
 from src.features.accounting import build_accounting_features
 from src.features.price import build_price_features
@@ -580,6 +585,10 @@ def build_all_features(
     short_interest = build_short_interest_features(data)
     # Phase 2 (2026-04-22): Macro × ticker cross features for P2 rate-shock fix.
     macro_cross = build_macro_cross_features(data, config=config)
+    # S13.10: relational peer-earnings block. Built unconditionally (S8 idiom);
+    # admission is gated at the core-whitelist filter below, so OFF stays
+    # byte-identical.
+    peer_earnings = build_peer_earnings_features(data)
     gc.collect()
 
     feature_groups = {
@@ -591,6 +600,7 @@ def build_all_features(
         "Regime": list(regime.keys()),
         "ShortInterest": list(short_interest.keys()),
         "MacroCross": list(macro_cross.keys()),
+        "PeerEarnings": list(peer_earnings.keys()),
     }
 
     all_features: Dict[str, pd.DataFrame] = {}
@@ -602,6 +612,15 @@ def build_all_features(
     all_features.update(regime)
     all_features.update(short_interest)
     all_features.update(macro_cross)
+    all_features.update(peer_earnings)
+
+    # S13.13: nonlinear interaction block — products of CS z-scores of parents
+    # that are all already core features, plus the mom_consistency_252 path
+    # shape (amendment). Built unconditionally (S8 idiom); admission is gated
+    # at the core-whitelist filter below.
+    interactions = build_interaction_features(all_features, data)
+    feature_groups["Interaction"] = list(interactions.keys())
+    all_features.update(interactions)
 
     # Use the actually-loaded universe (intersection across all sheets)
     # stored on data.tickers.
@@ -654,6 +673,17 @@ def build_all_features(
             extra.add("fwd_opcf_rev_126d")
         if getattr(config, "fwd_opcf_rev_252d_feature_enabled", False):
             extra.add("fwd_opcf_rev_252d")
+        # S13.9: admit the announcement-timing block conditioning.py already
+        # builds. Until this flag the model saw earnings only via the PEAD
+        # overlay, i.e. after the ranking was already fixed.
+        if getattr(config, "earnings_calendar_feature_enabled", False):
+            extra.update(EARNINGS_CALENDAR_FEATURES)
+        # S13.10: relational peer-cascade block (built above, same idiom).
+        if getattr(config, "peer_earnings_cascade_feature_enabled", False):
+            extra.update(PEER_EARNINGS_FEATURES)
+        # S13.13: interaction block (built above, same idiom).
+        if getattr(config, "interaction_features_enabled", False):
+            extra.update(INTERACTION_FEATURES)
         apply_core_filter(all_features, feature_groups,
                           extra_whitelist=(extra or None))
 
@@ -661,6 +691,13 @@ def build_all_features(
     skip_zscore = (set(feature_groups.get("Conditioning", []))
                    | set(feature_groups.get("Factor", []))
                    | set(feature_groups.get("Regime", [])))
+    # S13.9: these two Conditioning members span 0..999 (NO_EVENT sentinel),
+    # but every feature still goes through clip_outliers(±5) below. Left in
+    # skip_zscore they would be clipped to 0..5 — silently degraded into
+    # duplicates of the earn_pre_5d / earn_post_5d flags. Inert when the arm
+    # is OFF: the core filter has already dropped these names, so they are not
+    # in feature_groups["Conditioning"] to begin with.
+    skip_zscore -= {"earn_days_since", "earn_days_to_next"}
     for name, df in list(all_features.items()):
         if name not in skip_zscore:
             all_features[name] = cross_sectional_zscore(df)

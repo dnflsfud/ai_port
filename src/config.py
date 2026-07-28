@@ -49,6 +49,39 @@ NAN_TOLERANT_FEATURES: frozenset = frozenset(
     for name in names
 )
 
+# S13.9: the announcement-timing block conditioning.py already builds from
+# Earnings_Timeline. None of these are in CORE_FEATURE_WHITELIST, so today the
+# model never sees earnings timing — only the post-prediction PEAD overlay does.
+EARNINGS_CALENDAR_FEATURES: tuple = (
+    "earn_is_day",
+    "earn_days_since",
+    "earn_days_to_next",
+    "earn_pre_5d",
+    "earn_pre_10d",
+    "earn_post_5d",
+    "earn_post_10d",
+    "earn_cycle_pos",
+)
+
+# S13.10: relational (peer) features built by
+# features.peer_earnings.build_peer_earnings_features.
+PEER_EARNINGS_FEATURES: tuple = (
+    "peer_earn_reported_frac",
+    "peer_earn_reaction_63d",
+    "peer_earn_lead_lag",
+)
+
+INTERACTION_FEATURES: tuple = (
+    "ix_vol_mom",
+    "ix_val_mom",
+    "ix_rev_vol",
+    "ix_qual_val",
+    # §S13.13 amendment: return-path shape (not a product) — the fifth
+    # structurally-passing candidate, added by user direction before any
+    # arm result was observed.
+    "mom_consistency_252",
+)
+
 
 @dataclass
 class PipelineConfig:
@@ -631,6 +664,59 @@ class PipelineConfig:
     fwd_opcf_rev_63d_feature_enabled: bool = False
     fwd_opcf_rev_126d_feature_enabled: bool = False
     fwd_opcf_rev_252d_feature_enabled: bool = False
+
+    # ------------------------------------------------------------------
+    # S13.9 (2026-07-27) — earnings-calendar admission arm
+    # ------------------------------------------------------------------
+    # conditioning.py already builds the 8 EARNINGS_CALENDAR_FEATURES from
+    # Earnings_Timeline, but the core whitelist drops every one of them, so
+    # announcement timing reaches the book only through the PEAD overlay
+    # (post-prediction) and never through the model. This flag admits the
+    # existing block via the S8 extra_whitelist mechanism — no new feature
+    # code. They sit in the Conditioning group, so they skip the
+    # cross-sectional z-score by design (day counts / 0-1 flags are already
+    # on a comparable scale; 999 is the "no event known" sentinel).
+    # OFF by default: byte-identical panel.
+    earnings_calendar_feature_enabled: bool = False
+
+    # ------------------------------------------------------------------
+    # S13.10 (2026-07-27) — peer earnings cascade arm
+    # ------------------------------------------------------------------
+    # Every one of the 61 core features is a single-stock attribute. This
+    # block is relational: what the rest of my sector already reported
+    # before I do. Built from Earnings_Timeline + Daily_Returns + sector
+    # meta only (both verified clean in the 2026-07-27 workbook audit) —
+    # deliberately NOT from Factset_EPS_Surprise, whose bank coverage gap
+    # sank S13.4. OFF by default: byte-identical panel.
+    peer_earnings_cascade_feature_enabled: bool = False
+
+    # ------------------------------------------------------------------
+    # S13.13 (2026-07-27) — nonlinear interaction block arm
+    # ------------------------------------------------------------------
+    # Products of CS z-scores of parents that are ALL already core features
+    # (zero new information axes): the capacity-starved ranker (~42 trees,
+    # §S13.8) cannot form multiplicative structure from axis-aligned splits.
+    # Pre-checked §S13.13: 21d persistence 0.66-0.84, between-ticker variance
+    # share 0.06-0.12. OFF by default: byte-identical panel.
+    interaction_features_enabled: bool = False
+
+    # ------------------------------------------------------------------
+    # S13.14 (2026-07-27) — winner-trim protection (combined arm with the
+    # S13.13 interaction block)
+    # ------------------------------------------------------------------
+    # §S13.14 carrier diagnosis: the S13.13 gap loss (−0.42%/yr) is carried
+    # by name composition — the block's 20d-horizon reranking trims the
+    # multi-year mega-winners (PLTR/NVDA/TSLA ≈ −1.3%/yr combined), not by
+    # factor exposures (Δe_vol ~0). Remedy: inline soft hinge penalty in the
+    # optimize_portfolio objective (§4.1 precedent),
+    #   λ × Σ_{i∈winner} max(0, w_prev_i − w_i),
+    # winner = trailing-252d cumulative-return top quintile from the same
+    # look-ahead-free hist_returns window the covariance uses. λ=1.0 in μ
+    # z-units — "trim a winner only for ≥1σ of conviction". Pre-registered
+    # single values; no sweep. OFF by default: objective byte-identical.
+    winner_trim_protection_enabled: bool = False
+    winner_trim_lambda: float = 1.0
+    winner_trim_quantile: float = 0.8
 
     # ------------------------------------------------------------------
     # Data freshness guardrail
