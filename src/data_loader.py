@@ -211,6 +211,10 @@ FACTOR_CATEGORIES = {
     "Factor_ETF": ["F_MinVol", "F_Quality", "F_HiDiv", "F_Growth", "F_Value", "F_SmCap", "F_HiBeta"],
     "GS_Thematic": ["GS_AI", "GS_Nuclear", "GS_SemiHW"],
     "Macro_Sentiment": ["CESI_US", "AAII_Bull", "AAII_Bear"],
+    # S13.18: index-level forward EPS (BEST_EPS) — consumed only by
+    # features/index_eps.py; feature admission is flag-gated at the core
+    # whitelist, so loading these columns is inert while the flag is OFF.
+    "Earnings": ["SPX_FWD_EPS", "NDX_FWD_EPS", "MXWD_FWD_EPS"],
 }
 ALL_FACTOR_COLUMNS = [col for cols in FACTOR_CATEGORIES.values() for col in cols]
 

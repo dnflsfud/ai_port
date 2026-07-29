@@ -82,6 +82,16 @@ INTERACTION_FEATURES: tuple = (
     "mom_consistency_252",
 )
 
+# S13.15: explicit fuzzy-AND confirmations plus one return-path quality axis.
+NONLINEAR_CONFIRMATION_FEATURES: tuple = (
+    "nl_mom_breakout_confirm",
+    "nl_mom_revision_confirm",
+    "nl_mom_accel_confirm",
+    "nl_growth_quality_confirm",
+    "nl_revision_breadth_confirm",
+    "nl_trend_efficiency_252",
+)
+
 
 @dataclass
 class PipelineConfig:
@@ -701,6 +711,35 @@ class PipelineConfig:
     interaction_features_enabled: bool = False
 
     # ------------------------------------------------------------------
+    # S13.15 (2026-07-28) — nonlinear confirmation challenger
+    # ------------------------------------------------------------------
+    # The product interactions in S13.13 improved specific-return capture
+    # but under-ranked long-duration winners because a product also scores
+    # two negative parents positively.  This block uses min(z(a), z(b)) as a
+    # conservative fuzzy-AND, plus signed 252d trend efficiency, to target
+    # winner formation directly.  OFF by default: production stays unchanged.
+    nonlinear_confirmation_features_enabled: bool = False
+
+    # ------------------------------------------------------------------
+    # S13.18 (2026-07-28) — index forward-EPS macro block arm
+    # ------------------------------------------------------------------
+    # Four bcast features from index-level BEST_EPS (new data axis: top-down
+    # earnings expectations, first consumed 2026-07-28 workbook): nested
+    # level/spread decomposition with a dual-horizon US spread —
+    # fac_eps_g63 / fac_eps_us_lead63 / fac_eps_us_lead252 /
+    # fac_eps_tech_lead63 (src/features/index_eps.py). Factor group ->
+    # CS z-score skipped (per-date constants; the ranker can only use them
+    # as date-partitioning splits, i.e. macro conditioning). OFF by
+    # default: byte-identical panel. Single block, no parameter sweep; do
+    # NOT flip before the gate passes (ΔIR > +0.36 & sub-period sign
+    # consistency).
+    index_eps_features_enabled: bool = False
+    # S13.21: optional subset of INDEX_EPS_FEATURES to admit when the flag is
+    # on (None = all four, i.e. S13.18 behaviour). Only read by
+    # admitted_index_eps_features; inert while the flag is off.
+    index_eps_feature_names: Optional[List[str]] = None
+
+    # ------------------------------------------------------------------
     # S13.14 (2026-07-27) — winner-trim protection (combined arm with the
     # S13.13 interaction block)
     # ------------------------------------------------------------------
@@ -872,6 +911,26 @@ class PipelineConfig:
                 "projection_fallback_mode must be 'target' or 'prev', got "
                 f"{self.projection_fallback_mode!r}"
             )
+        if not (0.0 <= self.residual_sleeve_risk_fraction < 1.0):
+            raise ValueError("residual_sleeve_risk_fraction must be in [0, 1)")
+        if self.residual_sleeve_train_window < 1:
+            raise ValueError("residual_sleeve_train_window must be >= 1")
+        if self.residual_sleeve_retrain_freq < 1:
+            raise ValueError("residual_sleeve_retrain_freq must be >= 1")
+        if self.residual_sleeve_sample_freq < 1:
+            raise ValueError("residual_sleeve_sample_freq must be >= 1")
+        if self.residual_sleeve_min_train_dates < 2:
+            raise ValueError("residual_sleeve_min_train_dates must be >= 2")
+        if self.residual_sleeve_min_names < 3:
+            raise ValueError("residual_sleeve_min_names must be >= 3")
+        if not (0.0 <= self.residual_sleeve_clip_quantile < 0.5):
+            raise ValueError("residual_sleeve_clip_quantile must be in [0, 0.5)")
+        if self.residual_sleeve_turnover_penalty < 0.0:
+            raise ValueError("residual_sleeve_turnover_penalty must be >= 0")
+        if self.residual_sleeve_risk_aversion < 0.0:
+            raise ValueError("residual_sleeve_risk_aversion must be >= 0")
+        if self.residual_sleeve_cross_risk_tolerance < 0.0:
+            raise ValueError("residual_sleeve_cross_risk_tolerance must be >= 0")
 
     # ------------------------------------------------------------------
     # Attribution
@@ -939,6 +998,55 @@ class PipelineConfig:
     # (hold prev_weights, matching the partial-execution intent). Default
     # "target" reproduces current behaviour bit-for-bit.
     projection_fallback_mode: str = "target"    # {"target", "prev"}
+
+    # ------------------------------------------------------------------
+    # S13.16: OOF residual nonlinear alpha sleeve (research, default OFF)
+    # ------------------------------------------------------------------
+    # This is intentionally separate from ``dr_alpha_*``. The historical DR
+    # path optimises a combined score and did not learn an explicit residual
+    # label; its honest 2026-06-10 re-validation was destructive. This sleeve
+    # learns only the cross-sectional rank residual left after the executable
+    # base signal and common style/sector exposures. It is trained solely on
+    # matured OOS base predictions, then receives a fixed share of active-risk
+    # variance in a second, covariance-orthogonal optimisation stage.
+    residual_sleeve_enabled: bool = False
+    residual_sleeve_risk_fraction: float = 0.10
+    residual_sleeve_train_window: int = 1260
+    residual_sleeve_retrain_freq: int = 63
+    residual_sleeve_sample_freq: int = 21
+    residual_sleeve_min_train_dates: int = 12
+    residual_sleeve_min_names: int = 50
+    residual_sleeve_include_confirmation_features: bool = False
+    residual_sleeve_clip_quantile: float = 0.01
+    residual_sleeve_orthogonal_features: List[str] = field(default_factory=lambda: [
+        "beta_63d",
+        "idio_vol_63d",
+        "momentum_252d",
+        "best_peg_ratio_level_z",
+        "best_roe_level_z",
+        "eps_rev_ma_63d",
+        "best_sales_chg_252d",
+    ])
+    residual_sleeve_lgbm_params: Dict = field(default_factory=lambda: {
+        "objective": "huber",
+        "metric": "l2",
+        "learning_rate": 0.03,
+        "n_estimators": 240,
+        "max_depth": 3,
+        "num_leaves": 7,
+        "min_child_samples": 100,
+        "subsample": 0.8,
+        "subsample_freq": 1,
+        "colsample_bytree": 0.75,
+        "reg_alpha": 0.5,
+        "reg_lambda": 5.0,
+        "random_state": 43,
+        "n_jobs": -1,
+        "verbosity": -1,
+    })
+    residual_sleeve_turnover_penalty: float = 0.03
+    residual_sleeve_risk_aversion: float = 1.0
+    residual_sleeve_cross_risk_tolerance: float = 1e-9
 
     # ------------------------------------------------------------------
     # CS-DR-Alpha (cross-sectional direct-reinforcement alpha) — PRODUCTION

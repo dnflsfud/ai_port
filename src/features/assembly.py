@@ -18,18 +18,22 @@ from src.config import (
     DEFAULT_CONFIG,
     EARNINGS_CALENDAR_FEATURES,
     INTERACTION_FEATURES,
+    NONLINEAR_CONFIRMATION_FEATURES,
     PEER_EARNINGS_FEATURES,
     PipelineConfig,
 )
 from src.data_loader import UniverseData, TICKERS
 from src.features.peer_earnings import build_peer_earnings_features
 from src.features.interactions import build_interaction_features
+from src.features.nonlinear_confirmation import build_nonlinear_confirmation_features
 from src.features.utils import cross_sectional_zscore, clip_outliers, cs_rank, safe_pct_change, rolling_tsz
 from src.features.accounting import build_accounting_features
 from src.features.price import build_price_features
 from src.features.sellside import build_sellside_features
 from src.features.conditioning import build_conditioning_features
 from src.features.factor import build_factor_features
+from src.features.index_eps import (admitted_index_eps_features,
+                                    build_index_eps_features)
 from src.features.interaction import build_sector_interaction_features
 from src.features.regime import build_regime_features
 from src.features.short_interest import build_short_interest_features
@@ -581,6 +585,10 @@ def build_all_features(
     sellside = build_sellside_features(data, config=config)
     conditioning = build_conditioning_features(data, config=config)
     factor = build_factor_features(data)
+    # S13.18: index forward-EPS block — merged into the Factor group so its
+    # per-date-constant columns skip the CS z-score; built unconditionally
+    # (S8 idiom), admission gated at the core-whitelist filter below.
+    factor.update(build_index_eps_features(data))
     regime = build_regime_features(data)
     short_interest = build_short_interest_features(data)
     # Phase 2 (2026-04-22): Macro × ticker cross features for P2 rate-shock fix.
@@ -651,6 +659,18 @@ def build_all_features(
         print(f"[FeatureEngine] added {len(fin_extras)} financials features, "
               f"total now {len(all_features)}")
 
+    # S13.15: winner-formation confirmations.  This must run after the lean
+    # momentum composites are added because nl_mom_accel_confirm consumes
+    # mom_accel_63_252.  Admission is still gated below by a default-off flag,
+    # so the production panel remains byte-identical after core pruning.
+    nonlinear_confirmation = build_nonlinear_confirmation_features(
+        all_features, data
+    )
+    feature_groups["NonlinearConfirmation"] = list(
+        nonlinear_confirmation.keys()
+    )
+    all_features.update(nonlinear_confirmation)
+
     # REDESIGN C++ (2026-04-11 PM): "core" mode further prunes to a hand-picked
     # whitelist (~85 features) with explicit style balance based on the
     # A+C+D+E run's feature importance ranking. This drops 239 -> 85 while
@@ -684,6 +704,12 @@ def build_all_features(
         # S13.13: interaction block (built above, same idiom).
         if getattr(config, "interaction_features_enabled", False):
             extra.update(INTERACTION_FEATURES)
+        # S13.15: fuzzy-AND confirmations + signed trend efficiency.
+        if getattr(config, "nonlinear_confirmation_features_enabled", False):
+            extra.update(NONLINEAR_CONFIRMATION_FEATURES)
+        # S13.18: index forward-EPS growth/spread block (same idiom).
+        # S13.21: optional subset via config.index_eps_feature_names.
+        extra.update(admitted_index_eps_features(config))
         apply_core_filter(all_features, feature_groups,
                           extra_whitelist=(extra or None))
 

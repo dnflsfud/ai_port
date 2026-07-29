@@ -2777,3 +2777,368 @@ P3(메가캡 멜트업) −0.336이 형성 실패의 직접 증거.
 FAIL)·§S8 계열의 이미 소진된 축과 겹치거나 새 대형 개입이다. 상호작용 블록 축은
 "spec 개선은 실재하나 캐리 비용을 상쇄 못 함"으로 **종결**. 위너-트림 코드는
 default-OFF 인프라로 잔존(향후 다른 맥락 재사용 가능).
+
+## §S13.17 레짐 조건화 μ-스케일링 — 사전등록 (2026-07-28, 측정 전)
+
+**경위**: new_ai_port에서 이 세션이 설계·검증한 regime_v2 엔진(10피처 워크포워드
+diag GaussianHMM: 시장 6종 + eps_g63/eps_us_lead63/eps_us_lead252/eps_tech_lead63,
+필터드 확률, canonical ordering)을 ai_port에 이식해 **레짐 조건부 리스크 변조**를
+평가하라는 사용자 지시. 엔진 품질은 new_ai_port에서 실증됨: 상태 점유
+calm 0.38/mid 0.26/stress 0.36, 2018Q4·COVID p_stress 1.00, 2022H1 0.92, 2025-04
+0.80 포착, 2026 YTD 0.06(강세장 stress 오독 없음). 단 new_ai_port 포트폴리오
+성과는 혼조(validation +0.073 / full −0.048)였고, 그쪽 효과 경로는 FM 상호작용이라
+ai_port(GBDT+MVO)와 전달 구조가 다름 — 독립 평가가 필요하다.
+**축 중복 없음**: 피처 축(§S13.13 종결)·트림 축(§S13.14 종결)이 아닌
+**포트폴리오 구성층(MVO 목적함수 알파-리스크 트레이드오프)** 개입으로, ai_port
+미개척 축이다. 유일 선례는 dormant VIX z-score PCA 가중(§구조리뷰)뿐.
+
+**메커니즘 (A1 `apply_mu_vol_scaling` 관용구 동일)**: post-overlay 예측 → μ 경로에
+`apply_regime_mu_scaling` 추가:
+`μ_i(t) ← μ_i(t) × (1 − λ·p_stress(t))`, p_stress는 워크포워드 필터드 확률
+(관측 ≤ t, PIT). per-date 스칼라 곱이므로 **종목 간 상대 랭킹 불변** — 스트레스일수록
+MVO의 알파 항만 약화되어 북이 벤치마크 쪽으로 수축(TE캡·턴오버 페널티 불변).
+레짐 미커버 날짜(첫 fit_end 이전)는 scale 1(inert 가드, A1 관용구).
+
+**사전등록 파라미터 (단일, 스윕 금지)**: **λ = 0.5 고정**. p_stress=1일 때 알파 절반 —
+바인딩하되 북 붕괴(§2.5) 방지. 다른 λ 시도 없음.
+
+**플래그 (§2.1 OFF-default + parity)**: `regime_mu_scaling_enabled: false`(기본) +
+`regime_mu_stress_shrink: 0.5`. OFF 시 함수는 예측 패널을 무변경 반환 → 바이트 동일,
+단위테스트 선행. 데이터 접근을 위해 `ALL_FACTOR_COLUMNS`에 "Earnings" 카테고리
+(SPX/NDX/MXWD_FWD_EPS) +3 추가 — **화이트리스트 확장만으로도 OFF-parity가 유지됨을
+테스트로 고정**(팩터 컬럼이 피처 생성에 누출되지 않음 확인).
+
+**Phase 0 사전점검 (§S13.7 선례 — 통과 전 arm 미구현·미실행)**:
+S0 production(codex_causal_rank_65) 기존 아티팩트 `backtest_result.pkl`의 일별
+액티브 수익을 v2 레짐 모달 상태로 조건화(신규 백테스트 없음):
+- **P0-G1**: stress-모달일 연환산 액티브 < **−1%/yr** 그리고 calm+mid-모달일 > +1%/yr
+- **P0-G2**: 백테스트 구간 반분(전반/후반) 모두 stress-버킷 액티브 부호 음
+- **P0-G3**: stress-모달일 점유 10~50% (전역 디레버리지로의 변질 방지)
+하나라도 실패 → **arm 미실행 shelve** ("스트레스 손실이 알파 틸트 경로에 없음"이 결론).
+
+**E1 (채택 게이트)**: 동일 워크북 빈티지 S0와 짝 실행, 동일 ECOS. full ΔIR > +0.36 &
+P1/P2/P3 부호 일관 시만 채택. |ΔIR| < 0.36 → 비액션(설명력 기록).
+**E2 (메커니즘 확증)**: ① ΔIR 주 원천이 stress-버킷 액티브 개선(조건부 귀속),
+② TE 감소가 stress일에 집중, ③ calm/mid일 액티브 S0 대비 ±0.5%p 이내.
+**캐릭터 보존(§2.5)**: full TE ≥ 3.0%, fallback률 S0 동일, active share 유지.
+**§2.7**: experiment_inventory 등록 + run_selection_bias 해킷 기록 후 flip 논의.
+
+**예상 실패 모드 (정직 기록)**:
+1. 필터드 확률의 전이 확정 지연로 손실 초반부를 놓쳐 이득 희석(63d 빠른 축에도 잔존).
+2. stress일 손실이 알파 틸트가 아닌 공통 캐리 담체(§S13.12)면 μ 축소는 TE만 줄이고
+   손실 원천을 못 건드림 → IR 중립~악화.
+3. stress 꼬리 반등(예: 2020-04~05)에서 수축된 북이 회복 알파를 놓치는 비대칭.
+
+**파일 계획(구현 단계)**: `src/market_regime_v2.py`(new_ai_port regime_v2 벤더 포크),
+`data_loader.py` Earnings +3, `config.py` 플래그 2종, `backtest.py`
+`apply_regime_mu_scaling`, `tests/test_regime_mu_scaling.py`(parity 선행),
+`scripts/preflight_s13_17_regime_conditioning.py`,
+`variants/arm_s13_17_regime_mu_scaling.yaml`.
+
+**검증 명령**: 사전점검 `<PY> scripts/preflight_s13_17_regime_conditioning.py`
+(P0-G1~G3 판정 출력) → parity `<PY> -m pytest tests/test_regime_mu_scaling.py -v` →
+arm `<PY> run_variant.py --variant variants/arm_s13_17_regime_mu_scaling.yaml`
+(단일 foreground). 상태: **사전등록만 완료, 사전점검 PENDING**.
+
+### §S13.17 사전점검 결과 (2026-07-28) — **P0 FAIL·arm 미구현 SHELVE**
+
+실행: `scripts/preflight_s13_17_regime_conditioning.py` (단위테스트 3종 선행 PASS,
+신규 백테스트 없음). S0 = codex_causal_rank_65 2026-07-27 빈티지 아티팩트, 액티브
+2,000일(2018-11-27~2026-07-27) 중 1,923일 조인(레짐 피처 결측일 77일 제외).
+
+| 상태(모달) | 점유 | 연환산 액티브 | t | H1('18-11~'22-09) | H2('22-09~'26-07) |
+|---|---:|---:|---:|---:|---:|
+| calm | 31.9% | **+9.84%** | 4.07 | +5.26% | +10.89% |
+| mid | 25.1% | +8.24% | 2.89 | +18.72% | +4.65% |
+| stress | 43.1% | **+0.43%** | 0.21 | **+1.55%** | **−7.25%** (t −1.24) |
+
+- **P0-G1 FAIL**: stress-버킷 +0.43%/yr — 손실 자체가 없음(요건 < −1%).
+- **P0-G2 FAIL**: 반분 부호 불일치(H1 +1.55 / H2 −7.25).
+- **P0-G3 PASS**: 점유 43.1%.
+
+**판독**: S0는 스트레스 레짐에서 체계적으로 잃지 않는다 — 스트레스일 액티브는
+전 기간 ~플랫이고 후반부 음수(−7.25%)는 105일·t −1.24로 약하며 전반부와 부호가
+반대다. 사전등록한 실패 모드 ②("stress 손실이 알파 틸트 경로에 없음")가 사실로
+확인된 셈이므로, μ-축소가 구할 손실이 존재하지 않는다. **arm은 코드 한 줄 없이
+SHELVE** (§S13.7 선례와 동일한 조기 종료).
+
+**사후 관찰 (비등록·비액션)**: stress 버킷이 기대 액티브 ~0으로 43% 점유 —
+"손실 회피"가 아니라 "분산 절감"(평균 기여 없는 날의 TE 지출 축소 → IR 분모 개선)
+가설은 논리적으로 남아 있으나, 이는 데이터를 본 뒤 발견한 가설이므로 **별도의 새
+사전등록(자체 게이트·단일 파라미터) 없이는 진행 금지**를 명시해 둔다.
+
+**잔존물**: `scripts/preflight_s13_17_regime_conditioning.py` +
+`tests/test_preflight_s13_17_regime_conditioning.py`(3 PASS) +
+`outputs/s13_17_regime_preflight.csv`. 프로덕션 코드·설정 변경 0건, flip 0건.
+
+## §S13.18 지수 선행-EPS 매크로 피처 블록 — 사전등록 (2026-07-28, 측정 전)
+
+**경위**: §S13.17 SHELVE 후 사용자 재지시 — "레짐 조건화가 아니라 opmargin·revision·
+tg_price처럼 **독립 features로** 반영하라". 즉 지수 레벨 BEST_EPS 데이터를 모델
+피처 축으로 공급하는 피처 arm이다. 데이터 축 자체가 신규: 기존 66피처 중 어닝스
+기대는 전부 **종목 레벨**(eps_rev 계열·best_* 계열)이고, **톱다운(지수 레벨) 어닝스
+기대 축은 최초**다. 워크북 Factor 시트의 SPX/NDX/MXWD_FWD_EPS(2026-07-28 NDX 추가
+후 52컬럼)를 처음 소비한다.
+
+**사전등록 블록 (4피처 고정, 스윕 없음)** — new_ai_port regime_v2 설계 승계
+(상관·반감기 실측 2026-07-28: 최대 |corr| 0.481, 반감기 43~506BD):
+- `fac_eps_g63` = Δ63 log MXWD_FWD_EPS (세계 레벨)
+- `fac_eps_us_lead63` = Δ63 log(SPX)−Δ63 log(MXWD) (빠른 US 스프레드)
+- `fac_eps_us_lead252` = Δ252 log(SPX)−Δ252 log(MXWD) (연간 리비전 사이클)
+- `fac_eps_tech_lead63` = Δ63 log(NDX)−Δ63 log(SPX) (테크 스프레드)
+
+**메커니즘·구현**: `src/features/index_eps.py` 신규(S13.15 모듈 관용구), Factor
+그룹 합류 → **CS z-score 제외**(per-date 상수 — 랭커는 within-date 랭킹이므로
+이 컬럼들은 날짜-분할 스플릿(매크로 조건화)으로만 작동 가능). 빌드 무조건,
+채택은 core-whitelist `index_eps_features_enabled`(default-OFF)로 게이트.
+데이터 접근: `FACTOR_CATEGORIES`에 "Earnings" +3 — 전 소비처 명명-컬럼 접근이라
+로딩만으로는 inert. 단위테스트 3종 PASS(수식 hand-match·브로드캐스트·게이팅),
+전체 스위트 409 PASS.
+
+**비교 기준**: S0 = codex_causal_rank_65 2026-07-28 12:11 아티팩트
+**IR 1.4380 / TE 3.73% / 회전율 0.691 / beta 1.059** (07-28 워크북 재생성은 Factor
+시트 NDX 컬럼 추가뿐, 기존 51컬럼 allclose 검증 완료 — 동일 빈티지로 유효).
+동일 ECOS, `variants/arm_s13_18_index_eps_features.yaml`(프로덕션 핀 + 플래그
+1개 델타).
+
+**게이트**: E1 = full ΔIR > +0.36 & P1/P2/P3 부호 일관 시만 채택, |ΔIR| < 0.36
+비액션. E2(메커니즘) = EWMA importance에서 4피처 생존 여부 + gap/spec 포획
+(§S13.12 지표) 델타 방향. §2.5 캐릭터 보존(TE·active share·fallback), §2.7
+DSR 해킷 후 flip 논의.
+
+**예상 실패 모드 (정직 기록)**: ① 새 컬럼 추가에 대한 모델 민감성(iter 4/5/7/12/13
+5회 실증 — split 분배 교란 + EWMA cold-start)이 marginal value를 초과. ② per-date
+상수는 within-date 랭킹에 직접 기여 불가 — 트리가 날짜 분할로만 쓸 수 있는데
+현 모델은 용량 기아(~42트리, §S13.8)라 매크로 분기에 쓸 여유가 없을 수 있음.
+③ 66→70피처 colsample 희석. ④ §S13.13의 구조적 상한(캐리 gap)은 피처로 못 건드림.
+상태: **사전등록 완료, arm 실행 PENDING**.
+
+### §S13.18 결과 (2026-07-28) — **E1 FAIL·불채택**. 실패 모드 ②의 극단형 실증: gain 정확히 0
+
+실행: `outputs/arm_s13_18_index_eps_features` (940s, ECOS 192/192·fallback 0,
+퇴화율 0.4375 vs S0 0.500). 비교: S0 2026-07-28 빈티지 1.4380.
+
+| 지표 | S0 | **S13.18** |
+|---|---:|---:|
+| IR | 1.4380 | **1.4507** (ΔIR **+0.0127**) |
+| P1/P2/P3 | 1.479/0.787/2.192 | 1.369/**0.991**/1.970 (−0.110/+0.204/−0.222) |
+| TE | 3.73% | 3.74% |
+| 회전율 | 0.691 | 0.648 |
+| realized_beta | 1.059 | 1.053 |
+
+**E1: FAIL** (ΔIR +0.013 << +0.36 노이즈 대역, 서브기간 부호 불일치).
+**불채택, `index_eps_features_enabled` OFF 유지, flip 0건.**
+
+**E2 판독 — 메커니즘 자체가 부재**: 패널에는 4피처가 정상 진입(non-null 100%,
+65피처 중 4)했으나, 65-피처 재훈련 전체에서 4피처의 **gain share가 정확히
+0.00%** — 트리가 단 한 번도 이 컬럼들로 분기하지 않았다. ΔIR +0.013은 피처
+기여가 아니라 컬럼 공간 변화에 따른 split/EWMA 섭동 노이즈다(민감성 전례와
+방향만 반대).
+
+**구조적 원인 (일반 결론으로 승격)**: lambdarank/xendcg 계열의 그래디언트는
+**쿼리(날짜) 내 합이 ~0**이다. per-date 상수(bcast) 피처의 분기는 쿼리를 통째로
+가르므로 양쪽 그래디언트 합이 여전히 ~0 → **루트 레벨 split gain이 구조적으로
+~0** → 선택되지 않는다. 트리 하부(종목 분기 이후)에서는 이론상 gain이 생기지만
+용량 기아(~42트리·depth 5) 모델은 거기까지 가지 않는다. 이는 macro_cross 설계
+주석("bcast-only macro features와 달리 real cross-sectional variation")이 이미
+암시하던 사실의 정량 확증이며, **기존 화이트리스트의 fac_* bcast 5종이 만성
+저중요도인 이유도 동일 기제**로 설명된다.
+
+**축 판정**: 지수 레벨 EPS 정보가 이 랭커에 전달되려면 매크로×종목 곱항(mc_*
+관용구)이 유일 경로인데, 그 축은 §S13.13/14에서 종결됐다. 따라서 **"지수
+선행-EPS as bcast 피처" 축은 1회 실행으로 깨끗하게 종결**. 코드·플래그는
+default-OFF 인프라로 잔존(단위테스트 3종 + 전체 409 PASS 유지).
+
+## §S13.19 캐리-EPS 공변 사전점검 — 사전등록 (2026-07-29, 측정 전)
+
+**경위**: §S13.18 종결(bcast 축 폐쇄) 후 사용자 지시 — 지수 EPS 데이터의 잔여
+활용처 탐색. EXPERIMENT_HISTORY 잔여 축 (b) "캐리 축을 직접 겨냥한 포트폴리오
+구성 계층"의 정면 사전점검. 질문: S0 액티브의 gap 성분(§S13.12, +2.30%/yr)이
+지수 EPS 사이클과 공변하는가. 공변 없으면 캐리-타이밍 arm은 설계 없이 SHELVE
+(S13.17 패턴 — 백테스트·DSR 비용 0).
+
+**방법 (새 백테스트 없음)**: `scripts/preflight_s13_19_carry_eps_covariation.py`.
+- gap_t = realized_t − spec_cap_t, `outputs/s13_12_ic_ir_transmission/per_date_S0.csv`
+  96 리밸런싱 재사용. 앵커 재현 확인 완료(2026-07-29): realized +5.60% /
+  spec_cap +3.30% / gap +2.30%/yr (×12 연환산) — §S13.12 기록과 일치.
+- 조건 변수(1차 사전등록): **`fac_eps_g63`** = Δ63 log MXWD_FWD_EPS
+  (`index_eps.py` 수식 동일), 리밸런싱 date 값. 캐리는 느린 common-factor
+  현상이므로 가장 넓은 사이클 지표를 1차로 고정. us_lead63/us_lead252/
+  tech_lead63 조건화는 **서술 전용**(게이트 판정 불사용).
+- 버킷: 전표본 터실(33/67 분위) — 진단 전용이며 arm 설계 시 PIT 재확인 의무.
+
+**게이트 (전부 통과 시만 arm 설계 착수, 하나라도 실패 → SHELVE)**:
+- **G1**: |Δgap(top−bottom 터실)| ≥ 1.5%/yr
+- **G2**: 표본 반분(48/48) 모두 Δgap 부호 동일
+- **G3**: 국지화 — |Δgap(top−bottom)| > |Δspec_cap(top−bottom)| (공변이 캐리
+  축 특이적이어야 함; spec 쪽이 더 크면 "그냥 알파 레짐"이라 §S13.17 결론과 중복)
+
+## §S13.20 EPS-감응도 loading 횡단면 변환 사전점검 — 사전등록 (2026-07-29, 측정 전)
+
+**경위**: bcast 직접 소비는 §S13.18에서 구조적 불가 확정 — 잔여 소비 경로는
+종목별 감응도(loading) 추정으로 bcast→횡단면 변환뿐. 최종 용도는 랭커 피처가
+아니라(상호작용 축 §S13.13/14 폐쇄) **§S13.16 재개 조건(독립 새 데이터 축 +
+항상 실행 가능한 구성법)을 충족하는 잔차 슬리브/저괴리 오버레이**. 계보가 닫힌
+축과 가까우므로 3게이트 전부 통과 시에만 arm 설계.
+
+**방법 (새 백테스트 없음)**: `scripts/preflight_s13_20_eps_loading.py`.
+- 감응도(1차 사전등록): 종목별 rolling **252d OLS** — 일간 USD 수익률(유니버스
+  평균 차감, `UniverseData.sheets["Daily_Returns"]` + `listing_dates` 마스킹,
+  창 내 유효 관측 ≥ 200) ~ **일간 innovation `Δ1 log NDX_FWD_EPS − Δ1 log
+  SPX_FWD_EPS`** (FWD_EPS 일간 갱신 실측 100%, 2026-07-29). 96 리밸런싱 날짜
+  에서 PIT 추정(과거 252d만).
+- G3 조건부 신호: s_i(t) = loading_i(t) × **fac_eps_tech_lead63(t)**(63d 스프레드
+  모멘텀 상태). 타깃 = S0 `backtest_result.targets`(파이프라인 동일 20d spec
+  패널, §S13.12에서 바이트 동일 검증된 객체). 리밸런싱 날짜 rank IC.
+
+**게이트 (전부 통과 시만 arm 설계 착수)**:
+- **G1 (분산)**: 리밸런싱 날짜 평균 |t|>2 종목 비율 ≥ 20%
+- **G2 (안정성)**: loading 횡단면 순위 자기상관(63d = 3리밸런싱 간격) 평균 ≥ 0.6
+- **G3 (예측력)**: mean rank IC > 0 **AND** P1/P2/P3 중 ≥2 서브기간 부호 양 —
+  **단일 판독, 스윕 없음** (스프레드·창·신호 구성 모두 사전 고정)
+
+### §S13.20 결과 (2026-07-29) — **G1 FAIL·SHELVE. 감응도가 노이즈와 구분 불가**
+
+실행: `scripts/preflight_s13_20_eps_loading.py`
+(산출물 `outputs/s13_20_eps_loading_preflight.csv`, 단위테스트 5종 PASS,
+96/96 리밸런싱 사용, 평균 유효 종목 189.8).
+
+- **G1 FAIL (결정적)**: 평균 |t|>2 비율 **5.0%** << 20%. |t|>2의 우연 기대치
+  (~5%)와 정확히 일치 — 252d 창 일간 회귀에서 **종목별 EPS-innovation 차등
+  감응도가 통계적으로 존재하지 않는다**.
+- G2 PASS(0.675)이나 **기계적 성분 주의**: lag-3(63BD) 인접 추정창이 252일 중
+  189일을 공유하므로 노이즈 loading도 자기상관이 높게 측정된다. 실질 안정성
+  근거로 승격 금지.
+- G3 PASS(mean IC +0.0025, P1 +0.018/P2 +0.005/P3 −0.011)이나 크기가 §2.4
+  노이즈 대역 이하이고 G1이 무너진 이상 신호는 노이즈 loading의 잔영이다.
+
+**판정**: SHELVE — bcast→횡단면 변환(감응도 경유)은 **첫 관문(분산)에서 실패**.
+이 유니버스 종목들은 일간 NDX−SPX EPS innovation에 대해 식별 가능한 차등
+감응도를 갖지 않는다. 잔차 슬리브/오버레이 arm 미설계. 사전등록 준수: 다른
+스프레드·창·주기로의 재시도는 새 사전등록 없이 금지(스윕 방지).
+
+## §S13.19a/§S13.20a 4스프레드 전수 재검정 — 사용자 지시 확장 (2026-07-29, 측정 전 선언)
+
+**경위**: 사용자 지시 "tech_lead까지 포함해서 모두 다시 테스트" — 위 사전등록의
+1차-지표 고정을 사용자 권한으로 확장. **성격: 탐색적(exploratory) 4-way 검정.**
+게이트 수식·문턱은 사전등록과 동일하되 4스프레드 전수에 적용하므로, 우연히
+하나가 통과할 확률이 ~4배다. 따라서 **여기서 통과한 스프레드를 arm 조건
+변수로 채택하려면 별도 사전등록에 이 4-way 선택 사실을 명시**해야 하며(§2.7
+selection-bias 일관), 전수 결과는 순위 없이 전부 보고한다.
+
+- §S13.19a: `scripts/preflight_s13_19a_all_spreads.py` —
+  기존 산출물 `s13_19_carry_eps_preflight.csv`(4스프레드 델타 전부 보유)를
+  게이트 형식으로 재판정(재측정 없음).
+- §S13.20a: `scripts/preflight_s13_20a_all_spreads.py` — 감응도 회귀를
+  스프레드별 (innovation, state) 쌍으로 확장: g63=(Δ1 MXWD, fac_eps_g63),
+  us_lead63=(Δ1 SPX−MXWD, fac_eps_us_lead63), us_lead252=(Δ1 SPX−MXWD,
+  fac_eps_us_lead252), tech_lead63=(Δ1 NDX−SPX, fac_eps_tech_lead63 —
+  §S13.20 원판 재현). 창 252d·min_obs 200·게이트 동일.
+
+### §S13.19a/§S13.20a 결과 (2026-07-29) — 캐리 공변 3/4 통과 형태·감응도 0/4
+
+**§S13.19a 캐리 공변 (산출물 `outputs/s13_19a_all_spreads.csv`)**:
+
+| 스프레드 | Δgap(t−b) | 반분 H1/H2 | Δspec | 게이트 |
+|---|---:|---|---:|---|
+| fac_eps_g63 (1차) | **+2.26%** | +0.93/+3.44 | +0.01% | **PROCEED** |
+| fac_eps_us_lead63 | −1.68% | −3.80/+0.68 | +0.04% | SHELVE (G2 부호 불일치) |
+| fac_eps_us_lead252 | **−4.90%** | −3.45/−4.93 | −1.01% | PROCEED (역방향) |
+| fac_eps_tech_lead63 | **+5.17%** | +1.34/+7.55 | +0.48% | PROCEED |
+
+패턴은 경제적으로 정합: 캐리는 세계(g63)·테크(tech_lead) EPS 사이클 상행에서
+풍부하고, US 연간 상대 리드(us_lead252) 극단에서 빈곤. **단 4-way 탐색이므로
+arm 조건 변수 선정 시 이 선택 사실과 다중성을 사전등록에 명시해야 한다** —
+1차 사전등록 지표는 여전히 fac_eps_g63이고, tech_lead63(+5.17%)로의 교체는
+"전수에서 최강 선택"임을 로그에 남긴 뒤에만 가능.
+
+**§S13.20a 감응도 (산출물 `outputs/s13_20a_all_spreads.csv`)**: **4쌍 전부
+SHELVE — G1(분산) 전멸**. 세부: 광역 innovation(MXWD·SPX−MXWD)은 |t|>2 비율
+17.2%로 우연치(5%)의 3배 — 광역 EPS 뉴스에 대한 차등 감응은 미약하게
+실재하나 게이트(20%) 미달이고, 조건부 IC도 g63/us_lead63은 음(−).
+tech_lead(NDX−SPX)만 5.0%로 순수 노이즈. **bcast→횡단면 변환 축 폐쇄 유지**
+(전수 확장으로도 재개 근거 없음).
+
+## §S13.21 g63+tech_lead63 단독 피처 arm — 사전등록 (2026-07-29, 측정 전)
+
+**경위**: 사용자 지시 "fac_eps_g63이랑 tech_lead63을 모두 포함해서 test,
+특히 단독 features로도 포함" — 캐리 공변 통과 스프레드 2종을 **단독 bcast
+피처로** 랭커에 공급하는 arm. §S13.18(4피처 블록, gain 정확히 0)의 2피처
+서브셋이다.
+
+**정직한 사전 기대 명시**: §S13.18의 구조적 결과(쿼리 내 zero-sum 그래디언트
+→ per-date 상수의 root split gain ~0)는 피처 개수와 무관하다. 따라서 이 arm의
+**사전 예측 = 2피처 gain share 0, ΔIR는 컬럼 공간 섭동 노이즈**(S13.18 실측
++0.0127). 본 실행은 사용자 지시에 의한 실증 확인이며, 서브셋(66→67피처,
+S13.18은 69)으로 colsample 희석이 줄어드는 차이만 있다.
+
+**구현**: `config.index_eps_feature_names`(default None=전체 4종, S13.18 하위
+호환) 신설 + `admitted_index_eps_features()` 헬퍼(미지 이름 ValueError — 무음
+inert 방지). OFF-parity 불변(flag OFF 경로 동일), 단위테스트 subset 게이팅
+포함 전체 423 PASS. variant `variants/arm_s13_21_index_eps_g63_tech.yaml` =
+프로덕션 핀 + 플래그 + subset 2종 델타.
+
+**비교 기준**: S0 = codex_causal_rank_65 2026-07-28 12:11 아티팩트 IR 1.4380
+(§S13.18과 동일 빈티지 확인). 동일 ECOS.
+
+**게이트**: E1 = full ΔIR > +0.36 & P1/P2/P3 부호 일관 시만 채택, |ΔIR| < 0.36
+비액션. E2(메커니즘) = 2피처 gain share — 0이면 구조 결과 재확증, >0이면
+§S13.18 결론 수정 필요(중대 발견으로 별도 기록). 상태: **실행 PENDING**.
+
+### §S13.21 결과 (2026-07-29) — **E1 FAIL·불채택. 사전 예측 그대로: gain 정확히 0 재확증**
+
+실행: `outputs/arm_s13_21_index_eps_g63_tech` (10:01~, ECOS fallback 0,
+퇴화율 0.53125 vs S0 0.500). 비교: S0 2026-07-28 빈티지 1.4380.
+
+| 지표 | S0 | **S13.21** |
+|---|---:|---:|
+| IR | 1.4380 | **1.4855** (ΔIR **+0.0475**) |
+| P1/P2/P3 | 1.479/0.787/2.192 | 1.624/0.784/2.198 (+0.145/**−0.004**/+0.005) |
+| TE | 3.73% | 3.68% |
+| 회전율 | 0.691 | 0.685 |
+| realized_beta | 1.059 | 1.059 |
+
+**E1: FAIL** (ΔIR +0.048 << +0.36 노이즈 대역, P2 부호 음 → 서브기간 불일치).
+**불채택, flip 0건.**
+
+**E2: 구조 결과 재확증** — 전체-패널(63피처) 모델에서 두 피처 gain **정확히
+0.0000**, EWMA가 이후 재훈련에서 63→60으로 드랍(zero-gain 피처 제거와 정합).
+ΔIR +0.048은 S13.18(+0.013)과 같은 컬럼 공간 섭동 노이즈이며 피처 기여가
+아니다(gain 0이 인과 배제를 증명).
+
+**측정 방법 각주 (어제 E2의 재검증 포함)**: 모델 피처명은 `Column_N`(위치
+기반)이라 이름 매칭이 불가 — 위치 매핑으로 측정해야 한다. 같은 방법으로
+S13.18 아티팩트를 재측정해 "4피처 gain 정확히 0" 기록의 유효성을 확인했다.
+
+**축 판정**: 캐리 공변 최강 2종(g63·tech_lead63)조차 단독 bcast 피처로는
+gain 0 — **"지수 EPS as 단독 피처" 축은 서브셋 구성으로도 재확인 종결**
+(S13.18 4피처 + S13.21 2피처, 2회 실증). 코드·subset 인프라는 default-OFF
+잔존(전체 423 PASS). 지수 EPS의 잔여 유효 경로는 §S13.19 캐리 조건화뿐.
+
+상태: **사전등록 완료, 측정 PENDING** (S13.19 → S13.20 순차).
+
+### §S13.19 결과 (2026-07-29) — **PROCEED. 3게이트 전부 통과, 공변은 캐리 축에 국지화**
+
+실행: `scripts/preflight_s13_19_carry_eps_covariation.py`
+(산출물 `outputs/s13_19_carry_eps_preflight.csv`, 단위테스트 5종 PASS,
+앵커 재현: realized +5.60%/spec +3.30%/gap +2.30%/yr, 정렬 92/96 exact).
+
+| fac_eps_g63 터실 | gap (연환산) |
+|---|---:|
+| bottom | +1.74% |
+| mid | +1.11% |
+| top | +4.00% |
+
+- **G1 PASS**: |Δgap(top−bottom)| = 2.26%/yr ≥ 1.5%
+- **G2 PASS**: 반분 Δgap H1 +0.93% / H2 +3.44% — 부호 일관
+- **G3 PASS**: Δspec_cap(top−bottom) = +0.01%/yr ≈ 0 — 공변이 **전적으로 캐리
+  축**에서 발생(알파 레짐 아님, §S13.17 결론과 비중복 확인)
+
+**서술 전용 (판정 불사용, 승격 금지)**: tech_lead63 Δgap +5.17%(더 큼),
+us_lead252 Δgap −4.90%(역방향) — 1차 지표가 아니므로 어떤 액션의 근거로도
+쓰지 않는다. 후속 arm의 조건 변수는 사전등록대로 fac_eps_g63 고정.
+
+**판정**: PROCEED — 캐리-조건화 arm 설계 착수 자격 획득. 단 주의: bottom
+터실에서도 gap은 +1.74%로 양(+)이다. "약한 EPS 사이클에서 캐리 노출 축소"류
+설계는 잔여 +1.74%를 포기하는 비용이 있으므로, arm은 차등(2.26%)을 겨냥하되
+캐릭터 보존(§2.5)과 함께 별도 사전등록으로 설계한다.

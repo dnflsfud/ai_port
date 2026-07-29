@@ -260,9 +260,23 @@
       "param_space": "interaction_features_enabled + winner_trim_protection_enabled (pre-registered combination, lambda/quantile fixed)",
       "trials": 1,
       "result": "E1 FAIL dIR -0.1157. Hinge could not move the book (divergence 0.129->0.128): mega-winner underweight is a FORMATION problem (positions never built), not liquidation - meanwhile rotation freeze erased the spec gain (3.41->3.21). Interaction axis closed."
+    },
+    {
+      "script": "exp_S13_15_nonlinear_confirmation",
+      "phase": "S13.15 (2026-07-28): nonlinear-confirmation feature block. One accidental 5-feature result was observed before a wiring/order defect was detected; the formal rerun contained all 6 preregistered features.",
+      "param_space": "observed accidental 5-feature implementation state + formal nonlinear_confirmation_features_enabled 6-feature arm",
+      "trials": 2,
+      "result": "Accidental 5-feature IR was observed but is invalid for adoption and counted conservatively. Formal 6-feature E1 FAIL: dIR -0.2726; P1/P2/P3 all worse. OFF."
+    },
+    {
+      "script": "exp_S13_16_residual_nonlinear_sleeve",
+      "phase": "S13.16 (2026-07-28): fixed 10% ex-ante variance-reserved explicit OOF nonlinear residual sleeve with A/B/C attribution.",
+      "param_space": "A existing production (not recounted); B fixed sqrt(0.90) reserve-only diagnostic; C fixed sqrt(0.90) base + sqrt(0.10) covariance-orthogonal residual sleeve; no performance sweep",
+      "trials": 2,
+      "result": "REJECT. B-A dIR +0.0291 (reserve/de-risking helped), C-B dIR -0.0454 and C-A dIR -0.0163. P1 improved but P2/P3 worsened; residual score IC -0.0030. Structural risk-allocation gate also failed: residual-direction MVO infeasible on 63/84 active rebalances, so median realised residual variance share was 1.60% rather than 10%. Default remains OFF; no sign flip or post-hoc budget/model retune."
     }
   ],
-  "n_trials_total": 439,
+  "n_trials_total": 443,
   "notes": [
     "396 is a conservative lower bound. Actual N is likely higher once",
     "ad-hoc config.py tweaks over the research period are counted.",
@@ -286,6 +300,9 @@
     "2026-07-28: backfilled +26 configs covering S11.5..S13.14 (inventory had stopped at S10.2).",
     "N 413 -> 439. NOT counted: S11.8/S13.12 (measurement-only diagnoses on existing artifacts),",
     "S13.7 (pre-check disqualified the arm before any backtest), the aborted 4-feature S13.13",
-    "launch (killed unobserved before amendment), and byte-identical parity/vintage rechecks."
+    "launch (killed unobserved before amendment), and byte-identical parity/vintage rechecks.",
+    "2026-07-28: +2 observed S13.15 implementation states and +2 S13.16 A/B/C new return series;",
+    "A production was reused and not recounted. N 439 -> 443. S13.16 remained OFF after both",
+    "economic and intended-risk-allocation gates failed."
   ]
 }

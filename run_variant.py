@@ -360,6 +360,20 @@ def run(manifest_path: Path, no_cache: bool = False) -> int:
         "dr_alpha_residual", "dr_alpha_gamma", "dr_alpha_use_lgbm_feature",
         "dr_alpha_embargo", "dr_alpha_warm_start", "dr_alpha_seed",
         "dr_alpha_val_months", "dr_alpha_min_train_rebal", "dr_alpha_apply_ema",
+        # Explicit OOS residual nonlinear sleeve.  The production base is
+        # harvested unchanged; the secondary learner and A/B/C portfolio
+        # attribution run after Phase 4 on the cached panel/targets/scores.
+        "residual_sleeve_enabled", "residual_sleeve_risk_fraction",
+        "residual_sleeve_train_window", "residual_sleeve_retrain_freq",
+        "residual_sleeve_sample_freq", "residual_sleeve_min_train_dates",
+        "residual_sleeve_min_names",
+        "residual_sleeve_include_confirmation_features",
+        "residual_sleeve_clip_quantile",
+        "residual_sleeve_orthogonal_features",
+        "residual_sleeve_lgbm_params",
+        "residual_sleeve_turnover_penalty",
+        "residual_sleeve_risk_aversion",
+        "residual_sleeve_cross_risk_tolerance",
         # Alpha-source attribution — read-only post-hoc SHAP/decomp over the
         # harvested models; changes no features/targets/weights => cache-safe.
         "alpha_attribution_enabled", "alpha_attribution_n_dates",
@@ -443,6 +457,26 @@ def run(manifest_path: Path, no_cache: bool = False) -> int:
         data = UniverseData(data_path, config=cfg)
         result = run_backtest(data, config=cfg)
 
+    residual_sleeve_attribution = None
+
+    # ------------------------------------------------------------------
+    # Explicit OOS residual nonlinear alpha sleeve (default OFF)
+    # ------------------------------------------------------------------
+    if getattr(cfg, "residual_sleeve_enabled", False):
+        from src.residual_sleeve import run_residual_sleeve_experiment
+
+        print(
+            "[run_variant] residual_sleeve_enabled — training the explicit "
+            "matured-OOF residual learner and running A/B/C risk attribution"
+        )
+        result, residual_sleeve_attribution = run_residual_sleeve_experiment(
+            result, data, cfg
+        )
+        print(
+            "[run_variant] fixed-risk residual sleeve applied through the "
+            "production execution/projection path"
+        )
+
     # ------------------------------------------------------------------
     # CS-DR-Alpha production overlay (when dr_alpha_enabled)
     # ------------------------------------------------------------------
@@ -489,6 +523,8 @@ def run(manifest_path: Path, no_cache: bool = False) -> int:
     port = result.portfolio_returns.dropna()
     bm = result.benchmark_returns.dropna()
     metrics["sub_periods"] = sub_period_irs(port, bm)
+    if residual_sleeve_attribution is not None:
+        metrics["residual_sleeve_attribution"] = residual_sleeve_attribution
 
     if getattr(cfg, "alpha_attribution_enabled", False):
         from src.harness import compute_alpha_attribution
