@@ -17,6 +17,10 @@
     "bm_proportional_cap_vol_lookback": 63,
     "bm_proportional_cap_vol_scale_floor": 0.5,
     "bm_weight_floor": 0.02,
+    "carry_te_conditioning_enabled": false,
+    "carry_te_conditioning_features": null,
+    "carry_te_conditioning_kappa": 0.25,
+    "carry_te_conditioning_min_history": 504,
     "causal_validation_enabled": true,
     "confidence_spread_scale": 0.2,
     "convert_returns_to_usd": true,
@@ -89,6 +93,7 @@
     "growth_tilt_weight": 0.25,
     "index_eps_feature_names": null,
     "index_eps_features_enabled": false,
+    "index_revision_feature_enabled": false,
     "interaction_features_enabled": false,
     "lgbm_params": {
       "colsample_bytree": 0.8,
@@ -283,6 +288,6 @@
     "variant_label": "iter15_65tkr_reb21_vtg"
   },
   "git_dirty": true,
-  "git_hash": "f13289e805905da06f8c7f0da360a41377a696f7",
-  "timestamp_utc": "2026-07-29T02:44:03Z"
+  "git_hash": "5ec6478241b0180db6854b43d461258e5509c196",
+  "timestamp_utc": "2026-07-30T05:19:43Z"
 }
