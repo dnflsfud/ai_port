@@ -276,7 +276,7 @@
       "result": "REJECT. B-A dIR +0.0291 (reserve/de-risking helped), C-B dIR -0.0454 and C-A dIR -0.0163. P1 improved but P2/P3 worsened; residual score IC -0.0030. Structural risk-allocation gate also failed: residual-direction MVO infeasible on 63/84 active rebalances, so median realised residual variance share was 1.60% rather than 10%. Default remains OFF; no sign flip or post-hoc budget/model retune."
     }
   ],
-  "n_trials_total": 443,
+  "n_trials_total": 448,
   "notes": [
     "396 is a conservative lower bound. Actual N is likely higher once",
     "ad-hoc config.py tweaks over the research period are counted.",
@@ -303,6 +303,12 @@
     "launch (killed unobserved before amendment), and byte-identical parity/vintage rechecks.",
     "2026-07-28: +2 observed S13.15 implementation states and +2 S13.16 A/B/C new return series;",
     "A production was reused and not recounted. N 439 -> 443. S13.16 remained OFF after both",
-    "economic and intended-risk-allocation gates failed."
+    "economic and intended-risk-allocation gates failed.",
+    "2026-07-29: +4 new return series - S13.18 (index-EPS 4-feature bcast arm, E1 FAIL/gain 0),",
+    "S13.21 (2-feature subset arm, E1 FAIL/gain 0), S13.22a/b (carry TE-cap conditioning on",
+    "fac_eps_g63 and g63+tech composite, both E1 FAIL; A -0.174, B +0.111 with E2 direction FAIL).",
+    "Preflights S13.17/19/19a/20/20a reused existing artifacts (no new return series); the 19a/20a",
+    "4-way spread sweeps are recorded as exploratory selection events in the decision log. N 443 -> 447.",
+    "S13.23 country-mapped index revision feature arm (+1, E1 FAIL not adopted); the S0 recert on the 07-29 revision-vintage is a re-baseline, not a trial. N 447 -> 448."
   ]
 }
