@@ -740,6 +740,31 @@ class PipelineConfig:
     index_eps_feature_names: Optional[List[str]] = None
 
     # ------------------------------------------------------------------
+    # S13.22 (2026-07-29) — carry TE-cap conditioning (portfolio layer).
+    # §S13.19 preflight: S0's carry (gap) component covaries with the index
+    # EPS cycle (Δgap top−bottom +2.26%/yr, localized to the carry axis).
+    # Scales max_te_annual by the PIT expanding-percentile tercile of the
+    # conditioning feature(s): top x(1+kappa) / mid x1 / bottom x(1-kappa).
+    # The ranker/panel is untouched (S13.18/21: bcast features are invisible
+    # to within-query rank objectives). OFF by default: the optimize call
+    # path is byte-identical (multiplier series is None).
+    # ------------------------------------------------------------------
+    carry_te_conditioning_enabled: bool = False
+    # None -> ["fac_eps_g63"] (the §S13.19 preregistered primary).
+    carry_te_conditioning_features: Optional[List[str]] = None
+    carry_te_conditioning_kappa: float = 0.25
+    carry_te_conditioning_min_history: int = 504
+
+    # ------------------------------------------------------------------
+    # S13.23 (2026-07-29) — country-mapped index revision-rate feature.
+    # Single feature fac_idx_rev: each ticker carries its home-market index
+    # revision level (mapping preregistered in the decision log §S13.23; the
+    # bcast form is closed by §S13.18/21 zero-gain). OFF by default:
+    # byte-identical panel via the core-whitelist filter.
+    # ------------------------------------------------------------------
+    index_revision_feature_enabled: bool = False
+
+    # ------------------------------------------------------------------
     # S13.14 (2026-07-27) — winner-trim protection (combined arm with the
     # S13.13 interaction block)
     # ------------------------------------------------------------------

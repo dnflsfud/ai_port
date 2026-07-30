@@ -38,6 +38,7 @@ from src.portfolio_optimizer import (
     project_capped_weights,
     project_portfolio_weights,
 )
+from src.carry_te_conditioning import build_te_cap_multipliers
 from src.utils import annualise_return, compute_performance_metrics, compute_beta
 from src.features.utils import cross_sectional_zscore, cs_rank
 
@@ -1831,11 +1832,21 @@ def run_backtest(
     # unattached when factor_neutral is OFF, so OFF-default metrics are unchanged.
     _fn_telemetry = {"dates": 0, "cells": 0, "imputed": 0, "inert_dates": 0}
 
+    # S13.22: carry TE-cap conditioning. None while the flag is off (default),
+    # keeping the optimize_portfolio call below byte-identical to production.
+    _te_mult = build_te_cap_multipliers(
+        getattr(data, "factor_prices", None), config)
+
     def _optimizer_fn(pred_row, hist_returns, prev_w, s_map, bm_w, diagnostics=None):
         cov_matrix = estimate_covariance(hist_returns, bm_weights=bm_w, config=config)
+        te_cap = config.max_te_annual
+        if _te_mult is not None:
+            m = _te_mult.asof(pred_row.name)
+            if np.isfinite(m):
+                te_cap = config.max_te_annual * float(m)
         if diagnostics is not None:
             diagnostics["cov_matrix"] = cov_matrix
-            diagnostics["max_te_annual"] = config.max_te_annual
+            diagnostics["max_te_annual"] = te_cap
             diagnostics["sector_deviation"] = config.sector_deviation
         # Factor-neutral per-date style loadings (P3). Built here from the
         # captured panel + this rebalance date (pred_row.name); stays None when
@@ -1867,6 +1878,13 @@ def run_backtest(
                 hist_returns,
                 quantile=float(getattr(config, "winner_trim_quantile", 0.8)),
             )
+        # S13.22: pass the scaled cap only when conditioning is on — the OFF
+        # path keeps the exact production call. NB: optimize_portfolio treats
+        # a value equal to module-level MAX_TE_ANNUAL (0.045) as "unset";
+        # kappa=0.25 on 0.035 yields 0.02625/0.035/0.04375, never 0.045.
+        _opt_kwargs = {}
+        if _te_mult is not None:
+            _opt_kwargs["max_te_annual"] = te_cap
         return optimize_portfolio(
             expected_returns=pred_row,
             cov_matrix=cov_matrix,
@@ -1877,6 +1895,7 @@ def run_backtest(
             diagnostics=diagnostics,
             factor_loadings=factor_loadings,
             winner_mask=winner_mask,
+            **_opt_kwargs,
         )
 
     # Delegate to simulate_portfolio (the shared inner loop)
