@@ -215,6 +215,11 @@ FACTOR_CATEGORIES = {
     # features/index_eps.py; feature admission is flag-gated at the core
     # whitelist, so loading these columns is inert while the flag is OFF.
     "Earnings": ["SPX_FWD_EPS", "NDX_FWD_EPS", "MXWD_FWD_EPS"],
+    # S13.23: index-level revision rates — consumed only by
+    # features/index_revision.py under the same flag-gated idiom.
+    "Earnings_Revision": [
+        "SPX_REV", "NDX_REV", "SX5E_REV", "DAX_REV", "CAC_REV", "JPN_REV",
+    ],
 }
 ALL_FACTOR_COLUMNS = [col for cols in FACTOR_CATEGORIES.values() for col in cols]
 

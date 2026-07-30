@@ -34,6 +34,8 @@ from src.features.conditioning import build_conditioning_features
 from src.features.factor import build_factor_features
 from src.features.index_eps import (admitted_index_eps_features,
                                     build_index_eps_features)
+from src.features.index_revision import (admitted_index_revision_features,
+                                         build_index_revision_features)
 from src.features.interaction import build_sector_interaction_features
 from src.features.regime import build_regime_features
 from src.features.short_interest import build_short_interest_features
@@ -589,6 +591,10 @@ def build_all_features(
     # per-date-constant columns skip the CS z-score; built unconditionally
     # (S8 idiom), admission gated at the core-whitelist filter below.
     factor.update(build_index_eps_features(data))
+    # S13.23: country-mapped index revision level — Factor group so the raw
+    # % level skips the CS z-score (rank-invariant within date anyway);
+    # admission gated at the core-whitelist filter below.
+    factor.update(build_index_revision_features(data))
     regime = build_regime_features(data)
     short_interest = build_short_interest_features(data)
     # Phase 2 (2026-04-22): Macro × ticker cross features for P2 rate-shock fix.
@@ -710,6 +716,8 @@ def build_all_features(
         # S13.18: index forward-EPS growth/spread block (same idiom).
         # S13.21: optional subset via config.index_eps_feature_names.
         extra.update(admitted_index_eps_features(config))
+        # S13.23: country-mapped index revision feature (same idiom).
+        extra.update(admitted_index_revision_features(config))
         apply_core_filter(all_features, feature_groups,
                           extra_whitelist=(extra or None))
 
