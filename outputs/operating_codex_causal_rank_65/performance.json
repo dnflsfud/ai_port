@@ -1,31 +1,31 @@
 {
-  "as_of": "2026-07-29",
-  "annual_return": 0.24963515393371272,
-  "annual_vol": 0.20173599980842372,
-  "sharpe_ratio": 1.2374348364732912,
-  "active_return": 0.05077533717314364,
-  "tracking_error": 0.036586470357528746,
-  "information_ratio": 1.387817318176885,
-  "realized_beta": 1.05850631181939,
-  "avg_annual_turnover": 0.6701270439880266,
-  "avg_ic": 0.01611133928233431,
-  "total_return": 4.87339251804,
-  "bm_total_return": 3.0302499300639685,
-  "max_drawdown": -0.3256954476085405,
+  "as_of": "2026-07-30",
+  "annual_return": 0.24260246288988108,
+  "annual_vol": 0.20227566192404925,
+  "sharpe_ratio": 1.1993655617400663,
+  "active_return": 0.0471947436867155,
+  "tracking_error": 0.036109925938080545,
+  "information_ratio": 1.3069742587576234,
+  "realized_beta": 1.061803112213054,
+  "avg_annual_turnover": 0.6633398247862894,
+  "avg_ic": 0.017449094984611783,
+  "total_return": 4.620712043351199,
+  "bm_total_return": 2.9657727561356513,
+  "max_drawdown": -0.32764414675520426,
   "sub_period_ir": {
-    "P1_ir": 1.5263364921397147,
-    "P2_ir": 0.7275164152055109,
-    "P3_ir": 1.9539892253579374
+    "P1_ir": 1.1909598379913038,
+    "P2_ir": 0.6937886600300469,
+    "P3_ir": 2.0318994020490178
   },
   "sp500": {
-    "annual_return": 0.1431504769218397,
-    "annual_vol": 0.19663075998571333,
-    "sharpe_ratio": 0.7280166995857648,
-    "active_return": 0.09851126915221498,
-    "tracking_error": 0.059135433487457624,
-    "information_ratio": 1.6658585782263489,
-    "beta": 1.0018908734369407,
-    "total_return": 1.7787241205184259,
+    "annual_return": 0.14078845324164058,
+    "annual_vol": 0.19666241903001716,
+    "sharpe_ratio": 0.7158889529379359,
+    "active_return": 0.09445822983993368,
+    "tracking_error": 0.05862857809395976,
+    "information_ratio": 1.611129468099198,
+    "beta": 1.0054115930213616,
+    "total_return": 1.7365950363762126,
     "sub_period_ir": {
       "P1_ir": NaN,
       "P2_ir": NaN,
@@ -41,60 +41,60 @@
       "active_vs_sp500": 0.0174
     },
     "2019": {
-      "portfolio": 0.397,
+      "portfolio": 0.3949,
       "benchmark": 0.3505,
-      "active": 0.0465,
+      "active": 0.0444,
       "sp500": 0.2888,
-      "active_vs_sp500": 0.1082
+      "active_vs_sp500": 0.1061
     },
     "2020": {
-      "portfolio": 0.4276,
+      "portfolio": 0.3783,
       "benchmark": 0.2821,
-      "active": 0.1455,
+      "active": 0.0962,
       "sp500": 0.1626,
-      "active_vs_sp500": 0.265
+      "active_vs_sp500": 0.2158
     },
     "2021": {
-      "portfolio": 0.3029,
+      "portfolio": 0.2994,
       "benchmark": 0.2739,
-      "active": 0.029,
+      "active": 0.0255,
       "sp500": 0.2689,
-      "active_vs_sp500": 0.034
+      "active_vs_sp500": 0.0304
     },
     "2022": {
-      "portfolio": -0.235,
+      "portfolio": -0.2353,
       "benchmark": -0.2046,
-      "active": -0.0304,
+      "active": -0.0307,
       "sp500": -0.1944,
-      "active_vs_sp500": -0.0406
+      "active_vs_sp500": -0.0409
     },
     "2023": {
-      "portfolio": 0.4952,
+      "portfolio": 0.495,
       "benchmark": 0.3646,
-      "active": 0.1306,
+      "active": 0.1304,
       "sp500": 0.2423,
-      "active_vs_sp500": 0.2529
+      "active_vs_sp500": 0.2527
     },
     "2024": {
-      "portfolio": 0.3976,
+      "portfolio": 0.3788,
       "benchmark": 0.2841,
-      "active": 0.1134,
+      "active": 0.0947,
       "sp500": 0.2331,
-      "active_vs_sp500": 0.1645
+      "active_vs_sp500": 0.1457
     },
     "2025": {
-      "portfolio": 0.2902,
+      "portfolio": 0.3146,
       "benchmark": 0.2371,
-      "active": 0.0531,
+      "active": 0.0775,
       "sp500": 0.1639,
-      "active_vs_sp500": 0.1263
+      "active_vs_sp500": 0.1507
     },
     "2026": {
-      "portfolio": 0.1475,
-      "benchmark": 0.1096,
-      "active": 0.0378,
-      "sp500": 0.0852,
-      "active_vs_sp500": 0.0622
+      "portfolio": 0.1369,
+      "benchmark": 0.0919,
+      "active": 0.045,
+      "sp500": 0.0688,
+      "active_vs_sp500": 0.0681
     }
   },
   "optimizer_failure_rate": 0.0,
@@ -105,22 +105,22 @@
   "model_quality": {
     "source": "walk_forward_train",
     "total_retrains": 32,
-    "degenerate_retrains": 15,
-    "degenerate_rate": 0.46875,
+    "degenerate_retrains": 14,
+    "degenerate_rate": 0.4375,
     "min_model_trees": 10,
     "max_degenerate_model_rate": 0.25,
     "fail_on_degenerate_model_rate": false,
     "events": [
       {
-        "date": "2019-08-16",
-        "n_trees": 4,
+        "date": "2019-11-13",
+        "n_trees": 8,
         "min_model_trees": 10,
         "candidate_features": 60,
         "reused_prev_model": true
       },
       {
-        "date": "2019-11-13",
-        "n_trees": 9,
+        "date": "2020-05-07",
+        "n_trees": 8,
         "min_model_trees": 10,
         "candidate_features": 60,
         "reused_prev_model": true
@@ -154,13 +154,6 @@
         "reused_prev_model": true
       },
       {
-        "date": "2022-01-14",
-        "n_trees": 2,
-        "min_model_trees": 10,
-        "candidate_features": 60,
-        "reused_prev_model": true
-      },
-      {
         "date": "2022-04-13",
         "n_trees": 2,
         "min_model_trees": 10,
@@ -183,7 +176,7 @@
       },
       {
         "date": "2023-12-21",
-        "n_trees": 4,
+        "n_trees": 5,
         "min_model_trees": 10,
         "candidate_features": 60,
         "reused_prev_model": true
@@ -210,8 +203,8 @@
         "reused_prev_model": true
       },
       {
-        "date": "2026-02-23",
-        "n_trees": 5,
+        "date": "2025-03-06",
+        "n_trees": 6,
         "min_model_trees": 10,
         "candidate_features": 60,
         "reused_prev_model": true
@@ -672,12 +665,12 @@
     ]
   },
   "data_quality": {
-    "intersection_dates": 3262,
-    "longest_sheet_dates": 4957,
-    "intersection_pct_of_longest": 0.6580593100665725,
+    "intersection_dates": 3263,
+    "longest_sheet_dates": 4958,
+    "intersection_pct_of_longest": 0.6581282775312626,
     "tail_ffill_days": 1,
-    "tail_from": "2026-07-28",
-    "tail_to": "2026-07-29",
+    "tail_from": "2026-07-29",
+    "tail_to": "2026-07-30",
     "tail_extended_dates": 1,
     "weekend_dates_removed": 0,
     "calendar_type": "weekday_index",
@@ -709,9 +702,10 @@
         "Factset_TG_Price": 46449,
         "Factset_Fwd_OpCashflow": 46449,
         "Factset_EPS_Surprise": 46449,
-        "Factset_Sales_Surprise": 46449
+        "Factset_Sales_Surprise": 46449,
+        "Factset_EPS_Est_StdDev": 46449
       },
-      "total_masked_cells": 1145222,
+      "total_masked_cells": 1191671,
       "resolved_ticker_count": 200,
       "unresolved_tickers": [],
       "source_counts": {
@@ -985,13 +979,13 @@
         "DKK": 1.0
       },
       "latest_source_date_by_currency": {
-        "USD": "2026-07-29",
-        "KRW": "2026-07-29",
-        "JPY": "2026-07-29",
-        "EUR": "2026-07-29",
-        "CHF": "2026-07-29",
-        "GBP": "2026-07-29",
-        "DKK": "2026-07-29"
+        "USD": "2026-07-30",
+        "KRW": "2026-07-30",
+        "JPY": "2026-07-30",
+        "EUR": "2026-07-30",
+        "CHF": "2026-07-30",
+        "GBP": "2026-07-30",
+        "DKK": "2026-07-30"
       },
       "max_staleness_days_by_currency": {
         "USD": 0,
@@ -1016,7 +1010,7 @@
       "base_currency": "USD",
       "price_return_reconciliation_max_abs_error": 4.440892098500626e-16
     },
-    "fx_data_as_of": "2026-07-29",
+    "fx_data_as_of": "2026-07-30",
     "fx_missing_currencies": [],
     "fx_stale_currencies": [],
     "universe_funnel": {
@@ -1042,8 +1036,8 @@
       }
     },
     "data_freshness": {
-      "portfolio_data_as_of": "2026-07-29",
-      "fx_data_as_of": "2026-07-29",
+      "portfolio_data_as_of": "2026-07-30",
+      "fx_data_as_of": "2026-07-30",
       "max_fx_staleness_days": 7
     }
   },
@@ -1071,8 +1065,8 @@
     }
   },
   "data_freshness": {
-    "data_as_of": "2026-07-29",
-    "fx_data_as_of": "2026-07-29",
+    "data_as_of": "2026-07-30",
+    "fx_data_as_of": "2026-07-30",
     "fx_missing_currencies": [],
     "fx_stale_currencies": [],
     "tail_ffill_days": 1,
