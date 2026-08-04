@@ -2,192 +2,193 @@
   "n_models": 32,
   "top_features": [
     {
-      "feature": "idio_vol_63d",
-      "importance": 55.6,
-      "share_pct": 4.66,
-      "group": "Price"
-    },
-    {
       "feature": "best_capex_level_z",
-      "importance": 51.2,
-      "share_pct": 4.3,
+      "importance": 107.4,
+      "share_pct": 3.97,
       "group": "Accounting"
     },
     {
       "feature": "oper_margin_chg_252d",
-      "importance": 47.0,
-      "share_pct": 3.94,
+      "importance": 100.1,
+      "share_pct": 3.7,
       "group": "Accounting"
     },
     {
-      "feature": "realized_vol_126d",
-      "importance": 42.8,
-      "share_pct": 3.59,
+      "feature": "idio_vol_63d",
+      "importance": 88.1,
+      "share_pct": 3.26,
       "group": "Price"
     },
     {
-      "feature": "dist_52w_high",
-      "importance": 42.1,
-      "share_pct": 3.53,
+      "feature": "beta_63d",
+      "importance": 86.3,
+      "share_pct": 3.19,
       "group": "Price"
     },
     {
       "feature": "capex_intensity_z",
-      "importance": 41.5,
-      "share_pct": 3.48,
+      "importance": 85.4,
+      "share_pct": 3.16,
       "group": "Accounting"
     },
     {
       "feature": "fin_roe_pb_gap",
-      "importance": 40.5,
-      "share_pct": 3.39,
+      "importance": 79.9,
+      "share_pct": 2.95,
       "group": "Financials"
     },
     {
       "feature": "best_roe_level_z",
-      "importance": 38.1,
-      "share_pct": 3.19,
+      "importance": 78.9,
+      "share_pct": 2.92,
       "group": "Accounting"
     },
     {
-      "feature": "beta_63d",
-      "importance": 33.2,
-      "share_pct": 2.78,
+      "feature": "dist_52w_high",
+      "importance": 76.1,
+      "share_pct": 2.82,
       "group": "Price"
-    },
-    {
-      "feature": "best_ev_to_best_ebitda_level_z",
-      "importance": 33.2,
-      "share_pct": 2.78,
-      "group": "Accounting"
-    },
-    {
-      "feature": "oper_margin_chg_63d",
-      "importance": 32.0,
-      "share_pct": 2.68,
-      "group": "Accounting"
-    },
-    {
-      "feature": "cash_conversion_z",
-      "importance": 31.6,
-      "share_pct": 2.65,
-      "group": "Accounting"
-    },
-    {
-      "feature": "best_sales_chg_252d",
-      "importance": 31.5,
-      "share_pct": 2.64,
-      "group": "Accounting"
-    },
-    {
-      "feature": "fin_pe_level_z",
-      "importance": 31.3,
-      "share_pct": 2.63,
-      "group": "Financials"
-    },
-    {
-      "feature": "ma_cross_50_200",
-      "importance": 30.4,
-      "share_pct": 2.55,
-      "group": "Price"
-    },
-    {
-      "feature": "sales_rev_ma_63d",
-      "importance": 30.1,
-      "share_pct": 2.52,
-      "group": "Sellside"
     },
     {
       "feature": "analyst_rec_level",
-      "importance": 29.8,
-      "share_pct": 2.5,
+      "importance": 71.6,
+      "share_pct": 2.65,
       "group": "Sellside"
     },
     {
-      "feature": "fin_roe_pe_gap",
-      "importance": 28.7,
-      "share_pct": 2.4,
-      "group": "Financials"
+      "feature": "fwd_sales_slope_level",
+      "importance": 71.2,
+      "share_pct": 2.64,
+      "group": "FwdSalesSlope"
     },
     {
-      "feature": "best_calculated_fcf_level_z",
-      "importance": 27.8,
+      "feature": "oper_margin_chg_63d",
+      "importance": 69.5,
+      "share_pct": 2.57,
+      "group": "Accounting"
+    },
+    {
+      "feature": "realized_vol_126d",
+      "importance": 68.7,
+      "share_pct": 2.54,
+      "group": "Price"
+    },
+    {
+      "feature": "ma_cross_50_200",
+      "importance": 63.0,
+      "share_pct": 2.33,
+      "group": "Price"
+    },
+    {
+      "feature": "cash_conversion_z",
+      "importance": 63.0,
       "share_pct": 2.33,
       "group": "Accounting"
     },
     {
-      "feature": "max_ret_63d",
-      "importance": 26.6,
-      "share_pct": 2.23,
-      "group": "Price"
+      "feature": "tg_upside",
+      "importance": 61.8,
+      "share_pct": 2.29,
+      "group": "Sellside"
     },
     {
-      "feature": "best_gross_margin_chg_63d",
-      "importance": 23.8,
-      "share_pct": 1.99,
+      "feature": "nl_fslope_growth_confirm",
+      "importance": 59.4,
+      "share_pct": 2.2,
+      "group": "FwdSalesSlope"
+    },
+    {
+      "feature": "best_calculated_fcf_level_z",
+      "importance": 58.0,
+      "share_pct": 2.15,
+      "group": "Accounting"
+    },
+    {
+      "feature": "best_gross_margin_chg_252d",
+      "importance": 57.8,
+      "share_pct": 2.14,
+      "group": "Accounting"
+    },
+    {
+      "feature": "fin_pe_level_z",
+      "importance": 57.7,
+      "share_pct": 2.14,
+      "group": "Financials"
+    },
+    {
+      "feature": "oper_margin_accel",
+      "importance": 57.2,
+      "share_pct": 2.11,
+      "group": "Accounting"
+    },
+    {
+      "feature": "nl_fslope_rev_confirm",
+      "importance": 54.0,
+      "share_pct": 2.0,
+      "group": "FwdSalesSlope"
+    },
+    {
+      "feature": "fin_roe_pe_gap",
+      "importance": 53.2,
+      "share_pct": 1.97,
+      "group": "Financials"
+    },
+    {
+      "feature": "sales_rev_ma_63d",
+      "importance": 51.6,
+      "share_pct": 1.91,
+      "group": "Sellside"
+    },
+    {
+      "feature": "best_sales_chg_252d",
+      "importance": 50.0,
+      "share_pct": 1.85,
       "group": "Accounting"
     },
     {
       "feature": "best_px_bps_ratio_level_z",
-      "importance": 22.9,
-      "share_pct": 1.92,
+      "importance": 47.2,
+      "share_pct": 1.75,
       "group": "Accounting"
     },
     {
-      "feature": "oper_margin_accel",
-      "importance": 21.2,
-      "share_pct": 1.77,
-      "group": "Accounting"
+      "feature": "fwd_sales_slope_chg_63d",
+      "importance": 46.9,
+      "share_pct": 1.73,
+      "group": "FwdSalesSlope"
     },
     {
       "feature": "op_leverage_63d",
-      "importance": 20.3,
+      "importance": 46.0,
       "share_pct": 1.7,
       "group": "Accounting"
     },
     {
-      "feature": "tg_upside",
-      "importance": 19.8,
+      "feature": "max_ret_63d",
+      "importance": 45.1,
+      "share_pct": 1.67,
+      "group": "Price"
+    },
+    {
+      "feature": "eps_rev_ma_63d",
+      "importance": 45.0,
       "share_pct": 1.66,
       "group": "Sellside"
     },
     {
-      "feature": "best_gross_margin_chg_252d",
-      "importance": 19.2,
-      "share_pct": 1.61,
+      "feature": "best_ev_to_best_ebitda_level_z",
+      "importance": 44.8,
+      "share_pct": 1.66,
       "group": "Accounting"
-    },
-    {
-      "feature": "fin_sales_chg_63d",
-      "importance": 19.0,
-      "share_pct": 1.59,
-      "group": "Financials"
-    },
-    {
-      "feature": "fin_eps_chg_63d",
-      "importance": 18.9,
-      "share_pct": 1.59,
-      "group": "Financials"
-    },
-    {
-      "feature": "eps_rev_ma_63d",
-      "importance": 18.6,
-      "share_pct": 1.56,
-      "group": "Sellside"
-    },
-    {
-      "feature": "min_ret_63d",
-      "importance": 18.4,
-      "share_pct": 1.54,
-      "group": "Price"
     }
   ],
   "group_importance": {
-    "Accounting": 41.36,
-    "Price": 26.08,
-    "Financials": 17.5,
+    "Accounting": 38.35,
+    "Price": 22.61,
+    "Financials": 15.27,
     "Sellside": 12.73,
-    "MacroCross": 2.33,
+    "FwdSalesSlope": 8.57,
+    "MacroCross": 2.48,
     "Factor": 0.0,
     "Conditioning": 0.0
   }

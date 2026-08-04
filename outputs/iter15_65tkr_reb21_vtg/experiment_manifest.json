@@ -82,6 +82,7 @@
     "fwd_opcf_rev_126d_feature_enabled": false,
     "fwd_opcf_rev_252d_feature_enabled": false,
     "fwd_opcf_rev_63d_feature_enabled": false,
+    "fwd_sales_slope_features_enabled": false,
     "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
     "growth_tilt_enabled": true,
     "growth_tilt_eps_skew": 0.5,
@@ -204,6 +205,7 @@
       10
     ],
     "rank_relevance_levels": 10,
+    "rebalance_at_month_end": false,
     "rebalance_freq": 21,
     "regime_aware_pca_lookback": false,
     "regime_pca_min_effective_n": 30,
@@ -287,7 +289,7 @@
     "tuning_mode": "production",
     "variant_label": "iter15_65tkr_reb21_vtg"
   },
-  "git_dirty": false,
-  "git_hash": "7e5b79caee9db1ea4dcac585052cb953cf8e8699",
-  "timestamp_utc": "2026-07-31T02:43:58Z"
+  "git_dirty": true,
+  "git_hash": "92ebcf1529aa47dfc31aa872d87dbf62d7c1f555",
+  "timestamp_utc": "2026-08-04T02:44:21Z"
 }

@@ -680,8 +680,8 @@
   },
   "data_quality": {
     "intersection_dates": 3263,
-    "longest_sheet_dates": 4958,
-    "intersection_pct_of_longest": 0.6581282775312626,
+    "longest_sheet_dates": 4959,
+    "intersection_pct_of_longest": 0.657995563621698,
     "tail_ffill_days": 1,
     "tail_from": "2026-07-29",
     "tail_to": "2026-07-30",
@@ -717,9 +717,10 @@
         "Factset_Fwd_OpCashflow": 46449,
         "Factset_EPS_Surprise": 46449,
         "Factset_Sales_Surprise": 46449,
-        "Factset_EPS_Est_StdDev": 46449
+        "Factset_EPS_Est_StdDev": 46449,
+        "Fwd_Sales_Slope_1FY2FY": 46449
       },
-      "total_masked_cells": 1191671,
+      "total_masked_cells": 1238120,
       "resolved_ticker_count": 200,
       "unresolved_tickers": [],
       "source_counts": {
@@ -1059,5 +1060,5 @@
     "ECOS": 192
   },
   "optimizer_solver_fallback_rate": 0.0,
-  "elapsed_sec": 769.4
+  "elapsed_sec": 791.2
 }
