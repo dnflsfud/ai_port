@@ -197,7 +197,7 @@ SKIP_SHEETS = {"Universe_Meta", "Summary_Stats", "BusinessDays", "Factor_Meta", 
 FACTOR_SHEETS = {"Factor_PX_LAST", "Factor_Returns", "Factor_Meta"}
 
 # Bloomberg "XXX US Equity" 형식 컬럼을 쓰는 시트
-BLOOMBERG_EQUITY_SHEETS = {"SHORT_INT_RATIO"}
+BLOOMBERG_EQUITY_SHEETS = {"SHORT_INT_RATIO", "Fwd_Sales_Slope_1FY2FY"}
 
 FACTOR_CATEGORIES = {
     "Market_Index": ["SPX", "NDX", "RTY", "MXWD", "MXEF", "SX5E", "NKY", "HSI", "SHCOMP"],

@@ -12,7 +12,9 @@ outputs/csv/
 # research arms: the decision log is the record, not the run output.
 # run_and_upload.bat does `git add -A`, so anything left here is published.
 outputs/arm_*/
+outputs/s0_recert_*/
 outputs/*.log
+outputs/*.ps1
 # scratch/tooling that must never reach the repo (2026-07-27: 7,269
 # node_modules files were swept into df81210 by the scheduled run).
 node_modules/

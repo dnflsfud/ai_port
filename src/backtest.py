@@ -1131,6 +1131,28 @@ def _default_rebal_check(t_idx: int, t_date, start_idx: int, rebalance_freq: int
     return (t_idx - start_idx) % rebalance_freq == 0
 
 
+def make_month_end_rebal_check(dates) -> Callable:
+    """§S13.25: 월별 마지막 거래일 리밸런싱 체크 팩토리.
+
+    21BD 고정 그리드 대신 각 달력 월의 마지막 거래일에 리밸런싱한다.
+    첫날 초기 편입은 기본 체크와 동일하게 유지. 달력의 마지막 날짜는 다음
+    거래일이 없어 월말 여부를 판정할 수 없으므로 리밸런싱하지 않는다
+    (잔여 보유기간 0에 TC만 내는 무의미 거래 방지).
+    """
+    dates = pd.DatetimeIndex(dates)
+    is_eom = np.zeros(len(dates), dtype=bool)
+    if len(dates) > 1:
+        is_eom[:-1] = dates[:-1].month != dates[1:].month
+
+    def _check(t_idx: int, t_date, start_idx: int, rebalance_freq: int,
+               state: dict) -> bool:
+        if state.get("first_rebal", True):
+            return True
+        return bool(is_eom[t_idx])
+
+    return _check
+
+
 def _sanitize_daily_ret(daily_ret: np.ndarray) -> np.ndarray:
     """Replace NaN in a daily return vector with 0.
 
@@ -1910,7 +1932,12 @@ def run_backtest(
         optimizer_fn=_optimizer_fn,
         targets=targets,
         bm_weights_fn=bm_weights_fn,   # REDESIGN A: cap-weighted by default
-        rebal_check_fn=None,  # default fixed-period
+        # S13.25: month-end schedule opt-in; None keeps default fixed-period.
+        rebal_check_fn=(
+            make_month_end_rebal_check(all_dates)
+            if getattr(config, "rebalance_at_month_end", False)
+            else None
+        ),
         weight_drift=True,
         bm_drift=True,
         track_ic=True,

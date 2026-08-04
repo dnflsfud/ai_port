@@ -34,6 +34,8 @@ from src.features.conditioning import build_conditioning_features
 from src.features.factor import build_factor_features
 from src.features.index_eps import (admitted_index_eps_features,
                                     build_index_eps_features)
+from src.features.fwd_sales_slope import (admitted_fwd_sales_slope_features,
+                                          build_fwd_sales_slope_features)
 from src.features.index_revision import (admitted_index_revision_features,
                                          build_index_revision_features)
 from src.features.interaction import build_sector_interaction_features
@@ -677,6 +679,12 @@ def build_all_features(
     )
     all_features.update(nonlinear_confirmation)
 
+    # S13.25: fwd sales term-structure slope block (S8 idiom); admission is
+    # gated at the core-whitelist filter below, so OFF stays byte-identical.
+    fwd_sales_slope = build_fwd_sales_slope_features(all_features, data)
+    feature_groups["FwdSalesSlope"] = list(fwd_sales_slope.keys())
+    all_features.update(fwd_sales_slope)
+
     # REDESIGN C++ (2026-04-11 PM): "core" mode further prunes to a hand-picked
     # whitelist (~85 features) with explicit style balance based on the
     # A+C+D+E run's feature importance ranking. This drops 239 -> 85 while
@@ -718,6 +726,8 @@ def build_all_features(
         extra.update(admitted_index_eps_features(config))
         # S13.23: country-mapped index revision feature (same idiom).
         extra.update(admitted_index_revision_features(config))
+        # S13.25: fwd sales term-structure slope block (same idiom).
+        extra.update(admitted_fwd_sales_slope_features(config))
         apply_core_filter(all_features, feature_groups,
                           extra_whitelist=(extra or None))
 

@@ -592,6 +592,9 @@ class PipelineConfig:
     # P2 IR도 약간 도움 가능 (less churn). P3 (signal-following 강한 시기) 슬로우다운 리스크.
     rebalance_freq: int = 21
     one_way_tc: float = 0.0010
+    # S13.25 (2026-07-31): ON이면 21BD 고정 그리드 대신 각 달력 월의 마지막
+    # 거래일에 리밸런싱한다(첫날 초기 편입은 유지). OFF 경로는 기존 코드 그대로.
+    rebalance_at_month_end: bool = False
 
     # ------------------------------------------------------------------
     # Signal stability penalty (2026-04-20, INFRA)
@@ -763,6 +766,15 @@ class PipelineConfig:
     # byte-identical panel via the core-whitelist filter.
     # ------------------------------------------------------------------
     index_revision_feature_enabled: bool = False
+
+    # ------------------------------------------------------------------
+    # S13.25 (2026-07-31) — fwd sales term-structure slope features.
+    # Four preregistered features from the Fwd_Sales_Slope_1FY2FY sheet
+    # (FY1→FY2 implied sales growth): level, Δ63, and two S13.15-idiom
+    # soft-AND confirmations. OFF by default: byte-identical panel via the
+    # core-whitelist filter.
+    # ------------------------------------------------------------------
+    fwd_sales_slope_features_enabled: bool = False
 
     # ------------------------------------------------------------------
     # S13.14 (2026-07-27) — winner-trim protection (combined arm with the
