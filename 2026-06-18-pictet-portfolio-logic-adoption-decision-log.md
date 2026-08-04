@@ -3459,3 +3459,29 @@ B 첫 시도는 세션 자식 프로세스로 돌다 슬립 hang(14:18~23:10) �
 (사용자 지시 자체가 결과 열람 목적). A의 "실질 gain 소비 + 전구간 양 delta"
 조합은 §2.4에 따라 설명력 기록으로만 남긴다 — 스윕·재시도는 새 사전등록 없이
 하지 않는다. 인벤토리 448→451(S0′ 재인증 불산입).
+
+### §S13.25 Production flip — slope 피처 4종 채택 (2026-08-04, 사용자 오버라이드)
+
+- **사용자 지시**: "피처 4종 적용할래. 그걸 최종안으로 해줘" — E1 바(+0.36)
+  미달(ΔIR +0.266)을 위 측정 기록과 함께 보고받은 상태에서의 명시적 오버라이드.
+  B(월말 리밸)·C(결합)는 불채택 유지. 후보 1개 단독 flip(§8 준수).
+- **§2.7 DSR 해킷(N=451, arm A pkl, 2026-08-04)**: DSR p=0.1918 · Deflated SR
+  0.871(관측 SR 1.548, null 최대기대 1.239) → DSR FAIL; Haircut 조정 SR 0.309
+  PASS; MinTRL 1.1yr(보유 7.9yr) SUFFICIENT; 서브기간 IR 1.341/1.235/2.003
+  전부 양 STABLE; 생존편향 WARN 19종(구조적, 기존과 동일). 종합 **FAIL —
+  2026-07-11 codex 승격과 동일 구조의 사용자 오버라이드**로 기록.
+- **flip**: `variants/codex_causal_rank_65.yaml`에
+  `fwd_sales_slope_features_enabled: true` 1줄(+주석) 추가.
+- **재검증(§8)**: 편집된 production variant 자체를 재실행(2026-08-04
+  09:12→09:27, exit 0, schtasks 분리) → arm A와 **전 지표 float 정밀도까지
+  EXACT 일치**(IR 1.5733669451 / TE 3.6362% / beta 1.0521 / turnover 0.6908 /
+  subs 1.3355·1.1205·2.0823 / ECOS 192 / fallback 0). `outputs/
+  codex_causal_rank_65` 산출물 갱신.
+- **롤백**: 플래그 1줄 삭제 = default-OFF 복원. OFF parity·게이트는
+  `tests/test_fwd_sales_slope.py` 5/5 PASS로 인증. 전체 스위트 443 PASS —
+  과거 arm 수용 테스트 6건은 "이후 채택된 production 플래그 제외" 최소 수정
+  (테스트 의도인 측정 당시 단일-delta 사실은 불변).
+- **새 production 헤드라인**: **IR 1.5734 / TE 3.64% / beta 1.052 /
+  turnover 0.691** (slope 빈티지 S0′ 1.3070 대비 +0.266). 퇴화율 46.9%(+1건)
+  — HOLD 게이트 항목은 다음 스케줄 런에서 자동 재평가.
+- 커밋: research 9762a71 + flip(본 기록 포함) 독립 2건.

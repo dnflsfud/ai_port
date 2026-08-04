@@ -116,3 +116,8 @@ overrides:
   max_sector_active_risk_share: 0.85  # recalibrated 2026-07-18, decision log S10.1
   expected_universe_size: 200  # point-in-time membership guard, decision log S13.3
   dr_alpha_enabled: false
+
+  # Fwd sales term-structure slope feature block (4 features), adopted by user
+  # override 2026-08-04 — decision log S13.25 Production flips. Rollback = delete
+  # this line (default-OFF, byte-identical parity certified by unit tests).
+  fwd_sales_slope_features_enabled: true
