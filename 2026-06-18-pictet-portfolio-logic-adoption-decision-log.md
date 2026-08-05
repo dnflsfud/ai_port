@@ -4074,3 +4074,116 @@ E2 = tail 4종(MaxDD·activeMaxDD·최악 서브기간 IR·downCap) 개선, E3 =
 산출물: `outputs/s13_31_quality_tilt/summary.json`·arm별 액티브 CSV,
 로그 `outputs/s13_31_run.log`, 스크립트 `scripts/run_s13_31_quality_tilt_arm.py`,
 테스트 `tests/test_run_s13_31_quality_tilt_arm.py`.
+
+## §S13.32 퀄리티 틸트 파이프라인 정식화 — 사전등록 (2026-08-05, 측정 전)
+
+**동기/사용자 지시**: §S13.31 회부에 대해 사용자가 "그렇게 결합해서 다시
+테스트" 지시 = 선택지 (b) 정식 승격 경로. 재-MVO 진단을 **파이프라인 내
+구현 + 전체 백테스트**로 재검증한다.
+
+**구현 스펙(사전약정)**:
+- `PipelineConfig`: `vol_quality_tilt_enabled: bool = False`(default-OFF),
+  `vol_quality_tilt_lambda: float = 0.25`(§S13.31 단일 약정값 승계, 재튜닝
+  금지).
+- `apply_vol_quality_tilt(predictions, panel, config)` — §S13.31
+  `apply_quality_tilt`와 동일 산식(top idio_vol tercile 내
+  `score' = score + λ·sd(scored)·z_q`, z_q = tercile 내 `best_roe_level_z`
+  1/99 윈저 z). 삽입 위치 = `run_backtest`의
+  **`result.pre_overlay_predictions` 저장 직후·listing mask 전** —
+  §S13.31 재-MVO의 주입 지점과 동일 연산이 되도록, 그리고 체크포인트가
+  pre-tilt 패널을 보존해 cache-reuse 재주입 시 틸트가 정확히 1회만 적용되는
+  §4.2 의미론을 유지하도록.
+- OFF parity: 가드가 `if enabled` 1줄이므로 OFF 경로는 구조적으로 바이트
+  동일. 단위테스트로 disabled 시 predictions 무변경(동일 객체)·enabled 시
+  델타 산식·tercile 밖 불변·NaN 통과를 선행 검증(RED→GREEN).
+
+**arm**: `variants/arm_s13_32_volqual_tilt.yaml` = production yaml 전량 복사
+(portfolio_role: experiment) + 플래그 2줄. 실행 = schtasks + 슬립 억제 래퍼
+(run_s13_29.ps1 패턴), 단일 런.
+
+**빈티지**: 워크북 07-31 15:12 불변 확인(13:16 현재). production 산출물은
+오늘(08-05 11:59) 스케줄 런 재생성분 — §S13.31 pkl·G0와 동일 빈티지이므로
+재현 게이트가 유효하다.
+
+**판정 기준(사전등록)**:
+- **E0(재현·선결)**: |IR(arm) − 1.6196(§S13.31 Q1)| ≤ 0.005. FAIL이면
+  파이프라인 구현이 재-MVO와 불일치 — 원인 규명 전 결론 금지.
+- **E1(기록)**: ΔIR vs production 1.5734. |ΔIR| < 0.36 예상 — IR 근거 채택
+  불가, "무비용 퀄리티 노출" 근거의 후보로만.
+- **E2(캐릭터·교차검증)**: TE ≤ 4.5%, **퇴화율 15/32 production과 동일**
+  (모델 계층 불변의 강한 교차검증), vol_z 노출 ~+0.37 유지, quality_z 노출
+  +0.05 부근 재현.
+- **DSR**: 측정 후 `run_selection_bias.py`(N=459) 해킷 기록(§2.7 — 활성화
+  전 필수 절차의 선이행).
+- **인벤토리**: +1 (458 → 459). 채택 여부는 §8대로 사용자 결정(자동 flip
+  없음, default-OFF 유지).
+
+상태: **측정 완료 (2026-08-05 14:18, 1014s, exit 0) → 아래 결과.**
+
+### §S13.32 결과 — **E0 부동소수점 재현 · E2 전항 PASS · DSR p=0.154(production 대비 소폭 우위) · flip 사용자 회부**
+
+**실행 기록**: 구현 = config 플래그 2종 + `apply_vol_quality_tilt`(backtest.py,
+pre-overlay 체크포인트 직후) + 단위테스트 4건(OFF 동일 객체 반환 = 구조적
+parity, ON 시 §S13.31 진단 변환과 셀 단위 일치) + **전체 스위트 467 passed**.
+1차 런(13:22)은 Phase 2 MemoryError로 사망 — 원인 실측: **C: 여유 0.2GB**
+(디스크풀 → 페이지파일 축소 → 커밋 한계 고갈, §S13.27 1차와 동일 기제).
+사용자 승인 하 `AppData\Roaming\Claude\vm_bundles\claudevm.bundle`(10.55GB,
+7/27 이후 미사용, 재다운로드 가능) 삭제 → 여유 13GB. 2차(14:01:54, schtasks+
+슬립 억제) 성공.
+
+| 지표 | production | arm(전체 파이프라인) | §S13.31 Q1(재-MVO) |
+|---|---:|---:|---:|
+| IR | 1.5734 | **1.619622** | 1.619622 |
+| 액티브 / TE | 5.72% / 3.64% | 5.884% / 3.633% | 동일 |
+| beta / turnover | 1.052 / 0.691 | 1.0530 / 0.7090 | 동일 |
+| MaxDD | −32.71% | −32.85% | 동일 |
+| 퇴화율 | 15/32 | **15/32 (동일)** | n/a(재학습 없음) |
+| 솔버 | ECOS/fallback 0 | ECOS 192회/fallback 0 | 동일 경로 |
+
+- **E0 PASS(사실상 0 오차)**: 워크포워드 재학습(32회)을 포함한 전체 경로가
+  §S13.31 재-MVO와 IR·액티브·TE·beta·turnover·MaxDD 전항 일치 — 파이프라인
+  결정론 + 구현 동일성이 동시에 증명됨. 재-MVO 진단과 정식 경로 간 갭 없음.
+- **E1**: ΔIR +0.0463(노이즈 밴드 |ΔIR|<0.36 내 — IR 근거 채택 불가 유지).
+- **E2 PASS**: TE 3.63% ≤ 4.5%, 퇴화율 15/32 production 동일(모델 계층 불변
+  교차검증), 단일 ECOS 프로토콜 준수. 서브기간 IR(DSR 리포트 3분할)
+  1.335/1.255/2.112 전부 양.
+- **DSR 해킷(N=459, §2.7 선이행)**: DSR p=**0.1538 FAIL** / Adjusted SR
+  0.359 PASS / MinTRL 1.1yr 충분 / 서브기간 STABLE / 생존편향 WARN(기지
+  19종 늦은 진입 — §S13.28 한계 (i)와 동일). 맥락: **production 자체가
+  p=0.192 FAIL 상태**에서 사용자 오버라이드로 승격된 전례(§S9 codex 승격,
+  §S13.25 slope 채택) — arm의 p는 production보다 소폭 낫다(액티브 증가분이
+  깎이고도 SR이 높아진 결과).
+
+**판정**: 사전등록 게이트 전부 이행(E0·E2 PASS, E1·DSR 기록). **production
+flip은 §8대로 사용자 결정 대기** — `vol_quality_tilt_*` default-OFF 유지.
+채택 절차(승인 시): `variants/codex_causal_rank_65.yaml`에 플래그 2줄 추가
+(독립 1커밋), 롤백 = 2줄 삭제(E0가 곧 바이트동일 복원의 증명). 채택 근거는
+IR이 아니라 **무비용 퀄리티 노출 전환**(−0.03→+0.05, vol 캐릭터 보존)임을
+명시한다.
+
+산출물: `outputs/arm_s13_32_volqual_tilt/`(metrics·pkl·manifest),
+`outputs/s13_32_run.log`, DSR `outputs/reports/selection_bias_report.md`
+(2026-08-05 14:24, N=459), 코드 `src/config.py`·`src/backtest.py`
+(`apply_vol_quality_tilt`), 테스트 `tests/test_vol_quality_tilt.py`,
+variant `variants/arm_s13_32_volqual_tilt.yaml`.
+
+### §S13.32 Production flip (2026-08-05, 사용자 채택 지시)
+
+사용자가 §S13.32 회부를 **채택**으로 결정 — `codex_causal_rank_65.yaml`에
+`vol_quality_tilt_enabled: true` / `vol_quality_tilt_lambda: 0.25` 2줄 추가.
+**새 production 인증 수치 = IR 1.6196 / 액티브 5.88% / TE 3.63% / beta 1.053 /
+turnover 0.709 / 퇴화율 15/32**(arm_s13_32 런, 워크북 07-31 15:12 빈티지,
+단일 ECOS·fallback 0).
+
+- **§8 재검증 처리**: flip 후 재실행은 arm 런과 문자 그대로 동일 config이고,
+  §S13.32 E0가 전체 파이프라인 결정론(재-MVO ↔ full run 부동소수점 일치)을
+  이미 증명했으므로 **arm 런이 곧 flip 검증**이다. 별도 재실행 생략.
+- **롤백 확인**: OFF 가드는 입력 객체를 그대로 반환(구조적 parity, 단위테스트
+  `test_disabled_returns_the_same_object`) + §S13.31 Q0가 production을 diff 0.0
+  재현 — 2줄 삭제 = 바이트동일 복원 성립.
+- **채택 근거(명시)**: IR이 아니라(ΔIR +0.046 = 노이즈) **무비용 퀄리티 노출
+  전환**(active-weighted quality z −0.03→+0.05, vol_z 0.385→0.374 보존).
+  DSR p=0.1538은 production 승격 전례 2건(p=0.192)과 동일한 사용자
+  오버라이드 프레임이며 기존보다 소폭 우위.
+- **후속 수치 비교 규칙**: 이후 arm 비교 기준은 IR 1.6196(quality tilt ON).
+  과거 1.5734 대비 수치와 혼용 금지.

@@ -122,3 +122,12 @@ overrides:
   # override 2026-08-04 — decision log S13.25 Production flips. Rollback = delete
   # this line (default-OFF, byte-identical parity certified by unit tests).
   fwd_sales_slope_features_enabled: true
+
+  # Vol-tercile quality tilt (score' = score + 0.25*sd*z_q inside the top
+  # idio-vol tercile), adopted by user decision 2026-08-05 — decision log
+  # S13.32 Production flip. Zero-cost quality exposure (-0.03 -> +0.05, vol
+  # character preserved); IR 1.6196 certified by the S13.32 arm at exact
+  # floating-point reproduction. Rollback = delete these two lines
+  # (default-OFF, OFF path returns the input object — structural parity).
+  vol_quality_tilt_enabled: true
+  vol_quality_tilt_lambda: 0.25
