@@ -1,0 +1,72 @@
+{
+  "section": "S13.28",
+  "purpose": "diagnostic only (no production flip): IR of the characteristic-orthogonal residual signal",
+  "harvest": "outputs\\codex_causal_rank_65\\backtest_result.pkl",
+  "characteristics": {
+    "SMB": "__logcap__",
+    "VALUE": "best_px_bps_ratio_level_z",
+    "MOM": "momentum_252d",
+    "QUALITY": "best_roe_level_z",
+    "LOWVOL": "realized_vol_126d",
+    "BAB": "beta_63d",
+    "GROWTH": "best_sales_chg_252d"
+  },
+  "split_diagnostics": {
+    "dates_fitted": 2004,
+    "dates_passthrough": 1260,
+    "degenerate_rescale": 0,
+    "mean_cross_sectional_r2": 0.6538321086860179,
+    "median_cross_sectional_r2": 0.6735873761143476
+  },
+  "production_reference": {
+    "information_ratio": 1.5733669450637104,
+    "active_return": 0.05721096206682419
+  },
+  "arms": {
+    "R0_identity": {
+      "information_ratio": 1.5733681489504763,
+      "active_return": 0.05721099274012209,
+      "tracking_error": 0.03636211447288099,
+      "annual_return": 0.25490419375223516,
+      "realized_beta": 1.0521153278284416,
+      "avg_annual_turnover": 0.6907791294239732,
+      "optimizer_failure_rate": 0.0,
+      "active_share": 0.19724203411676297,
+      "runtime_s": 171.1
+    },
+    "R1_residual": {
+      "information_ratio": 0.9247849019959389,
+      "active_return": 0.023590352074366994,
+      "tracking_error": 0.025509015148768712,
+      "annual_return": 0.21658742561063948,
+      "realized_beta": 1.016133611247689,
+      "avg_annual_turnover": 0.9771518598811495,
+      "optimizer_failure_rate": 0.020833333333333332,
+      "active_share": 0.14875492831196802,
+      "runtime_s": 178.7
+    },
+    "R2_style": {
+      "information_ratio": 1.0816199762289924,
+      "active_return": 0.04091780036965775,
+      "tracking_error": 0.03783010786497803,
+      "annual_return": 0.2357448019652959,
+      "realized_beta": 1.0483454626919695,
+      "avg_annual_turnover": 0.644709876219098,
+      "optimizer_failure_rate": 0.0,
+      "active_share": 0.19482696387455448,
+      "runtime_s": 225.9
+    }
+  },
+  "gates": {
+    "G0_roundtrip_pass": true,
+    "G0_ir_abs_diff": 1.203886765832607e-06,
+    "G0_active_abs_diff": 3.067329790162887e-08,
+    "G2_R1_character_pass": true,
+    "G2_R2_character_pass": true
+  },
+  "deltas_vs_R0": {
+    "R1_dIR": -0.6485832469545374,
+    "R2_dIR": -0.49174817272148386
+  },
+  "total_runtime_s": 825.6
+}

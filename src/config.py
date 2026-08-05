@@ -574,6 +574,17 @@ class PipelineConfig:
     bm_proportional_cap_vol_lookback: int = 63         # days for vol estimate
 
     # ------------------------------------------------------------------
+    # Portfolio-level volatility exposure cap (S13.27, INFRA)
+    # ------------------------------------------------------------------
+    # Linear optimiser constraint: vols @ w <= (1 + excess) * (vols @ bm),
+    # vols = sqrt(diag(cov)). Sizing-only defence against concentrating the
+    # active book in high-vol names; ranking/model layers untouched. The BM
+    # itself always satisfies the cap (ratio 1.0), so no new infeasibility
+    # path. OFF by default — decision log §S13.27.
+    vol_exposure_cap_enabled: bool = False
+    vol_exposure_cap_excess: float = 0.05
+
+    # ------------------------------------------------------------------
     # Optimizer / risk guardrails
     # ------------------------------------------------------------------
     allow_scs_on_ecos_exception: bool = False

@@ -423,6 +423,13 @@ def _build_mvo_constraints(
 
     constraints.append(cp.norm1(w - bm_weights) <= config.max_active_share)
 
+    # S13.27: portfolio-level vol exposure cap (OFF by default; see config).
+    # Linear, so it holds in both the MVO solve and the projection path.
+    if getattr(config, "vol_exposure_cap_enabled", False):
+        vols = np.sqrt(np.clip(np.diag(cov_matrix), 1e-12, None))
+        excess = float(getattr(config, "vol_exposure_cap_excess", 0.05))
+        constraints.append(vols @ w <= (1.0 + excess) * float(vols @ bm_weights))
+
     sec_dev = sector_deviation
     if sector_map is not None:
         sector_groups = build_sector_constraints(tickers, sector_map, bm_weights)

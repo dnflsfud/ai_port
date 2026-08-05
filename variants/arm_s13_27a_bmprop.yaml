@@ -1,15 +1,7 @@
-label: codex_causal_rank_65
-display_name: Causal Rank 200
-portfolio_role: production
+label: arm_s13_27a_bmprop
 description: >
-  Fixed-200 causal production portfolio. Uses date-grouped LightGBM rank_xendcg,
-  purged/embargoed validation, and a one-trading-day execution signal lag.
-  The legacy label/output path is retained for automation compatibility; the
-  universe is the validated 200-name Universe_Meta set (decision log §S13.3).
-  The adopted four-feature forward-sales-slope block is enabled per S13.25;
-  benchmark, overlays, optimizer and transaction-cost assumptions remain pinned
-  to the canonical iter15_65tkr_reb21_vtg portfolio design.
-out_dir: outputs/codex_causal_rank_65
+  S13.27 arm A: BM-proportional active cap (existing default-OFF infra, top 1.5x / vol floor 0.5). Only delta versus production: bm_proportional_cap_enabled.
+out_dir: outputs/arm_s13_27a_bmprop
 tuning_mode: production
 overrides:
   # Causal ranking model. These are the only intentional signal-path changes.
@@ -86,7 +78,7 @@ overrides:
   mega_cap_funding_mode: true
   mega_cap_funding_k: 4
   mega_cap_funding_score_max: 0.0
-  bm_proportional_cap_enabled: false
+  bm_proportional_cap_enabled: true
   bm_proportional_cap_bm_scale_at_top: 1.5
   bm_proportional_cap_vol_scale_floor: 0.5
   bm_proportional_cap_vol_lookback: 63
@@ -118,7 +110,5 @@ overrides:
   expected_universe_size: 200  # point-in-time membership guard, decision log S13.3
   dr_alpha_enabled: false
 
-  # Fwd sales term-structure slope feature block (4 features), adopted by user
-  # override 2026-08-04 — decision log S13.25 Production flips. Rollback = delete
-  # this line (default-OFF, byte-identical parity certified by unit tests).
+  # Production-adopted flag (S13.25) + S13.27 arm A delta: bm_proportional_cap_enabled.
   fwd_sales_slope_features_enabled: true

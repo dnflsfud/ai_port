@@ -154,7 +154,7 @@
       "phase": "GPT-5.6 challenger (2026-07-10): rank_xendcg LightGBM objective (model_objective=cross_sectional_rank, metric=ndcg) + causal validation split + 1d execution signal lag. Reuses default-OFF causal infra. Single pre-registered config, no sweep. ECOS, --no-cache full re-run.",
       "param_space": "lgbm objective=rank_xendcg + causal_validation_enabled=true + execution_signal_lag_days=1 (single pre-registered challenger config)",
       "trials": 1,
-      "result": "IR 1.695 vs causal-discipline S0' 0.902 (dIR +0.79 > +0.36 1SE; subperiod P1 0.752/P2 0.772/P3 3.080, all-positive 3/3) -> \u00a72-4 adoption bar met, comparison_gate PASS 7/7. Promotion package pending this DSR/selection-bias gate."
+      "result": "IR 1.695 vs causal-discipline S0' 0.902 (dIR +0.79 > +0.36 1SE; subperiod P1 0.752/P2 0.772/P3 3.080, all-positive 3/3) -> §2-4 adoption bar met, comparison_gate PASS 7/7. Promotion package pending this DSR/selection-bias gate."
     },
     {
       "script": "run_variant.py --variant variants/arm_s10_minchild30.yaml",
@@ -274,44 +274,9 @@
       "param_space": "A existing production (not recounted); B fixed sqrt(0.90) reserve-only diagnostic; C fixed sqrt(0.90) base + sqrt(0.10) covariance-orthogonal residual sleeve; no performance sweep",
       "trials": 2,
       "result": "REJECT. B-A dIR +0.0291 (reserve/de-risking helped), C-B dIR -0.0454 and C-A dIR -0.0163. P1 improved but P2/P3 worsened; residual score IC -0.0030. Structural risk-allocation gate also failed: residual-direction MVO infeasible on 63/84 active rebalances, so median realised residual variance share was 1.60% rather than 10%. Default remains OFF; no sign flip or post-hoc budget/model retune."
-    },
-    {
-      "script": "exp_S13_24_relative_revision_nonlinear_ai",
-      "phase": "S13.24 (2026-07-30..08-01): one preregistered relative-revision nonlinear interaction arm with home-index-bucket neutralization and name-level confidence active caps.",
-      "param_space": "single frozen arm; four relative-revision interaction features plus fixed 80th-percentile confidence cap rule; no sweep or sign flip",
-      "trials": 1,
-      "result": "REJECT. IR 1.1390 vs strict baseline 1.3881 (delta -0.2491); P1/P2/P3 delta IR all negative. Relative block IC overall was negative and concentration gates also failed. Production unchanged."
-    },
-    {
-      "script": "run_orthogonal_signal_arm.py",
-      "phase": "S13.28 (2026-08-04): characteristic-orthogonality diagnostic. Re-MVO of the saved production harvest with the model score split into a characteristic-fitted part and its orthogonal residual.",
-      "param_space": "two preregistered diagnostic arms (R1 residual, R2 style) on a frozen 7-characteristic basis (SMB/VALUE/MOM/QUALITY/LOWVOL/BAB/GROWTH); no sweep, no parameter tuning. The R0 identity arm is a round-trip check, not a trial.",
-      "trials": 2,
-      "result": "DIAGNOSTIC, no flip. R0 reproduced production to 1.2e-6 IR (gate G0 pass). R1 residual IR 0.9248 (active +2.36%, TE 2.55%, turnover 0.977); R2 style IR 1.0816 (active +4.09%, turnover 0.645) vs production 1.5734. Orthogonal signal is real but weak and faster-turning; style tilt carries 72% of the active return. Production unchanged."
-    },
-    {
-      "script": "run_variant.py (arm_s13_27a_bmprop / arm_s13_27b_volcap)",
-      "phase": "S13.27 (2026-08-04): two preregistered optimizer-layer defensive arms against the SHAP-identified high-vol OW concentration. A: enable existing BM-proportional active cap infra (flag only). B: new portfolio-level vol exposure cap vols@w <= 1.05 * vols@bm (new default-OFF infra).",
-      "param_space": "two frozen arms, single flag delta each vs production; no sweep, no retuning (A keeps existing defaults top 1.5x / vol floor 0.5 / lookback 63; B excess fixed at 0.05 = half the measured +9.55% production vol-exposure overshoot)",
-      "trials": 2,
-      "result": "REJECT both, production unchanged, flags stay OFF. A: no defensive effect (07-21 vol ratio 1.0936 vs 1.0955; tail metrics 0/4 improved) at dIR -0.0998 -- the cap binds on MU but active weight redistributes to other high-vol OWs. B: defense real (vol ratio 1.0387; MaxDD/activeMaxDD/downside-capture all improved) but dIR -0.6236 with top-12 OW overlap 3/12 and beta 0.989 -- the cap dismantles the alpha-carrying high-vol growth tilt (converges with the S13.28 orthogonality diagnostic). Verified by independent re-run of the judgment script."
-    },
-    {
-      "script": "run_variant.py (arm_s13_29_pca_volstd)",
-      "phase": "S13.29 (2026-08-05): pca_vol_standardize retest on the current 200-name slope-ON baseline, prompted by the S13.28 vol-preference mechanism Q&A; primary deliverable was the latest-rebalance OW roster of the standardized version.",
-      "param_space": "single preregistered flag (pca_vol_standardize: true) on the frozen production config; no sweep",
-      "trials": 1,
-      "result": "E1 FAIL, not adopted. IR 1.0747 vs production 1.5734 (dIR -0.4986), all three sub-periods worse. Surprise finding: the vol tilt was NOT removed (mean active vol_z +0.365 vs +0.33, 96/96 positive; standardized-label top decile vol_z +0.552 vs raw +0.497) - fat tails survive sigma scaling, so standardization degrades selection quality without changing the style character. Confirms the S12.5 rejection on the current baseline."
-    },
-    {
-      "script": "run_s13_31_quality_tilt_arm.py",
-      "phase": "S13.31 (2026-08-05): 63d-horizon quality tilt inside the top idio-vol tercile, re-MVO of the saved production harvest (score' = score + 0.25*sd*z_q within tercile). Gated by the S13.30 preflight (quality defence inside high-vol exists only at 63d; preflight itself was read-only, not counted).",
-      "param_space": "single preregistered arm, lam=0.25 frozen, quality=best_roe_level_z frozen; no sweep. Q0 identity arm is a round-trip check, not a trial.",
-      "trials": 1,
-      "result": "ZERO-COST TILT, referred to user (no auto-flip). Q0 reproduced production exactly (IR diff 0.0). Q1 IR 1.6196 vs 1.5734 (dIR +0.0463, inside the 0.36 noise band - not adoptable on IR grounds). Quality exposure moved -0.029 -> +0.049 (D1a pass) with vol exposure preserved (0.385 -> 0.374, character intact, E2 pass). Tail defence NOT delivered: MaxDD/activeMaxDD/downside-capture flat-to-slightly-worse, only worst-subperiod IR improved (1.285 -> 1.312). D1b technically 1/4. Production unchanged."
     }
   ],
-  "n_trials_total": 458,
+  "n_trials_total": 451,
   "notes": [
     "396 is a conservative lower bound. Actual N is likely higher once",
     "ad-hoc config.py tweaks over the research period are counted.",
@@ -345,10 +310,6 @@
     "Preflights S13.17/19/19a/20/20a reused existing artifacts (no new return series); the 19a/20a",
     "4-way spread sweeps are recorded as exploratory selection events in the decision log. N 443 -> 447.",
     "S13.23 country-mapped index revision feature arm (+1, E1 FAIL not adopted); the S0 recert on the 07-29 revision-vintage is a re-baseline, not a trial. N 447 -> 448.",
-    "S13.25 fwd-sales-slope feature block + month-end rebalancing arms (A/B/C, +3) vs the 07-31 slope-vintage S0 recert (IR 1.3070, re-baseline not a trial): A (4 slope features) dIR +0.266 with all three sub-periods positive and block gain share 6.09pct (first material feature consumption on this program); B (month-end rebal) dIR -0.101; C (combined) dIR -0.001 (negative interaction, month-end schedule erases the feature gain). All three E1 FAIL (< +0.36), not adopted, defaults stay OFF. N 448 -> 451.",
-    "2026-08-04: S13.28 alpha-vs-traditional-factor orthogonality diagnostic adds 2 arms (R1 characteristic-orthogonal residual score, R2 characteristic-fitted style score), both re-MVO passes over the frozen production harvest. The R0 identity arm is a round-trip integrity check, not a trial. Diagnostic only: no production flip. n_trials_total 452 -> 454.",
-    "2026-08-04: S13.27 optimizer-layer defensive arms (+2): A bm-proportional active cap (existing infra, flag-on) and B portfolio vol exposure cap 1.05 (new default-OFF infra). Both REJECT (A no defensive effect at dIR -0.10; B real defense but dIR -0.62, character break). Production unchanged. n_trials_total 454 -> 456.",
-    "2026-08-05: S13.29 pca_vol_standardize retest (+1) on the current baseline - E1 FAIL dIR -0.4986; standardization left the vol tilt intact (fat-tail mechanism) while degrading ranking quality. n_trials_total 456 -> 457.",
-    "2026-08-05: S13.31 quality-tilt re-MVO arm (+1) gated by the read-only S13.30 preflight (preflight not counted, per S13.7/S13.19 precedent). Zero-cost quality exposure shift, dIR +0.046 (noise band), tail defence not delivered; referred to user, production unchanged. n_trials_total 457 -> 458."
+    "S13.25 fwd-sales-slope feature block + month-end rebalancing arms (A/B/C, +3) vs the 07-31 slope-vintage S0 recert (IR 1.3070, re-baseline not a trial): A (4 slope features) dIR +0.266 with all three sub-periods positive and block gain share 6.09pct (first material feature consumption on this program); B (month-end rebal) dIR -0.101; C (combined) dIR -0.001 (negative interaction, month-end schedule erases the feature gain). All three E1 FAIL (< +0.36), not adopted, defaults stay OFF. N 448 -> 451."
   ]
 }

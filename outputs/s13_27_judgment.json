@@ -1,0 +1,211 @@
+{
+  "rebal_date": "2026-07-21",
+  "bm_vol_exposure": 0.4160685454791658,
+  "arms": {
+    "production": {
+      "information_ratio": 1.5733669450637104,
+      "active_return": 0.05721096206682419,
+      "tracking_error": 0.036362122800608056,
+      "realized_beta": 1.052115322816347,
+      "avg_annual_turnover": 0.690778193111232,
+      "vol_exposure": 0.456902190050867,
+      "vol_exposure_ratio": 1.0981416283816292,
+      "mean_active_share": 0.19724203200363807,
+      "max_dd_total": -0.327087272313512,
+      "max_dd_active": -0.056400768857885586,
+      "downside_capture": 1.0536845806269939,
+      "subperiod_ir": {
+        "P1": 1.3536919281150008,
+        "P2": 1.2442651279902135,
+        "P3": 2.064673152548079
+      },
+      "worst_subperiod_ir": 1.2442651279902135,
+      "degenerate": {
+        "degenerate_retrains": 15,
+        "total_retrains": 32,
+        "degenerate_rate": 0.46875
+      },
+      "optimizer_failure_rate": null
+    },
+    "A_bmprop": {
+      "information_ratio": 1.4735981304808055,
+      "active_return": 0.051731151209738924,
+      "tracking_error": 0.03510533173169817,
+      "realized_beta": 1.058359810559396,
+      "avg_annual_turnover": 0.6676239534321052,
+      "vol_exposure": 0.4563483182460121,
+      "vol_exposure_ratio": 1.0968104251198756,
+      "mean_active_share": 0.1972024335738,
+      "max_dd_total": -0.327628779427109,
+      "max_dd_active": -0.057914571807393456,
+      "downside_capture": 1.0641951756211097,
+      "subperiod_ir": {
+        "P1": 1.3990691068172907,
+        "P2": 1.1211049787275786,
+        "P3": 1.8622910158313786
+      },
+      "worst_subperiod_ir": 1.1211049787275786,
+      "degenerate": {
+        "degenerate_retrains": 15,
+        "total_retrains": 32,
+        "degenerate_rate": 0.46875
+      },
+      "optimizer_failure_rate": null
+    },
+    "B_volcap": {
+      "information_ratio": 0.9497635892067394,
+      "active_return": 0.026717045793302807,
+      "tracking_error": 0.028130206397591416,
+      "realized_beta": 0.9891872002073511,
+      "avg_annual_turnover": 0.8371933302010856,
+      "vol_exposure": 0.4345552283028683,
+      "vol_exposure_ratio": 1.0444318202483014,
+      "mean_active_share": 0.18598631836517487,
+      "max_dd_total": -0.31005337590374293,
+      "max_dd_active": -0.04267665114224961,
+      "downside_capture": 0.9836720923714825,
+      "subperiod_ir": {
+        "P1": 0.5207835927164065,
+        "P2": 1.1291517190615312,
+        "P3": 1.130857824001268
+      },
+      "worst_subperiod_ir": 0.5207835927164065,
+      "degenerate": {
+        "degenerate_retrains": 15,
+        "total_retrains": 32,
+        "degenerate_rate": 0.46875
+      },
+      "optimizer_failure_rate": null
+    }
+  },
+  "ow_top12": [
+    {
+      "ticker": "MU",
+      "bm_w": 1.63,
+      "prod_w": 4.94,
+      "A_w": 3.91,
+      "B_w": 2.57,
+      "prod_active": 3.31
+    },
+    {
+      "ticker": "LLY",
+      "bm_w": 1.65,
+      "prod_w": 4.46,
+      "A_w": 4.68,
+      "B_w": 4.84,
+      "prod_active": 2.81
+    },
+    {
+      "ticker": "6857",
+      "bm_w": 0.2,
+      "prod_w": 1.8,
+      "A_w": 1.8,
+      "B_w": 0.53,
+      "prod_active": 1.6
+    },
+    {
+      "ticker": "STX",
+      "bm_w": 0.3,
+      "prod_w": 1.66,
+      "A_w": 1.73,
+      "B_w": 3.23,
+      "prod_active": 1.37
+    },
+    {
+      "ticker": "PLTR",
+      "bm_w": 0.47,
+      "prod_w": 1.69,
+      "A_w": 1.42,
+      "B_w": 0.72,
+      "prod_active": 1.22
+    },
+    {
+      "ticker": "RBLX",
+      "bm_w": 0.06,
+      "prod_w": 1.1,
+      "A_w": 1.02,
+      "B_w": 0.01,
+      "prod_active": 1.04
+    },
+    {
+      "ticker": "WDAY",
+      "bm_w": 0.05,
+      "prod_w": 1.03,
+      "A_w": 0.94,
+      "B_w": 0.03,
+      "prod_active": 0.97
+    },
+    {
+      "ticker": "TER",
+      "bm_w": 0.09,
+      "prod_w": 1.04,
+      "A_w": 0.96,
+      "B_w": 0.33,
+      "prod_active": 0.95
+    },
+    {
+      "ticker": "6146",
+      "bm_w": 0.07,
+      "prod_w": 0.96,
+      "A_w": 1.03,
+      "B_w": 0.24,
+      "prod_active": 0.89
+    },
+    {
+      "ticker": "NXPI",
+      "bm_w": 0.1,
+      "prod_w": 0.99,
+      "A_w": 1.04,
+      "B_w": 0.52,
+      "prod_active": 0.89
+    },
+    {
+      "ticker": "DELL",
+      "bm_w": 0.39,
+      "prod_w": 1.2,
+      "A_w": 1.21,
+      "B_w": 0.02,
+      "prod_active": 0.81
+    },
+    {
+      "ticker": "DSY",
+      "bm_w": 0.04,
+      "prod_w": 0.79,
+      "A_w": 0.77,
+      "B_w": 0.02,
+      "prod_active": 0.75
+    }
+  ],
+  "verdicts": {
+    "A_bmprop": {
+      "D1a_vol_ratio_reduced": true,
+      "D1b_tail_improved_any": false,
+      "D1b_detail": {
+        "max_dd_total": false,
+        "max_dd_active": false,
+        "worst_subperiod_ir": false,
+        "downside_capture": false
+      },
+      "D2_delta_ir": -0.09976881458290499,
+      "D2_free_defence": false,
+      "E2_te_ok": true,
+      "E2_degenerate_same": true,
+      "E2_active_share_ok": true
+    },
+    "B_volcap": {
+      "D1a_vol_ratio_reduced": true,
+      "D1b_tail_improved_any": true,
+      "D1b_detail": {
+        "max_dd_total": true,
+        "max_dd_active": true,
+        "worst_subperiod_ir": false,
+        "downside_capture": true
+      },
+      "D2_delta_ir": -0.623603355856971,
+      "D2_free_defence": false,
+      "E2_te_ok": true,
+      "E2_degenerate_same": true,
+      "E2_active_share_ok": true
+    }
+  }
+}

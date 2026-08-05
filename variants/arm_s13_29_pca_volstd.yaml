@@ -1,15 +1,14 @@
-label: codex_causal_rank_65
-display_name: Causal Rank 200
-portfolio_role: production
+label: arm_s13_29_pca_volstd
+display_name: S13.29 PCA vol-standardized target (current-baseline retest)
+portfolio_role: experiment
 description: >
-  Fixed-200 causal production portfolio. Uses date-grouped LightGBM rank_xendcg,
-  purged/embargoed validation, and a one-trading-day execution signal lag.
-  The legacy label/output path is retained for automation compatibility; the
-  universe is the validated 200-name Universe_Meta set (decision log §S13.3).
-  The adopted four-feature forward-sales-slope block is enabled per S13.25;
-  benchmark, overlays, optimizer and transaction-cost assumptions remain pinned
-  to the canonical iter15_65tkr_reb21_vtg portfolio design.
-out_dir: outputs/codex_causal_rank_65
+  S13.29 single pre-registered arm - identical to codex_causal_rank_65
+  (92ebcf1, slope block ON) except pca_vol_standardize true, so the ranking
+  target becomes forward specific return divided by per-ticker trailing vol.
+  Re-test of the rejected S12.5 arm on the current 200-name baseline;
+  primary deliverable is the latest-rebalance OW roster vs production
+  (decision log S13.29). Diagnostic; no production flip intent.
+out_dir: outputs/arm_s13_29_pca_volstd
 tuning_mode: production
 overrides:
   # Causal ranking model. These are the only intentional signal-path changes.
@@ -50,6 +49,9 @@ overrides:
   fail_on_degenerate_model_rate: false
   max_tail_ffill_days: 10
   fail_on_stale_tail_ffill: false
+
+  # S13.29 single pre-registered change (S12.5 flag, current baseline).
+  pca_vol_standardize: true
 
   # Benchmark / optimizer / execution pins.
   benchmark_type: cap_weighted
@@ -119,6 +121,5 @@ overrides:
   dr_alpha_enabled: false
 
   # Fwd sales term-structure slope feature block (4 features), adopted by user
-  # override 2026-08-04 — decision log S13.25 Production flips. Rollback = delete
-  # this line (default-OFF, byte-identical parity certified by unit tests).
+  # override 2026-08-04 — decision log S13.25 Production flips.
   fwd_sales_slope_features_enabled: true

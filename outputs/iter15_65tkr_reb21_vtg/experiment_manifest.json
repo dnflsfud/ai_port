@@ -275,6 +275,8 @@
     "use_score_based": false,
     "val_window": 126,
     "value_trap_gate_enabled": true,
+    "vol_exposure_cap_enabled": false,
+    "vol_exposure_cap_excess": 0.05,
     "vtg_accel_threshold": 0.5,
     "vtg_momentum_threshold": -0.5,
     "vtg_pe_z_threshold": -0.5,
@@ -290,6 +292,6 @@
     "variant_label": "iter15_65tkr_reb21_vtg"
   },
   "git_dirty": true,
-  "git_hash": "92ebcf1529aa47dfc31aa872d87dbf62d7c1f555",
-  "timestamp_utc": "2026-08-04T02:44:21Z"
+  "git_hash": "3fbaf1fb91ebb645fa0be24251e5e42e83da40e8",
+  "timestamp_utc": "2026-08-05T02:43:10Z"
 }

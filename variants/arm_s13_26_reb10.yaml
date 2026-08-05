@@ -1,15 +1,19 @@
-label: codex_causal_rank_65
-display_name: Causal Rank 200
-portfolio_role: production
+label: arm_s13_26_reb10
+display_name: Reb10 arm (S13.26)
 description: >
-  Fixed-200 causal production portfolio. Uses date-grouped LightGBM rank_xendcg,
+  S13.26 arm: 10 business-day rebalance grid instead of the production 21BD.
+  Sole delta versus production (codex_causal_rank_65 as of commit 92ebcf1):
+  rebalance_freq 21 -> 10. Trade-damping stack (partial_rebalance_eta 0.50,
+  no_trade_band 0.003) is deliberately left untouched so the measured delta
+  is attributable to the rebalance grid alone. Original description follows.
+old_description: >
+  Fixed-150 causal production portfolio. Uses date-grouped LightGBM rank_xendcg,
   purged/embargoed validation, and a one-trading-day execution signal lag.
   The legacy label/output path is retained for automation compatibility; the
-  universe is the validated 200-name Universe_Meta set (decision log §S13.3).
-  The adopted four-feature forward-sales-slope block is enabled per S13.25;
-  benchmark, overlays, optimizer and transaction-cost assumptions remain pinned
+  universe is the validated 150-name Universe_Meta set (decision log §S11.3).
+  Benchmark, overlays, optimizer and transaction-cost assumptions remain pinned
   to the canonical iter15_65tkr_reb21_vtg portfolio design.
-out_dir: outputs/codex_causal_rank_65
+out_dir: outputs/arm_s13_26_reb10
 tuning_mode: production
 overrides:
   # Causal ranking model. These are the only intentional signal-path changes.
@@ -77,7 +81,8 @@ overrides:
   partial_rebalance_eta: 0.50
   trailing_ic_window: 6
   one_way_tc: 0.0010
-  rebalance_freq: 21
+  # S13.26 sole delta: 21BD grid -> 10BD (2-week) grid.
+  rebalance_freq: 10
 
   # Mega-cap / proportional-cap controls.
   mega_cap_protection_enabled: true

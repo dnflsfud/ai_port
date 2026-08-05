@@ -2,12 +2,11 @@ label: codex_causal_rank_65
 display_name: Causal Rank 200
 portfolio_role: production
 description: >
-  Fixed-200 causal production portfolio. Uses date-grouped LightGBM rank_xendcg,
+  Fixed-150 causal production portfolio. Uses date-grouped LightGBM rank_xendcg,
   purged/embargoed validation, and a one-trading-day execution signal lag.
   The legacy label/output path is retained for automation compatibility; the
-  universe is the validated 200-name Universe_Meta set (decision log §S13.3).
-  The adopted four-feature forward-sales-slope block is enabled per S13.25;
-  benchmark, overlays, optimizer and transaction-cost assumptions remain pinned
+  universe is the validated 150-name Universe_Meta set (decision log §S11.3).
+  Benchmark, overlays, optimizer and transaction-cost assumptions remain pinned
   to the canonical iter15_65tkr_reb21_vtg portfolio design.
 out_dir: outputs/codex_causal_rank_65
 tuning_mode: production
