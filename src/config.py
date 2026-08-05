@@ -518,6 +518,21 @@ class PipelineConfig:
     growth_tilt_rev_tg_share: float = 0.00        # TG price OFF (후행지표)
 
     # ------------------------------------------------------------------
+    # Vol-tercile quality tilt — §S13.31/32 (2026-08-05, default-OFF)
+    # ------------------------------------------------------------------
+    # Inside the top idio_vol_63d tercile of scored names only:
+    #   score' = score + lambda * sd(scored) * z_q
+    # where z_q is the 1/99-winsorised cross-sectional z of best_roe_level_z
+    # WITHIN the tercile. Names outside the tercile (and missing-quality
+    # cells) are byte-unchanged, so the vol character of the book is
+    # preserved while quality reorders names inside the high-vol sleeve.
+    # Applied after the pre-overlay checkpoint and before the listing mask
+    # (the §S13.31 re-MVO injection point). lambda 0.25 is the single
+    # pre-committed §S13.31 value — do not sweep.
+    vol_quality_tilt_enabled: bool = False
+    vol_quality_tilt_lambda: float = 0.25
+
+    # ------------------------------------------------------------------
     # Mega-cap asymmetric protection — REDESIGN V (2026-04-14, iter16)
     # ------------------------------------------------------------------
     # Fixes structural UW of large-BM names even when the model scores

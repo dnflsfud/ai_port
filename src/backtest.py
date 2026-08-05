@@ -418,6 +418,65 @@ def apply_signal_stability_shrinkage(
     return adjusted
 
 
+def _vol_quality_winsor_z(s: pd.Series) -> pd.Series:
+    """1/99-winsorised cross-sectional z (§S13.31 tilt convention)."""
+    s = s.dropna()
+    if len(s) < 3:
+        return pd.Series(dtype=float)
+    sw = s.clip(s.quantile(0.01), s.quantile(0.99))
+    sd = sw.std(ddof=1)
+    if not np.isfinite(sd) or sd <= 0:
+        return pd.Series(dtype=float)
+    return (sw - sw.mean()) / sd
+
+
+def apply_vol_quality_tilt(
+    predictions: pd.DataFrame,
+    panel: pd.DataFrame,
+    config: PipelineConfig,
+) -> pd.DataFrame:
+    """§S13.32: quality tilt inside the top idio-vol tercile (default-OFF).
+
+    Per prediction date with >= 30 scored names: rank scored names by the
+    winsorised z of ``idio_vol_63d``, take the top tercile, and add
+    ``lambda * sd(scored) * z_q`` where z_q is the winsorised z of
+    ``best_roe_level_z`` WITHIN the tercile. Cells outside the tercile and
+    missing-quality cells are byte-unchanged. Disabled returns the input
+    object untouched, so OFF parity is structural.
+
+    Must run after the pre-overlay checkpoint and before the listing mask —
+    the §S13.31 re-MVO injection point — so a cache-reuse run that feeds
+    ``pre_overlay_predictions`` back re-applies the tilt exactly once.
+    """
+    if not getattr(config, "vol_quality_tilt_enabled", False):
+        return predictions
+
+    lam = float(getattr(config, "vol_quality_tilt_lambda", 0.25))
+    vol_panel = panel["idio_vol_63d"].unstack("ticker")
+    q_panel = panel["best_roe_level_z"].unstack("ticker")
+    out = predictions.copy()
+    tilted = 0
+    for dt in predictions.index:
+        s = predictions.loc[dt]
+        scored = s.index[s.notna()]
+        if (len(scored) < 30 or dt not in vol_panel.index
+                or dt not in q_panel.index):
+            continue
+        vz = _vol_quality_winsor_z(vol_panel.loc[dt].reindex(scored))
+        if len(vz) < 30:
+            continue
+        top = vz.sort_values(ascending=False).head(len(vz) // 3).index
+        zq = _vol_quality_winsor_z(q_panel.loc[dt].reindex(top))
+        sd = float(s[scored].std(ddof=1))
+        if zq.empty or not np.isfinite(sd) or sd <= 0:
+            continue
+        out.loc[dt, zq.index] = s[zq.index] + lam * sd * zq
+        tilted += 1
+    print(f"[Backtest] S13.32 vol-quality tilt applied "
+          f"(lambda={lam}, tilted_dates={tilted})")
+    return out
+
+
 def apply_pead_boost(
     predictions: pd.DataFrame,
     data: "UniverseData",
@@ -1721,6 +1780,12 @@ def run_backtest(
             if mq["fail_on_degenerate_model_rate"]:
                 raise RuntimeError(msg)
     result.data_quality = getattr(data, "data_quality", None)
+
+    # §S13.32: vol-tercile quality tilt (default-OFF). Positioned after the
+    # pre-overlay checkpoint (which must stay pre-tilt so cache-reuse
+    # re-applies the tilt exactly once) and before the listing mask — the
+    # §S13.31 re-MVO injection point.
+    predictions = apply_vol_quality_tilt(predictions, panel, config)
 
     # Pre-listing backfill masking (OFF by default). Mask predictions BEFORE
     # any overlay (PEAD/tilt/etc.) so phantom pre-listing alpha never enters

@@ -1,30 +1,30 @@
 # Selection Bias Analysis Report
 
-Generated: 2026-08-04 13:49:26
+Generated: 2026-08-05 14:24:23
 
 ## 1. Summary Verdict
-- **FAIL** -- DSR p=0.1920, Adjusted SR=0.31, MinTRL=1.1yr
+- **FAIL** -- DSR p=0.1538, Adjusted SR=0.36, MinTRL=1.1yr
 
 ## 2. Deflated Sharpe Ratio (Bailey & Lopez de Prado, 2014)
-- Observed SR: 1.548
-- Number of trials (N): 452
-- Expected max SR under null: 1.240
-- sigma(SR): 0.3545
-- Deflated SR: 0.871 (p-value: 0.1920)
-- Skewness: 0.119, Kurtosis: 5.472
+- Observed SR: 1.592
+- Number of trials (N): 459
+- Expected max SR under null: 1.233
+- sigma(SR): 0.3521
+- Deflated SR: 1.020 (p-value: 0.1538)
+- Skewness: 0.267, Kurtosis: 5.901
 - Observations: 2003 trading days
 - Verdict: **FAIL -- 다중 비교 보정 후 유의하지 않음**
 
 ## 3. Minimum Track Record Length
-- Required: 1.1 years (285 trading days)
+- Required: 1.1 years (266 trading days)
 - Available: 7.9 years (2003 trading days)
 - Verdict: **SUFFICIENT**
 
 ## 4. Grid Search Bias (Haircut)
-- Combinations tested: 452
-- Observed SR: 1.548
-- Haircut: 1.240
-- Adjusted SR: 0.309
+- Combinations tested: 459
+- Observed SR: 1.592
+- Haircut: 1.233
+- Adjusted SR: 0.359
 - Verdict: **PASS**
 
 ## 5. Universe Survivorship
@@ -33,9 +33,9 @@ Generated: 2026-08-04 13:49:26
 - Verdict: **WARN -- 19개 종목 생존 편향 의심**
 
 ## 6. Sub-period Stability
-- Period 1 (2018-11-27 ~ 2021-06-16): IR = 1.341 [PASS]
-- Period 2 (2021-06-17 ~ 2024-01-05): IR = 1.235 [PASS]
-- Period 3 (2024-01-08 ~ 2026-07-30): IR = 2.003 [PASS]
+- Period 1 (2018-11-27 ~ 2021-06-16): IR = 1.335 [PASS]
+- Period 2 (2021-06-17 ~ 2024-01-05): IR = 1.255 [PASS]
+- Period 3 (2024-01-08 ~ 2026-07-30): IR = 2.112 [PASS]
 - Verdict: **STABLE**
 
 ## References
