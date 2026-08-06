@@ -72,11 +72,15 @@ def test_arm_variant_differs_from_production_by_exactly_the_flag():
     assert arm["peer_earnings_cascade_feature_enabled"] is True
     delta = {k: v for k, v in arm.items() if prod.get(k, "<absent>") != v}
     assert set(delta) == {"peer_earnings_cascade_feature_enabled"}, delta
-    # fwd_sales_slope_features_enabled: adopted into production 2026-08-04
-    # (decision log S13.25 Production flips) after this arm concluded.
+    # These settings were adopted into production after this historical arm.
+    post_arm_production_flags = {
+        "fwd_sales_slope_features_enabled",
+        "vol_quality_tilt_enabled",
+        "vol_quality_tilt_lambda",
+    }
     assert not [
         k for k in prod
-        if k not in arm and k != "fwd_sales_slope_features_enabled"
+        if k not in arm and k not in post_arm_production_flags
     ]
 
 

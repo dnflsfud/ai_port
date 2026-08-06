@@ -8,11 +8,13 @@ model_quality에 refresh/재진입 증거를 기록한다(OFF면 키 부재 = �
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from src.config import PipelineConfig
 from src.model_trainer import (
     build_walk_forward_split,
     effective_label_horizon,
+    predict_cross_sectional,
     walk_forward_train,
 )
 
@@ -58,6 +60,32 @@ def test_walk_forward_split_stays_causal_at_63d_horizon():
     assert audit["causal_validation_ok"] is True
     # embargo must cover the full 63d label realization window
     assert audit["embargo_days"] == 63
+
+
+def test_prediction_excludes_pre_listing_name_before_cross_sectional_zscore():
+    class _Model:
+        @staticmethod
+        def predict(values):
+            first = values[:, 0]
+            return np.where(np.isnan(first), 100.0, first)
+
+    date = pd.Timestamp("2026-01-05")
+    index = pd.MultiIndex.from_product(
+        [[date], ["A", "B", "NEW"]], names=["date", "ticker"]
+    )
+    panel = pd.DataFrame({"f": [-1.0, 1.0, np.nan]}, index=index)
+
+    pred = predict_cross_sectional(
+        _Model(),
+        panel,
+        ["f"],
+        date,
+        listing_dates={"NEW": date.strftime("%Y-%m-%d")},
+    )
+
+    assert list(pred.index) == ["A", "B"]
+    assert pred.loc["A"] == pytest.approx(-1.0 / np.sqrt(2.0))
+    assert pred.loc["B"] == pytest.approx(1.0 / np.sqrt(2.0))
 
 
 def _run_synthetic_walk_forward(**config_kwargs):

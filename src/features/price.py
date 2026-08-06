@@ -2,10 +2,73 @@
 
 import pandas as pd
 import numpy as np
-from typing import Dict
+from typing import Dict, Optional
 
 from src.data_loader import UniverseData
 from src.features.utils import cs_rank
+
+
+def lagged_cap_weighted_market_return(
+    returns: pd.DataFrame,
+    market_cap: pd.DataFrame,
+) -> pd.Series:
+    """Point-in-time cap-weighted market return for the loaded universe.
+
+    Weights at date ``t`` use market capitalisation from ``t-1``.  A name is
+    excluded when either its lagged cap is non-positive/non-finite or its
+    return is missing.  This avoids using the closing market cap from the same
+    return interval and naturally excludes pre-listing backfills.
+    """
+    caps = market_cap.reindex(index=returns.index, columns=returns.columns).shift(1)
+    eligible = returns.notna() & caps.gt(0) & np.isfinite(caps)
+    caps = caps.where(eligible)
+    cap_sum = caps.sum(axis=1, min_count=1).replace(0.0, np.nan)
+    weights = caps.div(cap_sum, axis=0)
+    return returns.mul(weights).sum(axis=1, min_count=1).rename("market_return")
+
+
+def rolling_market_model_idio_vol(
+    returns: pd.DataFrame,
+    market_return: pd.Series,
+    window: int = 63,
+    min_periods: Optional[int] = None,
+) -> pd.DataFrame:
+    """Annualised residual volatility from a rolling market-model OLS.
+
+    For every ticker and endpoint, fit ``r_i = alpha + beta * r_m + eps`` on
+    the same trailing window and return ``sqrt(SSE / (n - 2)) * sqrt(252)``.
+    All moments use paired, finite stock/market observations and consistent
+    OLS degrees of freedom.  The implementation is vectorised across tickers.
+    """
+    required = window if min_periods is None else int(min_periods)
+    if window < 3 or required < 3 or required > window:
+        raise ValueError("rolling market-model window/min_periods must satisfy 3 <= min_periods <= window")
+
+    market = market_return.reindex(returns.index)
+    market_panel = pd.DataFrame(
+        np.broadcast_to(market.to_numpy()[:, np.newaxis], returns.shape),
+        index=returns.index,
+        columns=returns.columns,
+    )
+    valid = returns.notna() & market_panel.notna()
+    y = returns.where(valid)
+    x = market_panel.where(valid)
+
+    count = valid.astype(float).rolling(window, min_periods=1).sum()
+    sum_x = x.rolling(window, min_periods=1).sum()
+    sum_y = y.rolling(window, min_periods=1).sum()
+    sum_xx = x.pow(2).rolling(window, min_periods=1).sum()
+    sum_yy = y.pow(2).rolling(window, min_periods=1).sum()
+    sum_xy = x.mul(y).rolling(window, min_periods=1).sum()
+
+    sxx = sum_xx - sum_x.pow(2).div(count)
+    syy = sum_yy - sum_y.pow(2).div(count)
+    sxy = sum_xy - sum_x.mul(sum_y).div(count)
+    sse = (syy - sxy.pow(2).div(sxx)).clip(lower=0.0)
+    residual_variance = sse.div(count - 2.0)
+
+    admissible = (count >= required) & (count > 2.0) & (sxx > 1e-18)
+    return np.sqrt(residual_variance.where(admissible)) * np.sqrt(252.0)
 
 
 def build_price_features(data: UniverseData) -> Dict[str, pd.DataFrame]:
@@ -115,6 +178,17 @@ def build_price_features(data: UniverseData) -> Dict[str, pd.DataFrame]:
         # Idiosyncratic vol
         resid = returns - beta.mul(mkt, axis=0)
         features[f"idio_vol_{w}d"] = resid.rolling(w, min_periods=w).std() * np.sqrt(252)
+
+    # Standard market-model idiosyncratic volatility.  Keep the legacy
+    # idio_vol_63d above for experiment/backward compatibility, while this
+    # feature uses one OLS fit (with intercept) per trailing 63-day window.
+    cap_weighted_market = lagged_cap_weighted_market_return(returns, mktcap)
+    features["idio_vol_capm_63d"] = rolling_market_model_idio_vol(
+        returns,
+        cap_weighted_market,
+        window=63,
+        min_periods=63,
+    )
 
     # --- Trend consistency (1) ---
     # 위 pos_ret_ratio와 동일한 NaN>0 가드.

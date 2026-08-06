@@ -866,37 +866,85 @@ def _serialize_records(
 
 
 def build_feature_attribution(result) -> dict:
-    """Per-stock SHAP feature attribution at the latest rebalance (§2 schema).
+    """Per-stock model SHAP plus the actual executable alpha at rebalance.
 
-    Pure builder over a duck-typed ``result`` carrying ``models`` (each with
-    ``_active_features``), ``panel`` (MultiIndex[date, ticker]), ``portfolio_weights``,
-    ``feature_groups`` (group -> [feat]), ``sector_map`` and ``bm_weights``. File
-    I/O / pkl load stay in ``main``. SHAP comes from
-    ``src.attribution.compute_shap_values``; ``base_value`` is the TreeExplainer
-    expected value, so ``base_value + sum(shap) == mu`` is a genuine local-accuracy
-    check (not a tautology). Missing model columns raise (no silent reindex-NaN).
+    ``mu`` is taken from the post-overlay/post-lag ``result.predictions`` when
+    available. SHAP explains the feature-scaled, cross-sectionally normalised
+    model component ``model_mu``. Their difference is reported separately as
+    ``signal_adjustment`` because EMA, overlays, calibration and execution lag
+    are not TreeSHAP contributions of the current feature row.
     """
     import shap
     from src.attribution import compute_shap_values
 
     as_of = max(result.portfolio_weights.keys())
-    model_dates = [d for d in result.models if d <= as_of]
+    execution_lag = int(getattr(result, "execution_signal_lag_days", 0) or 0)
+    signal_date = pd.Timestamp(as_of)
+    pre_execution = getattr(result, "pre_execution_predictions", None)
+    if execution_lag > 0 and isinstance(pre_execution, pd.DataFrame):
+        signal_index = pd.DatetimeIndex(pre_execution.index)
+        loc = signal_index.get_indexer([pd.Timestamp(as_of)])[0]
+        if loc >= execution_lag:
+            signal_date = pd.Timestamp(signal_index[loc - execution_lag])
+
+    model_dates = [d for d in result.models if d <= signal_date]
     if not model_dates:
-        raise ValueError(f"no model retrain on/before as_of {as_of}")
+        raise ValueError(f"no model retrain on/before signal_date {signal_date}")
     model_date = max(model_dates)
     model = result.models[model_date]
     feats = list(model._active_features)
 
-    at = result.panel.xs(as_of, level="date")
+    at = result.panel.xs(signal_date, level="date")
     missing = [f for f in feats if f not in at.columns]
     if missing:
-        raise KeyError(f"panel@{as_of} missing model features: {missing}")
+        raise KeyError(f"panel@{signal_date} missing model features: {missing}")
     X = at[feats]
+    listing_dates = getattr(result, "listing_dates", None) or {}
+    if listing_dates and len(X) > 0:
+        eligible = np.fromiter(
+            (
+                ticker not in listing_dates
+                or signal_date > pd.Timestamp(listing_dates[ticker])
+                for ticker in X.index
+            ),
+            dtype=bool,
+            count=len(X),
+        )
+        X = X.loc[eligible]
     tickers = list(X.index)
 
-    mu = np.asarray(model.predict(X), dtype=float)
-    shap_matrix = np.asarray(compute_shap_values(model, X.to_numpy(dtype=float), feats), dtype=float)
+    X_model = X.to_numpy(dtype=float)
+    feature_scale = getattr(model, "_active_fw", None)
+    if feature_scale is not None:
+        feature_scale = np.asarray(feature_scale, dtype=float)
+        if feature_scale.shape != (len(feats),):
+            raise ValueError(
+                f"model feature scale shape {feature_scale.shape} != {(len(feats),)}"
+            )
+        X_model = X_model * feature_scale[np.newaxis, :]
+
+    raw_model_mu = np.asarray(model.predict(X_model), dtype=float)
+    shap_matrix = np.asarray(
+        compute_shap_values(model, X_model, feats), dtype=float
+    )
     base_value = float(np.ravel(shap.TreeExplainer(model).expected_value)[0])
+
+    # Match predict_cross_sectional exactly: pandas sample std (ddof=1), and
+    # leave raw predictions unchanged when dispersion is zero/non-finite.
+    raw_series = pd.Series(raw_model_mu, index=tickers, dtype=float)
+    raw_mean = float(raw_series.mean())
+    raw_std = float(raw_series.std())
+    if np.isfinite(raw_std) and raw_std > 0:
+        model_mu = (raw_series - raw_mean) / raw_std
+        shap_matrix = shap_matrix / raw_std
+        base_value = (base_value - raw_mean) / raw_std
+    else:
+        model_mu = raw_series
+
+    executable = getattr(result, "predictions", None)
+    executable_row = None
+    if isinstance(executable, pd.DataFrame) and pd.Timestamp(as_of) in executable.index:
+        executable_row = executable.loc[pd.Timestamp(as_of)]
 
     feat_to_group = {}
     for grp, group_feats in (result.feature_groups or {}).items():
@@ -908,23 +956,38 @@ def build_feature_attribution(result) -> dict:
     out_tickers = {}
     for i, t in enumerate(tickers):
         shap_i = {f: float(shap_matrix[i, j]) for j, f in enumerate(feats)}
-        mu_i = float(mu[i])
-        if abs(base_value + sum(shap_i.values()) - mu_i) > 1e-3 * abs(mu_i) + 1e-9:
+        model_mu_i = float(model_mu.loc[t])
+        if abs(base_value + sum(shap_i.values()) - model_mu_i) > 1e-3 * abs(model_mu_i) + 1e-9:
             additivity_ok = False
+        executable_mu_i = (
+            float(executable_row.get(t, np.nan))
+            if executable_row is not None
+            else model_mu_i
+        )
         w = float(weights.get(t, 0.0))
         bm = float(result.bm_weights.get(t, 0.0))
         out_tickers[t] = {
             "weight": w, "bm_weight": bm, "active": w - bm,
             "sector": result.sector_map.get(t, "Unknown"),
-            "mu": mu_i, "base_value": base_value, "shap": shap_i,
+            "mu": executable_mu_i,
+            "model_mu": model_mu_i,
+            "signal_adjustment": executable_mu_i - model_mu_i,
+            "base_value": base_value,
+            "shap": shap_i,
         }
     if not additivity_ok:
-        print("[export] WARNING: SHAP additivity gate failed (base+sum(shap) != mu)",
+        print("[export] WARNING: SHAP additivity gate failed "
+              "(base+sum(shap) != model_mu)",
               file=sys.stderr)
 
     return {
         "as_of": str(as_of)[:10],
+        "signal_date": str(signal_date)[:10],
         "model_date": str(model_date)[:10],
+        "mu_source": (
+            "post_overlay_post_lag_predictions"
+            if executable_row is not None else "cross_sectional_model_fallback"
+        ),
         "feature_groups": feat_to_group,
         "additivity_ok": additivity_ok,
         "tickers": out_tickers,
@@ -1475,10 +1538,15 @@ def main(argv=None) -> int:
     for d, model in res.models.items():
         feats = getattr(model, "_active_features", None) or res.feature_names
         try:
-            imps.append(compute_feature_importance(model, feats))
+            imps.append(compute_feature_importance(model, feats, importance_type="gain"))
         except Exception:
             continue
-    features = {"n_models": len(imps), "top_features": [], "group_importance": {}}
+    features = {
+        "n_models": len(imps),
+        "importance_type": "gain",
+        "top_features": [],
+        "group_importance": {},
+    }
     if imps:
         avg = pd.concat(imps, axis=1).fillna(0.0).mean(axis=1).sort_values(ascending=False)
         total = float(avg.sum()) or 1.0
@@ -1568,6 +1636,17 @@ def main(argv=None) -> int:
         feature_groups=res.feature_groups,
         sector_map=sector_map,
         bm_weights={t: float(bm_w[t]) for t in tickers},
+        predictions=getattr(res, "predictions", None),
+        raw_predictions=getattr(res, "raw_predictions", None),
+        pre_overlay_predictions=getattr(res, "pre_overlay_predictions", None),
+        pre_execution_predictions=getattr(res, "pre_execution_predictions", None),
+        execution_signal_lag_days=int(
+            getattr(res, "execution_signal_lag_days", cfg.execution_signal_lag_days)
+        ),
+        listing_dates=(
+            getattr(data, "listing_dates", cfg.listing_dates)
+            if cfg.listing_mask_enabled else {}
+        ),
     ))
     json.dump(fa, open(out / "feature_attribution.json", "w", encoding="utf-8"), indent=2, default=str)
 

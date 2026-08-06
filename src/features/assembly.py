@@ -718,6 +718,8 @@ def build_all_features(
         # S13.13: interaction block (built above, same idiom).
         if getattr(config, "interaction_features_enabled", False):
             extra.update(INTERACTION_FEATURES)
+        if getattr(config, "standard_idio_vol_feature_enabled", False):
+            extra.add("idio_vol_capm_63d")
         # S13.15: fuzzy-AND confirmations + signed trend efficiency.
         if getattr(config, "nonlinear_confirmation_features_enabled", False):
             extra.update(NONLINEAR_CONFIRMATION_FEATURES)

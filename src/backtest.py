@@ -438,7 +438,8 @@ def apply_vol_quality_tilt(
     """§S13.32: quality tilt inside the top idio-vol tercile (default-OFF).
 
     Per prediction date with >= 30 scored names: rank scored names by the
-    winsorised z of ``idio_vol_63d``, take the top tercile, and add
+    winsorised z of the configured volatility feature, take the top tercile,
+    and add
     ``lambda * sd(scored) * z_q`` where z_q is the winsorised z of
     ``best_roe_level_z`` WITHIN the tercile. Cells outside the tercile and
     missing-quality cells are byte-unchanged. Disabled returns the input
@@ -452,7 +453,14 @@ def apply_vol_quality_tilt(
         return predictions
 
     lam = float(getattr(config, "vol_quality_tilt_lambda", 0.25))
-    vol_panel = panel["idio_vol_63d"].unstack("ticker")
+    vol_feature = str(
+        getattr(config, "vol_quality_tilt_vol_feature", "idio_vol_63d")
+    )
+    if vol_feature not in panel.columns:
+        raise KeyError(
+            f"vol-quality tilt feature {vol_feature!r} is absent from the panel"
+        )
+    vol_panel = panel[vol_feature].unstack("ticker")
     q_panel = panel["best_roe_level_z"].unstack("ticker")
     out = predictions.copy()
     tilted = 0
@@ -473,7 +481,7 @@ def apply_vol_quality_tilt(
         out.loc[dt, zq.index] = s[zq.index] + lam * sd * zq
         tilted += 1
     print(f"[Backtest] S13.32 vol-quality tilt applied "
-          f"(lambda={lam}, tilted_dates={tilted})")
+          f"(feature={vol_feature}, lambda={lam}, tilted_dates={tilted})")
     return out
 
 
@@ -1730,6 +1738,7 @@ def run_backtest(
 
     # Pre-listing backfill masking (OFF by default). Mask targets BEFORE
     # walk_forward_train so phantom pre-listing rows never poison training.
+    listing_dates = {}
     if getattr(config, "listing_mask_enabled", False):
         listing_dates = getattr(data, "listing_dates", config.listing_dates)
         targets = mask_pre_listing(targets, listing_dates, inclusive=True)
@@ -1747,7 +1756,12 @@ def run_backtest(
     else:
         print("[Backtest] Phase 4: 모델 학습 및 예측 중...")
         models, predictions, raw_predictions, ewma_tracker = walk_forward_train(
-            panel, targets, feature_names, all_dates, config=config,
+            panel,
+            targets,
+            feature_names,
+            all_dates,
+            config=config,
+            listing_dates=(listing_dates or None),
         )
         progress.log("4", "DONE", f"모델 {len(models)}개")
 
@@ -1781,18 +1795,11 @@ def run_backtest(
                 raise RuntimeError(msg)
     result.data_quality = getattr(data, "data_quality", None)
 
-    # §S13.32: vol-tercile quality tilt (default-OFF). Positioned after the
-    # pre-overlay checkpoint (which must stay pre-tilt so cache-reuse
-    # re-applies the tilt exactly once) and before the listing mask — the
-    # §S13.31 re-MVO injection point.
-    predictions = apply_vol_quality_tilt(predictions, panel, config)
-
-    # Pre-listing backfill masking (OFF by default). Mask predictions BEFORE
+    # Pre-listing backfill masking. Mask predictions BEFORE
     # any overlay (PEAD/tilt/etc.) so phantom pre-listing alpha never enters
     # the overlays or the optimizer. NaN alpha lets the MVO pin w==bm, and the
     # masked cap-weighted BM already gives these names bm==0.
     if getattr(config, "listing_mask_enabled", False):
-        listing_dates = getattr(data, "listing_dates", config.listing_dates)
         predictions = mask_pre_listing(predictions, listing_dates, inclusive=True)
         if raw_predictions is not None:
             raw_predictions = mask_pre_listing(
@@ -1801,6 +1808,10 @@ def run_backtest(
             result.raw_predictions = raw_predictions
         print(f"[Backtest] listing mask applied: predictions "
               f"({len(listing_dates)} resolved names)")
+
+    # Run every alpha overlay only after the listing mask. The checkpoint is
+    # deliberately pre-mask/pre-overlay so cache reuse reapplies both once.
+    predictions = apply_vol_quality_tilt(predictions, panel, config)
 
     # REDESIGN U (2026-04-14): PEAD post-process boost.
     # Stocks with positive pre-earnings revisions get +boost_w × decay × quality

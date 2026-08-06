@@ -56,6 +56,19 @@ def test_listing_mask_fields_default_on_for_valid_100_name_history():
     }
 
 
+def test_standard_idio_vol_feature_is_explicitly_opt_in():
+    c = PipelineConfig()
+    assert c.standard_idio_vol_feature_enabled is False
+    assert c.vol_quality_tilt_vol_feature == "idio_vol_63d"
+
+    enabled = PipelineConfig(
+        standard_idio_vol_feature_enabled=True,
+        vol_quality_tilt_vol_feature="idio_vol_capm_63d",
+    )
+    assert enabled.standard_idio_vol_feature_enabled is True
+    assert enabled.vol_quality_tilt_vol_feature == "idio_vol_capm_63d"
+
+
 def test_spain_market_suffix_maps_to_eur():
     from src.data_loader import MARKET_TO_CURRENCY, FX_QUOTE_SPECS
     assert MARKET_TO_CURRENCY["SM"] == "EUR"

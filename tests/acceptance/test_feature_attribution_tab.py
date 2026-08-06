@@ -92,6 +92,7 @@ import types
 
 import numpy as np
 import pandas as pd
+import pytest
 
 
 # ---------------------------------------------------------------------------
@@ -189,6 +190,16 @@ def test_build_includes_all_panel_tickers():
     assert set(out["tickers"].keys()) == set(TICKERS)  # every panel@as_of ticker
 
 
+def test_build_excludes_pre_listing_ticker_before_model_zscore():
+    from scripts.export_operating_data import build_feature_attribution
+
+    result = _make_result()
+    result.listing_dates = {"XOM": AS_OF.strftime("%Y-%m-%d")}
+    out = build_feature_attribution(result)
+    assert "XOM" not in out["tickers"]
+    assert set(out["tickers"]) == set(TICKERS) - {"XOM"}
+
+
 def test_build_shap_keys_equal_active_features():
     """SHAP is keyed by the MODEL's _active_features (7), NOT the 8-col panel;
     the extra panel column f7 must be sliced out (pre-mortem §5)."""
@@ -201,7 +212,7 @@ def test_build_shap_keys_equal_active_features():
 
 
 def test_build_additivity_holds():
-    """SHAP local-accuracy: base_value + sum(shap) ~= mu for every stock.
+    """SHAP local-accuracy: base + sum(shap) ~= scaled model component.
     Checked on the OUTPUT ONLY (rtol 1e-3), independent of how it was computed.
     Also asserts additivity_ok is flagged True for clean data (§2 gate)."""
     from scripts.export_operating_data import build_feature_attribution
@@ -209,15 +220,15 @@ def test_build_additivity_holds():
     out = build_feature_attribution(_make_result())
     for tkr, rec in out["tickers"].items():
         recon = float(rec["base_value"]) + float(sum(rec["shap"].values()))
-        mu = float(rec["mu"])
-        assert abs(recon - mu) <= 1e-3 * abs(mu) + 1e-9, (
-            f"{tkr}: base+sum(shap)={recon} vs mu={mu}"
+        model_mu = float(rec["model_mu"])
+        assert abs(recon - model_mu) <= 1e-3 * abs(model_mu) + 1e-9, (
+            f"{tkr}: base+sum(shap)={recon} vs model_mu={model_mu}"
         )
     assert out.get("additivity_ok") is True
 
 
 def test_build_mu_matches_independent_predict():
-    """`mu` equals an INDEPENDENT model.predict on the as_of feature row."""
+    """Fallback mu equals an independently cross-sectionally z-scored model."""
     from scripts.export_operating_data import build_feature_attribution
 
     result = _make_result()
@@ -225,10 +236,38 @@ def test_build_mu_matches_independent_predict():
 
     model = result.models[AS_OF]
     panel = result.panel
+    x = panel.xs(AS_OF)[ACTIVE_FEATURES].to_numpy(dtype=float)
+    raw = pd.Series(model.predict(x), index=TICKERS, dtype=float)
+    expected = (raw - raw.mean()) / raw.std()
     for tkr, rec in out["tickers"].items():
-        x_row = panel.loc[(AS_OF, tkr), ACTIVE_FEATURES].to_numpy(dtype=float)
-        expected_mu = float(model.predict(x_row.reshape(1, -1))[0])
-        assert np.isclose(float(rec["mu"]), expected_mu, rtol=1e-3, atol=1e-9), tkr
+        assert np.isclose(float(rec["model_mu"]), expected[tkr], rtol=1e-3, atol=1e-9), tkr
+        assert np.isclose(float(rec["mu"]), expected[tkr], rtol=1e-3, atol=1e-9), tkr
+
+
+def test_build_applies_feature_scale_and_separates_executable_mu():
+    result = _make_result()
+    model = result.models[AS_OF]
+    scale = np.linspace(0.5, 1.5, len(ACTIVE_FEATURES))
+    model._active_fw = scale
+    executable = pd.Series(
+        np.linspace(-0.30, 0.30, len(TICKERS)), index=TICKERS, dtype=float
+    )
+    result.predictions = pd.DataFrame([executable], index=[AS_OF])
+
+    from scripts.export_operating_data import build_feature_attribution
+
+    out = build_feature_attribution(result)
+    x = result.panel.xs(AS_OF)[ACTIVE_FEATURES].to_numpy(dtype=float) * scale
+    raw = pd.Series(model.predict(x), index=TICKERS, dtype=float)
+    expected_model = (raw - raw.mean()) / raw.std()
+
+    assert out["mu_source"] == "post_overlay_post_lag_predictions"
+    for ticker, rec in out["tickers"].items():
+        assert rec["mu"] == pytest.approx(executable[ticker])
+        assert rec["model_mu"] == pytest.approx(expected_model[ticker])
+        assert rec["signal_adjustment"] == pytest.approx(
+            executable[ticker] - expected_model[ticker]
+        )
 
 
 def test_build_feature_groups_inverted():

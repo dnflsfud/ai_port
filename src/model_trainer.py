@@ -513,6 +513,7 @@ def predict_cross_sectional(
     feature_names: List[str],
     pred_date: pd.Timestamp,
     feature_scale: Optional[np.ndarray] = None,
+    listing_dates: Optional[Dict[str, str]] = None,
 ) -> pd.Series:
     """
     단일 날짜의 cross-sectional 예측.
@@ -520,6 +521,21 @@ def predict_cross_sectional(
     """
     mask = panel.index.get_level_values("date") == pred_date
     X = panel.loc[mask, feature_names]
+
+    # Remove pre-listing rows before model.predict and the cross-sectional
+    # normalisation. LightGBM otherwise assigns finite scores to all-NaN rows.
+    if listing_dates and len(X) > 0:
+        tickers = X.index.get_level_values("ticker")
+        eligible = np.fromiter(
+            (
+                ticker not in listing_dates
+                or pd.Timestamp(pred_date) > pd.Timestamp(listing_dates[ticker])
+                for ticker in tickers
+            ),
+            dtype=bool,
+            count=len(X),
+        )
+        X = X.loc[eligible]
 
     if len(X) == 0:
         return pd.Series(dtype=float)
@@ -579,6 +595,7 @@ def walk_forward_train(
     retrain_freq: int = RETRAIN_FREQ,
     val_window: int = VAL_WINDOW,
     config: PipelineConfig = None,
+    listing_dates: Optional[Dict[str, str]] = None,
 ) -> Tuple[Dict[pd.Timestamp, lgb.LGBMRegressor], pd.DataFrame, pd.DataFrame]:
     """
     Walk-forward 방식으로 모델 학습 및 예측 생성.
@@ -589,6 +606,8 @@ def walk_forward_train(
         raw_predictions: DataFrame (date x ticker) 블렌딩 전 순수 모델 예측값 (IC 계산용)
     """
     config = config or DEFAULT_CONFIG
+    if listing_dates is None and getattr(config, "listing_mask_enabled", False):
+        listing_dates = getattr(config, "listing_dates", None) or None
     # When explicit window args differ from module defaults, honour them;
     # otherwise fall back to config values.
     if train_window == TRAIN_WINDOW:
@@ -785,8 +804,14 @@ def walk_forward_train(
                   f"(train: {len(train_dates)}d, val: {len(val_dates)}d, trees: {n_trees}{ewma_status})")
 
         # 예측: EWMA feature weight를 numpy 레벨에서 적용
-        pred = predict_cross_sectional(current_model, panel, active_features, t_date,
-                                       feature_scale=active_fw)
+        pred = predict_cross_sectional(
+            current_model,
+            panel,
+            active_features,
+            t_date,
+            feature_scale=active_fw,
+            listing_dates=listing_dates,
+        )
 
         # raw 예측 저장 (EMA 블렌딩 전, IC 계산용) — vectorized
         common_raw = pred.index.intersection(raw_predictions.columns)

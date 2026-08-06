@@ -71,9 +71,13 @@ def test_default_off_and_variant_has_one_semantic_delta():
     base_overrides = base["overrides"]
     arm_overrides = arm["overrides"]
     for key, value in base_overrides.items():
-        # fwd_sales_slope_features_enabled: adopted into production 2026-08-04
-        # (decision log S13.25 Production flips) after this arm concluded.
-        if key in ("dr_alpha_enabled", "fwd_sales_slope_features_enabled"):
+        # These settings were adopted into production after this historical arm.
+        if key in (
+            "dr_alpha_enabled",
+            "fwd_sales_slope_features_enabled",
+            "vol_quality_tilt_enabled",
+            "vol_quality_tilt_lambda",
+        ):
             continue
         assert arm_overrides[key] == value
     semantic_changes = {

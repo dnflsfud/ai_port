@@ -63,11 +63,14 @@ def test_arm_variant_differs_from_production_by_exactly_the_flag():
     assert arm["nonlinear_confirmation_features_enabled"] is True
     delta = {key: value for key, value in arm.items() if prod.get(key, "<absent>") != value}
     assert set(delta) == {"nonlinear_confirmation_features_enabled"}, delta
-    # fwd_sales_slope_features_enabled: adopted into production 2026-08-04
-    # (decision log S13.25 Production flips) after this arm concluded.
+    post_arm_production_flags = {
+        "fwd_sales_slope_features_enabled",
+        "vol_quality_tilt_enabled",
+        "vol_quality_tilt_lambda",
+    }
     assert not [
         key for key in prod
-        if key not in arm and key != "fwd_sales_slope_features_enabled"
+        if key not in arm and key not in post_arm_production_flags
     ]
 
 

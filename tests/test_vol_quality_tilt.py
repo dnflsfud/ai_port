@@ -34,6 +34,8 @@ def test_config_defaults_off_and_lambda_committed():
     cfg = PipelineConfig()
     assert cfg.vol_quality_tilt_enabled is False
     assert cfg.vol_quality_tilt_lambda == 0.25
+    assert cfg.vol_quality_tilt_vol_feature == "idio_vol_63d"
+    assert cfg.standard_idio_vol_feature_enabled is False
 
 
 def test_disabled_returns_the_same_object():
@@ -64,3 +66,22 @@ def test_enabled_passthrough_below_min_names():
     cfg.vol_quality_tilt_enabled = True
     out = apply_vol_quality_tilt(sparse, panel, cfg)
     pd.testing.assert_series_equal(out.iloc[0], sparse.iloc[0])
+
+
+def test_enabled_uses_configured_standard_idio_vol_feature():
+    preds, vol_panel, q_panel, panel = _make_inputs()
+    standard_vol = vol_panel.iloc[:, ::-1].copy()
+    standard_vol.columns = vol_panel.columns
+    standard_series = standard_vol.stack()
+    standard_series.index.names = ["date", "ticker"]
+    panel["idio_vol_capm_63d"] = standard_series
+
+    cfg = PipelineConfig(
+        vol_quality_tilt_enabled=True,
+        vol_quality_tilt_vol_feature="idio_vol_capm_63d",
+    )
+    out = apply_vol_quality_tilt(preds, panel, cfg)
+    expected, _ = apply_quality_tilt(
+        preds, standard_vol, q_panel, lam=cfg.vol_quality_tilt_lambda
+    )
+    pd.testing.assert_frame_equal(out, expected)

@@ -68,7 +68,8 @@ def test_smoke_additivity():
     out = build_feature_attribution(_result())
     for rec in out["tickers"].values():
         recon = float(rec["base_value"]) + float(sum(rec["shap"].values()))
-        assert abs(recon - float(rec["mu"])) <= 1e-3 * abs(float(rec["mu"])) + 1e-9
+        model_mu = float(rec["model_mu"])
+        assert abs(recon - model_mu) <= 1e-3 * abs(model_mu) + 1e-9
     assert out.get("additivity_ok") is True
 
 

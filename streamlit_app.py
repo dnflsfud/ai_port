@@ -408,7 +408,14 @@ def prepare_stock_drivers(attr, ticker=None):
     shap = rec.get("shap") or {}
     top = sorted(shap.items(), key=lambda kv: abs(kv[1]), reverse=True)[:12]
     top_features = [(f, groups.get(f, "?"), float(v)) for f, v in top]
-    metrics = {k: float(rec.get(k, 0.0)) for k in ("weight", "bm_weight", "active", "mu")}
+    metrics = {
+        "weight": float(rec.get("weight", 0.0)),
+        "bm_weight": float(rec.get("bm_weight", 0.0)),
+        "active": float(rec.get("active", 0.0)),
+        "mu": float(rec.get("mu", 0.0)),
+        "model_mu": float(rec.get("model_mu", rec.get("mu", 0.0))),
+        "signal_adjustment": float(rec.get("signal_adjustment", 0.0)),
+    }
     return {"options": options, "default": default, "selected": selected,
             "top_features": top_features, "metrics": metrics}
 
@@ -1623,8 +1630,9 @@ def main() -> None:
             st.info("Run export_operating_data.py to generate feature attribution.")
         else:
             st.markdown(
-                "<div class='note'>Per-stock SHAP attribution of the model return "
-                "forecast (mu) at the latest rebalance.</div>",
+                "<div class='note'>SHAP explains the scaled model component. "
+                "Executable mu separately includes EMA, overlays, calibration "
+                "and execution lag.</div>",
                 unsafe_allow_html=True,
             )
             tickers_map = attr.get("tickers") or {}
@@ -1650,11 +1658,13 @@ def main() -> None:
             view = prepare_stock_drivers(attr, selected)
 
             m = view["metrics"]
-            mc = st.columns(4)
+            mc = st.columns(6)
             mc[0].metric("Weight", pct(m["weight"], 2))
             mc[1].metric("BM Weight", pct(m["bm_weight"], 2))
             mc[2].metric("Active", pct(m["active"], 2, signed=True))
-            mc[3].metric("Model mu", num(m["mu"], 4))
+            mc[3].metric("Executable mu", num(m["mu"], 4))
+            mc[4].metric("Model component", num(m["model_mu"], 4))
+            mc[5].metric("Signal adjustment", num(m["signal_adjustment"], 4))
 
             top = view["top_features"]
             drv = pd.DataFrame({
@@ -1665,7 +1675,7 @@ def main() -> None:
             fig = px.bar(
                 drv, x="shap", y="feature", orientation="h",
                 color="direction", color_discrete_map={"pos": COLOR_POS, "neg": COLOR_NEG},
-                title="Top feature drivers of model forecast", template="plotly_white",
+                title="Top feature drivers of scaled model component", template="plotly_white",
             )
             fig.update_layout(yaxis={"categoryorder": "total ascending"},
                               xaxis_title="SHAP", yaxis_title="", showlegend=False)

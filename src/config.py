@@ -520,17 +520,23 @@ class PipelineConfig:
     # ------------------------------------------------------------------
     # Vol-tercile quality tilt — §S13.31/32 (2026-08-05, default-OFF)
     # ------------------------------------------------------------------
-    # Inside the top idio_vol_63d tercile of scored names only:
+    # Inside the top tercile of ``vol_quality_tilt_vol_feature`` among scored
+    # names only:
     #   score' = score + lambda * sd(scored) * z_q
     # where z_q is the 1/99-winsorised cross-sectional z of best_roe_level_z
     # WITHIN the tercile. Names outside the tercile (and missing-quality
     # cells) are byte-unchanged, so the vol character of the book is
     # preserved while quality reorders names inside the high-vol sleeve.
-    # Applied after the pre-overlay checkpoint and before the listing mask
-    # (the §S13.31 re-MVO injection point). lambda 0.25 is the single
+    # Applied after the pre-overlay checkpoint and after the listing mask.
+    # lambda 0.25 is the single
     # pre-committed §S13.31 value — do not sweep.
     vol_quality_tilt_enabled: bool = False
     vol_quality_tilt_lambda: float = 0.25
+    # Opt-in admission of the standard rolling market-model residual-vol
+    # feature into the core model. The feature itself is always built so it is
+    # available to diagnostics and non-core modes.
+    standard_idio_vol_feature_enabled: bool = False
+    vol_quality_tilt_vol_feature: str = "idio_vol_63d"
 
     # ------------------------------------------------------------------
     # Mega-cap asymmetric protection — REDESIGN V (2026-04-14, iter16)
@@ -931,6 +937,8 @@ class PipelineConfig:
             raise ValueError("listing_flat_min_run must be >= 1")
         if self.listing_flat_rtol < 0 or self.listing_flat_atol < 0:
             raise ValueError("listing flat tolerances must be >= 0")
+        if not str(self.vol_quality_tilt_vol_feature).strip():
+            raise ValueError("vol_quality_tilt_vol_feature must be non-empty")
         if not self.sp500_factor_ticker:
             raise ValueError("sp500_factor_ticker must be non-empty")
         if self.alpha_calibration_lookback < 1:

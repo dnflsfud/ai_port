@@ -12,7 +12,11 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from src.features.price import build_price_features
+from src.features.price import (
+    build_price_features,
+    lagged_cap_weighted_market_return,
+    rolling_market_model_idio_vol,
+)
 
 
 def _stub(n_dates=40, listing_pos=30, seed=1):
@@ -64,3 +68,49 @@ def test_comparison_features_are_nan_not_zero_pre_listing():
     d = dates[listing_pos - 1]
     assert np.isnan(features["pos_ret_ratio_21d"].loc[d, "NEW"])
     assert np.isnan(features["trend_consist_63d"].loc[d, "NEW"])
+
+
+def test_lagged_cap_weighted_market_return_uses_prior_day_caps():
+    dates = pd.bdate_range("2026-01-01", periods=3)
+    returns = pd.DataFrame(
+        {"A": [0.01, 0.10, 0.03], "B": [0.02, 0.00, 0.04]}, index=dates
+    )
+    caps = pd.DataFrame(
+        {"A": [100.0, 900.0, 900.0], "B": [300.0, 100.0, 100.0]},
+        index=dates,
+    )
+
+    market = lagged_cap_weighted_market_return(returns, caps)
+
+    assert np.isnan(market.iloc[0])
+    assert market.iloc[1] == pytest.approx(0.10 * 0.25 + 0.00 * 0.75)
+    assert market.iloc[2] == pytest.approx(0.03 * 0.90 + 0.04 * 0.10)
+
+
+def test_market_model_idio_vol_matches_window_ols_residual_std():
+    rng = np.random.default_rng(19)
+    dates = pd.bdate_range("2025-01-02", periods=80)
+    market = pd.Series(rng.normal(0.0004, 0.012, len(dates)), index=dates)
+    eps = rng.normal(0.0, 0.007, len(dates))
+    stock = 0.0002 + 1.35 * market.to_numpy() + eps
+    returns = pd.DataFrame({"A": stock}, index=dates)
+
+    result = rolling_market_model_idio_vol(
+        returns, market, window=63, min_periods=63
+    )
+
+    x = market.iloc[-63:].to_numpy()
+    y = returns["A"].iloc[-63:].to_numpy()
+    design = np.column_stack([np.ones(len(x)), x])
+    coef, *_ = np.linalg.lstsq(design, y, rcond=None)
+    residual = y - design @ coef
+    expected = np.sqrt(np.sum(residual ** 2) / (len(x) - 2)) * np.sqrt(252.0)
+    assert result.iloc[-1, 0] == pytest.approx(expected, rel=1e-10, abs=1e-12)
+    assert result["A"].iloc[:62].isna().all()
+
+
+def test_price_features_expose_standard_capm_idio_vol():
+    data, _dates, _listing_pos = _stub(n_dates=100, listing_pos=30)
+    features = build_price_features(data)
+    assert "idio_vol_capm_63d" in features
+    assert np.isfinite(features["idio_vol_capm_63d"]["AAA"].iloc[-1])

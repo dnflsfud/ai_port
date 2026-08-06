@@ -556,10 +556,26 @@ def feature_group_attribution(
 def compute_feature_importance(
     model: lgb.LGBMRegressor,
     feature_names: List[str],
+    importance_type: str = "gain",
 ) -> pd.Series:
-    """LightGBM built-in feature importance (gain)."""
-    importance = model.feature_importances_
-    return pd.Series(importance, index=feature_names, name="importance").sort_values(ascending=False)
+    """LightGBM feature importance with an explicit, truthful definition."""
+    if importance_type not in ("gain", "split"):
+        raise ValueError("importance_type must be 'gain' or 'split'")
+    booster = getattr(model, "booster_", None)
+    if booster is None:
+        raise ValueError("feature importance requires a fitted LightGBM booster")
+    importance = np.asarray(
+        booster.feature_importance(importance_type=importance_type), dtype=float
+    )
+    if len(importance) != len(feature_names):
+        raise ValueError(
+            f"importance length {len(importance)} != feature names {len(feature_names)}"
+        )
+    return pd.Series(
+        importance,
+        index=feature_names,
+        name=f"{importance_type}_importance",
+    ).sort_values(ascending=False)
 
 
 # ============================================================
