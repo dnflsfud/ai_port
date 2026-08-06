@@ -266,6 +266,7 @@
     "signal_stability_lambda": 0.0,
     "sp500_benchmark_enabled": true,
     "sp500_factor_ticker": "SPX",
+    "standard_idio_vol_feature_enabled": false,
     "symmetric_rank_loss": "huber",
     "symmetric_rank_metric": "l2",
     "trailing_ic_window": 6,
@@ -277,6 +278,9 @@
     "value_trap_gate_enabled": true,
     "vol_exposure_cap_enabled": false,
     "vol_exposure_cap_excess": 0.05,
+    "vol_quality_tilt_enabled": false,
+    "vol_quality_tilt_lambda": 0.25,
+    "vol_quality_tilt_vol_feature": "idio_vol_63d",
     "vtg_accel_threshold": 0.5,
     "vtg_momentum_threshold": -0.5,
     "vtg_pe_z_threshold": -0.5,
@@ -291,7 +295,7 @@
     "tuning_mode": "production",
     "variant_label": "iter15_65tkr_reb21_vtg"
   },
-  "git_dirty": true,
-  "git_hash": "3fbaf1fb91ebb645fa0be24251e5e42e83da40e8",
-  "timestamp_utc": "2026-08-05T02:43:10Z"
+  "git_dirty": false,
+  "git_hash": "17f3ea79e80b55ef3d9e80b95305d256305fd799",
+  "timestamp_utc": "2026-08-06T02:43:45Z"
 }
