@@ -92,6 +92,7 @@
     "growth_tilt_rev_tg_share": 0.0,
     "growth_tilt_rev_weight": 0.5,
     "growth_tilt_weight": 0.25,
+    "implied_vol_features_enabled": false,
     "index_eps_feature_names": null,
     "index_eps_features_enabled": false,
     "index_revision_feature_enabled": false,
@@ -276,6 +277,9 @@
     "use_score_based": false,
     "val_window": 126,
     "value_trap_gate_enabled": true,
+    "vix_ts_improve_window": 5,
+    "vix_ts_risk_scale": 0.5,
+    "vix_ts_risk_scaling_enabled": false,
     "vol_exposure_cap_enabled": false,
     "vol_exposure_cap_excess": 0.05,
     "vol_quality_tilt_enabled": false,
@@ -295,7 +299,7 @@
     "tuning_mode": "production",
     "variant_label": "iter15_65tkr_reb21_vtg"
   },
-  "git_dirty": false,
-  "git_hash": "17f3ea79e80b55ef3d9e80b95305d256305fd799",
-  "timestamp_utc": "2026-08-06T02:43:45Z"
+  "git_dirty": true,
+  "git_hash": "3b8a6764ff22efeb2c1b49350afce9c7d4a2bbe9",
+  "timestamp_utc": "2026-08-11T02:48:00Z"
 }

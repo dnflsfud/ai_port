@@ -158,6 +158,56 @@ def apply_mu_vol_scaling(
     return out
 
 
+def apply_vix_ts_risk_scaling(
+    predictions: pd.DataFrame,
+    factor_prices: Optional[pd.DataFrame],
+    config: PipelineConfig,
+) -> pd.DataFrame:
+    """S13.34 (2026-08-07): VIX term-structure de-risking overlay.
+
+    slope_t = VIX3M_t / VIX_t − 1, both aligned to the prediction date grid
+    (ffill limit 5 — the target engine's VIX alignment idiom). A prediction
+    date t is risk-off iff
+
+        slope_t < 0                                  (backwardation)  AND
+        slope_t − slope_{t−improve_window} <= 0      (NOT shrinking)
+
+    and its μ row is scaled by ``vix_ts_risk_scale``. Shrinking
+    backwardation (slope rising vs `improve_window` business days ago) or
+    contango keeps μ unchanged — risk back on, per the user-directed
+    re-entry rule. Guards are inert-leaning: NaN slope (missing/stale VIX
+    tail beyond the ffill limit, or the shift warm-up) never triggers
+    risk-off; NaN predictions stay NaN. Preregistered single parameters;
+    no sweep. OFF (default) returns the input object untouched.
+    """
+    if not getattr(config, "vix_ts_risk_scaling_enabled", False):
+        return predictions
+    if (
+        factor_prices is None
+        or "VIX" not in factor_prices.columns
+        or "VIX3M" not in factor_prices.columns
+    ):
+        print("[Backtest] S13.34 VIX-TS risk scaling SKIPPED (VIX/VIX3M unavailable)")
+        return predictions
+
+    window = int(getattr(config, "vix_ts_improve_window", 5))
+    scale = float(getattr(config, "vix_ts_risk_scale", 0.5))
+    vix = factor_prices["VIX"].reindex(predictions.index).ffill(limit=5)
+    vix3m = factor_prices["VIX3M"].reindex(predictions.index).ffill(limit=5)
+    slope = vix3m / vix.where(vix > 0) - 1.0
+    improving = slope - slope.shift(window)
+    risk_off = ((slope < 0) & (improving <= 0)).fillna(False)
+
+    out = predictions.copy()
+    out.loc[risk_off] = out.loc[risk_off] * scale
+    print(
+        f"[Backtest] S13.34 VIX-TS risk scaling applied: "
+        f"{int(risk_off.sum())}/{len(out)} date(s) risk-off "
+        f"(scale={scale}, improve_window={window}d)"
+    )
+    return out
+
+
 def apply_oof_alpha_calibration(
     predictions: pd.DataFrame,
     targets: pd.DataFrame,
@@ -1875,6 +1925,13 @@ def run_backtest(
             )
         else:
             print("[Backtest] OOF alpha calibration SKIPPED (raw_returns unavailable)")
+
+    # S13.34: VIX term-structure de-risking overlay — final μ step before the
+    # execution lag (the lag below shifts the scaled signal together with the
+    # other overlays, so the trade at t+1 uses the slope known at t).
+    if getattr(config, "vix_ts_risk_scaling_enabled", False):
+        _vts_fpx = data.factor_prices if data.has_factor_data() else None
+        predictions = apply_vix_ts_risk_scaling(predictions, _vts_fpx, config)
 
     # Causal challenger execution: delay the fully formed signal (including
     # overlays) and its raw counterpart together.  Default zero keeps the S0

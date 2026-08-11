@@ -809,6 +809,34 @@ class PipelineConfig:
     fwd_sales_slope_features_enabled: bool = False
 
     # ------------------------------------------------------------------
+    # S13.34 (2026-08-07) — implied-vol surface features (3, one arm).
+    # Preregistered spreads from the five stock-level IV sheets (levels are
+    # excluded: IV30 level has CS corr +0.88 vs realized vol — duplicate of
+    # the existing vol axis):
+    #   iv_skew_level = (IV90 − IV110) / IV100    (put-skew, crash pricing)
+    #   iv_vrp_level  = IV30 − VOLATILITY_30D     (variance risk premium)
+    #   iv_term_level = (IV3M − IV30) / IV30      (per-stock IV term struct)
+    # OFF by default: byte-identical model input via the core-whitelist
+    # filter. Do NOT flip before the gate passes (ΔIR > +0.36 & sub-period
+    # sign consistency).
+    # ------------------------------------------------------------------
+    implied_vol_features_enabled: bool = False
+
+    # ------------------------------------------------------------------
+    # S13.34 (2026-08-07) — VIX term-structure de-risking overlay
+    # (user-directed arm). slope_t = VIX3M/VIX − 1 on the prediction date
+    # grid. A date is risk-off iff slope < 0 (backwardation) AND
+    # slope_t − slope_{t−improve_window} <= 0 (backwardation NOT shrinking);
+    # risk-off rows scale μ by vix_ts_risk_scale before MVO. Improving
+    # backwardation or contango restores full μ (risk back on). Single
+    # preregistered parameters (0.5 / 5d, AskUserQuestion 2026-08-07);
+    # no sweep. OFF by default: predictions byte-identical.
+    # ------------------------------------------------------------------
+    vix_ts_risk_scaling_enabled: bool = False
+    vix_ts_risk_scale: float = 0.5
+    vix_ts_improve_window: int = 5
+
+    # ------------------------------------------------------------------
     # S13.14 (2026-07-27) — winner-trim protection (combined arm with the
     # S13.13 interaction block)
     # ------------------------------------------------------------------

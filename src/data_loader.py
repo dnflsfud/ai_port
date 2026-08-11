@@ -197,7 +197,17 @@ SKIP_SHEETS = {"Universe_Meta", "Summary_Stats", "BusinessDays", "Factor_Meta", 
 FACTOR_SHEETS = {"Factor_PX_LAST", "Factor_Returns", "Factor_Meta"}
 
 # Bloomberg "XXX US Equity" 형식 컬럼을 쓰는 시트
-BLOOMBERG_EQUITY_SHEETS = {"SHORT_INT_RATIO", "Fwd_Sales_Slope_1FY2FY"}
+BLOOMBERG_EQUITY_SHEETS = {
+    "SHORT_INT_RATIO",
+    "Fwd_Sales_Slope_1FY2FY",
+    # S13.34: 종목 레벨 IV 서피스 시트 5종 (features/implied_vol.py 소비).
+    # 유니버스 교집합은 essential 시트만 쓰므로 리네임은 티커 셋에 inert.
+    "30DAY_IMPVOL_100.0%MNY_DF",
+    "30DAY_IMPVOL_90.0%MNY_DF",
+    "30DAY_IMPVOL_110.0%MNY_DF",
+    "3MTH_IMPVOL_100.0%MNY_DF",
+    "VOLATILITY_30D",
+}
 
 FACTOR_CATEGORIES = {
     "Market_Index": ["SPX", "NDX", "RTY", "MXWD", "MXEF", "SX5E", "NKY", "HSI", "SHCOMP"],
@@ -220,6 +230,10 @@ FACTOR_CATEGORIES = {
     "Earnings_Revision": [
         "SPX_REV", "NDX_REV", "SX5E_REV", "DAX_REV", "CAC_REV", "JPN_REV",
     ],
+    # S13.34: VIX 3M — consumed only by backtest.apply_vix_ts_risk_scaling
+    # under its default-OFF flag. factor.py has no generic loop over factor
+    # columns outside Factor_ETF, so loading this column adds no features.
+    "Volatility_TS": ["VIX3M"],
 }
 ALL_FACTOR_COLUMNS = [col for cols in FACTOR_CATEGORIES.values() for col in cols]
 

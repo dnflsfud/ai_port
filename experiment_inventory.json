@@ -318,7 +318,7 @@
       "result": "E0 PASS at floating-point precision: full-pipeline IR 1.619622 = S13.31 Q1 (active 5.884%, TE 3.633%, beta 1.0530, turnover 0.7090, MaxDD -32.85% all identical). Degenerate-retrain rate 15/32 identical to production (model layer untouched, cross-check pass). ECOS-only, fallback 0. dIR vs production +0.0463 (noise band). Referred to user for the S8 flip decision; flags stay default-OFF."
     }
   ],
-  "n_trials_total": 459,
+  "n_trials_total": 461,
   "notes": [
     "396 is a conservative lower bound. Actual N is likely higher once",
     "ad-hoc config.py tweaks over the research period are counted.",
@@ -357,6 +357,7 @@
     "2026-08-04: S13.27 optimizer-layer defensive arms (+2): A bm-proportional active cap (existing infra, flag-on) and B portfolio vol exposure cap 1.05 (new default-OFF infra). Both REJECT (A no defensive effect at dIR -0.10; B real defense but dIR -0.62, character break). Production unchanged. n_trials_total 454 -> 456.",
     "2026-08-05: S13.29 pca_vol_standardize retest (+1) on the current baseline - E1 FAIL dIR -0.4986; standardization left the vol tilt intact (fat-tail mechanism) while degrading ranking quality. n_trials_total 456 -> 457.",
     "2026-08-05: S13.31 quality-tilt re-MVO arm (+1) gated by the read-only S13.30 preflight (preflight not counted, per S13.7/S13.19 precedent). Zero-cost quality exposure shift, dIR +0.046 (noise band), tail defence not delivered; referred to user, production unchanged. n_trials_total 457 -> 458.",
-    "2026-08-05: S13.32 pipeline formalization of the S13.31 tilt (+1) - full-pipeline arm reproduces the re-MVO result to floating-point precision (E0), degeneracy 15/32 identical. Flags default-OFF, flip referred to user. n_trials_total 458 -> 459."
+    "2026-08-05: S13.32 pipeline formalization of the S13.31 tilt (+1) - full-pipeline arm reproduces the re-MVO result to floating-point precision (E0), degeneracy 15/32 identical. Flags default-OFF, flip referred to user. n_trials_total 458 -> 459.",
+    "2026-08-07: S13.34 (+2) vs the 08-07 regenerated-workbook S0 recert (IR 1.3836, re-baseline not a trial): arm A implied-vol surface 3-feature block (skew/vrp/term) dIR -0.112, E1 FAIL (features consumed - degeneracy 50pct -> 18.75pct, turnover +10pp - but transmission negative, P3 -0.48); arm B VIX term-structure de-risking overlay (mu x0.5, 5d improve window) dIR +2.6e-08, structural no-op (max weight diff 4.2e-07 - uniform mu scaling cannot move the constraint-pinned, sign/rank-gated optimum). Both not adopted, defaults stay OFF. Read-only preflights (IC precheck, delta-slope signal characterization SHELVE, workbook quality audit) not counted per S13.7/S13.19 precedent. n_trials_total 459 -> 461."
   ]
 }
