@@ -1,0 +1,159 @@
+{
+  "workbook_mtime": "2026-08-12 04:45:41",
+  "sample_step_days": 5,
+  "features": {
+    "iv30_z": {
+      "coverage_recent_252d": 0.993,
+      "ic_21d": {
+        "mean_ic": 0.0263,
+        "t_naive": 6.08,
+        "t_conservative": 2.97,
+        "n_dates": 892,
+        "subperiod_mean_ic": [
+          0.0279,
+          0.0115,
+          0.0395
+        ],
+        "sign_consistent": true
+      },
+      "ic_63d": {
+        "mean_ic": 0.0196,
+        "t_naive": 4.76,
+        "t_conservative": 1.34,
+        "n_dates": 884,
+        "subperiod_mean_ic": [
+          0.019,
+          -0.0086,
+          0.0484
+        ],
+        "sign_consistent": false
+      },
+      "mean_rho_vs_realized_vol": 0.082
+    },
+    "downside_skew_z": {
+      "coverage_recent_252d": 0.995,
+      "ic_21d": {
+        "mean_ic": 0.0121,
+        "t_naive": 3.17,
+        "t_conservative": 1.55,
+        "n_dates": 892,
+        "subperiod_mean_ic": [
+          0.0187,
+          -0.0015,
+          0.019
+        ],
+        "sign_consistent": false
+      },
+      "ic_63d": {
+        "mean_ic": 0.014,
+        "t_naive": 3.8,
+        "t_conservative": 1.07,
+        "n_dates": 884,
+        "subperiod_mean_ic": [
+          0.0232,
+          -0.0041,
+          0.0228
+        ],
+        "sign_consistent": false
+      },
+      "mean_rho_vs_realized_vol": 0.01
+    },
+    "downside_skew_chg_5d": {
+      "coverage_recent_252d": 1.0,
+      "ic_21d": {
+        "mean_ic": 0.0073,
+        "t_naive": 1.85,
+        "t_conservative": 0.9,
+        "n_dates": 916,
+        "subperiod_mean_ic": [
+          0.0123,
+          0.0045,
+          0.0049
+        ],
+        "sign_consistent": true
+      },
+      "ic_63d": {
+        "mean_ic": 0.0023,
+        "t_naive": 0.59,
+        "t_conservative": 0.17,
+        "n_dates": 908,
+        "subperiod_mean_ic": [
+          0.003,
+          0.0024,
+          0.0013
+        ],
+        "sign_consistent": true
+      },
+      "mean_rho_vs_realized_vol": -0.004
+    },
+    "iv_term_structure_z": {
+      "coverage_recent_252d": 0.989,
+      "ic_21d": {
+        "mean_ic": 0.0247,
+        "t_naive": 6.92,
+        "t_conservative": 3.38,
+        "n_dates": 892,
+        "subperiod_mean_ic": [
+          0.0242,
+          0.0187,
+          0.0313
+        ],
+        "sign_consistent": true
+      },
+      "ic_63d": {
+        "mean_ic": 0.0126,
+        "t_naive": 3.56,
+        "t_conservative": 1.0,
+        "n_dates": 884,
+        "subperiod_mean_ic": [
+          0.0124,
+          0.0071,
+          0.0183
+        ],
+        "sign_consistent": true
+      },
+      "mean_rho_vs_realized_vol": -0.022
+    },
+    "vol_risk_premium_z": {
+      "coverage_recent_252d": 1.0,
+      "ic_21d": {
+        "mean_ic": 0.0164,
+        "t_naive": 4.52,
+        "t_conservative": 2.21,
+        "n_dates": 892,
+        "subperiod_mean_ic": [
+          0.016,
+          0.0077,
+          0.0254
+        ],
+        "sign_consistent": true
+      },
+      "ic_63d": {
+        "mean_ic": 0.0145,
+        "t_naive": 3.97,
+        "t_conservative": 1.12,
+        "n_dates": 884,
+        "subperiod_mean_ic": [
+          0.0171,
+          0.0266,
+          -0.0003
+        ],
+        "sign_consistent": false
+      },
+      "mean_rho_vs_realized_vol": -0.378
+    }
+  },
+  "cross_feature_rho_recent504": {
+    "iv30_z~downside_skew_z": 0.042,
+    "iv30_z~downside_skew_chg_5d": 0.017,
+    "iv30_z~iv_term_structure_z": 0.687,
+    "downside_skew_z~downside_skew_chg_5d": 0.523,
+    "downside_skew_z~iv_term_structure_z": 0.049,
+    "downside_skew_chg_5d~iv_term_structure_z": 0.015
+  },
+  "days_to_earnings": {
+    "coverage_full": 0.708,
+    "coverage_recent_252d": 0.644,
+    "coverage_last_21d": 0.225
+  }
+}

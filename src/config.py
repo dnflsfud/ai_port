@@ -837,6 +837,22 @@ class PipelineConfig:
     putcall_features_enabled: bool = False
 
     # ------------------------------------------------------------------
+    # S13.38 (2026-08-12) — option-risk standardized features (single arm,
+    # user-directed). Five preregistered passthroughs from the §S13.37
+    # workbook sheets (TS 252d z-scores are computed in the data layer —
+    # single definition):
+    #   iv30_z, downside_skew_z (25Δ put−call), downside_skew_chg_5d,
+    #   iv_term_structure_z (30D−3M), days_to_earnings (earnings-effect
+    #   separation for the term factor via tree conditioning; semantic
+    #   overlap with the dormant S13.9 earn_days_to_next noted).
+    # vol_risk_premium_z is excluded by preregistration (user directive).
+    # OFF by default: byte-identical model input via the core-whitelist
+    # filter. Do NOT flip before the gate passes (ΔIR > +0.36 & sub-period
+    # sign consistency).
+    # ------------------------------------------------------------------
+    option_risk_features_enabled: bool = False
+
+    # ------------------------------------------------------------------
     # S13.34 (2026-08-07) — VIX term-structure de-risking overlay
     # (user-directed arm). slope_t = VIX3M/VIX − 1 on the prediction date
     # grid. A date is risk-off iff slope < 0 (backwardation) AND

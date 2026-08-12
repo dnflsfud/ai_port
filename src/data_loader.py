@@ -211,6 +211,13 @@ BLOOMBERG_EQUITY_SHEETS = {
     # PUT_CALL은 비US 48종 열 부재 — 빌더가 정직한 NaN 열로 reindex한다.
     "PX_VOLUME",
     "PUT_CALL_OPEN_INTEREST_RATIO",
+    # S13.38: 옵션 리스크 파생 시트 4종 (features/option_risk.py 소비).
+    # §S13.37 데이터 계층 산출물 — 'SPX Index' 열은 유니버스 교집합에 inert.
+    # days_to_earnings는 간단 티커 열이라 리네임 불필요(여기 미등록).
+    "iv30_z",
+    "downside_skew_z",
+    "downside_skew_chg_5d",
+    "iv_term_structure_z",
 }
 
 FACTOR_CATEGORIES = {

@@ -38,6 +38,8 @@ from src.features.fwd_sales_slope import (admitted_fwd_sales_slope_features,
                                           build_fwd_sales_slope_features)
 from src.features.implied_vol import (admitted_implied_vol_features,
                                       build_implied_vol_features)
+from src.features.option_risk import (admitted_option_risk_features,
+                                      build_option_risk_features)
 from src.features.volume_flow import (admitted_putcall_features,
                                       admitted_volume_features,
                                       build_volume_flow_features)
@@ -702,6 +704,12 @@ def build_all_features(
     feature_groups["VolumeFlow"] = list(volume_flow.keys())
     all_features.update(volume_flow)
 
+    # S13.38: option-risk standardized block (S8 idiom, §S13.37 sheet
+    # passthrough); admission is gated at the core-whitelist filter below.
+    option_risk = build_option_risk_features(data)
+    feature_groups["OptionRisk"] = list(option_risk.keys())
+    all_features.update(option_risk)
+
     # REDESIGN C++ (2026-04-11 PM): "core" mode further prunes to a hand-picked
     # whitelist (~85 features) with explicit style balance based on the
     # A+C+D+E run's feature importance ranking. This drops 239 -> 85 while
@@ -752,6 +760,8 @@ def build_all_features(
         # S13.35: volume / put-call positioning blocks (same idiom, per-arm).
         extra.update(admitted_volume_features(config))
         extra.update(admitted_putcall_features(config))
+        # S13.38: option-risk standardized block (same idiom).
+        extra.update(admitted_option_risk_features(config))
         apply_core_filter(all_features, feature_groups,
                           extra_whitelist=(extra or None))
 
