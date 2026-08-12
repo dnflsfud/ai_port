@@ -1,0 +1,66 @@
+{
+  "workbook_mtime": "2026-08-12 04:45:41",
+  "n_rebalances": 95,
+  "n_increase_events": 381,
+  "events_per_rebalance": 4.01,
+  "band": 0.003,
+  "z_threshold": 2.0,
+  "variants": {
+    "AND(iv>2 & skew>2)": {
+      "n_extreme": 6,
+      "n_rest": 375,
+      "mean_diff": 0.01769,
+      "t": 0.32,
+      "extreme_share": 0.016,
+      "subperiod_mean_diff": [
+        -0.06963,
+        null,
+        0.13373
+      ],
+      "sign_consistent": false
+    },
+    "OR(iv>2 | skew>2)": {
+      "n_extreme": 43,
+      "n_rest": 338,
+      "mean_diff": 0.00576,
+      "t": 0.24,
+      "extreme_share": 0.113,
+      "subperiod_mean_diff": [
+        -0.05803,
+        0.01897,
+        0.02859
+      ],
+      "sign_consistent": false
+    },
+    "iv_z>2": {
+      "n_extreme": 38,
+      "n_rest": 343,
+      "mean_diff": 0.01018,
+      "t": 0.39,
+      "extreme_share": 0.1,
+      "subperiod_mean_diff": [
+        -0.05803,
+        0.04784,
+        0.02576
+      ],
+      "sign_consistent": false
+    },
+    "skew_z>2": {
+      "n_extreme": 11,
+      "n_rest": 370,
+      "mean_diff": -0.00225,
+      "t": -0.06,
+      "extreme_share": 0.029,
+      "subperiod_mean_diff": [
+        -0.06963,
+        -0.0331,
+        0.11274
+      ],
+      "sign_consistent": false
+    }
+  },
+  "gates": {
+    "P1_binding": false,
+    "P2_discrimination": false
+  }
+}
