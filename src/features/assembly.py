@@ -38,6 +38,9 @@ from src.features.fwd_sales_slope import (admitted_fwd_sales_slope_features,
                                           build_fwd_sales_slope_features)
 from src.features.implied_vol import (admitted_implied_vol_features,
                                       build_implied_vol_features)
+from src.features.volume_flow import (admitted_putcall_features,
+                                      admitted_volume_features,
+                                      build_volume_flow_features)
 from src.features.index_revision import (admitted_index_revision_features,
                                          build_index_revision_features)
 from src.features.interaction import build_sector_interaction_features
@@ -693,6 +696,12 @@ def build_all_features(
     feature_groups["ImpliedVol"] = list(implied_vol.keys())
     all_features.update(implied_vol)
 
+    # S13.35: volume / put-call positioning block (S8 idiom); admission is
+    # gated per-arm at the core-whitelist filter below (two flags).
+    volume_flow = build_volume_flow_features(data)
+    feature_groups["VolumeFlow"] = list(volume_flow.keys())
+    all_features.update(volume_flow)
+
     # REDESIGN C++ (2026-04-11 PM): "core" mode further prunes to a hand-picked
     # whitelist (~85 features) with explicit style balance based on the
     # A+C+D+E run's feature importance ranking. This drops 239 -> 85 while
@@ -740,6 +749,9 @@ def build_all_features(
         extra.update(admitted_fwd_sales_slope_features(config))
         # S13.34: implied-vol surface block (same idiom).
         extra.update(admitted_implied_vol_features(config))
+        # S13.35: volume / put-call positioning blocks (same idiom, per-arm).
+        extra.update(admitted_volume_features(config))
+        extra.update(admitted_putcall_features(config))
         apply_core_filter(all_features, feature_groups,
                           extra_whitelist=(extra or None))
 

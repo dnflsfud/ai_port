@@ -207,6 +207,10 @@ BLOOMBERG_EQUITY_SHEETS = {
     "30DAY_IMPVOL_110.0%MNY_DF",
     "3MTH_IMPVOL_100.0%MNY_DF",
     "VOLATILITY_30D",
+    # S13.35: 거래량·옵션 포지셔닝 시트 2종 (features/volume_flow.py 소비).
+    # PUT_CALL은 비US 48종 열 부재 — 빌더가 정직한 NaN 열로 reindex한다.
+    "PX_VOLUME",
+    "PUT_CALL_OPEN_INTEREST_RATIO",
 }
 
 FACTOR_CATEGORIES = {

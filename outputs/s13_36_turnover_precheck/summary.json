@@ -1,0 +1,62 @@
+{
+  "section": "S13.36 preflight",
+  "harvest": "outputs\\s0_recert_s13_35\\backtest_result.pkl",
+  "variant": "variants\\s0_recert_s13_35.yaml",
+  "st_col": "share_turnover_63d",
+  "vol_col": "idio_vol_63d",
+  "horizon_bd": 21,
+  "windows": 95,
+  "expo_rebalances": 96,
+  "skipped_dates": 0,
+  "raw_ic": {
+    "n": 95,
+    "mean": 0.04814062102251566,
+    "t": 2.5019524409256775,
+    "subperiod_means": [
+      0.07098808464949777,
+      0.005297401787650332,
+      0.06878140100484673
+    ],
+    "subperiod_pos": 3
+  },
+  "residual_ic": {
+    "n": 95,
+    "mean": 0.01452896725917261,
+    "t": 1.0446398522995792,
+    "subperiod_means": [
+      0.009277015702601298,
+      0.0057614547703616625,
+      0.02900067208021238
+    ],
+    "subperiod_pos": 3
+  },
+  "vol_overlap": {
+    "n": 95,
+    "mean": 0.5074056360116702,
+    "t": 67.46181382806222,
+    "subperiod_means": [
+      0.5333948497762886,
+      0.5078751523370939,
+      0.48009339849936894
+    ],
+    "subperiod_pos": 3
+  },
+  "active_weighted_expo": {
+    "n": 96,
+    "mean": 0.12156804225350566,
+    "t": 18.003341839141424,
+    "subperiod_means": [
+      0.1488515132052557,
+      0.14810658762638457,
+      0.06774602592887673
+    ],
+    "subperiod_pos": 3
+  },
+  "gates": {
+    "P1_residual_ic": false,
+    "P2_vol_overlap": true,
+    "P3_room_in_book": true,
+    "PROCEED": false
+  },
+  "runtime_s": 234.9
+}

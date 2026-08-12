@@ -4456,3 +4456,229 @@ S0′ 로드는 14:41이라 **이 재생성본을 읽었다**. arm A/B도 동일
   텀스트럭처의 정당한 소비처는 모델이 아닌 운영 대시보드 리스크 텔레메트리.
 - **인벤토리**: A·B 각 1건 산입 — `n_trials_total` 459 → **461**(Δslope
   사전점검·§S13.34 품질점검은 읽기 전용 미산입, §S13.7/19 전례).
+
+## §S13.35 거래량 + 풋/콜 OI 포지셔닝 피처 — 사전등록 (2026-08-11, 측정 전)
+
+**동기/사용자 지시**: 2026-08-11 사용자가 PX_VOLUME(200/200)·
+PUT_CALL_OPEN_INTEREST_RATIO(152/200, 비US 48종 열 부재 — US 전용)를
+Bloomberg에서 신규 수집(S&P500.xlsx·Index.xlsx). "이것들을 features로
+사용해서 포트폴리오 개선을 시도해줘" 지시. 마이크로스트럭처(거래량)와
+옵션 포지셔닝은 §S13 프로그램에서 완전 미개척 축(2026-08-11 후보 리스트의
+1·5순위).
+
+**데이터 파이프라인 (빈티지 포크)**:
+- `create_ai_signal_data.py`에 `VOLUME_OPTION_SHEETS` 2종 패스스루 추가
+  (프록시 없음 — SHORT_INT_RATIO 관용구, 결측 처리는 소비 측 계약).
+  생성기 테스트 18/18 PASS.
+- **ai_signal_data.xlsx 08-11 14:33:43 재생성**(191.0MB, 44시트, 날짜 격자
+  2014-01-27→2026-08-11, 3272일). **새 빈티지 — §S13.34의 1.3836(08-07
+  빈티지)과 직접 비교 금지, S0′ 재인증 선행.** sync_data.py는 기지(旣知)
+  SyntaxError로 c2 타 프로젝트 복사만 실패(ai_port는 원본 경로 직읽 — 무영향).
+
+**Pictet-기준 지표 정렬 (사용자 지시, 가중치 무영향 진단 추가)**:
+- `BacktestResult.active_share_series` 신설 — 리밸런싱일 Σ|w−bm|/2
+  (Pictet PDF p.41 각주 정의, analytics.total_active_share와 동일).
+  `compute_metrics`에 `active_share` 키 추가. one-way turnover는 기존
+  `avg_annual_turnover_one_way`(=0.5×L1) 재확인. 참고: 기존 보고의
+  "active 4.96%"는 active **return**이었음 — CLAUDE.md §5의 "active share
+  ~4.75%" 단위/정의 플래그가 이 혼동이었고 본 지표로 해소.
+
+**구현 (default-OFF·parity, 전체 스위트 493 PASS)**:
+- `features/volume_flow.py` 신규(S8 idiom, 게이트 2개 독립):
+  - arm A `volume_features_enabled`: `vol_abnormal_21_126`=log(ADV21/ADV126),
+    `share_turnover_63d`=mean63(V·P)/MKT_CAP, `amihud_illiq_63d`=
+    log(mean63(|r|·MKT_CAP/(V·P))). 통화 단위 소거 구성(다통화 안전).
+  - arm B `putcall_features_enabled`: `pcr_oi_level`, `pcr_oi_chg_21d`(Δ21).
+    비US 48종은 정직한 NaN → 기본 경로 per-date median 채움(§S13.6 정합).
+  - 롤링 min_periods=window//2. 가드: MC≤0·V·P≤0·ADV126≤0·Amihud≤0 → NaN.
+- `data_loader.BLOOMBERG_EQUITY_SHEETS` +2 리네임(로딩만으로 inert).
+- **측정 전 정정 1건(정직 기록)**: CUR_MKT_CAP이 백만 단위라 Amihud 원값이
+  ~1e-6 스케일 → 최초 구현 log1p가 항등에 수렴(꼬리 압축 무효). 순수 log로
+  정정 — 단조변환이라 랭크 IC 불변, 결과 엿보기 아님. 스케일 자체는 전 종목
+  동일 배율이라 CS z에 inert.
+
+**사전점검 실측 (2026-08-11, read-only, 5일 샘플링·보수적 t=naive/√(h/5))**:
+| 피처 | 21d IC (t_cons) | 63d IC (t_cons) | 커버리지 |
+|---|---:|---:|---:|
+| vol_abnormal_21_126 | −0.000 (−0.03) | +0.003 (+0.18) | 200/200 |
+| **share_turnover_63d** | **+0.064 (+4.13)** | **+0.115 (+4.45)** | 200/200 |
+| **amihud_illiq_63d** | **−0.044 (−4.01)** | **−0.080 (−4.63)** | 200/200 |
+| pcr_oi_level | −0.004 (−0.42) | −0.011 (−0.72) | 152/200 |
+| pcr_oi_chg_21d | −0.006 (−0.76) | −0.010 (−0.78) | 152/200 |
+- turnover/amihud는 사전점검 사상 최강 IC(코어 §S11.8 0.069 상회)이나
+  **경고 2건 기록**: (i) 두 피처는 같은 유동성 축의 거울상 — 블록 내부 중복
+  가능성(§S13.25의 실효 ~2.5축 전례), (ii) 고turnover=고vol·고모멘텀 메가캡
+  프록시 가능성 — 기존 vol/momentum 축과의 직교성은 arm이 판정.
+- putcall은 보수적 t 비유의 — arm B는 약한 신호 예상을 사전 기록(§S13.34
+  arm B 전례처럼 지시분 측정은 수행).
+- §S13.12 전달률 ~9% 상한은 동일 적용 — IC 강도가 E1 통과를 보장하지 않음.
+
+**arm 스펙(사전약정, 스윕 없음)**: 기준선 `variants/s0_recert_s13_35.yaml`
+(08-11 14:33 빈티지 재인증). 각 arm은 단일 플래그 delta:
+- **arm A** `arm_s13_35a_volume.yaml`: delta = `volume_features_enabled`(3피처 동시).
+- **arm B** `arm_s13_35b_putcall.yaml`: delta = `putcall_features_enabled`(2피처 동시).
+
+**판정 기준**: E1 게이트 ΔIR > +0.36 & 서브기간 부호 일관(§2.4). |ΔIR|<0.36은
+설명력 근거로만. E2 캐릭터: TE≤4.5%·집중 캐릭터 보존(§2.5)·turnover 변화 기록.
+각 런 전 워크북 mtime 14:33:43 동일 확인(중간 재생성 시 해당 run 무효).
+자동 채택 없음 — flip은 §8 게이트+사용자 결정.
+**인벤토리**: 측정 후 A·B 각 1건 산입 예정(461→463).
+
+상태: **측정 완료 (2026-08-11) — 아래 결과 참조.**
+
+### §S13.35 운영 사고 기록 — ENOSPC 재발 (2026-08-11 15:26, 복구 완료)
+
+- 체인 1차(S0′→armA→armB, schtasks) 중 **armA가 출력 기록 단계에서 ENOSPC
+  즉사, armB는 페이지파일 팽창 불가로 MemoryError**(여유 4.3GB 출발 →0.07GB).
+  원인: **pagefile.sys 16.7GB 팽창** + 재생성 191MB + S0′ pkl 205MB.
+- 워크북 3종(ai_signal_data 14:33:43·Index·S&P500) **무결 확인**(읽기 전용이라
+  §S13.34형 truncation 없음). S0′는 크래시 전 정상 완료.
+- 안전 정리만 수행(과거 날짜 Bloomberg 임시로그 0.63GB·pip 캐시·7일+ TEMP)
+  → 1.14GB 확보 후 arm 단독 재실행 2건 완주. 이후 페이지파일 자연 축소로
+  여유 9.9GB 회복. **교훈: 여유 4GB는 3련 체인에 불충분 — 런 전 기준을
+  "여유 ≥ 2GB/런 + 페이지파일 헤드룸"으로 상향.**
+- active_share 신설 지표가 S0′ metrics에 0.0으로 기록된 결함 발견·수정:
+  `run_backtest`의 선별 복사 목록에 `active_share_series` 누락(backtest.py
+  L2110 추가, 493 PASS). S0′ 가중치·IR·TE는 지표와 무관(read-only 진단) —
+  S0′ 인증 유효, active_share는 arm 런부터 기록.
+
+### §S13.35 결과 (2026-08-11) — 양 arm E1 FAIL·불채택
+
+S0′ 재인증 (`s0_recert_s13_35`, 빈티지 08-11 14:33:43, 3272일 격자, 전 런
+mtime 동일 확인):
+
+| 지표 | S0′ | arm A (volume) | arm B (putcall) |
+|---|---:|---:|---:|
+| IR | **1.5290** | 1.4317 (**Δ−0.097**) | 1.4024 (**Δ−0.127**) |
+| P1/P2/P3 | 1.424/0.910/2.154 | 1.304/0.469/2.262 | 1.172/0.893/2.106 |
+| TE | 3.56% | 3.80% | 3.66% |
+| active_share(Pictet Σ\|w−bm\|/2) | (버그로 미기록) | **20.18%** | 19.56% |
+| turnover one-way | 33.9% | 36.0% | 32.7% |
+| realized_beta | 1.051 | 1.064 | 1.065 |
+| avg_ic | 0.0200 | **0.0269** | 0.0200 |
+| 퇴화율 | 15/32 (46.9%) | **12/32 (37.5%)** | **22/32 (68.8%)** |
+
+- **S0′ 1.5290은 새 유효 기준선**(08-11 빈티지). §S13.34의 1.3836(08-07)과
+  직접 비교 금지 — Δ+0.145는 3영업일 데이터 추가의 빈티지 드리프트.
+- **arm A: E1 FAIL 불채택** — ΔIR −0.097(<+0.36), 서브기간 부호 비일관
+  (P1 −0.12/P2 −0.44/P3 +0.11). 단 소비는 실재: IC 0.020→0.027(+35%),
+  퇴화율 15→12, turnover +2.1pp. **사전점검 사상 최강 IC(+0.115, t +4.5)도
+  E1을 못 넘김** — §S13.12 전달률 상한(~9%)의 가장 강한 재확인. 유동성/
+  turnover 축은 기존 vol·momentum 계열이 이미 표현하는 정보로 판독.
+- **arm B: E1 FAIL 불채택** — ΔIR −0.127, **서브기간 3개 전부 음**,
+  IC 불변(0.0200 — 정보 추가 없음), 퇴화율 15→22 악화. US 152/200 반쪽
+  커버리지 + median 중립화가 약신호를 노이즈로 희석, 약피처 추가가
+  조기종료 병리(§S13.8)만 자극.
+- **production 무변경**: 두 플래그 default-OFF 유지, flip 0건. 코드·테스트는
+  인프라 잔존(§S13.14 idiom).
+- **부수 확정**: (i) Pictet 정의 active share 최초 실측 **~20%**(Pictet 44~50%
+  의 절반 이하 — CLAUDE.md §5의 "4.75%"는 active return 혼동이었음을 확정,
+  표 갱신 필요), (ii) one-way turnover ~33-36%(Pictet ~150%의 1/4), (iii)
+  퇴화율은 피처 수에 민감(±)함을 재확인 — §S13.8/34 단서와 정합.
+- **인벤토리**: A·B 각 1건 산입 — `n_trials_total` 461 → **463**.
+
+## §S13.36 share_turnover 틸트 승격 — 사전점검 사전등록 (2026-08-11, 측정 전)
+
+**동기/사용자 지시**: §S13.35 종결 후 사용자 "arm A를 이용해서 수익률이 좀 더
+개선될 방향으로 발전" → 제안 검토 후 "가장 효과적일 것 같은 제안 먼저 도입"
+승인. 메인 판독: arm A의 실패는 정보 실패가 아니라 **전달 경로 실패** — IC는
+소비됐으나(0.020→0.027) LightGBM 랭킹 재배열이 캐리(액티브의 ~41%, §S13.12)를
+헐어 지불. 채택 승리 전례가 있는 유일한 층은 틸트층(§S13.31/32 vol×quality
+λ=0.25, ΔIR +0.046 무비용·production)이므로 **share_turnover_63d를 피처층에서
+틸트층으로 승격**한다. 모델·라벨·피처 admission 무변경(volume_features_enabled
+OFF 유지).
+
+**정정 기록**: §S13.35 보고에서 차기 후보로 든 "63d vol×quality 재등록"은
+재검토 결과 **§S13.31→32에서 이미 소진·production 채택 완료**(production
+variant에 `vol_quality_tilt_enabled: true` 확인). 후보 목록에서 제거.
+
+**사전점검 설계(읽기 전용 — 백테스트·재학습 없음)**: 데이터 —
+`outputs/s0_recert_s13_35/backtest_result.pkl`(08-11 빈티지 S0′: 최종
+`predictions`·`portfolio_weights`·`panel[idio_vol_63d]`) +
+`build_volume_flow_features(UniverseData)` 원출력의 `share_turnover_63d`
+(admission 전 정본 — honest NaN 그대로) + `returns_masked`. 리밸 ~96회
+(21BD, forward 21d 비중첩 창), z는 §S13.28/30 1/99 윈저 정본.
+
+**PROCEED 게이트(사전약정 — 셋 모두 충족 시에만 arm 진행)**:
+- **P1(μ-잔차 판별력·핵심)**: 각 리밸일 scored 종목 내 z_st를 최종 예측
+  score의 윈저 z에 날짜별 OLS 직교화한 **잔차**의 Spearman IC vs forward
+  21d — 평균 > 0 **and** t ≥ 2.0 **and** 서브기간 3분할 ≥ 2 양(+).
+  (raw IC 병기 — §S13.35 사전점검 +0.115와의 연속성 확인용. 잔차 IC가
+  소멸하면 "모델이 상관 피처로 이미 표현"이 확정 → 틸트는 이중계상.)
+- **P2(vol 축 중첩)**: 날짜별 scored 내 Spearman ρ(z_st, z_idio_vol) 평균
+  < 0.6. (≥0.6이면 틸트가 vol 틸트 중복재 — vol 축은 이미 노출 +0.385로
+  구조적 보유(§S13.28)·제거 불가 4중 증거(§S13.29). SHELVE.)
+- **P3(북 여지)**: 96리밸 평균 active-weighted z_st 노출(Σ active·z,
+  §S13.31 `active_exposure` 관용구 동일 단위) < +0.25. (구조적 vol 노출
+  +0.385와 동급으로 이미 실려 있으면 틸트는 기존 베팅 증폭일 뿐 → SHELVE.
+  이 실측치는 PROCEED 시 D1 노출 이동의 기준값을 겸한다.)
+- 미달 시 SHELVE(구현·백테스트 없음), 읽기 전용 진단이라 인벤토리 미산입
+  (§S13.7·§S13.30 전례).
+
+**arm 스펙(PROCEED 시, 사전약정·스윕 금지)**:
+- config: `share_turnover_tilt_enabled: bool = False`(default-OFF),
+  `share_turnover_tilt_lambda: float = 0.25`(§S13.31 단일 약정값 승계,
+  재튜닝·스윕 금지).
+- `apply_share_turnover_tilt(predictions, data, config)`: 각 예측일 스코어
+  ≥30종이면 scored 전체에 `score' = score + λ·sd(scored)·z_st`(z_st =
+  scored 내 1/99 윈저 z, 결측 셀 무변경). **주입 지점 = vol_quality_tilt
+  직후·listing mask 전**(§S13.32 동일 체크포인트). 피처는
+  `build_volume_flow_features(data)`로 함수 내 직접 계산 — 패널 admission
+  없음, 모델 무변경. tercile 조건 없음(신호가 유니버스 전체에서 측정됐고
+  목적이 방어가 아닌 수익 노출이므로 — §S13.31과의 의도적 차이).
+- OFF parity는 구조적(disabled → 입력 객체 그대로 반환) + 단위테스트 선행
+  (RED→GREEN), ON은 inline reference 대조.
+- variant: `arm_s13_36_turnover_tilt.yaml` = `s0_recert_s13_35` + 플래그
+  1개. **S0′ 재실행 불필요** — 워크북 mtime 14:33:43 불변 확인을 실행
+  전제로 하며, 비교 기준은 S0′ 1.5290 고정.
+
+**판정 기준(사전약정)**:
+- **D1(노출 실효·선결)**: active-weighted z_st 노출이 S0′(P3 실측) 대비
+  양(+) 이동. 미이동이면 틸트 inert — 불채택·해석 금지.
+- **E1(주)**: full ΔIR > +0.36 & 서브기간 부호 일관 → 채택 후보 회부
+  (DSR 해킷 필수).
+- **D2(무비용 경로)**: 0 ≤ ΔIR < +0.36 & E2 통과 → "무비용 노출 전환"으로
+  사용자 회부(§S13.31 전례, 자동 채택 없음). ΔIR < 0 → 불채택.
+- **E2(캐릭터)**: TE ≤ 4.5%, active share ≥ 0.5×S0′, vol_z 노출 +0.37
+  부근 유지(§S13.27B형 해체 감시), fail rate ≤ S0′+10pp.
+- **인벤토리**: arm 측정 시 1건 산입(463 → 464).
+
+산출물: `outputs/s13_36_turnover_precheck/summary.json`, 스크립트
+`scripts/preflight_s13_36_turnover_tilt.py`, 테스트
+`tests/test_preflight_s13_36_turnover_tilt.py`.
+
+상태: **측정 완료 (2026-08-11, 235s, exit 0) → 아래 결과. SHELVE.**
+
+### §S13.36 사전점검 결과 — **SHELVE. P1 FAIL: 잔차 IC 소멸(t 1.04) — 최종 score가 share_turnover 정보의 ~70%를 이미 보유**
+
+측정: 95창(21d 비중첩)·96리밸, skipped 0, 테스트 7 passed(RED→GREEN),
+헬퍼 plain 함수(§S13.30 관용구 승계).
+
+| 지표 (scored 내, 95창) | 값 | 게이트 |
+|---|---:|---|
+| raw IC (z_st vs fwd 21d) | **+0.0481 (t 2.50, 서브 3/3 양)** | — (병기) |
+| **잔차 IC (P1·핵심)** | **+0.0145 (t 1.04, 서브 3/3 양)** | **FAIL** (t < 2.0) |
+| vol 중첩 ρ(z_st, z_vol) (P2) | 0.507 (t 67.5) | PASS (< 0.6) |
+| 북 active-weighted z_st 노출 (P3) | +0.122 | PASS (< 0.25) |
+
+**게이트 판정**: P1 FAIL → **PROCEED 불성립. SHELVE** — 틸트 미구현·백테스트
+없음·config 무변경·**인벤토리 미산입(463 불변)**(읽기 전용 진단, §S13.7·
+§S13.30 전례).
+
+**해석**:
+1. **share_turnover 정보의 ~70%는 최종 예측 score에 이미 표현돼 있다**
+   (raw +0.048 → 잔차 +0.015). §S13.35 arm A의 "모델이 소비는 했다"(IC +35%)
+   와 정합 — 소비 가능했던 이유가 애초에 기존 피처(vol·momentum 계열)로
+   접근 가능한 정보였기 때문. vol 중첩 ρ 0.507이 그 절반을 직접 설명.
+2. 잔차 +0.015는 서브기간 3/3 양(+)이라 방향성 단서는 있으나 t 1.04로
+   노이즈와 구분 불가 — λ=0.25 틸트를 강행해도 기대 효과가 |ΔIR| < 0.36
+   노이즈 밴드로 수렴할 공산. 사전약정대로 강행하지 않는다(§2.4).
+3. 북 여지(P3 +0.122)는 있으나 **채울 잔차 정보가 없다** — 여지는
+   필요조건일 뿐 충분조건이 아님의 실례.
+4. **축 종결**: volume 축은 피처층(§S13.35 arm A)·틸트층(§S13.36) 모두
+   폐쇄. put/call 축은 피처층 FAIL + raw 정보 추가 0(§S13.35 arm B, IC
+   불변)이라 틸트 승격 후보 자격 자체가 없음(잔차 이전에 raw가 부재).
+   **arm A 계열의 수익 개선 경로는 이것으로 소진.**
+
+산출물: `outputs/s13_36_turnover_precheck/summary.json`·`windows_21d.csv`·
+`exposure_rebalances.csv`(runtime 235s), 스크립트·테스트는 인프라 잔존.

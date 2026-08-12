@@ -782,6 +782,9 @@ class BacktestResult:
         self.benchmark_returns: pd.Series = pd.Series(dtype=float)
         self.spx_returns: pd.Series = pd.Series(dtype=float)
         self.turnover: pd.Series = pd.Series(dtype=float)
+        # Pictet-convention active share per rebalance date: sum(|w-bm|)/2
+        # (same definition as analytics.total_active_share).
+        self.active_share_series: pd.Series = pd.Series(dtype=float)
         self.predictions: Optional[pd.DataFrame] = None
         self.raw_predictions: Optional[pd.DataFrame] = None
         self.pre_overlay_predictions: Optional[pd.DataFrame] = None
@@ -882,6 +885,14 @@ class BacktestResult:
         # IC
         avg_ic = self.ic_series.mean() if len(self.ic_series) > 0 else 0
 
+        # Pictet-convention active share (mean over rebalance dates of
+        # sum(|w - w_bm|)/2). 0.0 when the simulation did not track it.
+        as_series = getattr(self, "active_share_series", None)
+        active_share = (
+            float(as_series.mean())
+            if as_series is not None and len(as_series) > 0 else 0.0
+        )
+
         # 연간 거래비용: two-way * one-way-tc 단가 (실제 지출 비용)
         annual_tc = avg_turnover_two_way * ONE_WAY_TC
 
@@ -895,6 +906,7 @@ class BacktestResult:
             "max_drawdown": base.get("max_drawdown", 0),
             "avg_annual_turnover": avg_turnover_two_way,       # two-way (L1)
             "avg_annual_turnover_one_way": avg_turnover_one_way,  # industry convention
+            "active_share": active_share,                      # Pictet: sum|w-bm|/2
             "avg_ic": avg_ic,
             "annual_tc": annual_tc,
         }
@@ -964,6 +976,7 @@ class BacktestResult:
             f"  Tracking Error:   {m['tracking_error']:.2%}",
             f"  Information Ratio:{m['information_ratio']:.2f}",
             f"  Max Drawdown:     {m['max_drawdown']:.2%}",
+            f"  Active Share:     {m.get('active_share', 0):.2%}  (Pictet: sum|w-bm|/2)",
             f"  연간 Turnover:    {m['avg_annual_turnover']:.0%}  (two-way L1)",
             f"                    {m.get('avg_annual_turnover_one_way', 0):.0%}  (one-way, 업계 기준)",
             f"  연간 거래비용:    {m['annual_tc']:.2%} (편도 {ONE_WAY_TC*10000:.0f}bps)",
@@ -1423,6 +1436,7 @@ def simulate_portfolio(
     spx_rets = []
     turnovers = []
     ic_values = []
+    active_shares = []
     weight_history = {}
     weight_history_daily = {}
     optimizer_failures = 0
@@ -1634,6 +1648,10 @@ def simulate_portfolio(
                 # NOTE: industry one-way convention = 0.5 * L1 (halve this).
                 turnover = np.abs(new_weights - prev_weights).sum()
                 turnovers.append((t_date, turnover))
+                # Pictet-convention active share at this rebalance: sum|w-bm|/2.
+                active_shares.append(
+                    (t_date, 0.5 * float(np.abs(new_weights - bm_w).sum()))
+                )
                 weight_history[t_date] = pd.Series(new_weights, index=tickers)
 
                 # Step 4: TC charged to today's PnL (paid at close_t)
@@ -1683,6 +1701,9 @@ def simulate_portfolio(
     ).sort_index()
     result.turnover = pd.Series(
         dict(turnovers), name="turnover"
+    ).sort_index()
+    result.active_share_series = pd.Series(
+        dict(active_shares), name="active_share"
     ).sort_index()
     result.portfolio_weights = weight_history
     result.daily_weights = weight_history_daily
@@ -2086,6 +2107,7 @@ def run_backtest(
     result.portfolio_returns = sim_result.portfolio_returns
     result.benchmark_returns = sim_result.benchmark_returns
     result.turnover = sim_result.turnover
+    result.active_share_series = sim_result.active_share_series
     result.portfolio_weights = sim_result.portfolio_weights
     result.daily_weights = sim_result.daily_weights
     result.ic_series = sim_result.ic_series

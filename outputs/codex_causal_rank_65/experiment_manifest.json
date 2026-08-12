@@ -201,6 +201,7 @@
     "portfolio_style": "core_satellite",
     "prediction_ema_alpha": 0.5,
     "projection_fallback_mode": "target",
+    "putcall_features_enabled": false,
     "rank_eval_at": [
       5,
       10
@@ -285,6 +286,7 @@
     "vol_quality_tilt_enabled": true,
     "vol_quality_tilt_lambda": 0.25,
     "vol_quality_tilt_vol_feature": "idio_vol_63d",
+    "volume_features_enabled": false,
     "vtg_accel_threshold": 0.5,
     "vtg_momentum_threshold": -0.5,
     "vtg_pe_z_threshold": -0.5,
@@ -300,6 +302,6 @@
     "variant_label": "codex_causal_rank_65"
   },
   "git_dirty": true,
-  "git_hash": "3b8a6764ff22efeb2c1b49350afce9c7d4a2bbe9",
-  "timestamp_utc": "2026-08-11T03:09:55Z"
+  "git_hash": "a34306b92f20bba626bfb8e0f9d2f38846fd4947",
+  "timestamp_utc": "2026-08-12T03:04:10Z"
 }

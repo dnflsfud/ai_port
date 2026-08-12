@@ -823,6 +823,20 @@ class PipelineConfig:
     implied_vol_features_enabled: bool = False
 
     # ------------------------------------------------------------------
+    # S13.35 (2026-08-11) — volume / options-positioning feature blocks
+    # (user-directed arms). arm A: 3 volume features (abnormal volume,
+    # share turnover, normalized Amihud) from PX_VOLUME; arm B: 2 put/call
+    # OI ratio features (level, Δ21) from PUT_CALL_OPEN_INTEREST_RATIO
+    # (US-only coverage 152/200 — non-US cells stay NaN → default per-date
+    # median fill). Formulas preregistered in features/volume_flow.py.
+    # OFF by default: byte-identical model input via the core-whitelist
+    # filter. Do NOT flip before the gate passes (ΔIR > +0.36 & sub-period
+    # sign consistency).
+    # ------------------------------------------------------------------
+    volume_features_enabled: bool = False
+    putcall_features_enabled: bool = False
+
+    # ------------------------------------------------------------------
     # S13.34 (2026-08-07) — VIX term-structure de-risking overlay
     # (user-directed arm). slope_t = VIX3M/VIX − 1 on the prediction date
     # grid. A date is risk-off iff slope < 0 (backwardation) AND

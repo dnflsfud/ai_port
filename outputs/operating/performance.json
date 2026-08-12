@@ -1,31 +1,31 @@
 {
-  "as_of": "2026-08-06",
-  "annual_return": 0.2510501378525878,
-  "annual_vol": 0.20256692637464194,
-  "sharpe_ratio": 1.2393441631645112,
-  "active_return": 0.046137396891049676,
-  "tracking_error": 0.041597406489243864,
-  "information_ratio": 1.1091411889580123,
-  "realized_beta": 1.0565583090102508,
-  "avg_annual_turnover": 1.0308267371753967,
-  "avg_ic": 0.03110553550673564,
-  "total_return": 4.9581253319188345,
-  "bm_total_return": 3.227707208080985,
-  "max_drawdown": -0.3371388788216053,
+  "as_of": "2026-08-11",
+  "annual_return": 0.24465762520255097,
+  "annual_vol": 0.20188283311121835,
+  "sharpe_ratio": 1.2118792937077902,
+  "active_return": 0.04038803715634676,
+  "tracking_error": 0.03937137884932545,
+  "information_ratio": 1.025822268275441,
+  "realized_beta": 1.0559432677541336,
+  "avg_annual_turnover": 1.111286519063814,
+  "avg_ic": 0.03685247392957032,
+  "total_return": 4.734734575511209,
+  "bm_total_return": 3.2490720926250196,
+  "max_drawdown": -0.34127085311638106,
   "sub_period_ir": {
-    "P1_ir": 1.1758293306985588,
-    "P2_ir": 0.07904750857655636,
-    "P3_ir": 1.9060513911954193
+    "P1_ir": 1.091861902828499,
+    "P2_ir": 0.43180265226228504,
+    "P3_ir": 1.5711162596246344
   },
   "sp500": {
-    "annual_return": 0.14849281525311375,
-    "annual_vol": 0.19667374774559498,
-    "sharpe_ratio": 0.7550210282523059,
-    "active_return": 0.09513500826291765,
-    "tracking_error": 0.0606286156889995,
-    "information_ratio": 1.5691436656070479,
-    "beta": 1.003737146834608,
-    "total_return": 1.8889824010174059,
+    "annual_return": 0.14881785739733688,
+    "annual_vol": 0.19653368895068843,
+    "sharpe_ratio": 0.7572129653286884,
+    "active_return": 0.08882482400307423,
+    "tracking_error": 0.05906202028921933,
+    "information_ratio": 1.503924579079926,
+    "beta": 1.0031996414310087,
+    "total_return": 1.9000392750939734,
     "sub_period_ir": {
       "P1_ir": NaN,
       "P2_ir": NaN,
@@ -34,70 +34,70 @@
   },
   "by_year_returns": {
     "2018": {
-      "portfolio": -0.0444,
+      "portfolio": -0.0464,
       "benchmark": -0.045,
-      "active": 0.0005,
+      "active": -0.0014,
       "sp500": -0.0623,
-      "active_vs_sp500": 0.0179
+      "active_vs_sp500": 0.0159
     },
     "2019": {
-      "portfolio": 0.4289,
+      "portfolio": 0.4083,
       "benchmark": 0.3505,
-      "active": 0.0784,
+      "active": 0.0578,
       "sp500": 0.2888,
-      "active_vs_sp500": 0.1401
+      "active_vs_sp500": 0.1196
     },
     "2020": {
-      "portfolio": 0.3608,
+      "portfolio": 0.3572,
       "benchmark": 0.2821,
-      "active": 0.0787,
+      "active": 0.0751,
       "sp500": 0.1626,
-      "active_vs_sp500": 0.1982
+      "active_vs_sp500": 0.1946
     },
     "2021": {
-      "portfolio": 0.2921,
+      "portfolio": 0.3051,
       "benchmark": 0.2739,
-      "active": 0.0182,
+      "active": 0.0312,
       "sp500": 0.2689,
-      "active_vs_sp500": 0.0232
+      "active_vs_sp500": 0.0361
     },
     "2022": {
-      "portfolio": -0.2331,
+      "portfolio": -0.2138,
       "benchmark": -0.2046,
-      "active": -0.0285,
+      "active": -0.0092,
       "sp500": -0.1944,
-      "active_vs_sp500": -0.0387
+      "active_vs_sp500": -0.0194
     },
     "2023": {
-      "portfolio": 0.4174,
+      "portfolio": 0.4034,
       "benchmark": 0.3646,
-      "active": 0.0528,
+      "active": 0.0388,
       "sp500": 0.2423,
-      "active_vs_sp500": 0.1751
+      "active_vs_sp500": 0.1611
     },
     "2024": {
-      "portfolio": 0.3026,
+      "portfolio": 0.2783,
       "benchmark": 0.2841,
-      "active": 0.0185,
+      "active": -0.0059,
       "sp500": 0.2331,
-      "active_vs_sp500": 0.0695
+      "active_vs_sp500": 0.0452
     },
     "2025": {
-      "portfolio": 0.4197,
+      "portfolio": 0.391,
       "benchmark": 0.2371,
-      "active": 0.1827,
+      "active": 0.1539,
       "sp500": 0.1639,
-      "active_vs_sp500": 0.2559
+      "active_vs_sp500": 0.2271
     },
     "2026": {
-      "portfolio": 0.2345,
-      "benchmark": 0.164,
-      "active": 0.0705,
-      "sp500": 0.1283,
-      "active_vs_sp500": 0.1063
+      "portfolio": 0.2289,
+      "benchmark": 0.1699,
+      "active": 0.059,
+      "sp500": 0.1326,
+      "active_vs_sp500": 0.0963
     }
   },
-  "optimizer_failure_rate": 0.020833333333333332,
+  "optimizer_failure_rate": 0.052083333333333336,
   "optimizer_solver_counts": {
     "ECOS": 192
   },
@@ -105,8 +105,8 @@
   "model_quality": {
     "source": "walk_forward_train",
     "total_retrains": 32,
-    "degenerate_retrains": 14,
-    "degenerate_rate": 0.4375,
+    "degenerate_retrains": 13,
+    "degenerate_rate": 0.40625,
     "min_model_trees": 10,
     "max_degenerate_model_rate": 0.25,
     "fail_on_degenerate_model_rate": false,
@@ -134,7 +134,7 @@
       },
       {
         "date": "2020-08-04",
-        "n_trees": 1,
+        "n_trees": 3,
         "min_model_trees": 10,
         "candidate_features": 60,
         "reused_prev_model": true
@@ -169,7 +169,7 @@
       },
       {
         "date": "2024-12-09",
-        "n_trees": 1,
+        "n_trees": 2,
         "min_model_trees": 10,
         "candidate_features": 60,
         "reused_prev_model": true
@@ -189,22 +189,15 @@
         "reused_prev_model": true
       },
       {
-        "date": "2025-08-29",
-        "n_trees": 4,
-        "min_model_trees": 10,
-        "candidate_features": 60,
-        "reused_prev_model": true
-      },
-      {
         "date": "2025-11-26",
-        "n_trees": 5,
+        "n_trees": 6,
         "min_model_trees": 10,
         "candidate_features": 60,
         "reused_prev_model": true
       },
       {
         "date": "2026-02-23",
-        "n_trees": 5,
+        "n_trees": 6,
         "min_model_trees": 10,
         "candidate_features": 60,
         "reused_prev_model": true
@@ -665,12 +658,12 @@
     ]
   },
   "data_quality": {
-    "intersection_dates": 3268,
-    "longest_sheet_dates": 4965,
-    "intersection_pct_of_longest": 0.6582074521651561,
+    "intersection_dates": 3271,
+    "longest_sheet_dates": 4970,
+    "intersection_pct_of_longest": 0.6581488933601609,
     "tail_ffill_days": 1,
-    "tail_from": "2026-08-05",
-    "tail_to": "2026-08-06",
+    "tail_from": "2026-08-10",
+    "tail_to": "2026-08-11",
     "tail_extended_dates": 1,
     "weekend_dates_removed": 0,
     "calendar_type": "weekday_index",
@@ -701,6 +694,8 @@
         "30DAY_IMPVOL_110.0%MNY_DF": 46449,
         "3MTH_IMPVOL_100.0%MNY_DF": 46449,
         "VOLATILITY_30D": 46449,
+        "PX_VOLUME": 46449,
+        "PUT_CALL_OPEN_INTEREST_RATIO": 41611,
         "Earnings_Date": 46449,
         "Sent_Trend_Momentum_Timeseries": 46449,
         "Sent_Trend_21d_Timeseries": 46449,
@@ -713,7 +708,7 @@
         "Factset_EPS_Est_StdDev": 46449,
         "Fwd_Sales_Slope_1FY2FY": 46449
       },
-      "total_masked_cells": 1563263,
+      "total_masked_cells": 1651323,
       "resolved_ticker_count": 200,
       "unresolved_tickers": [],
       "source_counts": {
@@ -987,13 +982,13 @@
         "DKK": 1.0
       },
       "latest_source_date_by_currency": {
-        "USD": "2026-08-06",
-        "KRW": "2026-08-06",
-        "JPY": "2026-08-06",
-        "EUR": "2026-08-06",
-        "CHF": "2026-08-06",
-        "GBP": "2026-08-06",
-        "DKK": "2026-08-06"
+        "USD": "2026-08-11",
+        "KRW": "2026-08-11",
+        "JPY": "2026-08-11",
+        "EUR": "2026-08-11",
+        "CHF": "2026-08-11",
+        "GBP": "2026-08-11",
+        "DKK": "2026-08-11"
       },
       "max_staleness_days_by_currency": {
         "USD": 0,
@@ -1018,7 +1013,7 @@
       "base_currency": "USD",
       "price_return_reconciliation_max_abs_error": 4.440892098500626e-16
     },
-    "fx_data_as_of": "2026-08-06",
+    "fx_data_as_of": "2026-08-11",
     "fx_missing_currencies": [],
     "fx_stale_currencies": [],
     "universe_funnel": {
@@ -1044,8 +1039,8 @@
       }
     },
     "data_freshness": {
-      "portfolio_data_as_of": "2026-08-06",
-      "fx_data_as_of": "2026-08-06",
+      "portfolio_data_as_of": "2026-08-11",
+      "fx_data_as_of": "2026-08-11",
       "max_fx_staleness_days": 7
     }
   },
@@ -1073,8 +1068,8 @@
     }
   },
   "data_freshness": {
-    "data_as_of": "2026-08-06",
-    "fx_data_as_of": "2026-08-06",
+    "data_as_of": "2026-08-11",
+    "fx_data_as_of": "2026-08-11",
     "fx_missing_currencies": [],
     "fx_stale_currencies": [],
     "tail_ffill_days": 1,
