@@ -131,3 +131,7 @@ overrides:
   # (default-OFF, OFF path returns the input object — structural parity).
   vol_quality_tilt_enabled: true
   vol_quality_tilt_lambda: 0.25
+
+  # S13.41 (2026-08-13): option-IV vol-forecast covariance diagonal.
+  # User-approved promotion; decision log S13.41 Production flip.
+  option_vol_covariance_enabled: true
