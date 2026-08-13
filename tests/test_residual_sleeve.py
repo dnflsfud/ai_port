@@ -77,6 +77,7 @@ def test_default_off_and_variant_has_one_semantic_delta():
             "fwd_sales_slope_features_enabled",
             "vol_quality_tilt_enabled",
             "vol_quality_tilt_lambda",
+            "option_vol_covariance_enabled",  # S13.41 promotion (2026-08-13)
         ):
             continue
         assert arm_overrides[key] == value

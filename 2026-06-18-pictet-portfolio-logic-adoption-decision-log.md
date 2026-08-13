@@ -5047,3 +5047,74 @@ active_share 19.3%**. 직전 유효 기준선 1.5383(동일 빈티지 S0′) 대
 
 **퇴화율 HOLD 항목(§S10)은 본 flip과 무관하게 잔존**(모델 계층 불변,
 14/32 동일).
+
+## §S13.42 skew_z·term_z 변동성 모델 증강 — 사전등록 (2026-08-13)
+
+**출처**: §S13.41 승격 직후 사용자 지시 "나머지 시트(skew_z·term_z)를 변동성
+모델의 추가 회귀변수로 시험". 리스크 채널 후속 — 알파·랭킹 불변 동일.
+
+**모델 (단일 사전등록, 스윕 금지)**:
+- C: log σ_fwd21 = a + b·log σ_trail126 + c·iv30_z + **d·downside_skew_z
+  + e·iv_term_structure_z** (두 변수 동시 추가, 개별 스윕 없음)
+- 워크포워드 스케줄·엠바고·클립·샘플링 전부 §S13.41과 동일 상수.
+- **공통표본 원칙**: 각 추정창에서 B와 C를 동일 표본(전 회귀변수 dropna)에
+  재적합해 비교 — 표본 구성 차이로 인한 유불리 제거.
+- **결측 대치(예측 시)**: iv30_z 결측 → inert(1.0, 현행 동일); skew/term
+  결측 → z=0 대치(자기역사 중립) — 커버리지 차이로 인한 무단 inert 방지.
+- **arm 의미론**: flag ON 시 모듈이 A·C를 공통표본에 적합, s=clip(σ̂_C/σ̂_A,
+  0.8, 1.5). OFF 경로는 현 production(B) 바이트 동일.
+
+**게이트**:
+- **P0′ (통계, vs B)**: 공통표본 OOS에서 C가 B 대비 excess-QLIKE ≥5% AND
+  MAE ≥5% 감소 AND 3분할 부호 일관. §4.3 유사 의무: 두 시트의 존재·적용
+  가능 관측 비율·결측률을 함께 보고.
+- **P1′ (바인딩, vs 현 production)**: 리밸런싱 12회 샘플에서 D_C vs D_B
+  재최적화, one-way L1 이동 중앙값 ≥ 0.005. 미달 = 증분이 책을 못 움직임
+  → SHELVE.
+- **P2′ (방향, 비액션)**: Δw와 skew_z·term_z 상관, 위너 유출.
+- P0′·P1′ 통과 시에만 단일 arm(`option_vol_cov_skew_term_enabled`,
+  default-OFF). 채택식: E1(ΔIR>+0.36 & 서브기간 일관) AND Δturnover
+  ≤+2%p AND MaxDD ≤ 기준선 AND TE ≤ 기준선+0.2%p.
+- **비교 기준 = 새 production 기준선 IR 1.6623**(08-12 빈티지,
+  arm_s13_41a_optvol_cov). 워크북 mtime 2026-08-12 13:45:41 불변 확인 의무.
+
+**사전 관측 기록**: §S13.38 사전점검에서 term_z는 IC t +3.38(수익 방향)
+이었고 skew의 vol 예측력은 문헌상 IV 레벨보다 약함 — P0′ 5% 바는 B가 이미
+IV 레벨을 흡수한 뒤의 증분이라 §S13.41(A 대비 19%)보다 훨씬 어려운 바다.
+SHELVE가 기본 기대치이며, 그 경우도 정보로 기록한다.
+
+### §S13.42 사전점검 실측 (2026-08-13) — P0'·P1' FAIL → arm 미실행 SHELVE
+
+실행: `scripts/precheck_s13_42_skewterm.py`(테스트 2건, 스위트 520 PASS),
+산출물 `outputs/s13_42_skewterm_precheck/summary.json`. 워크북 08-12
+13:45:41 불변. 커버리지 3시트 모두 전기간 92.9%·최근 252일 100% — 데이터
+문제 아님.
+
+- **P0' FAIL**: 공통표본 OOS 619시점에서 C(+skew,term)가 B 대비
+  excess-QLIKE **+2.5%**(<5%)·MAE **+0.1%**(≈0), 3분할 부호 비일관
+  (qlike [−0.9/+7.1/−3.4]%). 계수 중앙값 d(skew)+0.021·e(term)+0.040 —
+  §S13.41의 c(iv)≈+0.12 대비 왜소. **IV 레벨이 이미 들어간 뒤 skew/term의
+  실현변동성 예측 증분은 사실상 없음** (skew/term은 꼬리 비대칭·이벤트
+  방향 정보이지 변동성 크기 정보가 아니라는 문헌 직관과 정합).
+- **P1' FAIL**: D_C vs 현 production D_B 재최적화 12회, one-way L1 이동
+  중앙값 **0.0043 < 0.005** — 책도 유의미하게 안 움직임(개별 날짜 max
+  0.015, 스케일 차 max 0.49 산발).
+- **판정**: 사전등록대로 SHELVE. 변동성 예측 채널에서 skew_z·term_z 축
+  소진. 두 시트는 §S13.37 데이터 계층에 잔존(향후 다른 소비처 — 예:
+  꼬리/이벤트 방향 모델 — 는 별도 사전등록 필요).
+- **인벤토리**: read-only 사전점검 — 미산입(**465 불변**, §S13.7 전례).
+
+### §S13.41 승격 후속 정정 (2026-08-13, 검증자 지적)
+
+§S13.42 검증 중 발견: 승격 커밋 2b5bc92가 production yaml에
+`option_vol_covariance_enabled`를 추가하면서 **과거 arm 파리티 테스트
+6건의 채택-flag 허용 목록(post_arm_production_flags) 갱신을 누락** —
+스위트 6 failed/514 passed 상태였다. §S13.42 실측 절의 "스위트 520 PASS"
+기재는 이 파손 발견 전의 오기(TDD 훅은 신규 테스트 2건만 선별 실행했음)
+— **정정한다**.
+
+**수정**: 6개 파일(acceptance 5종 + test_residual_sleeve)의 허용 목록에
+`option_vol_covariance_enabled` 등록(이전 승격들의 fwd_sales_slope·
+vol_quality_tilt 등록과 동일 방식). 재실행 결과 **520 passed / 0 failed**
+복구. §S13.42의 사전점검 산출물·산술·SHELVE 판정 자체는 검증자 독립
+재계산으로 전 항목 정합 확인됨.
