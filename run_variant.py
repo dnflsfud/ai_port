@@ -323,6 +323,7 @@ def run(manifest_path: Path, no_cache: bool = False) -> int:
         # Phase 5: walk-forward loop
         "rebalance_freq", "one_way_tc", "trailing_ic_window",
         # Phase 6: MVO optimizer constraints
+        "option_vol_covariance_enabled",  # S13.41: cov-diagonal scale only
         "risk_aversion", "turnover_penalty", "max_te_annual",
         "max_single_turnover", "max_weight", "max_active_per_stock",
         "max_active_share", "max_active_share_ceiling", "sector_deviation",

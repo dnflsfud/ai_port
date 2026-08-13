@@ -853,6 +853,20 @@ class PipelineConfig:
     option_risk_features_enabled: bool = False
 
     # ------------------------------------------------------------------
+    # S13.41 (2026-08-13) — option-IV volatility forecast into the
+    # covariance DIAGONAL only (GPT-proposed risk-model channel; decision
+    # log §S13.41 preregistration). Walk-forward pooled OLS
+    # log(vol_fwd21) ~ log(vol_trail126) [+ iv30_z], re-fit every 63BD with
+    # a t+21<E embargo; per-name scale s = clip(sigma_B/sigma_A, 0.8, 1.5)
+    # applied as D@Sigma@D (same PSD-preserving idiom as the mega-cap
+    # shrinkage). Alpha scores and ranking untouched. All model constants
+    # are preregistered and live in src/option_vol_cov.py — no sweeps.
+    # OFF (default) builds no scale panel: the optimizer path stays
+    # byte-identical to production.
+    # ------------------------------------------------------------------
+    option_vol_covariance_enabled: bool = False
+
+    # ------------------------------------------------------------------
     # S13.34 (2026-08-07) — VIX term-structure de-risking overlay
     # (user-directed arm). slope_t = VIX3M/VIX − 1 on the prediction date
     # grid. A date is risk-off iff slope < 0 (backwardation) AND

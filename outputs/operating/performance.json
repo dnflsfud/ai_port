@@ -706,9 +706,14 @@
         "Factset_EPS_Surprise": 46449,
         "Factset_Sales_Surprise": 46449,
         "Factset_EPS_Est_StdDev": 46449,
-        "Fwd_Sales_Slope_1FY2FY": 46449
+        "Fwd_Sales_Slope_1FY2FY": 46449,
+        "iv30_z": 46449,
+        "downside_skew_z": 46449,
+        "iv_term_structure_z": 46449,
+        "downside_skew_chg_5d": 46449,
+        "days_to_earnings": 46449
       },
-      "total_masked_cells": 1651323,
+      "total_masked_cells": 1883568,
       "resolved_ticker_count": 200,
       "unresolved_tickers": [],
       "source_counts": {

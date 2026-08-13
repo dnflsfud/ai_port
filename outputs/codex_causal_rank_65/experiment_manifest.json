@@ -183,6 +183,8 @@
     "no_trade_band": 0.003,
     "nonlinear_confirmation_features_enabled": false,
     "one_way_tc": 0.001,
+    "option_risk_features_enabled": false,
+    "option_vol_covariance_enabled": false,
     "output_dir": "./outputs",
     "partial_rebalance_eta": 0.5,
     "pca_components": 5,
@@ -302,6 +304,6 @@
     "variant_label": "codex_causal_rank_65"
   },
   "git_dirty": true,
-  "git_hash": "a34306b92f20bba626bfb8e0f9d2f38846fd4947",
-  "timestamp_utc": "2026-08-12T03:04:10Z"
+  "git_hash": "17bf7ccf1bf6b25306ff0701c1264927d034c6bc",
+  "timestamp_utc": "2026-08-13T04:07:29Z"
 }

@@ -4897,3 +4897,106 @@ rebalance_freq=10이었고, iter6 turnover 455%가 과도해 21로 두 배 확�
 스코어 내용물인데, 그 경로(옵션 피처 주입)는 §S13.38에서 이미 E1 FAIL.
 
 **인벤토리**: read-only 진단 — 미산입(464 불변). 커밋 미실시.
+
+## §S13.41 옵션 IV 변동성 예측 → 공분산 대각 조정 arm — 사전등록 (2026-08-13)
+
+**출처**: 사용자 전달 GPT 제안(2026-08-12) + 메인 보강 2건(P1 바인딩·P2 방향).
+§S13.38 잔존 후보(risk-overlay)의 리스크-모델 채널 구체화. **알파 스코어·랭킹 불변.**
+
+**사전 검증 완료(§S13.40 직후 scratch 실측, 892시점)**: GPT 인용 분위수 수치
+재현(top−bot fwd vol +6.39%p·수익 +0.59%p) + **trail126 통제 후 iv30_z의
+fwd 21d vol 증분 IC +0.198 (t_cons +22.9, 3분할 일관)** — 채널 통계적으로 생존.
+
+**D_option 정의 (단일 사전등록, 스윕 금지)**:
+- 모델 A: log σ_fwd21 = a + b·log σ_trail126 (풀드 OLS) / 모델 B: A + c·iv30_z
+- 워크포워드: 63BD마다 재추정, expanding, 학습 표본 5BD 샘플링, **엠바고
+  t+21 < 추정일**(타깃 윈도우 완결 전 관측 사용 금지), 최초 추정 최소 252BD
+- 스케일 s = clip(σ̂_B/σ̂_A, 0.8, 1.5); **Σ_new = D_s @ Σ_LW126 @ D_s**
+  (기존 메가캡 수축과 동일 관용구, PSD 보존, 상관 불변)
+- 입력 수익률 = 파이프라인 data.returns(USD) — cov와 동일 원천
+
+**게이트**:
+- **P0 (통계)**: OOS에서 B가 A 대비 ① excess-QLIKE(log(h/σ²)+σ²/h−1) 평균
+  ≥5% 감소 AND ② MAE(연환산 σ) ≥5% 감소 AND ③ 3분할 모두 개선 부호.
+  (raw QLIKE는 %개선 정의 불가하여 excess form으로 사전 확정)
+- **P1 (바인딩, §S13.34-B no-op 전례 보강)**: S0′(s0_recert_s13_38) 리밸런싱
+  12회 샘플(8간격)에서 실제 estimate_covariance+optimize_portfolio 재호출
+  (동일 config·μ=r.predictions행·prev=전일 daily_weights·bm=make_capweight_bm_fn·
+  sector=get_sector_map). D_s 적용 vs baseline MVO 타깃의 one-way L1 이동
+  **중앙값 ≥ 0.005** 미달 시 구조적 no-op → arm 미실행 SHELVE.
+  재구성 충실도(baseline 재해 vs 기록 타깃 거리)는 비게이트 보고.
+- **P2 (방향, 비액션)**: corr(Δw, iv30_z)·corr(Δw, μ), 상위 μ 5분위 이탈 비중.
+
+**P0·P1 통과 시에만 단일 arm** (`option_vol_covariance_enabled`, default-OFF):
+채택 = E1(ΔIR>+0.36 & 서브기간 일관) AND Δone-way turnover ≤ +2%p AND
+MaxDD ≤ S0′ AND TE ≤ S0′+0.2%p. 비교 기준 08-12 빈티지 S0′ IR 1.5383
+(워크북 mtime 2026-08-12 13:45:41 고정 재확인 필수). 인벤토리: arm 실행 시 +1.
+
+**사전 역풍 기록**: 상위 iv30_z가 수익도 높음(+0.59%p) → 대각 상향은 위너
+비중 축소 방향(§S13.27 volcap −0.62 전례). ΔIR 기대는 중립~음, TE/MaxDD
+개선이 실질 목표 — 채택 게이트가 이를 반영.
+
+### §S13.41 사전점검 실측 (2026-08-13) — P0·P1 PASS → arm 진행
+
+실행: `scripts/precheck_s13_41_optvol_cov.py` (테스트 3건 + 스위트 518 PASS),
+산출물 `outputs/s13_41_optvol_precheck/summary.json`. 워크북 08-12 13:45:41 확인.
+
+- **P0 PASS**: OOS 619 평가시점(2014~2026). B(+iv30_z)가 A 대비
+  **excess-QLIKE −19.1% / MAE −9.1%**, 3분할 모두 개선(qlike
+  [14.1/21.4/19.0]% · mae [7.5/10.6/8.4]%) — 게이트(둘 다 ≥5%·부호 일관)
+  여유 통과. c_z 계수 12년간 +0.106~+0.123으로 안정.
+- **P1 PASS**: 리밸런싱 12회 샘플에서 실제 estimate_covariance+
+  optimize_portfolio 재호출. D_s 적용 시 one-way L1 이동 **중앙값
+  0.0245**(게이트 0.005의 ~5배) — §S13.34-B(4e-7 no-op)와 달리 명확히
+  바인딩. 클립 비율·스케일 범위는 summary.json rows 참조.
+  재구성 충실도: baseline 재해 vs 기록 타깃 L1 중앙값 ~0.05 — 기록
+  가중치는 eta 0.5·projection 후 값이고 재해는 MVO 타깃이므로 예상 범위.
+  주의: 재구성 hist는 data.returns 사용, production simulate 루프의
+  risk_source는 data.raw_returns — 델타 측정(동일 hist 양변)에는 영향
+  없으나 절대 충실도 수치 해석 시 유의.
+- **P2 (비액션)**: dw@top-μ-5분위 평균 ≈ 0(−0.014~+0.003 혼재) — 위너
+  유출이 사전 우려보다 작음. corr(Δw, iv30_z)는 음(고 z 종목 비중 축소
+  방향, 설계 의도대로).
+
+**arm A 기동**: `variants/arm_s13_41a_optvol_cov.yaml`(S0′ 대비 단일 델타
+`option_vol_covariance_enabled: true` 검증), 구현 = `src/option_vol_cov.py`
+(사전등록 상수 정본) + backtest `_optimizer_fn` D@Σ@D 주입(진단 캡처 전이라
+projection도 동일 조정 Σ 소비) + run_variant SAFE_FOR_CACHE_REUSE 등록.
+OFF 경로는 스케일 패널 미생성(구조적 바이트 동일). schtasks 원샷 실행.
+
+### §S13.41 arm A 측정 결과 (2026-08-13) — E1 미달·리스크 게이트 전원 통과, flip은 사용자 회부
+
+실행: schtasks 원샷(배터리 조건 해제 후 정상 기동), 1799s, ECOS 192/192
+fallback 0. 스케일 비-inert 셀 86.3%. 워크북 08-12 13:45:41 빈티지 불변.
+
+| 지표 | S0′ | arm A | Δ | 게이트 |
+|---|---:|---:|---:|---|
+| IR | 1.5383 | **1.6623** | **+0.1240** | E1(>+0.36) **FAIL** |
+| 서브기간 IR | 1.424/0.910/2.128 | 1.441/1.089/2.238 | **+/+/+ 3/3** | 부호 일관 PASS |
+| TE | 3.537% | 3.462% | −0.075%p | ≤+0.2%p **PASS** |
+| MaxDD | −32.13% | −31.75% | +0.38%p 개선 | ≤S0′ **PASS** |
+| one-way turnover | 33.63% | 34.68% | +1.05%p | ≤+2%p **PASS** |
+| realized_beta | 1.0511 | 1.0414 | 1.0 방향 | (참고) |
+| active_share | 19.55% | 19.29% | 보존 | §2.5 PASS |
+| avg_ic / 퇴화 | 0.0194865318…/14 | **완전 동일** | 0 | 예측 계층 불변 입증 |
+
+**판독**:
+1. **알파 완전 불변 증명**: avg_ic·퇴화 14/32·sp500 수치가 비트 동일 —
+   Phase 1~4 산출이 S0′와 바이트 동일하고 차이는 오직 optimizer의 Σ 대각.
+   ΔIR +0.124는 순수 리스크 모델 효과다(§S13.38의 랭킹 재편 실패 경로와
+   구조적으로 다름).
+2. **효율 개선의 방향이 사전 기대(중립~음)를 상회**: active return
+   +0.31%p/yr과 TE 감소가 동시 발생, 3 서브기간 전부 양(+). 낮은 vol
+   (20.03→19.84%)·낮은 beta로 수익은 오히려 증가 — vol 억제 비용
+   전례(§S13.27 −0.62)와 달리 예측 변동성의 "정보"가 비중 배분 효율로
+   전달된 것으로 해석.
+3. **그러나 ΔIR +0.124 < +0.36(1 SE)** — §2.4에 따라 IR 근거 채택 불가
+   (노이즈 대역, 설명력 근거로만). 사전등록 채택식 "E1 AND 리스크 게이트"
+   에서 E1이 미달이므로 **기본 판정 = 불채택, default-OFF 유지**.
+4. **flip 회부**: §S13.31 전례(ΔIR +0.046 노이즈 대역·무비용 노출 개선 →
+   사용자 결정으로 production 채택)와 동형의 사안. 리스크 게이트 4종
+   전원 통과 + 알파 불변 증명이 있으므로 production flip 여부를 사용자
+   결정에 회부한다. flip 시 §2.7 DSR 해킷 기록 필요.
+
+**인벤토리**: 464 → **465** (arm A +1; 사전점검은 §S13.7 전례로 미산입).
+산출물: `outputs/arm_s13_41a_optvol_cov/`. 커밋 미실시.

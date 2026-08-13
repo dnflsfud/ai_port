@@ -39,6 +39,7 @@ from src.portfolio_optimizer import (
     project_portfolio_weights,
 )
 from src.carry_te_conditioning import build_te_cap_multipliers
+from src.option_vol_cov import OPTION_VOL_SHEET, build_option_vol_scale
 from src.utils import annualise_return, compute_performance_metrics, compute_beta
 from src.features.utils import cross_sectional_zscore, cs_rank
 
@@ -2013,8 +2014,32 @@ def run_backtest(
     _te_mult = build_te_cap_multipliers(
         getattr(data, "factor_prices", None), config)
 
+    # S13.41: option-IV vol-forecast diagonal scaling (decision log §S13.41).
+    # None while the flag is off (default), keeping the estimate_covariance
+    # output — and therefore the optimizer path — byte-identical.
+    _optvol_scale = None
+    if getattr(config, "option_vol_covariance_enabled", False):
+        try:
+            _iv_sheet = data.get_sheet(OPTION_VOL_SHEET)
+        except KeyError:
+            _iv_sheet = None
+            logger.warning(
+                "[S13.41] option_vol_covariance_enabled but %r sheet is "
+                "missing — diagonal scaling stays inert.", OPTION_VOL_SHEET)
+        if _iv_sheet is not None:
+            _optvol_scale = build_option_vol_scale(returns[tickers], _iv_sheet)
+            _nontrivial = float((_optvol_scale.values != 1.0).mean())
+            print(f"[Backtest] S13.41 option-vol cov scaling ON: "
+                  f"non-inert cells {_nontrivial:.1%}")
+
     def _optimizer_fn(pred_row, hist_returns, prev_w, s_map, bm_w, diagnostics=None):
         cov_matrix = estimate_covariance(hist_returns, bm_weights=bm_w, config=config)
+        # S13.41: diagonal-only adjustment BEFORE the diagnostics capture so
+        # the projection stage consumes the same adjusted covariance.
+        if _optvol_scale is not None and pred_row.name in _optvol_scale.index:
+            _s = (_optvol_scale.loc[pred_row.name]
+                  .reindex(pred_row.index).fillna(1.0).values)
+            cov_matrix = np.diag(_s) @ cov_matrix @ np.diag(_s)
         te_cap = config.max_te_annual
         if _te_mult is not None:
             m = _te_mult.asof(pred_row.name)

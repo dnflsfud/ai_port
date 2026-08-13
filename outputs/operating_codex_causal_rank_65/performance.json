@@ -1,30 +1,30 @@
 {
   "as_of": "2026-08-11",
-  "annual_return": 0.26168472800783915,
-  "annual_vol": 0.20025317468501255,
-  "sharpe_ratio": 1.3067694353383168,
-  "active_return": 0.05443735332200195,
-  "tracking_error": 0.03560340297189382,
-  "information_ratio": 1.5289929831981537,
-  "realized_beta": 1.0506564364847504,
-  "avg_annual_turnover": 0.6775919365627373,
-  "avg_ic": 0.020000132284792808,
-  "total_return": 5.391514471925765,
+  "annual_return": 0.2616319776830902,
+  "annual_vol": 0.20028181637412018,
+  "sharpe_ratio": 1.3063191777448724,
+  "active_return": 0.05440768876226576,
+  "tracking_error": 0.03536966549524772,
+  "information_ratio": 1.538258504864175,
+  "realized_beta": 1.051054338133291,
+  "avg_annual_turnover": 0.6725865226673975,
+  "avg_ic": 0.019486531831446437,
+  "total_return": 5.3893822803308415,
   "bm_total_return": 3.2490720926250196,
   "max_drawdown": -0.3213147246565282,
   "sub_period_ir": {
     "P1_ir": 1.4236124747191086,
     "P2_ir": 0.9100496041030051,
-    "P3_ir": 2.153707406209829
+    "P3_ir": 2.1284913273197015
   },
   "sp500": {
     "annual_return": 0.14881785739733688,
     "annual_vol": 0.19653368895068843,
     "sharpe_ratio": 0.7572129653286884,
-    "active_return": 0.10317330426940452,
-    "tracking_error": 0.05895752280384477,
-    "information_ratio": 1.7499599603712714,
-    "beta": 0.9944887305796315,
+    "active_return": 0.10317995063771868,
+    "tracking_error": 0.05884961597107616,
+    "information_ratio": 1.7532816303921221,
+    "beta": 0.9948117845810591,
     "total_return": 1.9000392750939734,
     "sub_period_ir": {
       "P1_ir": NaN,
@@ -76,25 +76,25 @@
       "active_vs_sp500": 0.3028
     },
     "2024": {
-      "portfolio": 0.3931,
+      "portfolio": 0.3939,
       "benchmark": 0.2841,
-      "active": 0.1089,
+      "active": 0.1098,
       "sp500": 0.2331,
-      "active_vs_sp500": 0.16
+      "active_vs_sp500": 0.1608
     },
     "2025": {
-      "portfolio": 0.3349,
+      "portfolio": 0.3243,
       "benchmark": 0.2371,
-      "active": 0.0979,
+      "active": 0.0872,
       "sp500": 0.1639,
-      "active_vs_sp500": 0.1711
+      "active_vs_sp500": 0.1604
     },
     "2026": {
-      "portfolio": 0.221,
+      "portfolio": 0.2296,
       "benchmark": 0.1699,
-      "active": 0.0511,
+      "active": 0.0597,
       "sp500": 0.1326,
-      "active_vs_sp500": 0.0884
+      "active_vs_sp500": 0.097
     }
   },
   "optimizer_failure_rate": 0.0,
@@ -713,9 +713,14 @@
         "Factset_EPS_Surprise": 46449,
         "Factset_Sales_Surprise": 46449,
         "Factset_EPS_Est_StdDev": 46449,
-        "Fwd_Sales_Slope_1FY2FY": 46449
+        "Fwd_Sales_Slope_1FY2FY": 46449,
+        "iv30_z": 46449,
+        "downside_skew_z": 46449,
+        "iv_term_structure_z": 46449,
+        "downside_skew_chg_5d": 46449,
+        "days_to_earnings": 46449
       },
-      "total_masked_cells": 1651323,
+      "total_masked_cells": 1883568,
       "resolved_ticker_count": 200,
       "unresolved_tickers": [],
       "source_counts": {
