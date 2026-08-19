@@ -342,3 +342,83 @@ def test_provenance_meta_tolerates_missing_manifest(tmp_path):
     assert meta["git_hash"] is None
     assert meta["git_dirty"] is None
     assert meta["source_manifest_sha256"] is None
+
+
+def _expected_rebalance_inputs():
+    from src.config import PipelineConfig
+
+    rng = np.random.default_rng(7)
+    n = 12
+    tickers = [f"T{i:02d}" for i in range(n)]
+    dates = pd.bdate_range("2025-01-02", periods=140)
+    hist = pd.DataFrame(
+        rng.normal(0.0004, 0.01, size=(len(dates), n)), index=dates, columns=tickers
+    )
+    pred = pd.Series(rng.normal(size=n), index=tickers)
+    bm = pd.Series(1.0 / n, index=tickers)
+    return dict(
+        as_of=dates[-1] + pd.offsets.BDay(1),
+        tickers=tickers,
+        pred_row=pred,
+        raw_pred_row=pred,
+        prev_weights=bm.copy(),
+        bm_weights=bm,
+        hist_returns=hist,
+        ic_history=[0.05, 0.03, 0.04],
+        sector_map={t: ("A" if i < n // 2 else "B") for i, t in enumerate(tickers)},
+        cfg=PipelineConfig(),
+        last_rebalance_date=dates[-21],
+        next_scheduled_rebalance_date=dates[-1] + pd.offsets.BDay(5),
+        is_rebalance_data_as_of=False,
+    )
+
+
+def test_expected_rebalance_contract_reconciles_weights_turnover_and_cost():
+    from scripts.export_operating_data import build_expected_rebalance
+
+    inputs = _expected_rebalance_inputs()
+    out = build_expected_rebalance(**inputs)
+    assert {"as_of", "by_ticker", "top_ow", "top_uw", "top_trades",
+            "expected_turnover_two_way", "expected_transaction_cost",
+            "estimated_te", "signal_confidence", "weight_sum"} <= set(out)
+    rows = out["by_ticker"]
+    assert len(rows) == len(inputs["tickers"])
+    assert abs(float(out["weight_sum"]) - 1.0) < 1e-6
+    for row in rows:
+        assert float(row["target"]) >= -1e-9
+        assert abs(float(row["target"]) - float(row["current"])
+                   - float(row["delta"])) < 1e-9
+        assert abs(float(row["target"]) - float(row["bm_weight"])
+                   - float(row["active"])) < 1e-9
+    actives = [float(row["active"]) for row in rows]
+    assert actives == sorted(actives, reverse=True)
+    turnover = sum(abs(float(row["delta"])) for row in rows)
+    assert abs(turnover - float(out["expected_turnover_two_way"])) < 1e-8
+    tc_rate = float(inputs["cfg"].one_way_tc)
+    # Both fields are independently rounded to 10 decimals for JSON, so the
+    # identity holds to ~1e-11, not machine precision.
+    assert abs(float(out["expected_transaction_cost"])
+               - float(out["expected_turnover_two_way"]) * tc_rate) < 1e-9
+    deltas = [abs(float(row["delta"])) for row in out["top_trades"]]
+    assert deltas == sorted(deltas, reverse=True)
+
+
+def test_expected_rebalance_rejects_sparse_predictions():
+    from scripts.export_operating_data import build_expected_rebalance
+
+    inputs = _expected_rebalance_inputs()
+    sparse = inputs["pred_row"].copy()
+    sparse.iloc[5:] = np.nan
+    inputs["pred_row"] = sparse
+    with pytest.raises(ValueError, match="insufficient valid predictions"):
+        build_expected_rebalance(**inputs)
+
+
+def test_expected_rebalance_rejects_unsupported_optimizer_paths():
+    from src.config import PipelineConfig
+    from scripts.export_operating_data import build_expected_rebalance
+
+    inputs = _expected_rebalance_inputs()
+    inputs["cfg"] = PipelineConfig(use_score_based=True)
+    with pytest.raises(ValueError, match="use_score_based"):
+        build_expected_rebalance(**inputs)

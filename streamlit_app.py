@@ -262,6 +262,7 @@ def load_operating_bundle(meta: dict, project_root=HERE) -> dict:
         "monitoring": read_json("monitoring.json"),
         "currency": read_json("currency.json"),
         "feature_attribution": read_json("feature_attribution.json"),
+        "expected_rebalance": read_json("expected_rebalance.json"),
         "returns": returns,
     }
 
@@ -418,6 +419,35 @@ def prepare_stock_drivers(attr, ticker=None):
     }
     return {"options": options, "default": default, "selected": selected,
             "top_features": top_features, "metrics": metrics}
+
+
+def prepare_expected_rebalance(exp):
+    """Shape the expected_rebalance JSON for its tab (no Streamlit).
+
+    ``exp`` is the parsed ``operating/expected_rebalance.json`` (``{}`` when the
+    file is absent). Returns ``None`` when the artefact is missing, errored or
+    empty, else ``{"summary", "by_ticker", "top_ow", "top_uw", "trades"}`` where
+    ``by_ticker`` keeps the exporter's active-DESC order and ``trades`` the
+    |delta|-DESC order.
+    """
+    if not exp or exp.get("error") or not exp.get("by_ticker"):
+        return None
+    summary_keys = (
+        "as_of", "last_rebalance_date", "next_scheduled_rebalance_date",
+        "is_rebalance_data_as_of", "expected_turnover_two_way",
+        "expected_transaction_cost", "one_way_transaction_cost_bps",
+        "expected_active_share_one_way", "estimated_te",
+        "max_tracking_error_annual", "signal_confidence", "trailing_ic_mean",
+        "solver", "used_fallback", "fallback_reason", "n_trades", "n_holdings",
+        "weight_sum",
+    )
+    return {
+        "summary": {key: exp.get(key) for key in summary_keys},
+        "by_ticker": rows_df(exp.get("by_ticker")),
+        "top_ow": rows_df(exp.get("top_ow")),
+        "top_uw": rows_df(exp.get("top_uw")),
+        "trades": rows_df(exp.get("top_trades")),
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -848,7 +878,7 @@ def main() -> None:
         challenger_cols[5].metric("Active Share", pct(challenger_holdings.get("active_share_one_way"), 2))
 
     tabs = st.tabs(
-        ["Overview", "Performance", "Contribution", "Risk", "Trading & Operations", "Signals & Gates", "Backtest Runs", "Stock Drivers", "Comparison"]
+        ["Overview", "Performance", "Contribution", "Risk", "Trading & Operations", "Signals & Gates", "Backtest Runs", "Stock Drivers", "Comparison", "Expected Rebalance"]
     )
 
     with tabs[0]:
@@ -1758,6 +1788,120 @@ def main() -> None:
                         ["weight_s0", "weight_causal", "active_s0", "active_causal", "weight_delta", "active_delta"],
                     ),
                     width="stretch", hide_index=True,
+                )
+
+    with tabs[9]:
+        st.subheader(f"Expected rebalance — {prod_name} (what-if, latest data date)")
+        exp = data["production"].get("expected_rebalance") or {}
+        exp_view = prepare_expected_rebalance(exp)
+        if exp_view is None:
+            if exp.get("error"):
+                st.warning(f"Expected rebalance export failed: {exp['error']}")
+            else:
+                st.info("Run export_operating_data.py to generate expected_rebalance.json.")
+        else:
+            s = exp_view["summary"]
+            st.markdown(
+                "<div class='note'>정기 리밸런싱일과 무관하게, <b>최신 데이터일 종가에 리밸런싱한다면</b> "
+                "프로덕션 실행 로직(ECOS MVO → 신뢰도 기반 부분집행 → 제약 프로젝션)이 산출할 목표 비중이다. "
+                "현재 북·벤치마크·공분산·executable mu 모두 최신 종가 기준.</div>",
+                unsafe_allow_html=True,
+            )
+            head = st.columns(6)
+            head[0].metric("As of", s.get("as_of") or "n/a")
+            head[1].metric("Next scheduled", s.get("next_scheduled_rebalance_date") or "n/a")
+            head[2].metric("Expected Turnover (2-way)", pct(s.get("expected_turnover_two_way"), 1))
+            head[3].metric("Expected Cost", pct(s.get("expected_transaction_cost"), 3))
+            head[4].metric("Est. TE", pct(s.get("estimated_te"), 2))
+            head[5].metric("Signal Confidence", num(s.get("signal_confidence"), 2))
+            if s.get("used_fallback"):
+                st.warning(
+                    "Optimizer fell back on this what-if solve "
+                    f"({s.get('fallback_reason') or 'reason unavailable'}) — targets may equal the fallback book."
+                )
+            if s.get("is_rebalance_data_as_of"):
+                st.caption("최신 데이터일이 실제 리밸런싱일과 일치 — 예상 비중은 확정 리밸런싱과 동일 조건이다.")
+
+            by_ticker = exp_view["by_ticker"]
+            col_ow, col_uw = st.columns(2)
+            with col_ow:
+                st.subheader("Expected top overweights")
+                st.dataframe(
+                    fmt_table(exp_view["top_ow"][["ticker", "sector", "target", "bm_weight", "active", "mu"]],
+                              ["target", "bm_weight", "active"], digits=3),
+                    width="stretch", hide_index=True,
+                )
+            with col_uw:
+                st.subheader("Expected top underweights")
+                st.dataframe(
+                    fmt_table(exp_view["top_uw"][["ticker", "sector", "target", "bm_weight", "active", "mu"]],
+                              ["target", "bm_weight", "active"], digits=3),
+                    width="stretch", hide_index=True,
+                )
+            active_bar = pd.concat([exp_view["top_ow"], exp_view["top_uw"]]).drop_duplicates("ticker")
+            render_chart(hbar_fig(
+                active_bar.sort_values("active"), "ticker", "active",
+                "Expected active weight (top OW/UW)",
+            ))
+
+            st.subheader("Expected trades (current → target)")
+            trades = exp_view["trades"]
+            if trades.empty:
+                st.info("No expected trades — the book is inside the no-trade band.")
+            else:
+                st.dataframe(
+                    fmt_table(trades[["ticker", "sector", "current", "target", "delta", "mu"]].head(20),
+                              ["current", "target", "delta"], digits=3),
+                    width="stretch", hide_index=True,
+                )
+
+            exp_attr = exp.get("feature_attribution") or {}
+            exp_base = prepare_stock_drivers(exp_attr, None)
+            st.subheader("Expected book — stock drivers")
+            if exp_base is None:
+                st.info("Expected-book feature attribution is unavailable in this export.")
+            else:
+                st.caption(
+                    f"Signal as of {exp_attr.get('signal_date', 'n/a')} | "
+                    f"model {exp_attr.get('model_date', 'n/a')}"
+                )
+                exp_options = exp_base["options"]
+                exp_labels = [f"{t} · active {a:+.1%}" for t, a in exp_options]
+                exp_default_idx = next(
+                    (i for i, (t, _a) in enumerate(exp_options) if t == exp_base["default"]), 0
+                )
+                exp_choice = st.selectbox(
+                    "Stock", exp_labels, index=exp_default_idx,
+                    key="expected_rebalance_drivers_select",
+                )
+                exp_selected = exp_options[exp_labels.index(exp_choice)][0]
+                exp_stock = prepare_stock_drivers(exp_attr, exp_selected)
+                em = exp_stock["metrics"]
+                emc = st.columns(6)
+                emc[0].metric("Expected Weight", pct(em["weight"], 2))
+                emc[1].metric("BM Weight", pct(em["bm_weight"], 2))
+                emc[2].metric("Expected Active", pct(em["active"], 2, signed=True))
+                emc[3].metric("Executable mu", num(em["mu"], 4))
+                emc[4].metric("Model component", num(em["model_mu"], 4))
+                emc[5].metric("Signal adjustment", num(em["signal_adjustment"], 4))
+                exp_drv = pd.DataFrame({
+                    "feature": [f"{f} ({g})" for f, g, _v in exp_stock["top_features"]],
+                    "shap": [v for _f, _g, v in exp_stock["top_features"]],
+                })
+                exp_drv["direction"] = np.where(exp_drv["shap"] >= 0, "pos", "neg")
+                exp_fig = px.bar(
+                    exp_drv, x="shap", y="feature", orientation="h",
+                    color="direction", color_discrete_map={"pos": COLOR_POS, "neg": COLOR_NEG},
+                    title=f"{exp_selected} — expected-book drivers", template="plotly_white",
+                )
+                exp_fig.update_layout(yaxis={"categoryorder": "total ascending"},
+                                      xaxis_title="SHAP", yaxis_title="", showlegend=False)
+                render_chart(apply_theme(
+                    exp_fig, height=max(320, min(620, 30 * max(len(exp_drv), 7)))
+                ))
+                st.caption(
+                    "SHAP는 모델 수익률 예측(mu)에 대한 귀속이다. 예상 OW/UW는 mu에 더해 "
+                    "리스크 모델·제약(TE·캡·섹터)·부분집행을 거친 what-if 최적화 결과다."
                 )
 
 

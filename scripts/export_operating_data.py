@@ -20,6 +20,10 @@ the scalar metrics.json does not carry:
                    rebalance metadata, sector exposure and fallback rate
   currency.json    exact USD/local/FX arithmetic attribution, currency
                    exposure, source freshness, and FX stress diagnostics
+  expected_rebalance.json
+                   what-if rebalance at the latest data date through the
+                   production code path (target vs current vs benchmark,
+                   expected turnover/cost/TE) + per-stock SHAP for that book
 
 Run FROM the project root (ai_port), engine vendored under ./src:
     PYTHONPATH=. <PY> scripts/export_operating_data.py
@@ -683,6 +687,219 @@ def build_current_drift(
         "names_outside_band": int((np.abs(drift) > band).sum()),
         "weight_sum": _safe_float(float(current.sum()), None),
         "by_ticker": rows,
+    }
+
+
+def build_expected_rebalance(
+    *,
+    as_of,
+    tickers,
+    pred_row: pd.Series,
+    raw_pred_row: Optional[pd.Series],
+    prev_weights: pd.Series,
+    bm_weights: pd.Series,
+    hist_returns: pd.DataFrame,
+    ic_history,
+    sector_map: dict,
+    cfg,
+    optvol_scale_row: Optional[pd.Series] = None,
+    te_cap_multiplier: Optional[float] = None,
+    last_rebalance_date=None,
+    next_scheduled_rebalance_date=None,
+    is_rebalance_data_as_of: Optional[bool] = None,
+) -> dict:
+    """What-if rebalance at ``as_of`` through the production rebalance code path.
+
+    Replicates the in-backtest sequence exactly: Ledoit-Wolf covariance (plus the
+    S13.41 option-IV diagonal scaling when supplied) -> ECOS MVO target ->
+    confidence-scaled partial execution (eta, no-trade band) -> hard-constraint
+    projection. ``prev_weights`` must be the drifted book entering the close of
+    ``as_of`` and ``hist_returns`` the trailing risk-return window strictly
+    before ``as_of`` — the same inputs the loop would hand the optimizer if
+    ``as_of`` were a scheduled rebalance date.
+    """
+    from src.backtest import apply_dynamic_execution, compute_signal_confidence
+    from src.portfolio_optimizer import (
+        estimate_covariance,
+        optimize_portfolio,
+        project_portfolio_weights,
+    )
+
+    unsupported = [
+        flag for flag in (
+            "use_score_based", "factor_neutral_enabled",
+            "winner_trim_protection_enabled",
+        )
+        if getattr(cfg, flag, False)
+    ]
+    if unsupported:
+        raise ValueError(
+            "expected-rebalance export supports the production MVO path only; "
+            f"unsupported config flags enabled: {unsupported}"
+        )
+
+    tickers = [str(t) for t in tickers]
+    as_of = pd.Timestamp(as_of)
+    pred_row = pd.to_numeric(pd.Series(pred_row).reindex(tickers), errors="coerce")
+    # Same C5 guard as the loop: non-finite predictions are treated as missing.
+    pred_row = pred_row.mask(~np.isfinite(pred_row.astype(float)))
+    pred_row.name = as_of
+    n_valid = int(pred_row.notna().sum())
+    if n_valid < 10:
+        raise ValueError(
+            f"insufficient valid predictions at {as_of.date()}: {n_valid} < 10 "
+            "— production would skip this rebalance"
+        )
+
+    prev = pd.to_numeric(pd.Series(prev_weights).reindex(tickers), errors="coerce")
+    bm = pd.to_numeric(pd.Series(bm_weights).reindex(tickers), errors="coerce")
+    if prev.isna().any() or bm.isna().any():
+        raise ValueError("expected rebalance requires complete previous/benchmark weights")
+    prev_vals = prev.to_numpy(dtype=float)
+    bm_vals = bm.to_numpy(dtype=float)
+
+    cov = np.asarray(
+        estimate_covariance(hist_returns[tickers], bm_weights=bm_vals, config=cfg),
+        dtype=float,
+    )
+    if optvol_scale_row is not None:
+        scale = (
+            pd.to_numeric(pd.Series(optvol_scale_row).reindex(tickers), errors="coerce")
+            .fillna(1.0)
+            .to_numpy(dtype=float)
+        )
+        cov = np.diag(scale) @ cov @ np.diag(scale)
+    te_cap = float(getattr(cfg, "max_te_annual", 0.045))
+    opt_kwargs = {}
+    if te_cap_multiplier is not None and np.isfinite(te_cap_multiplier):
+        te_cap = te_cap * float(te_cap_multiplier)
+        opt_kwargs["max_te_annual"] = te_cap
+
+    optimizer_diagnostics: dict = {}
+    target = np.asarray(
+        optimize_portfolio(
+            expected_returns=pred_row,
+            cov_matrix=cov,
+            prev_weights=prev_vals,
+            sector_map=sector_map if sector_map else None,
+            bm_weights=bm_vals,
+            config=cfg,
+            diagnostics=optimizer_diagnostics,
+            **opt_kwargs,
+        ),
+        dtype=float,
+    )
+
+    ic_values = [float(v) for v in (ic_history or []) if v is not None and np.isfinite(v)]
+    window = int(getattr(cfg, "trailing_ic_window", 6))
+    trailing_ic_mean = (
+        float(np.nanmean(ic_values[-window:])) if len(ic_values) >= 2 else 0.0
+    )
+    raw_row = None
+    if raw_pred_row is not None:
+        raw_row = pd.to_numeric(pd.Series(raw_pred_row).reindex(tickers), errors="coerce")
+    confidence = compute_signal_confidence(
+        pred_row, raw_row, trailing_ic_mean,
+        spread_scale=float(getattr(cfg, "confidence_spread_scale", 0.20)),
+    )
+    candidate = apply_dynamic_execution(prev_vals.copy(), target, confidence, cfg)
+
+    if getattr(cfg, "projection_fallback_mode", "target") == "prev":
+        projection_fallback = prev_vals.copy()
+    else:
+        projection_fallback = target
+    projection_diagnostics: dict = {}
+    new_weights = np.asarray(
+        project_portfolio_weights(
+            candidate_weights=candidate,
+            expected_returns=pred_row,
+            cov_matrix=cov,
+            prev_weights=prev_vals,
+            sector_map=sector_map,
+            bm_weights=bm_vals,
+            max_te_annual=te_cap,
+            sector_deviation=float(getattr(cfg, "sector_deviation", 0.10)),
+            config=cfg,
+            fallback_weights=projection_fallback,
+            diagnostics=projection_diagnostics,
+        ),
+        dtype=float,
+    )
+
+    turnover = float(np.abs(new_weights - prev_vals).sum())
+    active = new_weights - bm_vals
+    active_var = float(active @ cov @ active)
+    est_te = float(np.sqrt(max(active_var, 0.0)) * np.sqrt(252.0))
+    tc_rate = float(getattr(cfg, "one_way_tc", 0.001))
+    used_fallback = bool(
+        optimizer_diagnostics.get("used_fallback")
+        or projection_diagnostics.get("used_fallback")
+    )
+    fallback_reason = (
+        optimizer_diagnostics.get("fallback_reason")
+        or projection_diagnostics.get("fallback_reason")
+    )
+
+    rows = []
+    for i, t in enumerate(tickers):
+        rows.append({
+            "ticker": t,
+            "sector": sector_map.get(t, "Unknown"),
+            "mu": _safe_float(pred_row.iloc[i], 6),
+            "current": _safe_float(prev_vals[i], 10),
+            "target": _safe_float(new_weights[i], 10),
+            "delta": _safe_float(new_weights[i] - prev_vals[i], 10),
+            "bm_weight": _safe_float(bm_vals[i], 10),
+            "active": _safe_float(active[i], 10),
+        })
+    rows.sort(key=lambda r: float(r["active"] or 0.0), reverse=True)
+    trades = sorted(
+        (r for r in rows if abs(float(r["delta"] or 0.0)) > 1e-12),
+        key=lambda r: abs(float(r["delta"])), reverse=True,
+    )
+
+    return {
+        "schema_version": 1,
+        "kind": "what_if_expected_rebalance",
+        "as_of": str(as_of)[:10],
+        "method": (
+            "Same code path as a production rebalance run at the latest data date: "
+            "Ledoit-Wolf covariance (option-IV diagonal scaling when enabled) -> "
+            "ECOS MVO target -> confidence-scaled partial execution (eta, no-trade "
+            "band) -> hard-constraint projection. Book, benchmark, covariance and "
+            "executable mu are as of the latest close."
+        ),
+        "last_rebalance_date": (
+            str(last_rebalance_date)[:10] if last_rebalance_date is not None else None
+        ),
+        "next_scheduled_rebalance_date": (
+            str(next_scheduled_rebalance_date)[:10]
+            if next_scheduled_rebalance_date is not None else None
+        ),
+        "is_rebalance_data_as_of": is_rebalance_data_as_of,
+        "n_names": len(tickers),
+        "n_predictions_valid": n_valid,
+        "signal_confidence": _safe_float(confidence, 6),
+        "trailing_ic_mean": _safe_float(trailing_ic_mean, 6),
+        "solver": optimizer_diagnostics.get("solver"),
+        "projection_solver": projection_diagnostics.get("solver"),
+        "used_fallback": used_fallback,
+        "fallback_reason": fallback_reason,
+        "option_vol_cov_scaling_applied": optvol_scale_row is not None,
+        "expected_turnover_two_way": _safe_float(turnover, 10),
+        "expected_turnover_one_way": _safe_float(turnover / 2.0, 10),
+        "one_way_transaction_cost_bps": _safe_float(tc_rate * 1e4, 4),
+        "expected_transaction_cost": _safe_float(turnover * tc_rate, 10),
+        "expected_active_share_one_way": _safe_float(0.5 * float(np.abs(active).sum()), 6),
+        "estimated_te": _safe_float(est_te, 6),
+        "max_tracking_error_annual": _safe_float(te_cap, 6),
+        "weight_sum": _safe_float(float(new_weights.sum()), 10),
+        "n_holdings": int((new_weights > 1e-6).sum()),
+        "n_trades": len(trades),
+        "by_ticker": rows,
+        "top_ow": rows[:12],
+        "top_uw": rows[-12:][::-1],
+        "top_trades": trades[:30],
     }
 
 
@@ -1650,6 +1867,114 @@ def main(argv=None) -> int:
     ))
     json.dump(fa, open(out / "feature_attribution.json", "w", encoding="utf-8"), indent=2, default=str)
 
+    # ---- expected_rebalance.json (what-if rebalance at the latest data date) --
+    # Failure here must not abort the nightly export (same pattern as risk.json):
+    # the artefact records the error and every other bundle file still ships.
+    try:
+        latest_date = pd.Timestamp(data.returns.index.max())
+        preds = getattr(res, "predictions", None)
+        if not isinstance(preds, pd.DataFrame) or latest_date not in preds.index:
+            raise ValueError(
+                f"executable predictions are unavailable at {latest_date.date()}"
+            )
+        daily_keys = sorted(res.daily_weights)
+        if not daily_keys or pd.Timestamp(daily_keys[-1]) != latest_date:
+            raise ValueError(
+                "latest daily weights do not match the latest data date "
+                f"({daily_keys[-1] if daily_keys else None} vs {latest_date.date()})"
+            )
+        prev_book = pd.Series(res.daily_weights[daily_keys[-1]]).reindex(tickers)
+        bm_latest = pd.Series(
+            np.asarray(bm_fn(latest_date, tickers, len(tickers)), dtype=float),
+            index=tickers,
+        )
+        risk_source = getattr(data, "raw_returns", None)
+        if isinstance(risk_source, pd.DataFrame):
+            risk_source = risk_source.reindex(index=data.returns.index, columns=tickers)
+        else:
+            risk_source = data.returns[tickers]
+        pos = int(data.returns.index.get_indexer([latest_date])[0])
+        cov_lb = int(getattr(cfg, "cov_lookback", 126))
+        hist = risk_source.iloc[max(0, pos - cov_lb):pos]
+
+        optvol_row = None
+        if getattr(cfg, "option_vol_covariance_enabled", False):
+            from src.option_vol_cov import OPTION_VOL_SHEET, build_option_vol_scale
+            try:
+                iv_sheet = data.get_sheet(OPTION_VOL_SHEET)
+            except KeyError:
+                iv_sheet = None
+            if iv_sheet is not None:
+                optvol_scale = build_option_vol_scale(data.returns[tickers], iv_sheet)
+                if latest_date in optvol_scale.index:
+                    optvol_row = optvol_scale.loc[latest_date]
+
+        te_mult_val = None
+        from src.carry_te_conditioning import build_te_cap_multipliers
+        te_mult = build_te_cap_multipliers(getattr(data, "factor_prices", None), cfg)
+        if te_mult is not None:
+            te_m = te_mult.asof(latest_date)
+            if np.isfinite(te_m):
+                te_mult_val = float(te_m)
+
+        raw_preds = getattr(res, "raw_predictions", None)
+        raw_row = (
+            raw_preds.loc[latest_date, tickers]
+            if isinstance(raw_preds, pd.DataFrame) and latest_date in raw_preds.index
+            else None
+        )
+        ic_hist = [
+            float(v)
+            for v in pd.Series(
+                getattr(res, "ic_series", pd.Series(dtype=float))
+            ).dropna()
+        ]
+        expected = build_expected_rebalance(
+            as_of=latest_date,
+            tickers=tickers,
+            pred_row=preds.loc[latest_date, tickers],
+            raw_pred_row=raw_row,
+            prev_weights=prev_book,
+            bm_weights=bm_latest,
+            hist_returns=hist,
+            ic_history=ic_hist,
+            sector_map=sector_map,
+            cfg=cfg,
+            optvol_scale_row=optvol_row,
+            te_cap_multiplier=te_mult_val,
+            last_rebalance_date=last,
+            next_scheduled_rebalance_date=rebalance_meta["next_expected_rebalance_date"],
+            is_rebalance_data_as_of=rebalance_meta["is_rebalance_data_as_of"],
+        )
+        expected_target = pd.Series(
+            {row["ticker"]: float(row["target"]) for row in expected["by_ticker"]}
+        ).reindex(tickers).fillna(0.0)
+        expected["feature_attribution"] = build_feature_attribution(SimpleNamespace(
+            models=res.models,
+            panel=res.panel,
+            portfolio_weights={latest_date: expected_target},
+            feature_groups=res.feature_groups,
+            sector_map=sector_map,
+            bm_weights={t: float(bm_latest[t]) for t in tickers},
+            predictions=getattr(res, "predictions", None),
+            raw_predictions=getattr(res, "raw_predictions", None),
+            pre_overlay_predictions=getattr(res, "pre_overlay_predictions", None),
+            pre_execution_predictions=getattr(res, "pre_execution_predictions", None),
+            execution_signal_lag_days=int(
+                getattr(res, "execution_signal_lag_days", cfg.execution_signal_lag_days)
+            ),
+            listing_dates=(
+                getattr(data, "listing_dates", cfg.listing_dates)
+                if cfg.listing_mask_enabled else {}
+            ),
+        ))
+    except Exception as exc:
+        expected = {"as_of": str(data.returns.index.max())[:10], "error": str(exc)}
+    json.dump(
+        expected, open(out / "expected_rebalance.json", "w", encoding="utf-8"),
+        indent=2, default=str,
+    )
+
     universe_hash = hashlib.sha256("\n".join(tickers).encode("utf-8")).hexdigest()
     model_quality = getattr(res, "model_quality", None) or {}
     portfolio_meta = {
@@ -1708,6 +2033,12 @@ def main(argv=None) -> int:
     )
     print(f"  feature_attribution: {len(fa['tickers'])} names, additivity_ok={fa['additivity_ok']}, "
           f"as_of {fa['as_of']}, model_date {fa['model_date']}")
+    if "error" in expected:
+        print(f"  expected_rebalance: skipped ({expected['error']})")
+    else:
+        print(f"  expected_rebalance: as_of {expected['as_of']} | two-way turnover "
+              f"{expected['expected_turnover_two_way']:.3f} | est TE "
+              f"{expected['estimated_te']*100:.2f}% | fallback={expected['used_fallback']}")
     return 0
 
 

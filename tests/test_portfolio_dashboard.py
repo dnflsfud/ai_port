@@ -7,6 +7,7 @@ from streamlit_app import (
     collect_operating_alerts,
     load_operating_bundle,
     load_portfolio_registry,
+    prepare_expected_rebalance,
     summarize_currency_period,
 )
 
@@ -114,3 +115,38 @@ def test_collect_operating_alerts_surfaces_existing_breaches_and_fx_gaps():
     assert "model_degenerate_rate_breached" in keys
     assert "currency_mapping_missing" in keys
     assert "fx_series_missing" in keys
+
+
+def test_prepare_expected_rebalance_shapes_summary_and_tables():
+    exp = {
+        "as_of": "2026-08-18",
+        "next_scheduled_rebalance_date": "2026-08-25",
+        "expected_turnover_two_way": 0.12,
+        "expected_transaction_cost": 0.00012,
+        "estimated_te": 0.031,
+        "signal_confidence": 0.55,
+        "used_fallback": False,
+        "by_ticker": [
+            {"ticker": "AAA", "sector": "S", "mu": 1.0, "current": 0.5,
+             "target": 0.6, "delta": 0.1, "bm_weight": 0.5, "active": 0.1},
+            {"ticker": "BBB", "sector": "S", "mu": -1.0, "current": 0.5,
+             "target": 0.4, "delta": -0.1, "bm_weight": 0.5, "active": -0.1},
+        ],
+        "top_ow": [{"ticker": "AAA", "active": 0.1}],
+        "top_uw": [{"ticker": "BBB", "active": -0.1}],
+        "top_trades": [{"ticker": "AAA", "delta": 0.1},
+                       {"ticker": "BBB", "delta": -0.1}],
+    }
+    view = prepare_expected_rebalance(exp)
+    assert view["summary"]["as_of"] == "2026-08-18"
+    assert view["summary"]["expected_turnover_two_way"] == 0.12
+    assert list(view["by_ticker"]["ticker"]) == ["AAA", "BBB"]
+    assert list(view["top_ow"]["ticker"]) == ["AAA"]
+    assert list(view["top_uw"]["ticker"]) == ["BBB"]
+    assert len(view["trades"]) == 2
+
+
+def test_prepare_expected_rebalance_handles_absent_or_errored_artifact():
+    assert prepare_expected_rebalance({}) is None
+    assert prepare_expected_rebalance({"error": "boom"}) is None
+    assert prepare_expected_rebalance({"as_of": "2026-08-18", "by_ticker": []}) is None
