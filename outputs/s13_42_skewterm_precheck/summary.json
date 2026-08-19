@@ -1,0 +1,149 @@
+{
+  "preregistration": "decision log §S13.42 (2026-08-13)",
+  "workbook_mtime": "2026-08-12 04:45:41",
+  "coverage": {
+    "iv30_z": {
+      "nonnan_share_full": 0.929,
+      "nonnan_share_last252": 1.0
+    },
+    "downside_skew_z": {
+      "nonnan_share_full": 0.929,
+      "nonnan_share_last252": 1.0
+    },
+    "iv_term_structure_z": {
+      "nonnan_share_full": 0.929,
+      "nonnan_share_last252": 1.0
+    }
+  },
+  "p0_vs_B": {
+    "n_eval_dates": 619,
+    "excess_qlike_improvement": 0.0248,
+    "mae_improvement": 0.0012,
+    "thirds": {
+      "qlike": [
+        -0.0091,
+        0.0705,
+        -0.0344
+      ],
+      "mae": [
+        -0.0014,
+        0.0112,
+        -0.0084
+      ]
+    },
+    "coef_median_skew": 0.0213,
+    "coef_median_term": 0.0395,
+    "common_sample_share_median": 1.0,
+    "pass": false
+  },
+  "p1_vs_production": {
+    "n_sampled_rebalances": 12,
+    "median_l1_shift": 0.00431,
+    "gate": 0.005,
+    "rows": [
+      {
+        "date": "2018-12-26",
+        "l1_shift": 0.01,
+        "max_scale_diff": 0.1274,
+        "corr_dw_skew": 0.196,
+        "corr_dw_term": 0.312,
+        "dw_top_mu_quintile": -0.0
+      },
+      {
+        "date": "2019-08-19",
+        "l1_shift": 0.00249,
+        "max_scale_diff": 0.1598,
+        "corr_dw_skew": -0.025,
+        "corr_dw_term": 0.099,
+        "dw_top_mu_quintile": -0.00018
+      },
+      {
+        "date": "2020-04-09",
+        "l1_shift": 0.00405,
+        "max_scale_diff": 0.1043,
+        "corr_dw_skew": -0.064,
+        "corr_dw_term": 0.152,
+        "dw_top_mu_quintile": 9e-05
+      },
+      {
+        "date": "2020-12-01",
+        "l1_shift": 0.00085,
+        "max_scale_diff": 0.1002,
+        "corr_dw_skew": -0.115,
+        "corr_dw_term": 0.036,
+        "dw_top_mu_quintile": 0.0
+      },
+      {
+        "date": "2021-07-23",
+        "l1_shift": 0.01201,
+        "max_scale_diff": 0.342,
+        "corr_dw_skew": -0.005,
+        "corr_dw_term": -0.191,
+        "dw_top_mu_quintile": -0.00277
+      },
+      {
+        "date": "2022-03-16",
+        "l1_shift": 0.01271,
+        "max_scale_diff": 0.3536,
+        "corr_dw_skew": -0.02,
+        "corr_dw_term": -0.053,
+        "dw_top_mu_quintile": -3e-05
+      },
+      {
+        "date": "2022-11-07",
+        "l1_shift": 0.00243,
+        "max_scale_diff": 0.0678,
+        "corr_dw_skew": -0.066,
+        "corr_dw_term": 0.039,
+        "dw_top_mu_quintile": -0.0
+      },
+      {
+        "date": "2023-06-29",
+        "l1_shift": 0.00154,
+        "max_scale_diff": 0.2149,
+        "corr_dw_skew": 0.109,
+        "corr_dw_term": 0.149,
+        "dw_top_mu_quintile": -0.0
+      },
+      {
+        "date": "2024-02-20",
+        "l1_shift": 0.00185,
+        "max_scale_diff": 0.2773,
+        "corr_dw_skew": -0.024,
+        "corr_dw_term": 0.083,
+        "dw_top_mu_quintile": 0.0
+      },
+      {
+        "date": "2024-10-11",
+        "l1_shift": 0.01505,
+        "max_scale_diff": 0.49,
+        "corr_dw_skew": -0.013,
+        "corr_dw_term": 0.037,
+        "dw_top_mu_quintile": 0.00029
+      },
+      {
+        "date": "2025-06-04",
+        "l1_shift": 0.00596,
+        "max_scale_diff": 0.1383,
+        "corr_dw_skew": -0.114,
+        "corr_dw_term": -0.069,
+        "dw_top_mu_quintile": 0.00181
+      },
+      {
+        "date": "2026-01-26",
+        "l1_shift": 0.00458,
+        "max_scale_diff": 0.1154,
+        "corr_dw_skew": -0.047,
+        "corr_dw_term": -0.047,
+        "dw_top_mu_quintile": -0.00029
+      }
+    ],
+    "pass": false
+  },
+  "p2_direction": {
+    "mean_corr_dw_skew": -0.016,
+    "mean_corr_dw_term": 0.046,
+    "mean_dw_top_mu_quintile": -9e-05
+  },
+  "verdict": "SHELVE"
+}

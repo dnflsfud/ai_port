@@ -100,37 +100,38 @@
     "dr_alpha_enabled": false,
     "fwd_sales_slope_features_enabled": true,
     "vol_quality_tilt_enabled": true,
-    "vol_quality_tilt_lambda": 0.25
+    "vol_quality_tilt_lambda": 0.25,
+    "option_vol_covariance_enabled": true
   },
   "metrics": {
-    "annual_return": 0.2616319776830902,
-    "annual_vol": 0.20028181637412018,
-    "sharpe_ratio": 1.3063191777448724,
-    "active_return": 0.05440768876226576,
-    "tracking_error": 0.03536966549524772,
-    "information_ratio": 1.538258504864175,
-    "max_drawdown": -0.3213147246565282,
-    "avg_annual_turnover": 0.6725865226673975,
-    "avg_annual_turnover_one_way": 0.33629326133369875,
-    "active_share": 0.195476756257864,
+    "annual_return": 0.2658187645072321,
+    "annual_vol": 0.1984461071056886,
+    "sharpe_ratio": 1.3395010281842519,
+    "active_return": 0.05755152339496683,
+    "tracking_error": 0.03462253612907902,
+    "information_ratio": 1.6622561438135102,
+    "max_drawdown": -0.3175181482082524,
+    "avg_annual_turnover": 0.6936090660876781,
+    "avg_annual_turnover_one_way": 0.34680453304383907,
+    "active_share": 0.19290840481563867,
     "avg_ic": 0.019486531831446437,
-    "annual_tc": 0.0006725865226673975,
+    "annual_tc": 0.0006936090660876782,
     "sp500_annual_return": 0.14881785739733688,
     "sp500_annual_vol": 0.19653368895068843,
     "sp500_sharpe": 0.7572129653286884,
-    "sp500_active_return": 0.10317995063771868,
-    "sp500_tracking_error": 0.05884961597107616,
-    "sp500_information_ratio": 1.7532816303921221,
-    "sp500_beta": 0.9948117845810591,
+    "sp500_active_return": 0.10673726902142033,
+    "sp500_tracking_error": 0.05784233603559257,
+    "sp500_information_ratio": 1.845313940220894,
+    "sp500_beta": 0.9864859298654602,
     "spx_annual_return": 0.14881785739733688,
     "spx_annual_vol": 0.19653368895068843,
     "spx_sharpe": 0.7572129653286884,
-    "realized_beta": 1.051054338133291,
-    "realized_active_beta": 0.05105433813329145,
+    "realized_beta": 1.0414169286446462,
+    "realized_active_beta": 0.04141692864464667,
     "sub_periods": {
-      "P1_ir": 1.4236124747191086,
-      "P2_ir": 0.9100496041030051,
-      "P3_ir": 2.1284913273197015
+      "P1_ir": 1.4405614995405118,
+      "P2_ir": 1.0889563001366072,
+      "P3_ir": 2.2375522805810886
     }
   },
   "model_quality": {
@@ -1091,5 +1092,5 @@
     "ECOS": 192
   },
   "optimizer_solver_fallback_rate": 0.0,
-  "elapsed_sec": 4718.1
+  "elapsed_sec": 912.6
 }
