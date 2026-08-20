@@ -92,7 +92,7 @@
     "growth_tilt_rev_tg_share": 0.0,
     "growth_tilt_rev_weight": 0.5,
     "growth_tilt_weight": 0.25,
-    "implied_corr_covariance_enabled": true,
+    "implied_corr_covariance_enabled": false,
     "implied_vol_features_enabled": false,
     "index_eps_feature_names": null,
     "index_eps_features_enabled": false,
@@ -206,8 +206,7 @@
     "projection_fallback_mode": "target",
     "putcall_features_enabled": false,
     "rank_eval_at": [
-      5,
-      10
+      20
     ],
     "rank_relevance_levels": 10,
     "rebalance_at_month_end": false,
@@ -299,12 +298,12 @@
     "winner_trim_quantile": 0.8
   },
   "extra": {
-    "description": "S13.46 arm (single preregistered config): implied correlation from the iv30 identity vs the trailing realized comparator, applied as a per-rebalance scalar s_t = clip(ICorr_t / rho_trail_t, 0.5, 2.0) to the covariance OFF-DIAGONAL only (diagonal untouched, PSD eigenvalue floor 1e-8; decision log S13.46, precheck S13.45-C PASS). The single delta vs the production codex_causal_rank_65 baseline (08-19 vintage S0' 1.6287).\n",
-    "manifest_path": "variants\\s13_46_icorr_cov.yaml",
+    "description": "S13.47 arm (single preregistered config): rank_eval_at [5, 10] -> [20], the only signal-path delta vs the production codex_causal_rank_65 baseline (08-19 vintage S0' 1.6287). Motivated by the S13.45-D usage audit (69.3% of gross OW active sits outside mu-top-5; rank 6-50 contributes +0.304). Early stopping becomes argmax@20 (S13.8: the min(argmax@5, argmax@10) implicit capacity regulator is replaced) \u2014 the degenerate-retrain rate must be reported alongside E1 (decision log S13.47 preregistration).\n",
+    "manifest_path": "variants\\s13_47_ndcg20.yaml",
     "tuning_mode": "production",
-    "variant_label": "s13_46_icorr_cov"
+    "variant_label": "s13_47_ndcg20"
   },
   "git_dirty": true,
   "git_hash": "f61364e7cff86e800c963725a1ce0ab72d2e32a5",
-  "timestamp_utc": "2026-08-20T05:02:28Z"
+  "timestamp_utc": "2026-08-20T05:32:01Z"
 }

@@ -1,14 +1,14 @@
 {
-  "preregistration": "decision log §S13.46 (2026-08-20)",
+  "preregistration": "decision log §S13.47 (2026-08-20)",
   "vintage": {
     "base_pkl_mtime": "2026-08-20 12:12:43",
-    "arm_pkl_mtime": "2026-08-20 14:02:28",
+    "arm_pkl_mtime": "2026-08-20 14:32:01",
     "last_daily_weights_equal": true
   },
   "full_period": {
     "ir_base": 1.6292,
-    "ir_arm": 1.6199,
-    "delta_ir": -0.0093,
+    "ir_arm": 1.832,
+    "delta_ir": 0.2028,
     "e1_bar": 0.36
   },
   "subperiods": [
@@ -17,41 +17,47 @@
       "start": "2018-11-27",
       "end": "2021-06-24",
       "ir_base": 1.4226,
-      "ir_arm": 1.4973,
-      "delta": 0.0748
+      "ir_arm": 1.4239,
+      "delta": 0.0013
     },
     {
       "split": 2,
       "start": "2021-06-25",
       "end": "2024-01-22",
       "ir_base": 0.9547,
-      "ir_arm": 0.9657,
-      "delta": 0.011
+      "ir_arm": 0.9422,
+      "delta": -0.0125
     },
     {
       "split": 3,
       "start": "2024-01-23",
       "end": "2026-08-19",
       "ir_base": 2.3423,
-      "ir_arm": 2.2377,
-      "delta": -0.1046
+      "ir_arm": 2.906,
+      "delta": 0.5637
     }
   ],
   "sign_consistent": false,
   "e1_pass": false,
+  "degeneracy": {
+    "base": "13/33",
+    "arm": "10/33",
+    "rate_base": 0.3939,
+    "rate_arm": 0.303,
+    "worsened": false
+  },
   "companions": {
     "te_base": 0.03457,
-    "te_arm": 0.03359,
+    "te_arm": 0.03457,
     "te_guard_ok": true,
     "beta_base": 1.0418,
-    "beta_arm": 1.0412,
+    "beta_arm": 1.0495,
     "turnover_base": 0.7523,
-    "turnover_arm": 0.7344,
+    "turnover_arm": 0.7764,
     "maxdd_base": -0.3229,
-    "maxdd_arm": -0.3223,
+    "maxdd_arm": -0.3214,
     "avg_ic_base": 0.02035085019178906,
-    "avg_ic_arm": 0.02035085019178906,
-    "avg_ic_identical": true,
+    "avg_ic_arm": 0.018456457854361133,
     "fallback_base": 0.0,
     "fallback_arm": 0.0
   }
