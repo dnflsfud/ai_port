@@ -867,6 +867,21 @@ class PipelineConfig:
     option_vol_covariance_enabled: bool = False
 
     # ------------------------------------------------------------------
+    # S13.46 (2026-08-20) — implied correlation into the covariance
+    # OFF-DIAGONAL as a per-rebalance scalar (decision log §S13.46
+    # preregistration; precheck §S13.45-C PASS: NW t +8.43, OOS +11.6%).
+    # s_t = clip(ICorr_t / rho_trail_t, 0.5, 2.0) where ICorr_t comes from
+    # the iv30 identity (exact-date match, SPX column, bm-weight renorm,
+    # coverage >= 0.60) and rho_trail_t applies the same identity to the
+    # optimizer's trailing hist_returns window. Sigma'_ij = s_t*Sigma_ij
+    # (i != j), diagonal untouched; PSD repaired with a 1e-8 eigenvalue
+    # floor only when s_t != 1.0. All constants are preregistered and live
+    # in src/implied_corr_cov.py — no sweeps. OFF (default) builds no IV
+    # panel: the optimizer path stays byte-identical to production.
+    # ------------------------------------------------------------------
+    implied_corr_covariance_enabled: bool = False
+
+    # ------------------------------------------------------------------
     # S13.34 (2026-08-07) — VIX term-structure de-risking overlay
     # (user-directed arm). slope_t = VIX3M/VIX − 1 on the prediction date
     # grid. A date is risk-off iff slope < 0 (backwardation) AND

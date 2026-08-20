@@ -678,10 +678,10 @@
     },
     {
       "date": "2026-08-19",
-      "turnover_two_way": 0.093753,
-      "turnover_one_way": 0.046877,
-      "rolling6_two_way": 0.073827,
-      "rolling6_one_way": 0.036914
+      "turnover_two_way": 0.094032,
+      "turnover_one_way": 0.047016,
+      "rolling6_two_way": 0.073874,
+      "rolling6_one_way": 0.036937
     }
   ],
   "active_share": [
@@ -1359,10 +1359,10 @@
     },
     {
       "date": "2026-08-19",
-      "active_share_one_way": 0.199479,
-      "max_name_active_abs": 0.031678,
-      "top5_active_budget_share": 0.302598,
-      "effective_names": 35.36
+      "active_share_one_way": 0.199392,
+      "max_name_active_abs": 0.031655,
+      "top5_active_budget_share": 0.302139,
+      "effective_names": 35.4
     }
   ],
   "tracking_error_constraint": [
@@ -2040,9 +2040,9 @@
     },
     {
       "date": "2026-08-19",
-      "estimated_te": 0.031077,
+      "estimated_te": 0.031109,
       "limit": 0.035,
-      "headroom": 0.003923,
+      "headroom": 0.003891,
       "breached": false
     }
   ],
@@ -31359,18 +31359,18 @@
     },
     {
       "date": "2026-08-19",
-      "active_return_63d_ann": 0.127214,
-      "tracking_error_63d_ann": 0.03729,
-      "information_ratio_63d": 3.411475,
-      "beta_63d": 1.046106,
-      "active_return_126d_ann": 0.071554,
-      "tracking_error_126d_ann": 0.035433,
-      "information_ratio_126d": 2.019392,
-      "beta_126d": 1.031747,
-      "active_return_252d_ann": 0.125598,
-      "tracking_error_252d_ann": 0.041241,
-      "information_ratio_252d": 3.045436,
-      "beta_252d": 1.074397
+      "active_return_63d_ann": 0.127742,
+      "tracking_error_63d_ann": 0.037281,
+      "information_ratio_63d": 3.426471,
+      "beta_63d": 1.045977,
+      "active_return_126d_ann": 0.071818,
+      "tracking_error_126d_ann": 0.03543,
+      "information_ratio_126d": 2.02702,
+      "beta_126d": 1.031699,
+      "active_return_252d_ann": 0.12573,
+      "tracking_error_252d_ann": 0.041239,
+      "information_ratio_252d": 3.048786,
+      "beta_252d": 1.074364
     }
   ],
   "monthly_returns": [
@@ -31934,9 +31934,9 @@
     },
     {
       "month": "2026-08",
-      "portfolio_ret": 0.038836,
-      "benchmark_ret": 0.026564,
-      "active": 0.012272
+      "portfolio_ret": 0.040525,
+      "benchmark_ret": 0.028097,
+      "active": 0.012428
     }
   ],
   "drawdown_events": [
@@ -31984,19 +31984,19 @@
   "guardrails": {
     "optimizer_failure_rate": 0.0,
     "optimizer_solver_fallback_rate": 0.0,
-    "latest_active_share_one_way": 0.1995,
-    "latest_turnover_two_way": 0.093753,
-    "latest_estimated_te": 0.031077,
+    "latest_active_share_one_way": 0.1994,
+    "latest_turnover_two_way": 0.094032,
+    "latest_estimated_te": 0.031109,
     "max_tracking_error_annual": 0.035,
-    "estimated_te_headroom": 0.003923,
+    "estimated_te_headroom": 0.003891,
     "estimated_te_breached": false,
     "max_rebalance_estimated_te": 0.03834,
     "te_constraint_breach_count": 7,
     "te_constraint_breached": true,
-    "top5_active_budget_share": 0.302598,
-    "top_name_active_risk_share": 0.436882,
+    "top5_active_budget_share": 0.302139,
+    "top_name_active_risk_share": 0.436117,
     "top_name_active_risk_breached": true,
-    "top_sector_active_risk_share": 0.881552,
+    "top_sector_active_risk_share": 0.883002,
     "top_sector_active_risk_breached": true,
     "model_degenerate_rate": 0.393939,
     "model_degenerate_rate_breached": true,
@@ -32011,9 +32011,9 @@
     "one_way_transaction_cost_rate": 0.001,
     "one_way_transaction_cost_bps": 10.0,
     "n_rebalances": 97,
-    "cumulative_two_way_turnover": 6.021321298074376,
-    "cumulative_transaction_cost": 0.006021321298074376,
-    "annualized_cost_drag": 0.0007522920015442454,
+    "cumulative_two_way_turnover": 6.021599993604826,
+    "cumulative_transaction_cost": 0.006021599993604826,
+    "annualized_cost_drag": 0.00075232682121389,
     "series": [
       {
         "date": "2018-11-27",
@@ -32593,9 +32593,9 @@
       },
       {
         "date": "2026-08-19",
-        "turnover": 0.09375324763383111,
-        "cost": 9.37532476338311e-05,
-        "cumulative_cost": 0.006021321298074374
+        "turnover": 0.0940319431642807,
+        "cost": 9.40319431642807e-05,
+        "cumulative_cost": 0.006021599993604823
       }
     ]
   }

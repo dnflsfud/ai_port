@@ -92,6 +92,7 @@
     "growth_tilt_rev_tg_share": 0.0,
     "growth_tilt_rev_weight": 0.5,
     "growth_tilt_weight": 0.25,
+    "implied_corr_covariance_enabled": false,
     "implied_vol_features_enabled": false,
     "index_eps_feature_names": null,
     "index_eps_features_enabled": false,
@@ -304,6 +305,6 @@
     "variant_label": "iter15_65tkr_reb21_vtg"
   },
   "git_dirty": true,
-  "git_hash": "e4881b80654c43999886eb9c79009d4f06a92768",
-  "timestamp_utc": "2026-08-19T02:44:58Z"
+  "git_hash": "6d0ad3b7799e56ff9d1b1f6164a85014a498a8bd",
+  "timestamp_utc": "2026-08-20T02:50:37Z"
 }

@@ -5322,3 +5322,299 @@ spike 점유율, 그룹별 전진 수익 절대수준, tg proxy 동일 지표, r
   걷을 증분이 없다. 재도전은 score에 없는 **새 조건 변수**(예: 옵션
   IV 급등 vs 실현 vol 급등의 괴리)로만 — 새 사전등록 필요.
 - 인벤토리: read-only 사전점검 — 미산입(**465 불변**, §S13.7 전례).
+
+## §S13.45 비선형 알파 4축 사전점검 — 사전등록 (2026-08-19, 측정 전)
+
+**출처**: 사용자 요청 2026-08-19 — "수익률 개선을 색다른 방법으로,
+비선형적 알파 요인". AskUserQuestion으로 4축 **전부** 사전점검 확정:
+A 메타 라벨링 게이트 / B 피어 잔차 모멘텀 / C implied correlation→Σ
+비대각 / D ndcg@k 사용률 감사. 통과 축만 arm을 **별도 사전등록** 후
+실행한다(이 점검은 arm이 아님).
+
+**공통 표본·프레임 (고정)**:
+- 표본 pkl = `outputs/codex_causal_rank_65/backtest_result.pkl` —
+  **08-19 빈티지**(금일 리프레시 산출: production IR 1.6287 / TE 3.46% /
+  beta 1.042 / avg_ic 0.02035). §S13.43·44가 쓴 08-12 arm pkl이 아님.
+  워크북·pkl 빈티지 일치(둘 다 08-19)를 실행 로그로 확인 의무.
+- 리밸런싱 그리드 = `res.portfolio_weights` 시점(21BD 비중첩, ≈96).
+  전진 수익률 = §S13.30 `_fwd_return` 관용(t+1..t+21, masked USD 패널).
+- 판정은 각 축의 **사전지정 primary로만**, 나머지는 진단 비액션.
+  인벤토리: read-only 사전점검 미산입(**465 불변**, §S13.7 전례).
+- 이력 제약(사전 기록): §S13.36·44에서 조건부/틸트 후보의 최다 사망
+  지점 = **잔차 직교성 관문**("모델 기표현"). §S13.12 전달률 ~9% 상한
+  때문에 PASS 시 arm은 전부 **비-피처 계층**(신뢰도/틸트/Σ)으로
+  사전약정한다 — 랭커 피처 주입 경로는 금지.
+
+### §S13.45-A 메타 라벨링 게이트 (신호를 언제 믿을지의 비선형성)
+- **정의(고정)**: 리밸런싱 시점 t마다 — primary **`rank_stab`** =
+  직전 리밸런싱 예측벡터와의 Spearman 상관(`res.predictions`의
+  executable mu 행, 공통 유효 종목); 진단 `pred_disp` = 예측 단면
+  MAD×1.4826; 진단 `mkt_vol21` = bm 직전 21BD 실현변동성(연율,
+  `benchmark_returns`). 타깃 **`fwd_ic`** = 당일 예측 vs 전진 21BD
+  수익률의 단면 Spearman.
+- **P0 (예측력)**: fwd_ic ~ rank_stab 단변량, NW(lag 1) **t ≥ 2**,
+  방향 사전 고정 **양(+)**(랭킹이 안정될수록 적중 가설).
+- **P1 (증분 vs production)**: fwd_ic ~ [trailing_ic6(직전 6 리밸런싱
+  IC 평균 — production `compute_signal_confidence`의 입력) + rank_stab]
+  2변량 — rank_stab **t ≥ 2**. FAIL = 기존 confidence 메커니즘의 재표현.
+- **P2 (경제성)**: rank_stab 상·하위 tercile의 fwd_ic 평균 차 > 0 AND
+  3분할 ≥ 2/3 양.
+- **PASS 시 arm 사전약정(스윕 금지)**: `compute_signal_confidence`
+  입력을 conf' = 0.5·conf_ic + 0.5·conf_stab **단일 블렌드**로 교체하는
+  default-OFF 플래그 arm, E1 기존 바.
+
+### §S13.45-B 피어 잔차 모멘텀 (관계형 스필오버 — 미개척 알파 계열)
+- **정의(고정)**: 잔차 r̃ᵢ = rᵢ − βᵢ·r_bm(β = rolling 126BD cov/var,
+  min 63); 피어 집합(t) = trailing 126BD 잔차 상관 **상위 10종목**
+  (자기 제외, pairwise 유효 ≥ 100); 신호 sᵢ = 피어 10종의 trailing
+  63BD 누적 잔차수익률 평균. §S13.10 peer-earnings(어닝 캐스케이드)와
+  재료·축이 다름을 사전 명시(가격 lead-lag).
+- **P0 (raw IC)**: 리밸런싱 그리드 단면 Spearman(s vs 전진 21BD 수익)
+  — mean > 0 AND **t ≥ 2** AND 3분할 ≥ 2/3 양.
+- **P1 (잔차 직교성 — 핵심)**: 최종 score 대비 **양측 잔차화 partial
+  Spearman**(§S13.44 정정 관용) — mean > 0 AND **t ≥ 2** AND 3분할
+  ≥ 2/3 양. FAIL = 모멘텀/섹터 경유 기표현으로 종결.
+- 진단(비액션): 신호 vs momentum_252d 상관, 섹터내 IC, 신호-score 상관.
+- **PASS 시 arm 사전약정(스윕 금지)**: §S13.31 관용 score' = score +
+  **0.25**·sd(score)·winsor-z(s), λ 단일. 피처 주입 금지.
+
+### §S13.45-C implied correlation → Σ 비대각 (유일 성공 채널의 후속)
+- **정의(고정)**: ICorr_t = (σ_idx² − Σwᵢ²σᵢ²) / ((Σwᵢσᵢ)² − Σwᵢ²σᵢ²),
+  σ = `iv30` 시트(단위·연율화 확인 의무), idx = SPX 열, w = bm 비중
+  (IV 유효 종목 renorm, 유효 bm 비중 합 ≥ 60% 시점만). 비교자
+  ρ̄_real,t = 동일 항등식을 trailing 126BD 실현 σ로 계산(production
+  LW가 이미 보유한 정보의 대리). 타깃 = **전진 21BD 실현 ρ̄**(동일
+  항등식, 전진 창).
+- **P0′ (증분, §S13.42 프레임)**: 일별 중첩 표본, 전진 ρ̄ ~ [trailing
+  ρ̄ + ICorr], NW(lag 21) — ICorr **t ≥ 2** AND 부호 양.
+- **P1′ (재료성)**: 시간순 4분할 expanding OOS(1→2, 1-2→3, 1-3→4
+  예측)에서 [trailing+ICorr] vs [trailing 단독]의 RMSE 개선 **≥ 5%**
+  (전체) AND 3개 eval 구간 **전부** 개선(§S13.42 P0′와 동일 바 — 그
+  점검은 +2.5%로 FAIL했음).
+- **P2′ (표본 충분성)**: ICorr 유효 일수 ≥ 750(≈3y). 미달 시 판정
+  불가 SHELVE(데이터 이력 부족으로 기록).
+- **PASS 시 arm 사전약정(스윕 금지)**: LW 상관행렬 R의 **비대각**을
+  s_t = clip(ICorr_t/ρ̄_trail,t, 0.5, 2.0)로 스케일(대각 불변), 고유값
+  하한 1e-8 PSD 수리, default-OFF 플래그, 단일 arm. §S13.41 대각
+  스케일과 독립·직교 채널임을 명시.
+
+### §S13.45-D ndcg@k 사용률 감사 (objective-북 정합 — §S11.10 잔존 축)
+- **현 설정(사전 기록)**: objective `rank_xendcg`, `rank_eval_at
+  [5,10]`, relevance 10등급. §S13.8: 조기종료가 ndcg@5·10 argmax
+  min으로 잘려 **암묵적 용량 규제자**.
+- **정의(고정)**: 리밸런싱 시점마다 executable mu 내림차순 랭크 버킷
+  [1–5, 6–20, 21–50, 51–100, 101+](OW쪽), 역순 동형(UW쪽). 측정:
+  (a) gross OW active(Σmax(active,0))의 버킷별 점유율 평균, (b) UW
+  동형, (c) 버킷별 전진 21BD 실현 active 기여(active×전진수익 합).
+- **P0 (사용률)**: mu-top-5 **밖** 종목의 gross OW active 점유율 평균
+  **≥ 40%**(사전 고정 단일 바).
+- **P1 (수익 실재)**: OW 버킷 6–50의 실현 active 기여 합 > 0 AND
+  3분할 ≥ 2/3 양.
+- **PASS 시 arm 사전약정(스윕 금지)**: `rank_eval_at [20]` 단일 교체
+  arm, E1 기존 바. FAIL → SHELVE(북이 top-5 구동 → k 확장 무근거).
+  arm 위험 사전 기록: §S13.8 용량 규제 상실로 퇴화율 악화 가능 — E1
+  판정에 퇴화율 병기 의무.
+
+**절차/검증 의무(공통)**: 스크립트 4본
+`scripts/precheck_s13_45{a,b,c,d}_*.py`(read-only, 단일 foreground,
+백테스트 없음) + 각 단위테스트(plain 함수, fixture 없음). 실행 선행
+검증: pkl·워크북 빈티지(08-19 기대) 보고, predictions/ic_series/
+portfolio_weights 존재, iv30 시트 SPX 열 존재·결측률 보고(§4.3 유사
+의무). 산출물 `outputs/s13_45{a..d}_*/summary.json`. 수행은 독립 구현
+에이전트 4본(A+D 병렬 → B+C 병렬), 완료 후 독립 검증자 종합 판정.
+
+**사전 관측 기록**: A·B는 잔차/증분 관문(P1)이 기본 기대치상 최다
+사망 지점(§S13.36 raw의 ~70% 기표현, §S13.44 P2 t +0.93 전례). C는
+§S13.42가 "IV 레벨 이후 skew/term의 vol 증분 0"을 실증했으나 **상관
+(2차 모멘트 교차항)은 미검증 축** — 단 IV 이력이 짧으면 P2′에서
+죽는다. D는 서술적이라 P0 PASS 확률이 높으나 arm(eval_at 20)은
+용량 규제 상실 위험이 있어 E1이 실질 관문. SHELVE가 기본 기대치.
+
+### §S13.45 사전점검 실측 (2026-08-19~20) — A·B SHELVE, C·D PASS
+
+실행: `scripts/precheck_s13_45{a,b,c,d}_*.py` 각 단일 foreground +
+단위테스트 20건(축당 5건, 전건 PASS). 산출물
+`outputs/s13_45{a..d}_*/summary.json`. 빈티지: 전 축 08-19 일치
+확인(pkl mtime 15:13:05 KST > 워크북 13:49:14 KST). 운영 기록: B·C
+구현 에이전트가 08-19 저녁 OAuth 만료(401)로 실행 직전 중단 —
+스크립트·테스트는 완성 상태였고, 08-20 오전 메인이 **코드 무변경
+그대로** 실행(B 563s, C 413s).
+
+- **A (메타 라벨링 게이트): SHELVE** — P0 FAIL(rank_stab 단변량
+  NW t +1.06 < 2), P1 FAIL(trailing_ic6 통제 후 t +0.91), P2
+  PASS(tercile 차 +0.031, 2/3). 방향은 전부 가설대로 양(+)이나
+  유의성 부재 — "신호를 언제 믿을지"는 production confidence 대비
+  증분 입증 실패. n=95. 진단(비액션): **pred_disp t −2.17**(예측
+  단면 분산이 클수록 fwd IC 하락) — 재도전은 pred_disp 축 새
+  사전등록으로만.
+- **B (피어 잔차 모멘텀): SHELVE** — P0 FAIL(raw IC mean −0.0099,
+  t −0.46, 3분할 1/3), P1 FAIL(잔차 −0.0062, t −0.30). **잔차화
+  이전 raw부터 0** — 가격 lead-lag 스필오버는 이 유니버스(대형
+  200종)·21BD 지평에 부재. **관계형 가격 축 종결**(§S13.10
+  peer-earnings와 별개 축). 진단: 신호 vs 자기 모멘텀 상관 0.57,
+  섹터내 IC 0. n=88(β·상관 번인 8시점 제외).
+- **C (implied correlation → Σ 비대각): PASS 3/3** — P0′ ICorr
+  NW(21) **t +8.43**(coef +0.598), **통제인 trailing ρ̄가 t −0.24로
+  소멸** — 전진 평균상관의 정보는 실현 이력이 아니라 옵션가격에
+  있다. P1′ OOS RMSE 개선 **+11.58%**(바 5%, 4분할 expanding 3개
+  eval [+9.2%/+6.3%/+21.6%] 전부 개선), P2′ 유효 3151일(2014-07-21~,
+  커버리지 1.00, [0,1]밖 0.06%). 진단: corr(ICorr, trailing)=0.617,
+  implied premium +0.006, 타깃 AC21 0.40. §S13.42(vol 증분 FAIL,
+  +2.5%)와 대조적 — vol '크기'가 아닌 **상관 교차항**은 IV에만
+  있는 정보임이 실증됨.
+- **D (ndcg@k 사용률): PASS 2/2** — P0 top-5 밖 gross OW 점유율
+  **69.3%**(바 40%), P1 랭크 6–50 버킷 실현 기여 +0.304, 3분할
+  3/3 양. 학습 집중 구간(ndcg@5·10)과 북 사용 구간(랭크 6–50에
+  gross OW 60.4%)의 부정합 실증. UW 진단: gross UW는 바닥-5
+  집중도가 8.4%뿐(OW top-5 30.7% 대비)으로 바닥 100 전반에 분산,
+  **30.1%는 바닥 100 밖**(mu 중위 메가캡 펀딩 언더) — UW쪽은 OW
+  대비 랭킹 집중도가 현저히 낮다. *(정정 2026-08-20: 최초 기록이
+  안/밖을 반전 서술("70%가 밖") — 검증자 지적으로 실측(밖 30.1%)에
+  맞춰 정정.)*
+- **후속(사전약정 유지, arm은 별도 사전등록+사용자 승인 후)**:
+  C arm = LW 상관행렬 비대각 s_t=clip(ICorr/ρ̄_trail, 0.5, 2.0)
+  스케일(단일, 스윕 금지, default-OFF). D arm = `rank_eval_at [20]`
+  단일 교체(E1에 퇴화율 병기 의무). 우선순위 **C > D**(사전확률·
+  §S13.41 성공 채널 연속성 vs §S13.8 용량 규제 상실 위험).
+- 인벤토리: read-only 사전점검 — 미산입(**465 불변**, §S13.7 전례).
+
+## §S13.46 implied correlation → Σ 비대각 arm — 사전등록 (2026-08-20, 측정 전)
+
+**출처**: §S13.45-C 사전점검 PASS 3/3(P0′ NW t +8.43, P1′ OOS RMSE
++11.58%, P2′ 3151일) + 사용자 승인 2026-08-20 "c arm을 실시해줘".
+§S13.45-C 사전약정의 이행 — **단일 arm, 스윕 금지, 아래 정의는 측정
+전 고정**.
+
+**arm 정의 (고정)**:
+- 플래그: `implied_corr_covariance_enabled` (`PipelineConfig`,
+  **default-OFF**). 이 불리언 외 신규 config 노출 금지 — 모든 상수는
+  모듈 고정(§S13.41 관용).
+- 모듈: `src/implied_corr_cov.py` — 상수 `IV_SHEET="iv30"`,
+  `MIN_COVERAGE=0.60`, `CLIP_LO/HI=0.5/2.0`, `EIG_FLOOR=1e-8`.
+- **s_t = clip(ICorr_t / ρ̄_trail,t, 0.5, 2.0)**, 리밸런싱 시점별 스칼라:
+  - ICorr_t: §S13.45-C 항등식 그대로 — σ = `iv30` 시트(종목 열 + SPX
+    열, %→소수 통일), w = 당일 bm 비중을 IV 유효 종목으로 renorm,
+    유효 bm 비중 합 ≥ 0.60 게이트, [0,1] 밖 → 무효. **당일 정확
+    일치만 사용(ffill 금지 — stale IV 방지)**.
+  - ρ̄_trail,t: 동일 항등식을 **optimizer가 받은 hist_returns 창**
+    (공분산이 소비하는 동일 look-ahead-free trailing 126BD)의 실현
+    σᵢ·실현 포트 σ로 계산 — IV 유효 ∩ dense 교집합 renorm(사전점검
+    관용, ddof=1).
+  - 무효·워밍업·커버리지 미달·비유한·ρ̄_trail ≤ 0 → **s_t = 1.0
+    (inert; Σ 완전 무변, PSD 수리도 미실행)**.
+- 적용 지점: `_optimizer_fn`에서 §S13.41 대각 조정 **후**, diagnostics
+  캡처 **전**(projection이 동일 Σ 소비 — §S13.41 관용):
+  Σ′_ij = s_t·Σ_ij (i≠j), **대각 불변**. s_t ≠ 1.0일 때만 고유값 하한
+  1e-8 PSD 수리(eigh clip + 대칭화; 수리로 인한 미세 섭동은 등록된
+  수리 절차의 일부로 수용).
+- §S13.41 대각 채널과 **독립·직교**: 대각 스케일은 상관 불변, 비대각
+  스케일은 분산 불변(수리 제외) — 두 채널의 정보원(vol vs corr)이
+  §S13.42·45-C에서 각각 별개로 실증됨.
+- OFF-parity: 플래그 OFF → s 빌더 미구성(None), 경로 구조적 바이트
+  동일(§S13.41 `_optvol_scale=None` 관용). arm-parity 목록 등록은
+  승격 시에만(c07165d 전례) — 이번 범위 아님.
+- variant: `variants/s13_46_icorr_cov.yaml` = production 사본 +
+  `implied_corr_covariance_enabled: true` 오버라이드 1줄 +
+  out_dir/label만 변경.
+
+**E1 게이트 (판정 primary, 측정 전 고정)**: 동일 워크북 빈티지
+(08-19 13:49) production S0′ **IR 1.6287** 대비 full ΔIR > +0.36 AND
+시간순 3분할 부호 일관. 병기 의무: TE(실현 가드 4.5%), realized_beta,
+turnover, **avg_ic — Σ-only 채널이므로 S0′와 동일해야 함(알파 비트
+불변 증명, §S13.41 관용)**, s_t 분포(비-inert 비율·분위·클립 도달률),
+MVO fallback율. E1 미달 시 불채택 기록(사용자 오버라이드는 별도 결정).
+채택 고려 시 DSR/selection-bias 해킷 선행(§2.7).
+
+**실행 계획**: 구현(독립 implementer, 설계 재량 수행자) → 단위테스트
+(OFF-parity 우선) → 11:30 정기 배치 종료 후 **schtasks 단일
+foreground** 백테스트 1회(§S13.23 안정 패턴; 실행 전 디스크 여유
+≥ 2GB·워크북 mtime 전후 확인 — 빈티지 포크 감시) → E1 판정 → 독립
+검증자 종합 판정. 인벤토리: arm 백테스트 1회 → **465 → 466**.
+
+### §S13.46 실측 (2026-08-20) — E1 FAIL, 불채택
+
+**실행 기록**: 구현 = 독립 implementer(신규 `src/implied_corr_cov.py`
++ config 플래그 + backtest 배선 + 테스트 7건 + variant, 삽입 60줄 —
+합격기준 5/5를 메인이 재실행 확인: 신규 7건 + 전체 스위트 **562
+PASS**, default-OFF, variant = production + 플래그 1줄). 수행자 재량
+기록: PSD 수리는 s≠1이면서 **최소 고유값 < 1e-8 위반 시에만** 재구성
+(항상 재구성하면 부동소수점상 "대각 정확히 불변"과 충돌 — 보수적
+해석, 사전등록과 정합). 백테스트 = schtasks 단일 실행 10:56~11:16
+(`run_variant.py --variant variants/s13_46_icorr_cov.yaml --no-cache`,
+11:30 정기 배치 전 종료, 디스크 17.3GB). 워크북 mtime 전후 **08-19
+13:49 불변** — S0′ 1.6287과 동일 빈티지 비교 성립. ECOS 단일 프로토콜,
+fallback 0. 판정 스크립트 `scripts/eval_s13_46_arm.py` →
+`outputs/s13_46_icorr_cov/e1_summary.json`.
+
+**s_t 작동 확인**: 리밸 97회 **100% 비-inert**, min 0.500 / median
+0.918 / max 2.000, clip 하한 도달 8회·상한 2회 — 신호는 실제로 Σ에
+전달됨(무력화 아님). median < 1: implied corr가 trailing 실현 대비
+낮은 국면이 다수(§S13.45-C 진단과 정합 — 2024~26 mean ICorr 0.15~0.22).
+
+**E1 판정 (primary)**:
+| 항목 | S0′ (08-19) | arm | Δ |
+|---|---:|---:|---:|
+| full IR | 1.6287 | 1.6193 | **−0.0094** |
+| 3분할 ΔIR | — | — | +0.0748 / +0.0110 / **−0.1048** |
+| TE | 3.457% | 3.359% | −0.098%p |
+| turnover | 0.752 | 0.734 | −0.018 |
+| realized_beta | 1.0418 | 1.0412 | −0.001 |
+| MaxDD | −32.29% | −32.23% | +0.006%p |
+| avg_ic | 0.02035085019178906 | **동일(비트 일치)** | 0 |
+
+→ **E1 FAIL**(ΔIR −0.0094 < +0.36, 3분할 부호 비일관) — **불채택**,
+`implied_corr_covariance_enabled`는 default-OFF 유지, production 무변.
+ΔIR이 음수이므로 사용자 오버라이드 후보도 아님. 채택 고려 없음 →
+DSR 해킷 불요. **인벤토리 465 → 466** (`experiment_inventory.json`
+기록 완료).
+
+**해석 (진단, 비액션)**: §S13.45-C의 상관 예측력(NW t +8.43, OOS
++11.6%)은 실재하나 **IR로의 전달이 0** — avg_ic 비트 동일이 증명하듯
+알파는 그대로인데, 더 정확한 상관 행렬이 산출한 비중 변화가 수익
+스프레드를 만들지 못했다. TE −0.10%p·turnover −0.018은 리스크 모델
+개선의 실재 흔적이나 분자(액티브 수익)가 같이 줄어 상쇄. split3
+(2024~, ICorr 저점 국면 → s<1 비대각 수축 → 분산효과 과대평가 방향)
+에서 −0.105로 가장 크게 잃음. §S13.41(대각, ΔIR +0.124 채택)과의
+대조: **vol 채널은 수익으로 전달됐지만 corr 채널은 예측력 실재에도
+전달 실패** — §S13.12 "IC→IR 전달 상한"의 리스크 채널 판. 옵션 IV의
+Σ 채널 중 대각 축은 소진·채택 완료, 비대각 축은 이번으로 종결.
+재도전은 다른 소비 지점(예: TE 캡·리스크 예산의 시변화)으로만 —
+단, §S13.22가 TE-캡 조건화 실패를 이미 기록했음을 참조.
+
+**독립 검증자 종합 판정 (2026-08-20)**: 8개 기준 전건 PASS —
+단위테스트 10/10·스위트 565, default-OFF 유지, production yaml 무변경,
+E1 재실행 일치, 코드-사전등록 정합(상수·적용 순서·inert 경로),
+인벤토리 466, 결정 로그-산출물 수치 무모순. **§S13.46 종결.**
+
+## §S13.47 rank_eval_at [20] arm (ndcg@k 정합) — 사전등록 (2026-08-20, 측정 전)
+
+**출처**: §S13.45-D 사전점검 PASS 2/2(P0 top-5 밖 gross OW 69.3%,
+P1 랭크 6–50 기여 +0.304 3/3 양) + 사용자 승인 2026-08-20 "D arm
+진행해줘". §S13.45-D 사전약정의 이행 — **단일 arm, 스윕 금지**
+([10,20]·[5,10,20]·[50] 등 대안 조합 일절 금지).
+
+**arm 정의 (고정)**:
+- variant `variants/s13_47_ndcg20.yaml` = production 사본에서
+  `rank_eval_at: [5, 10]` → **`[20]` 교체**(신호 경로의 유일 delta;
+  그 외 변경은 label/display_name/portfolio_role/description/out_dir
+  뿐). **src·config 코드 변경 없음** — 기존 키 재사용이므로 구현
+  에이전트 불요, OFF-parity 개념 비적용(플래그 아님, variant 전용).
+- **신호 경로 변경임을 사전 명시**: 조기종료 기준이
+  min(argmax@5, argmax@10) → argmax@20으로 변경(§S13.8의 암묵적
+  용량 규제자 교체). avg_ic·예측·퇴화율·turnover 모두 변할 수 있음
+  — §S13.46(Σ-only)과 달리 avg_ic 동일성을 요구하지 않는다.
+
+**E1 게이트 (판정 primary, 측정 전 고정)**: 동일 워크북 빈티지
+(08-19 13:49) S0′ **IR 1.6287** 대비 full ΔIR > +0.36 AND 시간순
+3분할 부호 일관. **병기 의무(§S13.45-D arm 위험 기록 이행):
+퇴화율** — baseline **13/33(39.39%)** 대비 보고, 악화 시 E1 결과와
+무관하게 채택 전 별도 사용자 결정 필요 사유로 명시. 기타 병기:
+avg_ic, TE(실현 가드 4.5%), realized_beta, turnover, fallback율.
+판정 스크립트 `scripts/eval_s13_47_arm.py` →
+`outputs/s13_47_ndcg20/e1_summary.json`.
+
+**실행 계획**: 11:30 정기 배치 종료 대기(동시 백테스트 금지) →
+배치의 production 재현이 S0′와 동일(IR 1.6287 정확 재현)함을 확인
+(불일치 시 §9 — 진행 중단·보고) → schtasks 단일 foreground 백테스트
+1회 → E1 판정 → 독립 검증자. 인벤토리: arm 백테스트 1회 →
+**466 → 467**.

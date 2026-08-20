@@ -40,6 +40,14 @@ from src.portfolio_optimizer import (
 )
 from src.carry_te_conditioning import build_te_cap_multipliers
 from src.option_vol_cov import OPTION_VOL_SHEET, build_option_vol_scale
+from src.implied_corr_cov import (
+    CLIP_HI as ICORR_CLIP_HI,
+    CLIP_LO as ICORR_CLIP_LO,
+    IV_SHEET,
+    build_iv_panel,
+    compute_icorr_scale,
+    scale_off_diagonal,
+)
 from src.utils import annualise_return, compute_performance_metrics, compute_beta
 from src.features.utils import cross_sectional_zscore, cs_rank
 
@@ -2032,6 +2040,21 @@ def run_backtest(
             print(f"[Backtest] S13.41 option-vol cov scaling ON: "
                   f"non-inert cells {_nontrivial:.1%}")
 
+    # S13.46: implied-correlation off-diagonal scaling (decision log §S13.46).
+    # None while the flag is off (default), skipping IV panel/SPX prep
+    # entirely — same structural byte-identity idiom as the S13.41 block.
+    _icorr_panel = None
+    _icorr_scales = []
+    if getattr(config, "implied_corr_covariance_enabled", False):
+        _icorr_panel = build_iv_panel(data, returns.index, tickers)
+        if _icorr_panel is None:
+            logger.warning(
+                "[S13.46] implied_corr_covariance_enabled but the %r sheet "
+                "(or its SPX column) is unavailable — off-diagonal scaling "
+                "stays inert.", IV_SHEET)
+        else:
+            print("[Backtest] S13.46 icorr off-diag scaling ON")
+
     def _optimizer_fn(pred_row, hist_returns, prev_w, s_map, bm_w, diagnostics=None):
         cov_matrix = estimate_covariance(hist_returns, bm_weights=bm_w, config=config)
         # S13.41: diagonal-only adjustment BEFORE the diagnostics capture so
@@ -2040,6 +2063,15 @@ def run_backtest(
             _s = (_optvol_scale.loc[pred_row.name]
                   .reindex(pred_row.index).fillna(1.0).values)
             cov_matrix = np.diag(_s) @ cov_matrix @ np.diag(_s)
+        # S13.46: scalar off-diagonal adjustment AFTER the S13.41 diagonal
+        # step and BEFORE the diagnostics capture. s_t == 1.0 returns the
+        # same object (untouched path); scales collected for the summary.
+        if _icorr_panel is not None:
+            _s_ic = compute_icorr_scale(
+                pred_row.name, _icorr_panel[0], _icorr_panel[1],
+                hist_returns, bm_w)
+            _icorr_scales.append(_s_ic)
+            cov_matrix = scale_off_diagonal(cov_matrix, _s_ic)
         te_cap = config.max_te_annual
         if _te_mult is not None:
             m = _te_mult.asof(pred_row.name)
@@ -2154,6 +2186,19 @@ def run_backtest(
         result.factor_neutral_telemetry = {**_fn_telemetry, "impute_frac": impute_frac}
         print(f"[Backtest] factor-neutral live coverage: dates={_fn_telemetry['dates']} "
               f"impute_frac={impute_frac} inert_dates={_fn_telemetry['inert_dates']}")
+
+    # S13.46: per-rebalance s_t distribution summary (E1 evidence; print-only
+    # by preregistration — the detailed series stays out of diagnostics).
+    # Empty unless the flag is on and the IV panel was built, so OFF-default
+    # runs add no output.
+    if _icorr_scales:
+        _sc = np.asarray(_icorr_scales, float)
+        print(f"[Backtest] S13.46 icorr s_t: rebalances={_sc.size} "
+              f"non-inert={float((_sc != 1.0).mean()):.1%} "
+              f"min={float(_sc.min()):.3f} median={float(np.median(_sc)):.3f} "
+              f"max={float(_sc.max()):.3f} "
+              f"clip_lo={int((_sc == ICORR_CLIP_LO).sum())} "
+              f"clip_hi={int((_sc == ICORR_CLIP_HI).sum())}")
 
     # C-5: 진행 로그 기록
     progress.log("5-6", "DONE", f"리밸런싱 {len(result.portfolio_weights)}회")

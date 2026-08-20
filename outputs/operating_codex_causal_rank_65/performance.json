@@ -1,16 +1,16 @@
 {
   "as_of": "2026-08-19",
-  "annual_return": 0.2624924497098662,
-  "annual_vol": 0.19830048676063328,
-  "sharpe_ratio": 1.3237105667154436,
-  "active_return": 0.056308596754699236,
-  "tracking_error": 0.03457247935769319,
-  "information_ratio": 1.6287115590444121,
-  "realized_beta": 1.0418432930620658,
-  "avg_annual_turnover": 0.7522920015442452,
+  "annual_return": 0.26274867034560345,
+  "annual_vol": 0.19829810891908967,
+  "sharpe_ratio": 1.3250185378863655,
+  "active_return": 0.0563260218105488,
+  "tracking_error": 0.03457231453728244,
+  "information_ratio": 1.6292233414053716,
+  "realized_beta": 1.0418414135317098,
+  "avg_annual_turnover": 0.7523268212138899,
   "avg_ic": 0.02035085019178906,
-  "total_return": 5.459992557889054,
-  "bm_total_return": 3.2184139253156623,
+  "total_return": 5.470493575048477,
+  "bm_total_return": 3.224711850432482,
   "max_drawdown": -0.32286263998737286,
   "sub_period_ir": {
     "P1_ir": 1.3895469607271564,
@@ -90,11 +90,11 @@
       "active_vs_sp500": 0.1784
     },
     "2026": {
-      "portfolio": 0.237,
-      "benchmark": 0.1615,
-      "active": 0.0755,
+      "portfolio": 0.239,
+      "benchmark": 0.1632,
+      "active": 0.0758,
       "sp500": 0.1236,
-      "active_vs_sp500": 0.1134
+      "active_vs_sp500": 0.1154
     }
   },
   "optimizer_failure_rate": 0.0,

@@ -5,37 +5,37 @@
   },
   "method": "Arithmetic contribution using entering-day weights; excludes compounding. Residual captures transaction costs/timing.",
   "residual": {
-    "portfolio_gross_arithmetic": 2.0304,
-    "portfolio_reported_arithmetic": 2.024379,
-    "transaction_cost_and_timing_residual": 0.006021,
-    "benchmark_reconstructed_arithmetic": 1.581093,
-    "benchmark_reported_arithmetic": 1.581093,
-    "active_reconstructed_arithmetic": 0.449308,
-    "active_reported_arithmetic": 0.443286
+    "portfolio_gross_arithmetic": 2.032023,
+    "portfolio_reported_arithmetic": 2.026001,
+    "transaction_cost_and_timing_residual": 0.006022,
+    "benchmark_reconstructed_arithmetic": 1.582583,
+    "benchmark_reported_arithmetic": 1.582583,
+    "active_reconstructed_arithmetic": 0.44944,
+    "active_reported_arithmetic": 0.443418
   },
   "top_active_contributors": [
     {
       "ticker": "6857",
       "sector": "Technology",
       "currency": "JPY",
-      "portfolio_contribution": 0.094606,
-      "benchmark_contribution": 0.00335,
-      "active_contribution": 0.091256,
+      "portfolio_contribution": 0.094693,
+      "benchmark_contribution": 0.00337,
+      "active_contribution": 0.091323,
       "portfolio_local_contribution": 0.100062263,
-      "portfolio_fx_contribution": -0.0054566745,
-      "portfolio_usd_contribution": 0.0946055885,
+      "portfolio_fx_contribution": -0.0053696355,
+      "portfolio_usd_contribution": 0.0946926274,
       "benchmark_local_contribution": 0.003639186,
-      "benchmark_fx_contribution": -0.0002895945,
-      "benchmark_usd_contribution": 0.0033495915,
+      "benchmark_fx_contribution": -0.0002695423,
+      "benchmark_usd_contribution": 0.0033696437,
       "active_local_contribution": 0.096423077,
-      "active_fx_contribution": -0.00516708,
-      "active_usd_contribution": 0.091255997,
+      "active_fx_contribution": -0.0051000933,
+      "active_usd_contribution": 0.0913229837,
       "avg_weight": 0.017157,
       "avg_bm_weight": 0.0007,
       "avg_active_weight": 0.016458,
-      "latest_weight": 0.010325,
+      "latest_weight": 0.010395,
       "latest_bm_weight": 0.002395,
-      "latest_active": 0.00793
+      "latest_active": 0.008
     },
     {
       "ticker": "STX",
@@ -56,9 +56,9 @@
       "avg_weight": 0.00926,
       "avg_bm_weight": 0.00067,
       "avg_active_weight": 0.00859,
-      "latest_weight": 0.034671,
+      "latest_weight": 0.034649,
       "latest_bm_weight": 0.002993,
-      "latest_active": 0.031678
+      "latest_active": 0.031655
     },
     {
       "ticker": "PLTR",
@@ -79,9 +79,9 @@
       "avg_weight": 0.009416,
       "avg_bm_weight": 0.001833,
       "avg_active_weight": 0.007583,
-      "latest_weight": 0.020098,
+      "latest_weight": 0.020064,
       "latest_bm_weight": 0.006022,
-      "latest_active": 0.014075
+      "latest_active": 0.014042
     },
     {
       "ticker": "TSLA",
@@ -102,9 +102,9 @@
       "avg_weight": 0.029807,
       "avg_bm_weight": 0.017319,
       "avg_active_weight": 0.012488,
-      "latest_weight": 0.015746,
+      "latest_weight": 0.015719,
       "latest_bm_weight": 0.019446,
-      "latest_active": -0.0037
+      "latest_active": -0.003726
     },
     {
       "ticker": "MU",
@@ -125,9 +125,9 @@
       "avg_weight": 0.004924,
       "avg_bm_weight": 0.00316,
       "avg_active_weight": 0.001764,
-      "latest_weight": 0.045892,
+      "latest_weight": 0.045816,
       "latest_bm_weight": 0.015529,
-      "latest_active": 0.030363
+      "latest_active": 0.030287
     },
     {
       "ticker": "AXON",
@@ -148,9 +148,9 @@
       "avg_weight": 0.00942,
       "avg_bm_weight": 0.000445,
       "avg_active_weight": 0.008976,
-      "latest_weight": 0.005035,
+      "latest_weight": 0.005055,
       "latest_bm_weight": 0.000736,
-      "latest_active": 0.004299
+      "latest_active": 0.004319
     },
     {
       "ticker": "AMD",
@@ -171,9 +171,9 @@
       "avg_weight": 0.014251,
       "avg_bm_weight": 0.004336,
       "avg_active_weight": 0.009915,
-      "latest_weight": 0.006517,
+      "latest_weight": 0.006506,
       "latest_bm_weight": 0.011557,
-      "latest_active": -0.00504
+      "latest_active": -0.005052
     },
     {
       "ticker": "VRT",
@@ -194,9 +194,9 @@
       "avg_weight": 0.004505,
       "avg_bm_weight": 0.000467,
       "avg_active_weight": 0.004039,
-      "latest_weight": 0.001022,
+      "latest_weight": 0.00102,
       "latest_bm_weight": 0.001534,
-      "latest_active": -0.000511
+      "latest_active": -0.000514
     },
     {
       "ticker": "FTNT",
@@ -217,9 +217,9 @@
       "avg_weight": 0.007474,
       "avg_bm_weight": 0.001167,
       "avg_active_weight": 0.006307,
-      "latest_weight": 7.5e-05,
+      "latest_weight": 7.4e-05,
       "latest_bm_weight": 0.001694,
-      "latest_active": -0.001619
+      "latest_active": -0.001621
     },
     {
       "ticker": "CRWD",
@@ -240,9 +240,9 @@
       "avg_weight": 0.009257,
       "avg_bm_weight": 0.001331,
       "avg_active_weight": 0.007926,
-      "latest_weight": 0.000871,
+      "latest_weight": 0.000868,
       "latest_bm_weight": 0.003169,
-      "latest_active": -0.002298
+      "latest_active": -0.0023
     },
     {
       "ticker": "DASH",
@@ -263,9 +263,9 @@
       "avg_weight": 0.005459,
       "avg_bm_weight": 0.000921,
       "avg_active_weight": 0.004537,
-      "latest_weight": 0.001133,
+      "latest_weight": 0.001131,
       "latest_bm_weight": 0.00137,
-      "latest_active": -0.000237
+      "latest_active": -0.00024
     },
     {
       "ticker": "NEM",
@@ -286,9 +286,9 @@
       "avg_weight": 0.003372,
       "avg_bm_weight": 0.001401,
       "avg_active_weight": 0.001971,
-      "latest_weight": 0.009427,
+      "latest_weight": 0.009411,
       "latest_bm_weight": 0.001786,
-      "latest_active": 0.007641
+      "latest_active": 0.007625
     },
     {
       "ticker": "FN",
@@ -309,9 +309,9 @@
       "avg_weight": 0.001588,
       "avg_bm_weight": 0.000149,
       "avg_active_weight": 0.001439,
-      "latest_weight": 0.000153,
+      "latest_weight": 0.000152,
       "latest_bm_weight": 0.000253,
-      "latest_active": -0.0001
+      "latest_active": -0.000101
     },
     {
       "ticker": "MPC",
@@ -332,32 +332,32 @@
       "avg_weight": 0.006568,
       "avg_bm_weight": 0.00135,
       "avg_active_weight": 0.005218,
-      "latest_weight": 0.00296,
+      "latest_weight": 0.002955,
       "latest_bm_weight": 0.001503,
-      "latest_active": 0.001457
+      "latest_active": 0.001451
     },
     {
       "ticker": "8035",
       "sector": "Technology",
       "currency": "JPY",
-      "portfolio_contribution": 0.017057,
-      "benchmark_contribution": 0.003783,
-      "active_contribution": 0.013274,
+      "portfolio_contribution": 0.017128,
+      "benchmark_contribution": 0.003803,
+      "active_contribution": 0.013326,
       "portfolio_local_contribution": 0.0167475592,
-      "portfolio_fx_contribution": 0.0003097115,
-      "portfolio_usd_contribution": 0.0170572707,
+      "portfolio_fx_contribution": 0.0003807805,
+      "portfolio_usd_contribution": 0.0171283397,
       "benchmark_local_contribution": 0.0045876013,
-      "benchmark_fx_contribution": -0.0008045298,
-      "benchmark_usd_contribution": 0.0037830715,
+      "benchmark_fx_contribution": -0.0007848697,
+      "benchmark_usd_contribution": 0.0038027316,
       "active_local_contribution": 0.012159958,
-      "active_fx_contribution": 0.0011142412,
-      "active_usd_contribution": 0.0132741992,
+      "active_fx_contribution": 0.0011656502,
+      "active_usd_contribution": 0.0133256082,
       "avg_weight": 0.006714,
       "avg_bm_weight": 0.001803,
       "avg_active_weight": 0.004911,
-      "latest_weight": 0.008408,
+      "latest_weight": 0.008464,
       "latest_bm_weight": 0.002343,
-      "latest_active": 0.006065
+      "latest_active": 0.006121
     }
   ],
   "bottom_active_contributors": [
@@ -380,26 +380,26 @@
       "avg_weight": 0.008134,
       "avg_bm_weight": 0.011776,
       "avg_active_weight": -0.003643,
-      "latest_weight": 0.028473,
+      "latest_weight": 0.028426,
       "latest_bm_weight": 0.026423,
-      "latest_active": 0.002049
+      "latest_active": 0.002002
     },
     {
       "ticker": "NOVOB",
       "sector": "Healthcare",
       "currency": "DKK",
-      "portfolio_contribution": -0.000978,
-      "benchmark_contribution": 0.008717,
-      "active_contribution": -0.009695,
+      "portfolio_contribution": -0.000926,
+      "benchmark_contribution": 0.008744,
+      "active_contribution": -0.009669,
       "portfolio_local_contribution": -0.0029647033,
-      "portfolio_fx_contribution": 0.0019863392,
-      "portfolio_usd_contribution": -0.0009783641,
+      "portfolio_fx_contribution": 0.0020391147,
+      "portfolio_usd_contribution": -0.0009255886,
       "benchmark_local_contribution": 0.0085304653,
-      "benchmark_fx_contribution": 0.0001861087,
-      "benchmark_usd_contribution": 0.008716574,
+      "benchmark_fx_contribution": 0.0002132651,
+      "benchmark_usd_contribution": 0.0087437304,
       "active_local_contribution": -0.0114951687,
-      "active_fx_contribution": 0.0018002305,
-      "active_usd_contribution": -0.0096949381,
+      "active_fx_contribution": 0.0018258496,
+      "active_usd_contribution": -0.0096693191,
       "avg_weight": 0.009252,
       "avg_bm_weight": 0.007518,
       "avg_active_weight": 0.001734,
@@ -426,9 +426,9 @@
       "avg_weight": 0.013929,
       "avg_bm_weight": 0.017368,
       "avg_active_weight": -0.003438,
-      "latest_weight": 0.022467,
+      "latest_weight": 0.022429,
       "latest_bm_weight": 0.031338,
-      "latest_active": -0.008871
+      "latest_active": -0.008909
     },
     {
       "ticker": "MRVL",
@@ -449,32 +449,32 @@
       "avg_weight": 0.001933,
       "avg_bm_weight": 0.001274,
       "avg_active_weight": 0.000659,
-      "latest_weight": 0.000359,
+      "latest_weight": 0.000357,
       "latest_bm_weight": 0.002762,
-      "latest_active": -0.002403
+      "latest_active": -0.002404
     },
     {
       "ticker": "000660",
       "sector": "Technology",
       "currency": "KRW",
-      "portfolio_contribution": 0.004725,
-      "benchmark_contribution": 0.013455,
-      "active_contribution": -0.00873,
+      "portfolio_contribution": 0.004825,
+      "benchmark_contribution": 0.013618,
+      "active_contribution": -0.008794,
       "portfolio_local_contribution": 0.0062794563,
-      "portfolio_fx_contribution": -0.0015544387,
-      "portfolio_usd_contribution": 0.0047250176,
+      "portfolio_fx_contribution": -0.001454817,
+      "portfolio_usd_contribution": 0.0048246394,
       "benchmark_local_contribution": 0.013737024,
-      "benchmark_fx_contribution": -0.0002824951,
-      "benchmark_usd_contribution": 0.0134545288,
+      "benchmark_fx_contribution": -0.0001185867,
+      "benchmark_usd_contribution": 0.0136184373,
       "active_local_contribution": -0.0074575676,
-      "active_fx_contribution": -0.0012719436,
-      "active_usd_contribution": -0.0087295112,
+      "active_fx_contribution": -0.0013362303,
+      "active_usd_contribution": -0.0087937979,
       "avg_weight": 0.003488,
       "avg_bm_weight": 0.002894,
       "avg_active_weight": 0.000594,
-      "latest_weight": 0.006785,
+      "latest_weight": 0.006872,
       "latest_bm_weight": 0.011609,
-      "latest_active": -0.004825
+      "latest_active": -0.004737
     },
     {
       "ticker": "V",
@@ -495,9 +495,9 @@
       "avg_weight": 0.005566,
       "avg_bm_weight": 0.014585,
       "avg_active_weight": -0.00902,
-      "latest_weight": 0.003456,
+      "latest_weight": 0.003449,
       "latest_bm_weight": 0.00994,
-      "latest_active": -0.006484
+      "latest_active": -0.006491
     },
     {
       "ticker": "LRCX",
@@ -526,24 +526,24 @@
       "ticker": "MC",
       "sector": "Consumer Discretionary",
       "currency": "EUR",
-      "portfolio_contribution": 0.002129,
-      "benchmark_contribution": 0.010025,
-      "active_contribution": -0.007896,
+      "portfolio_contribution": 0.002162,
+      "benchmark_contribution": 0.010059,
+      "active_contribution": -0.007897,
       "portfolio_local_contribution": 0.0019309299,
-      "portfolio_fx_contribution": 0.0001985612,
-      "portfolio_usd_contribution": 0.0021294911,
+      "portfolio_fx_contribution": 0.0002310982,
+      "portfolio_usd_contribution": 0.0021620281,
       "benchmark_local_contribution": 0.0096894911,
-      "benchmark_fx_contribution": 0.0003356577,
-      "benchmark_usd_contribution": 0.0100251488,
+      "benchmark_fx_contribution": 0.0003693076,
+      "benchmark_usd_contribution": 0.0100587987,
       "active_local_contribution": -0.0077585612,
-      "active_fx_contribution": -0.0001370965,
-      "active_usd_contribution": -0.0078956577,
+      "active_fx_contribution": -0.0001382094,
+      "active_usd_contribution": -0.0078967706,
       "avg_weight": 0.005447,
       "avg_bm_weight": 0.009283,
       "avg_active_weight": -0.003836,
-      "latest_weight": 0.003502,
+      "latest_weight": 0.003528,
       "latest_bm_weight": 0.003746,
-      "latest_active": -0.000244
+      "latest_active": -0.000218
     },
     {
       "ticker": "BRK/B",
@@ -564,9 +564,9 @@
       "avg_weight": 0.012235,
       "avg_bm_weight": 0.020704,
       "avg_active_weight": -0.008469,
-      "latest_weight": 0.012062,
+      "latest_weight": 0.012042,
       "latest_bm_weight": 0.015659,
-      "latest_active": -0.003597
+      "latest_active": -0.003617
     },
     {
       "ticker": "DELL",
@@ -587,9 +587,9 @@
       "avg_weight": 0.002026,
       "avg_bm_weight": 0.001643,
       "avg_active_weight": 0.000384,
-      "latest_weight": 0.004675,
+      "latest_weight": 0.004694,
       "latest_bm_weight": 0.004426,
-      "latest_active": 0.000249
+      "latest_active": 0.000268
     },
     {
       "ticker": "GOOGL",
@@ -615,29 +615,6 @@
       "latest_active": 0.0
     },
     {
-      "ticker": "005930",
-      "sector": "Technology",
-      "currency": "KRW",
-      "portfolio_contribution": 0.011812,
-      "benchmark_contribution": 0.018528,
-      "active_contribution": -0.006716,
-      "portfolio_local_contribution": 0.0118048457,
-      "portfolio_fx_contribution": 7.3078e-06,
-      "portfolio_usd_contribution": 0.0118121535,
-      "benchmark_local_contribution": 0.0201560356,
-      "benchmark_fx_contribution": -0.0016282582,
-      "benchmark_usd_contribution": 0.0185277774,
-      "active_local_contribution": -0.0083511899,
-      "active_fx_contribution": 0.001635566,
-      "active_usd_contribution": -0.0067156239,
-      "avg_weight": 0.007375,
-      "avg_bm_weight": 0.009939,
-      "avg_active_weight": -0.002564,
-      "latest_weight": 0.025156,
-      "latest_bm_weight": 0.015202,
-      "latest_active": 0.009954
-    },
-    {
       "ticker": "NVDA",
       "sector": "Technology",
       "currency": "USD",
@@ -659,6 +636,29 @@
       "latest_weight": 0.077722,
       "latest_bm_weight": 0.077722,
       "latest_active": 0.0
+    },
+    {
+      "ticker": "005930",
+      "sector": "Technology",
+      "currency": "KRW",
+      "portfolio_contribution": 0.012128,
+      "benchmark_contribution": 0.018748,
+      "active_contribution": -0.00662,
+      "portfolio_local_contribution": 0.0118048457,
+      "portfolio_fx_contribution": 0.0003232074,
+      "portfolio_usd_contribution": 0.0121280531,
+      "benchmark_local_contribution": 0.0201560356,
+      "benchmark_fx_contribution": -0.0014083942,
+      "benchmark_usd_contribution": 0.0187476414,
+      "active_local_contribution": -0.0083511899,
+      "active_fx_contribution": 0.0017316016,
+      "active_usd_contribution": -0.0066195883,
+      "avg_weight": 0.007375,
+      "avg_bm_weight": 0.009939,
+      "avg_active_weight": -0.002564,
+      "latest_weight": 0.025211,
+      "latest_bm_weight": 0.015202,
+      "latest_active": 0.010009
     },
     {
       "ticker": "AMAT",
@@ -702,9 +702,9 @@
       "avg_weight": 0.005646,
       "avg_bm_weight": 0.010602,
       "avg_active_weight": -0.004955,
-      "latest_weight": 0.006441,
+      "latest_weight": 0.00643,
       "latest_bm_weight": 0.007355,
-      "latest_active": -0.000913
+      "latest_active": -0.000925
     }
   ],
   "by_ticker": [
@@ -712,24 +712,24 @@
       "ticker": "6857",
       "sector": "Technology",
       "currency": "JPY",
-      "portfolio_contribution": 0.094606,
-      "benchmark_contribution": 0.00335,
-      "active_contribution": 0.091256,
+      "portfolio_contribution": 0.094693,
+      "benchmark_contribution": 0.00337,
+      "active_contribution": 0.091323,
       "portfolio_local_contribution": 0.100062263,
-      "portfolio_fx_contribution": -0.0054566745,
-      "portfolio_usd_contribution": 0.0946055885,
+      "portfolio_fx_contribution": -0.0053696355,
+      "portfolio_usd_contribution": 0.0946926274,
       "benchmark_local_contribution": 0.003639186,
-      "benchmark_fx_contribution": -0.0002895945,
-      "benchmark_usd_contribution": 0.0033495915,
+      "benchmark_fx_contribution": -0.0002695423,
+      "benchmark_usd_contribution": 0.0033696437,
       "active_local_contribution": 0.096423077,
-      "active_fx_contribution": -0.00516708,
-      "active_usd_contribution": 0.091255997,
+      "active_fx_contribution": -0.0051000933,
+      "active_usd_contribution": 0.0913229837,
       "avg_weight": 0.017157,
       "avg_bm_weight": 0.0007,
       "avg_active_weight": 0.016458,
-      "latest_weight": 0.010325,
+      "latest_weight": 0.010395,
       "latest_bm_weight": 0.002395,
-      "latest_active": 0.00793
+      "latest_active": 0.008
     },
     {
       "ticker": "STX",
@@ -750,9 +750,9 @@
       "avg_weight": 0.00926,
       "avg_bm_weight": 0.00067,
       "avg_active_weight": 0.00859,
-      "latest_weight": 0.034671,
+      "latest_weight": 0.034649,
       "latest_bm_weight": 0.002993,
-      "latest_active": 0.031678
+      "latest_active": 0.031655
     },
     {
       "ticker": "PLTR",
@@ -773,9 +773,9 @@
       "avg_weight": 0.009416,
       "avg_bm_weight": 0.001833,
       "avg_active_weight": 0.007583,
-      "latest_weight": 0.020098,
+      "latest_weight": 0.020064,
       "latest_bm_weight": 0.006022,
-      "latest_active": 0.014075
+      "latest_active": 0.014042
     },
     {
       "ticker": "TSLA",
@@ -796,9 +796,9 @@
       "avg_weight": 0.029807,
       "avg_bm_weight": 0.017319,
       "avg_active_weight": 0.012488,
-      "latest_weight": 0.015746,
+      "latest_weight": 0.015719,
       "latest_bm_weight": 0.019446,
-      "latest_active": -0.0037
+      "latest_active": -0.003726
     },
     {
       "ticker": "MU",
@@ -819,9 +819,9 @@
       "avg_weight": 0.004924,
       "avg_bm_weight": 0.00316,
       "avg_active_weight": 0.001764,
-      "latest_weight": 0.045892,
+      "latest_weight": 0.045816,
       "latest_bm_weight": 0.015529,
-      "latest_active": 0.030363
+      "latest_active": 0.030287
     },
     {
       "ticker": "AXON",
@@ -842,9 +842,9 @@
       "avg_weight": 0.00942,
       "avg_bm_weight": 0.000445,
       "avg_active_weight": 0.008976,
-      "latest_weight": 0.005035,
+      "latest_weight": 0.005055,
       "latest_bm_weight": 0.000736,
-      "latest_active": 0.004299
+      "latest_active": 0.004319
     },
     {
       "ticker": "AMD",
@@ -865,9 +865,9 @@
       "avg_weight": 0.014251,
       "avg_bm_weight": 0.004336,
       "avg_active_weight": 0.009915,
-      "latest_weight": 0.006517,
+      "latest_weight": 0.006506,
       "latest_bm_weight": 0.011557,
-      "latest_active": -0.00504
+      "latest_active": -0.005052
     },
     {
       "ticker": "VRT",
@@ -888,9 +888,9 @@
       "avg_weight": 0.004505,
       "avg_bm_weight": 0.000467,
       "avg_active_weight": 0.004039,
-      "latest_weight": 0.001022,
+      "latest_weight": 0.00102,
       "latest_bm_weight": 0.001534,
-      "latest_active": -0.000511
+      "latest_active": -0.000514
     },
     {
       "ticker": "FTNT",
@@ -911,9 +911,9 @@
       "avg_weight": 0.007474,
       "avg_bm_weight": 0.001167,
       "avg_active_weight": 0.006307,
-      "latest_weight": 7.5e-05,
+      "latest_weight": 7.4e-05,
       "latest_bm_weight": 0.001694,
-      "latest_active": -0.001619
+      "latest_active": -0.001621
     },
     {
       "ticker": "CRWD",
@@ -934,9 +934,9 @@
       "avg_weight": 0.009257,
       "avg_bm_weight": 0.001331,
       "avg_active_weight": 0.007926,
-      "latest_weight": 0.000871,
+      "latest_weight": 0.000868,
       "latest_bm_weight": 0.003169,
-      "latest_active": -0.002298
+      "latest_active": -0.0023
     },
     {
       "ticker": "DASH",
@@ -957,9 +957,9 @@
       "avg_weight": 0.005459,
       "avg_bm_weight": 0.000921,
       "avg_active_weight": 0.004537,
-      "latest_weight": 0.001133,
+      "latest_weight": 0.001131,
       "latest_bm_weight": 0.00137,
-      "latest_active": -0.000237
+      "latest_active": -0.00024
     },
     {
       "ticker": "NEM",
@@ -980,9 +980,9 @@
       "avg_weight": 0.003372,
       "avg_bm_weight": 0.001401,
       "avg_active_weight": 0.001971,
-      "latest_weight": 0.009427,
+      "latest_weight": 0.009411,
       "latest_bm_weight": 0.001786,
-      "latest_active": 0.007641
+      "latest_active": 0.007625
     },
     {
       "ticker": "FN",
@@ -1003,9 +1003,9 @@
       "avg_weight": 0.001588,
       "avg_bm_weight": 0.000149,
       "avg_active_weight": 0.001439,
-      "latest_weight": 0.000153,
+      "latest_weight": 0.000152,
       "latest_bm_weight": 0.000253,
-      "latest_active": -0.0001
+      "latest_active": -0.000101
     },
     {
       "ticker": "MPC",
@@ -1026,32 +1026,32 @@
       "avg_weight": 0.006568,
       "avg_bm_weight": 0.00135,
       "avg_active_weight": 0.005218,
-      "latest_weight": 0.00296,
+      "latest_weight": 0.002955,
       "latest_bm_weight": 0.001503,
-      "latest_active": 0.001457
+      "latest_active": 0.001451
     },
     {
       "ticker": "8035",
       "sector": "Technology",
       "currency": "JPY",
-      "portfolio_contribution": 0.017057,
-      "benchmark_contribution": 0.003783,
-      "active_contribution": 0.013274,
+      "portfolio_contribution": 0.017128,
+      "benchmark_contribution": 0.003803,
+      "active_contribution": 0.013326,
       "portfolio_local_contribution": 0.0167475592,
-      "portfolio_fx_contribution": 0.0003097115,
-      "portfolio_usd_contribution": 0.0170572707,
+      "portfolio_fx_contribution": 0.0003807805,
+      "portfolio_usd_contribution": 0.0171283397,
       "benchmark_local_contribution": 0.0045876013,
-      "benchmark_fx_contribution": -0.0008045298,
-      "benchmark_usd_contribution": 0.0037830715,
+      "benchmark_fx_contribution": -0.0007848697,
+      "benchmark_usd_contribution": 0.0038027316,
       "active_local_contribution": 0.012159958,
-      "active_fx_contribution": 0.0011142412,
-      "active_usd_contribution": 0.0132741992,
+      "active_fx_contribution": 0.0011656502,
+      "active_usd_contribution": 0.0133256082,
       "avg_weight": 0.006714,
       "avg_bm_weight": 0.001803,
       "avg_active_weight": 0.004911,
-      "latest_weight": 0.008408,
+      "latest_weight": 0.008464,
       "latest_bm_weight": 0.002343,
-      "latest_active": 0.006065
+      "latest_active": 0.006121
     },
     {
       "ticker": "LLY",
@@ -1072,9 +1072,9 @@
       "avg_weight": 0.014075,
       "avg_bm_weight": 0.010684,
       "avg_active_weight": 0.003391,
-      "latest_weight": 0.04315,
+      "latest_weight": 0.043079,
       "latest_bm_weight": 0.016864,
-      "latest_active": 0.026286
+      "latest_active": 0.026215
     },
     {
       "ticker": "BE",
@@ -1103,24 +1103,24 @@
       "ticker": "6146",
       "sector": "Technology",
       "currency": "JPY",
-      "portfolio_contribution": 0.011983,
-      "benchmark_contribution": 0.001045,
-      "active_contribution": 0.010938,
+      "portfolio_contribution": 0.012058,
+      "benchmark_contribution": 0.00105,
+      "active_contribution": 0.011008,
       "portfolio_local_contribution": 0.0132739865,
-      "portfolio_fx_contribution": -0.0012906936,
-      "portfolio_usd_contribution": 0.011983293,
+      "portfolio_fx_contribution": -0.0012157053,
+      "portfolio_usd_contribution": 0.0120582812,
       "benchmark_local_contribution": 0.0012017442,
-      "benchmark_fx_contribution": -0.0001568698,
-      "benchmark_usd_contribution": 0.0010448744,
+      "benchmark_fx_contribution": -0.0001518289,
+      "benchmark_usd_contribution": 0.0010499154,
       "active_local_contribution": 0.0120722423,
-      "active_fx_contribution": -0.0011338238,
-      "active_usd_contribution": 0.0109384186,
+      "active_fx_contribution": -0.0010638765,
+      "active_usd_contribution": 0.0110083658,
       "avg_weight": 0.003448,
       "avg_bm_weight": 0.000462,
       "avg_active_weight": 0.002986,
-      "latest_weight": 0.008878,
+      "latest_weight": 0.008938,
       "latest_bm_weight": 0.0006,
-      "latest_active": 0.008278
+      "latest_active": 0.008338
     },
     {
       "ticker": "TTD",
@@ -1164,9 +1164,9 @@
       "avg_weight": 0.006547,
       "avg_bm_weight": 0.001547,
       "avg_active_weight": 0.004999,
-      "latest_weight": 0.000344,
+      "latest_weight": 0.000343,
       "latest_bm_weight": 0.000688,
-      "latest_active": -0.000344
+      "latest_active": -0.000345
     },
     {
       "ticker": "LNG",
@@ -1187,9 +1187,9 @@
       "avg_weight": 0.002722,
       "avg_bm_weight": 0.000865,
       "avg_active_weight": 0.001856,
-      "latest_weight": 0.000611,
+      "latest_weight": 0.000609,
       "latest_bm_weight": 0.000826,
-      "latest_active": -0.000215
+      "latest_active": -0.000217
     },
     {
       "ticker": "ABNB",
@@ -1210,9 +1210,9 @@
       "avg_weight": 0.00233,
       "avg_bm_weight": 0.001606,
       "avg_active_weight": 0.000724,
-      "latest_weight": 0.001356,
+      "latest_weight": 0.001353,
       "latest_bm_weight": 0.001604,
-      "latest_active": -0.000247
+      "latest_active": -0.000251
     },
     {
       "ticker": "PANW",
@@ -1233,9 +1233,9 @@
       "avg_weight": 0.003368,
       "avg_bm_weight": 0.001737,
       "avg_active_weight": 0.001631,
-      "latest_weight": 0.001217,
+      "latest_weight": 0.001214,
       "latest_bm_weight": 0.004457,
-      "latest_active": -0.00324
+      "latest_active": -0.003243
     },
     {
       "ticker": "MPWR",
@@ -1264,24 +1264,24 @@
       "ticker": "7974",
       "sector": "Communication Services",
       "currency": "JPY",
-      "portfolio_contribution": 0.009875,
-      "benchmark_contribution": 0.002063,
+      "portfolio_contribution": 0.009884,
+      "benchmark_contribution": 0.002072,
       "active_contribution": 0.007812,
       "portfolio_local_contribution": 0.009207515,
-      "portfolio_fx_contribution": 0.0006678804,
-      "portfolio_usd_contribution": 0.0098753953,
+      "portfolio_fx_contribution": 0.0006762186,
+      "portfolio_usd_contribution": 0.0098837336,
       "benchmark_local_contribution": 0.0026648136,
-      "benchmark_fx_contribution": -0.0006016005,
-      "benchmark_usd_contribution": 0.0020632131,
+      "benchmark_fx_contribution": -0.0005931539,
+      "benchmark_usd_contribution": 0.0020716597,
       "active_local_contribution": 0.0065427014,
-      "active_fx_contribution": 0.0012694809,
-      "active_usd_contribution": 0.0078121823,
+      "active_fx_contribution": 0.0012693725,
+      "active_usd_contribution": 0.0078120739,
       "avg_weight": 0.00544,
       "avg_bm_weight": 0.001907,
       "avg_active_weight": 0.003533,
-      "latest_weight": 0.000876,
+      "latest_weight": 0.000882,
       "latest_bm_weight": 0.001012,
-      "latest_active": -0.000136
+      "latest_active": -0.00013
     },
     {
       "ticker": "WFC",
@@ -1302,9 +1302,9 @@
       "avg_weight": 0.006996,
       "avg_bm_weight": 0.005735,
       "avg_active_weight": 0.00126,
-      "latest_weight": 0.001812,
+      "latest_weight": 0.001808,
       "latest_bm_weight": 0.003863,
-      "latest_active": -0.002051
+      "latest_active": -0.002055
     },
     {
       "ticker": "ANET",
@@ -1333,24 +1333,24 @@
       "ticker": "SHEL",
       "sector": "Energy",
       "currency": "GBP",
-      "portfolio_contribution": 0.008784,
-      "benchmark_contribution": 0.002809,
-      "active_contribution": 0.005975,
+      "portfolio_contribution": 0.008798,
+      "benchmark_contribution": 0.002831,
+      "active_contribution": 0.005967,
       "portfolio_local_contribution": 0.0078744667,
-      "portfolio_fx_contribution": 0.0009094368,
-      "portfolio_usd_contribution": 0.0087839035,
+      "portfolio_fx_contribution": 0.0009231108,
+      "portfolio_usd_contribution": 0.0087975775,
       "benchmark_local_contribution": 0.0024793359,
-      "benchmark_fx_contribution": 0.0003298353,
-      "benchmark_usd_contribution": 0.0028091712,
+      "benchmark_fx_contribution": 0.0003512065,
+      "benchmark_usd_contribution": 0.0028305424,
       "active_local_contribution": 0.0053951307,
-      "active_fx_contribution": 0.0005796015,
-      "active_usd_contribution": 0.0059747323,
+      "active_fx_contribution": 0.0005719043,
+      "active_usd_contribution": 0.005967035,
       "avg_weight": 0.005927,
       "avg_bm_weight": 0.006066,
       "avg_active_weight": -0.000139,
-      "latest_weight": 0.002282,
+      "latest_weight": 0.002291,
       "latest_bm_weight": 0.003721,
-      "latest_active": -0.001439
+      "latest_active": -0.00143
     },
     {
       "ticker": "ADBE",
@@ -1371,26 +1371,26 @@
       "avg_weight": 0.005923,
       "avg_bm_weight": 0.005756,
       "avg_active_weight": 0.000167,
-      "latest_weight": 0.019851,
+      "latest_weight": 0.019818,
       "latest_bm_weight": 0.001529,
-      "latest_active": 0.018322
+      "latest_active": 0.018289
     },
     {
       "ticker": "6981",
       "sector": "Technology",
       "currency": "JPY",
       "portfolio_contribution": 0.006844,
-      "benchmark_contribution": 0.001417,
-      "active_contribution": 0.005427,
+      "benchmark_contribution": 0.001429,
+      "active_contribution": 0.005416,
       "portfolio_local_contribution": 0.0071883905,
-      "portfolio_fx_contribution": -0.0003441904,
-      "portfolio_usd_contribution": 0.0068442002,
+      "portfolio_fx_contribution": -0.0003439657,
+      "portfolio_usd_contribution": 0.0068444249,
       "benchmark_local_contribution": 0.0018332871,
-      "benchmark_fx_contribution": -0.0004159519,
-      "benchmark_usd_contribution": 0.0014173352,
+      "benchmark_fx_contribution": -0.0004046133,
+      "benchmark_usd_contribution": 0.0014286738,
       "active_local_contribution": 0.0053551034,
-      "active_fx_contribution": 7.17615e-05,
-      "active_usd_contribution": 0.005426865,
+      "active_fx_contribution": 6.06476e-05,
+      "active_usd_contribution": 0.005415751,
       "avg_weight": 0.003206,
       "avg_bm_weight": 0.001262,
       "avg_active_weight": 0.001944,
@@ -1417,9 +1417,9 @@
       "avg_weight": 0.001032,
       "avg_bm_weight": 0.00077,
       "avg_active_weight": 0.000262,
-      "latest_weight": 0.003501,
+      "latest_weight": 0.003494,
       "latest_bm_weight": 0.00391,
-      "latest_active": -0.000409
+      "latest_active": -0.000416
     },
     {
       "ticker": "REGN",
@@ -1440,9 +1440,9 @@
       "avg_weight": 0.004629,
       "avg_bm_weight": 0.001986,
       "avg_active_weight": 0.002643,
-      "latest_weight": 0.00116,
+      "latest_weight": 0.001157,
       "latest_bm_weight": 0.001219,
-      "latest_active": -5.9e-05
+      "latest_active": -6.2e-05
     },
     {
       "ticker": "META",
@@ -1463,9 +1463,9 @@
       "avg_weight": 0.024291,
       "avg_bm_weight": 0.024797,
       "avg_active_weight": -0.000507,
-      "latest_weight": 0.017125,
+      "latest_weight": 0.017096,
       "latest_bm_weight": 0.020243,
-      "latest_active": -0.003118
+      "latest_active": -0.003147
     },
     {
       "ticker": "ORLY",
@@ -1486,32 +1486,32 @@
       "avg_weight": 0.001798,
       "avg_bm_weight": 0.001402,
       "avg_active_weight": 0.000396,
-      "latest_weight": 0.000869,
+      "latest_weight": 0.000866,
       "latest_bm_weight": 0.001073,
-      "latest_active": -0.000204
+      "latest_active": -0.000207
     },
     {
       "ticker": "RHM",
       "sector": "Industrials",
       "currency": "EUR",
-      "portfolio_contribution": 0.004852,
-      "benchmark_contribution": 0.001531,
-      "active_contribution": 0.003321,
+      "portfolio_contribution": 0.004886,
+      "benchmark_contribution": 0.001539,
+      "active_contribution": 0.003346,
       "portfolio_local_contribution": 0.0040790904,
-      "portfolio_fx_contribution": 0.0007727952,
-      "portfolio_usd_contribution": 0.0048518856,
+      "portfolio_fx_contribution": 0.0008064747,
+      "portfolio_usd_contribution": 0.0048855651,
       "benchmark_local_contribution": 0.0013924621,
-      "benchmark_fx_contribution": 0.0001383128,
-      "benchmark_usd_contribution": 0.0015307749,
+      "benchmark_fx_contribution": 0.0001469128,
+      "benchmark_usd_contribution": 0.0015393749,
       "active_local_contribution": 0.0026866283,
-      "active_fx_contribution": 0.0006344824,
-      "active_usd_contribution": 0.0033211107,
+      "active_fx_contribution": 0.0006595619,
+      "active_usd_contribution": 0.0033461902,
       "avg_weight": 0.001936,
       "avg_bm_weight": 0.000503,
       "avg_active_weight": 0.001433,
-      "latest_weight": 0.00363,
+      "latest_weight": 0.003657,
       "latest_bm_weight": 0.00096,
-      "latest_active": 0.00267
+      "latest_active": 0.002697
     },
     {
       "ticker": "TER",
@@ -1532,9 +1532,9 @@
       "avg_weight": 0.000679,
       "avg_bm_weight": 0.000501,
       "avg_active_weight": 0.000178,
-      "latest_weight": 0.007433,
+      "latest_weight": 0.00742,
       "latest_bm_weight": 0.000924,
-      "latest_active": 0.006509
+      "latest_active": 0.006496
     },
     {
       "ticker": "XOM",
@@ -1555,9 +1555,9 @@
       "avg_weight": 0.010432,
       "avg_bm_weight": 0.010747,
       "avg_active_weight": -0.000315,
-      "latest_weight": 0.006793,
+      "latest_weight": 0.006781,
       "latest_bm_weight": 0.010029,
-      "latest_active": -0.003236
+      "latest_active": -0.003248
     },
     {
       "ticker": "MSI",
@@ -1578,9 +1578,9 @@
       "avg_weight": 0.002267,
       "avg_bm_weight": 0.001251,
       "avg_active_weight": 0.001016,
-      "latest_weight": 0.000897,
+      "latest_weight": 0.000894,
       "latest_bm_weight": 0.001136,
-      "latest_active": -0.000239
+      "latest_active": -0.000241
     },
     {
       "ticker": "LITE",
@@ -1601,9 +1601,9 @@
       "avg_weight": 0.000626,
       "avg_bm_weight": 0.000224,
       "avg_active_weight": 0.000402,
-      "latest_weight": 0.001362,
+      "latest_weight": 0.001359,
       "latest_bm_weight": 0.001145,
-      "latest_active": 0.000217
+      "latest_active": 0.000214
     },
     {
       "ticker": "WMB",
@@ -1624,9 +1624,9 @@
       "avg_weight": 0.00139,
       "avg_bm_weight": 0.001213,
       "avg_active_weight": 0.000176,
-      "latest_weight": 0.00111,
+      "latest_weight": 0.001107,
       "latest_bm_weight": 0.001343,
-      "latest_active": -0.000233
+      "latest_active": -0.000235
     },
     {
       "ticker": "SCHW",
@@ -1647,9 +1647,9 @@
       "avg_weight": 0.004029,
       "avg_bm_weight": 0.003198,
       "avg_active_weight": 0.000832,
-      "latest_weight": 0.002589,
+      "latest_weight": 0.002584,
       "latest_bm_weight": 0.002823,
-      "latest_active": -0.000234
+      "latest_active": -0.000239
     },
     {
       "ticker": "ADI",
@@ -1670,32 +1670,32 @@
       "avg_weight": 0.002173,
       "avg_bm_weight": 0.002257,
       "avg_active_weight": -8.3e-05,
-      "latest_weight": 0.00236,
+      "latest_weight": 0.002355,
       "latest_bm_weight": 0.002681,
-      "latest_active": -0.000321
+      "latest_active": -0.000326
     },
     {
       "ticker": "AZN",
       "sector": "Healthcare",
       "currency": "GBP",
-      "portfolio_contribution": 0.0073,
-      "benchmark_contribution": 0.005164,
-      "active_contribution": 0.002136,
+      "portfolio_contribution": 0.007317,
+      "benchmark_contribution": 0.005184,
+      "active_contribution": 0.002132,
       "portfolio_local_contribution": 0.0064439264,
-      "portfolio_fx_contribution": 0.0008559389,
-      "portfolio_usd_contribution": 0.0072998654,
+      "portfolio_fx_contribution": 0.0008728436,
+      "portfolio_usd_contribution": 0.0073167701,
       "benchmark_local_contribution": 0.0047655311,
-      "benchmark_fx_contribution": 0.0003980895,
-      "benchmark_usd_contribution": 0.0051636206,
+      "benchmark_fx_contribution": 0.0004187748,
+      "benchmark_usd_contribution": 0.0051843059,
       "active_local_contribution": 0.0016783953,
-      "active_fx_contribution": 0.0004578495,
-      "active_usd_contribution": 0.0021362448,
+      "active_fx_contribution": 0.0004540688,
+      "active_usd_contribution": 0.0021324642,
       "avg_weight": 0.005825,
       "avg_bm_weight": 0.005279,
       "avg_active_weight": 0.000546,
-      "latest_weight": 0.002851,
+      "latest_weight": 0.002862,
       "latest_bm_weight": 0.003621,
-      "latest_active": -0.00077
+      "latest_active": -0.000759
     },
     {
       "ticker": "INTU",
@@ -1716,32 +1716,32 @@
       "avg_weight": 0.004444,
       "avg_bm_weight": 0.003497,
       "avg_active_weight": 0.000947,
-      "latest_weight": 0.001289,
+      "latest_weight": 0.001286,
       "latest_bm_weight": 0.001401,
-      "latest_active": -0.000112
+      "latest_active": -0.000115
     },
     {
       "ticker": "SAF",
       "sector": "Industrials",
       "currency": "EUR",
-      "portfolio_contribution": 0.004985,
-      "benchmark_contribution": 0.003014,
-      "active_contribution": 0.001971,
+      "portfolio_contribution": 0.005007,
+      "benchmark_contribution": 0.003037,
+      "active_contribution": 0.00197,
       "portfolio_local_contribution": 0.0042486291,
-      "portfolio_fx_contribution": 0.0007366221,
-      "portfolio_usd_contribution": 0.0049852512,
+      "portfolio_fx_contribution": 0.0007578859,
+      "portfolio_usd_contribution": 0.005006515,
       "benchmark_local_contribution": 0.0028212549,
-      "benchmark_fx_contribution": 0.0001929268,
-      "benchmark_usd_contribution": 0.0030141817,
+      "benchmark_fx_contribution": 0.0002153173,
+      "benchmark_usd_contribution": 0.0030365722,
       "active_local_contribution": 0.0014273742,
-      "active_fx_contribution": 0.0005436953,
-      "active_usd_contribution": 0.0019710695,
+      "active_fx_contribution": 0.0005425686,
+      "active_usd_contribution": 0.0019699428,
       "avg_weight": 0.002706,
       "avg_bm_weight": 0.002134,
       "avg_active_weight": 0.000571,
-      "latest_weight": 0.002245,
+      "latest_weight": 0.002262,
       "latest_bm_weight": 0.002499,
-      "latest_active": -0.000253
+      "latest_active": -0.000236
     },
     {
       "ticker": "ORCL",
@@ -1762,9 +1762,9 @@
       "avg_weight": 0.007055,
       "avg_bm_weight": 0.008054,
       "avg_active_weight": -0.001,
-      "latest_weight": 0.002881,
+      "latest_weight": 0.002876,
       "latest_bm_weight": 0.006011,
-      "latest_active": -0.00313
+      "latest_active": -0.003136
     },
     {
       "ticker": "FCX",
@@ -1808,9 +1808,9 @@
       "avg_weight": 0.002881,
       "avg_bm_weight": 0.002707,
       "avg_active_weight": 0.000173,
-      "latest_weight": 0.001724,
+      "latest_weight": 0.001721,
       "latest_bm_weight": 0.001979,
-      "latest_active": -0.000255
+      "latest_active": -0.000258
     },
     {
       "ticker": "NOW",
@@ -1831,55 +1831,78 @@
       "avg_weight": 0.003089,
       "avg_bm_weight": 0.003057,
       "avg_active_weight": 3.2e-05,
-      "latest_weight": 0.000568,
+      "latest_weight": 0.000566,
       "latest_bm_weight": 0.001806,
-      "latest_active": -0.001238
+      "latest_active": -0.001239
     },
     {
       "ticker": "OR",
       "sector": "Consumer Staples",
       "currency": "EUR",
-      "portfolio_contribution": 0.007352,
-      "benchmark_contribution": 0.006157,
-      "active_contribution": 0.001196,
+      "portfolio_contribution": 0.007375,
+      "benchmark_contribution": 0.006187,
+      "active_contribution": 0.001188,
       "portfolio_local_contribution": 0.0061129298,
-      "portfolio_fx_contribution": 0.0012391654,
-      "portfolio_usd_contribution": 0.0073520951,
+      "portfolio_fx_contribution": 0.0012621321,
+      "portfolio_usd_contribution": 0.0073750619,
       "benchmark_local_contribution": 0.0059653055,
-      "benchmark_fx_contribution": 0.0001912515,
-      "benchmark_usd_contribution": 0.0061565571,
+      "benchmark_fx_contribution": 0.0002215453,
+      "benchmark_usd_contribution": 0.0061868508,
       "active_local_contribution": 0.0001476242,
-      "active_fx_contribution": 0.0010479138,
-      "active_usd_contribution": 0.0011955381,
+      "active_fx_contribution": 0.0010405868,
+      "active_usd_contribution": 0.001188211,
       "avg_weight": 0.004822,
       "avg_bm_weight": 0.006084,
       "avg_active_weight": -0.001263,
-      "latest_weight": 0.002435,
+      "latest_weight": 0.002453,
       "latest_bm_weight": 0.003382,
-      "latest_active": -0.000947
+      "latest_active": -0.000929
     },
     {
       "ticker": "HSBA",
       "sector": "Financials",
       "currency": "GBP",
-      "portfolio_contribution": 0.005699,
-      "benchmark_contribution": 0.004506,
-      "active_contribution": 0.001194,
+      "portfolio_contribution": 0.005721,
+      "benchmark_contribution": 0.004535,
+      "active_contribution": 0.001186,
       "portfolio_local_contribution": 0.0053757032,
-      "portfolio_fx_contribution": 0.0003237042,
-      "portfolio_usd_contribution": 0.0056994074,
+      "portfolio_fx_contribution": 0.0003456225,
+      "portfolio_usd_contribution": 0.0057213257,
       "benchmark_local_contribution": 0.0042752344,
-      "benchmark_fx_contribution": 0.0002305409,
-      "benchmark_usd_contribution": 0.0045057753,
+      "benchmark_fx_contribution": 0.0002598902,
+      "benchmark_usd_contribution": 0.0045351246,
       "active_local_contribution": 0.0011004688,
-      "active_fx_contribution": 9.31633e-05,
-      "active_usd_contribution": 0.0011936321,
+      "active_fx_contribution": 8.57323e-05,
+      "active_usd_contribution": 0.0011862011,
       "avg_weight": 0.004547,
       "avg_bm_weight": 0.004619,
       "avg_active_weight": -7.2e-05,
-      "latest_weight": 0.001855,
+      "latest_weight": 0.001862,
       "latest_bm_weight": 0.005144,
-      "latest_active": -0.003288
+      "latest_active": -0.003281
+    },
+    {
+      "ticker": "DSY",
+      "sector": "Technology",
+      "currency": "EUR",
+      "portfolio_contribution": 0.001892,
+      "benchmark_contribution": 0.000888,
+      "active_contribution": 0.001005,
+      "portfolio_local_contribution": 0.0018678352,
+      "portfolio_fx_contribution": 2.43636e-05,
+      "portfolio_usd_contribution": 0.0018921988,
+      "benchmark_local_contribution": 0.0008702481,
+      "benchmark_fx_contribution": 1.72597e-05,
+      "benchmark_usd_contribution": 0.0008875079,
+      "active_local_contribution": 0.000997587,
+      "active_fx_contribution": 7.1039e-06,
+      "active_usd_contribution": 0.0010046909,
+      "avg_weight": 0.001475,
+      "avg_bm_weight": 0.001503,
+      "avg_active_weight": -2.8e-05,
+      "latest_weight": 0.000497,
+      "latest_bm_weight": 0.000497,
+      "latest_active": -0.0
     },
     {
       "ticker": "QCOM",
@@ -1900,32 +1923,9 @@
       "avg_weight": 0.006537,
       "avg_bm_weight": 0.004167,
       "avg_active_weight": 0.002371,
-      "latest_weight": 0.000831,
+      "latest_weight": 0.000828,
       "latest_bm_weight": 0.002458,
-      "latest_active": -0.001628
-    },
-    {
-      "ticker": "DSY",
-      "sector": "Technology",
-      "currency": "EUR",
-      "portfolio_contribution": 0.001843,
-      "benchmark_contribution": 0.000883,
-      "active_contribution": 0.00096,
-      "portfolio_local_contribution": 0.0018678352,
-      "portfolio_fx_contribution": -2.4953e-05,
-      "portfolio_usd_contribution": 0.0018428821,
-      "benchmark_local_contribution": 0.0008702481,
-      "benchmark_fx_contribution": 1.28021e-05,
-      "benchmark_usd_contribution": 0.0008830502,
-      "active_local_contribution": 0.000997587,
-      "active_fx_contribution": -3.77551e-05,
-      "active_usd_contribution": 0.0009598319,
-      "avg_weight": 0.001475,
-      "avg_bm_weight": 0.001503,
-      "avg_active_weight": -2.8e-05,
-      "latest_weight": 0.000497,
-      "latest_bm_weight": 0.000497,
-      "latest_active": -0.0
+      "latest_active": -0.00163
     },
     {
       "ticker": "NFLX",
@@ -1946,9 +1946,9 @@
       "avg_weight": 0.00698,
       "avg_bm_weight": 0.006558,
       "avg_active_weight": 0.000422,
-      "latest_weight": 0.008931,
+      "latest_weight": 0.008915,
       "latest_bm_weight": 0.004733,
-      "latest_active": 0.004198
+      "latest_active": 0.004182
     },
     {
       "ticker": "PYPL",
@@ -1969,32 +1969,32 @@
       "avg_weight": 0.004316,
       "avg_bm_weight": 0.004132,
       "avg_active_weight": 0.000184,
-      "latest_weight": 0.000547,
+      "latest_weight": 0.000546,
       "latest_bm_weight": 0.000756,
-      "latest_active": -0.000208
+      "latest_active": -0.00021
     },
     {
       "ticker": "UMG",
       "sector": "Communication Services",
       "currency": "EUR",
-      "portfolio_contribution": 0.000443,
-      "benchmark_contribution": -0.000194,
+      "portfolio_contribution": 0.000447,
+      "benchmark_contribution": -0.00019,
       "active_contribution": 0.000637,
       "portfolio_local_contribution": 0.0007135616,
-      "portfolio_fx_contribution": -0.0002707539,
-      "portfolio_usd_contribution": 0.0004428077,
+      "portfolio_fx_contribution": -0.0002664572,
+      "portfolio_usd_contribution": 0.0004471045,
       "benchmark_local_contribution": -0.0001961973,
-      "benchmark_fx_contribution": 2.2721e-06,
-      "benchmark_usd_contribution": -0.0001939252,
+      "benchmark_fx_contribution": 6.3993e-06,
+      "benchmark_usd_contribution": -0.000189798,
       "active_local_contribution": 0.000909759,
-      "active_fx_contribution": -0.0002730261,
-      "active_usd_contribution": 0.0006367329,
+      "active_fx_contribution": -0.0002728565,
+      "active_usd_contribution": 0.0006369025,
       "avg_weight": 0.00096,
       "avg_bm_weight": 0.000715,
       "avg_active_weight": 0.000244,
-      "latest_weight": 0.000353,
+      "latest_weight": 0.000356,
       "latest_bm_weight": 0.000461,
-      "latest_active": -0.000107
+      "latest_active": -0.000104
     },
     {
       "ticker": "GLW",
@@ -2015,32 +2015,32 @@
       "avg_weight": 0.000922,
       "avg_bm_weight": 0.001026,
       "avg_active_weight": -0.000104,
-      "latest_weight": 0.000741,
+      "latest_weight": 0.000739,
       "latest_bm_weight": 0.002013,
-      "latest_active": -0.001272
+      "latest_active": -0.001275
     },
     {
       "ticker": "PUB",
       "sector": "Communication Services",
       "currency": "EUR",
-      "portfolio_contribution": 0.00105,
-      "benchmark_contribution": 0.000512,
-      "active_contribution": 0.000538,
+      "portfolio_contribution": 0.001053,
+      "benchmark_contribution": 0.000516,
+      "active_contribution": 0.000537,
       "portfolio_local_contribution": 0.0005495775,
-      "portfolio_fx_contribution": 0.0005005309,
-      "portfolio_usd_contribution": 0.0010501084,
+      "portfolio_fx_contribution": 0.0005036276,
+      "portfolio_usd_contribution": 0.0010532051,
       "benchmark_local_contribution": 0.0004901395,
-      "benchmark_fx_contribution": 2.19917e-05,
-      "benchmark_usd_contribution": 0.0005121312,
+      "benchmark_fx_contribution": 2.59235e-05,
+      "benchmark_usd_contribution": 0.000516063,
       "active_local_contribution": 5.9438e-05,
-      "active_fx_contribution": 0.0004785392,
-      "active_usd_contribution": 0.0005379772,
+      "active_fx_contribution": 0.0004777041,
+      "active_usd_contribution": 0.0005371421,
       "avg_weight": 0.001142,
       "avg_bm_weight": 0.000503,
       "avg_active_weight": 0.000639,
-      "latest_weight": 0.00022,
+      "latest_weight": 0.000221,
       "latest_bm_weight": 0.000439,
-      "latest_active": -0.000219
+      "latest_active": -0.000217
     },
     {
       "ticker": "SO",
@@ -2061,9 +2061,9 @@
       "avg_weight": 0.002314,
       "avg_bm_weight": 0.0022,
       "avg_active_weight": 0.000113,
-      "latest_weight": 0.001299,
+      "latest_weight": 0.001296,
       "latest_bm_weight": 0.001518,
-      "latest_active": -0.000219
+      "latest_active": -0.000222
     },
     {
       "ticker": "CMCSA",
@@ -2084,9 +2084,9 @@
       "avg_weight": 0.004437,
       "avg_bm_weight": 0.00558,
       "avg_active_weight": -0.001143,
-      "latest_weight": 0.001147,
+      "latest_weight": 0.001144,
       "latest_bm_weight": 0.001359,
-      "latest_active": -0.000212
+      "latest_active": -0.000215
     },
     {
       "ticker": "MCK",
@@ -2107,9 +2107,9 @@
       "avg_weight": 0.001881,
       "avg_bm_weight": 0.001386,
       "avg_active_weight": 0.000496,
-      "latest_weight": 0.001251,
+      "latest_weight": 0.001248,
       "latest_bm_weight": 0.001481,
-      "latest_active": -0.00023
+      "latest_active": -0.000233
     },
     {
       "ticker": "T",
@@ -2130,9 +2130,9 @@
       "avg_weight": 0.004912,
       "avg_bm_weight": 0.00578,
       "avg_active_weight": -0.000867,
-      "latest_weight": 0.002308,
+      "latest_weight": 0.002303,
       "latest_bm_weight": 0.002494,
-      "latest_active": -0.000186
+      "latest_active": -0.000191
     },
     {
       "ticker": "BKNG",
@@ -2176,9 +2176,9 @@
       "avg_weight": 0.002395,
       "avg_bm_weight": 0.002491,
       "avg_active_weight": -9.7e-05,
-      "latest_weight": 0.001723,
+      "latest_weight": 0.001719,
       "latest_bm_weight": 0.001947,
-      "latest_active": -0.000225
+      "latest_active": -0.000228
     },
     {
       "ticker": "LMT",
@@ -2199,9 +2199,9 @@
       "avg_weight": 0.003404,
       "avg_bm_weight": 0.003308,
       "avg_active_weight": 9.5e-05,
-      "latest_weight": 0.00179,
+      "latest_weight": 0.001786,
       "latest_bm_weight": 0.002048,
-      "latest_active": -0.000258
+      "latest_active": -0.000262
     },
     {
       "ticker": "AMGN",
@@ -2222,9 +2222,9 @@
       "avg_weight": 0.003798,
       "avg_bm_weight": 0.004226,
       "avg_active_weight": -0.000429,
-      "latest_weight": 0.003076,
+      "latest_weight": 0.00307,
       "latest_bm_weight": 0.00336,
-      "latest_active": -0.000284
+      "latest_active": -0.00029
     },
     {
       "ticker": "VRTX",
@@ -2245,9 +2245,9 @@
       "avg_weight": 0.002568,
       "avg_bm_weight": 0.002264,
       "avg_active_weight": 0.000304,
-      "latest_weight": 0.001596,
+      "latest_weight": 0.001592,
       "latest_bm_weight": 0.001957,
-      "latest_active": -0.000361
+      "latest_active": -0.000365
     },
     {
       "ticker": "COF",
@@ -2268,9 +2268,9 @@
       "avg_weight": 0.000347,
       "avg_bm_weight": 0.00035,
       "avg_active_weight": -3e-06,
-      "latest_weight": 0.001776,
+      "latest_weight": 0.001773,
       "latest_bm_weight": 0.001986,
-      "latest_active": -0.000209
+      "latest_active": -0.000213
     },
     {
       "ticker": "PGR",
@@ -2291,9 +2291,9 @@
       "avg_weight": 0.002276,
       "avg_bm_weight": 0.002259,
       "avg_active_weight": 1.7e-05,
-      "latest_weight": 0.001532,
+      "latest_weight": 0.001529,
       "latest_bm_weight": 0.001767,
-      "latest_active": -0.000235
+      "latest_active": -0.000238
     },
     {
       "ticker": "VZ",
@@ -2314,9 +2314,9 @@
       "avg_weight": 0.006156,
       "avg_bm_weight": 0.006372,
       "avg_active_weight": -0.000216,
-      "latest_weight": 0.002754,
+      "latest_weight": 0.002749,
       "latest_bm_weight": 0.002948,
-      "latest_active": -0.000193
+      "latest_active": -0.000199
     },
     {
       "ticker": "GE",
@@ -2337,32 +2337,32 @@
       "avg_weight": 0.001383,
       "avg_bm_weight": 0.001442,
       "avg_active_weight": -6e-05,
-      "latest_weight": 0.005439,
+      "latest_weight": 0.005429,
       "latest_bm_weight": 0.005688,
-      "latest_active": -0.000249
+      "latest_active": -0.000259
     },
     {
       "ticker": "9433",
       "sector": "Communication Services",
       "currency": "JPY",
-      "portfolio_contribution": 0.001466,
-      "benchmark_contribution": 0.001573,
+      "portfolio_contribution": 0.001474,
+      "benchmark_contribution": 0.001581,
       "active_contribution": -0.000107,
       "portfolio_local_contribution": 0.0020709018,
-      "portfolio_fx_contribution": -0.0006047256,
-      "portfolio_usd_contribution": 0.0014661762,
+      "portfolio_fx_contribution": -0.000596937,
+      "portfolio_usd_contribution": 0.0014739649,
       "benchmark_local_contribution": 0.0022005973,
-      "benchmark_fx_contribution": -0.0006278133,
-      "benchmark_usd_contribution": 0.0015727839,
+      "benchmark_fx_contribution": -0.0006191841,
+      "benchmark_usd_contribution": 0.0015814131,
       "active_local_contribution": -0.0001296954,
-      "active_fx_contribution": 2.30877e-05,
-      "active_usd_contribution": -0.0001066077,
+      "active_fx_contribution": 2.22472e-05,
+      "active_usd_contribution": -0.0001074483,
       "avg_weight": 0.001959,
       "avg_bm_weight": 0.002103,
       "avg_active_weight": -0.000143,
-      "latest_weight": 0.00081,
+      "latest_weight": 0.000815,
       "latest_bm_weight": 0.001041,
-      "latest_active": -0.000232
+      "latest_active": -0.000226
     },
     {
       "ticker": "CME",
@@ -2383,9 +2383,9 @@
       "avg_weight": 0.002165,
       "avg_bm_weight": 0.002259,
       "avg_active_weight": -9.4e-05,
-      "latest_weight": 0.001194,
+      "latest_weight": 0.001191,
       "latest_bm_weight": 0.001427,
-      "latest_active": -0.000234
+      "latest_active": -0.000236
     },
     {
       "ticker": "AXP",
@@ -2406,9 +2406,9 @@
       "avg_weight": 0.003732,
       "avg_bm_weight": 0.00387,
       "avg_active_weight": -0.000138,
-      "latest_weight": 0.001538,
+      "latest_weight": 0.001535,
       "latest_bm_weight": 0.003341,
-      "latest_active": -0.001803
+      "latest_active": -0.001806
     },
     {
       "ticker": "TT",
@@ -2429,32 +2429,9 @@
       "avg_weight": 0.001034,
       "avg_bm_weight": 0.001156,
       "avg_active_weight": -0.000122,
-      "latest_weight": 0.001266,
+      "latest_weight": 0.001263,
       "latest_bm_weight": 0.00149,
-      "latest_active": -0.000224
-    },
-    {
-      "ticker": "LSEG",
-      "sector": "Financials",
-      "currency": "GBP",
-      "portfolio_contribution": 0.001114,
-      "benchmark_contribution": 0.001239,
-      "active_contribution": -0.000125,
-      "portfolio_local_contribution": 0.0012750393,
-      "portfolio_fx_contribution": -0.0001615391,
-      "portfolio_usd_contribution": 0.0011135002,
-      "benchmark_local_contribution": 0.0010916472,
-      "benchmark_fx_contribution": 0.0001473353,
-      "benchmark_usd_contribution": 0.0012389825,
-      "active_local_contribution": 0.0001833921,
-      "active_fx_contribution": -0.0003088744,
-      "active_usd_contribution": -0.0001254823,
-      "avg_weight": 0.001287,
-      "avg_bm_weight": 0.001395,
-      "avg_active_weight": -0.000109,
-      "latest_weight": 0.000693,
-      "latest_bm_weight": 0.000818,
-      "latest_active": -0.000125
+      "latest_active": -0.000227
     },
     {
       "ticker": "ECL",
@@ -2475,32 +2452,55 @@
       "avg_weight": 0.001617,
       "avg_bm_weight": 0.001752,
       "avg_active_weight": -0.000135,
-      "latest_weight": 0.000918,
+      "latest_weight": 0.000916,
       "latest_bm_weight": 0.001147,
-      "latest_active": -0.000229
+      "latest_active": -0.000232
+    },
+    {
+      "ticker": "LSEG",
+      "sector": "Financials",
+      "currency": "GBP",
+      "portfolio_contribution": 0.001118,
+      "benchmark_contribution": 0.001244,
+      "active_contribution": -0.000126,
+      "portfolio_local_contribution": 0.0012750393,
+      "portfolio_fx_contribution": -0.0001568912,
+      "portfolio_usd_contribution": 0.0011181481,
+      "benchmark_local_contribution": 0.0010916472,
+      "benchmark_fx_contribution": 0.0001520261,
+      "benchmark_usd_contribution": 0.0012436733,
+      "active_local_contribution": 0.0001833921,
+      "active_fx_contribution": -0.0003089174,
+      "active_usd_contribution": -0.0001255253,
+      "avg_weight": 0.001287,
+      "avg_bm_weight": 0.001395,
+      "avg_active_weight": -0.000109,
+      "latest_weight": 0.000695,
+      "latest_bm_weight": 0.000818,
+      "latest_active": -0.000123
     },
     {
       "ticker": "RR/",
       "sector": "Industrials",
       "currency": "GBP",
-      "portfolio_contribution": 0.002697,
-      "benchmark_contribution": 0.002825,
-      "active_contribution": -0.000128,
+      "portfolio_contribution": 0.002708,
+      "benchmark_contribution": 0.00284,
+      "active_contribution": -0.000132,
       "portfolio_local_contribution": 0.0025529056,
-      "portfolio_fx_contribution": 0.0001441673,
-      "portfolio_usd_contribution": 0.0026970729,
+      "portfolio_fx_contribution": 0.0001551019,
+      "portfolio_usd_contribution": 0.0027080075,
       "benchmark_local_contribution": 0.0026869991,
-      "benchmark_fx_contribution": 0.0001384053,
-      "benchmark_usd_contribution": 0.0028254044,
+      "benchmark_fx_contribution": 0.0001528639,
+      "benchmark_usd_contribution": 0.002839863,
       "active_local_contribution": -0.0001340935,
-      "active_fx_contribution": 5.762e-06,
-      "active_usd_contribution": -0.0001283315,
+      "active_fx_contribution": 2.238e-06,
+      "active_usd_contribution": -0.0001318555,
       "avg_weight": 0.00229,
       "avg_bm_weight": 0.00093,
       "avg_active_weight": 0.00136,
-      "latest_weight": 0.001799,
+      "latest_weight": 0.001807,
       "latest_bm_weight": 0.002532,
-      "latest_active": -0.000733
+      "latest_active": -0.000726
     },
     {
       "ticker": "BN",
@@ -2521,32 +2521,32 @@
       "avg_weight": 0.000763,
       "avg_bm_weight": 0.000815,
       "avg_active_weight": -5.2e-05,
-      "latest_weight": 0.001275,
+      "latest_weight": 0.001272,
       "latest_bm_weight": 0.001511,
-      "latest_active": -0.000236
+      "latest_active": -0.000239
     },
     {
       "ticker": "ALV",
       "sector": "Financials",
       "currency": "EUR",
-      "portfolio_contribution": 0.003996,
-      "benchmark_contribution": 0.004143,
-      "active_contribution": -0.000147,
+      "portfolio_contribution": 0.00402,
+      "benchmark_contribution": 0.004168,
+      "active_contribution": -0.000148,
       "portfolio_local_contribution": 0.0037889188,
-      "portfolio_fx_contribution": 0.0002072003,
-      "portfolio_usd_contribution": 0.0039961191,
+      "portfolio_fx_contribution": 0.0002315481,
+      "portfolio_usd_contribution": 0.0040204669,
       "benchmark_local_contribution": 0.0039256314,
-      "benchmark_fx_contribution": 0.0002171518,
-      "benchmark_usd_contribution": 0.0041427832,
+      "benchmark_fx_contribution": 0.0002426214,
+      "benchmark_usd_contribution": 0.0041682528,
       "active_local_contribution": -0.0001367126,
-      "active_fx_contribution": -9.9515e-06,
-      "active_usd_contribution": -0.0001466641,
+      "active_fx_contribution": -1.10733e-05,
+      "active_usd_contribution": -0.0001477859,
       "avg_weight": 0.002964,
       "avg_bm_weight": 0.003141,
       "avg_active_weight": -0.000178,
-      "latest_weight": 0.002589,
+      "latest_weight": 0.002609,
       "latest_bm_weight": 0.002842,
-      "latest_active": -0.000253
+      "latest_active": -0.000234
     },
     {
       "ticker": "EMR",
@@ -2567,32 +2567,32 @@
       "avg_weight": 0.001411,
       "avg_bm_weight": 0.001577,
       "avg_active_weight": -0.000166,
-      "latest_weight": 0.001054,
+      "latest_weight": 0.001051,
       "latest_bm_weight": 0.001286,
-      "latest_active": -0.000233
+      "latest_active": -0.000235
     },
     {
       "ticker": "ULVR",
       "sector": "Consumer Staples",
       "currency": "GBP",
-      "portfolio_contribution": 0.001675,
-      "benchmark_contribution": 0.001831,
-      "active_contribution": -0.000156,
+      "portfolio_contribution": 0.001685,
+      "benchmark_contribution": 0.001842,
+      "active_contribution": -0.000157,
       "portfolio_local_contribution": 0.0015023392,
-      "portfolio_fx_contribution": 0.0001725096,
-      "portfolio_usd_contribution": 0.0016748488,
+      "portfolio_fx_contribution": 0.0001830325,
+      "portfolio_usd_contribution": 0.0016853717,
       "benchmark_local_contribution": 0.0015119225,
-      "benchmark_fx_contribution": 0.0003191622,
-      "benchmark_usd_contribution": 0.0018310847,
+      "benchmark_fx_contribution": 0.0003303232,
+      "benchmark_usd_contribution": 0.0018422456,
       "active_local_contribution": -9.5833e-06,
-      "active_fx_contribution": -0.0001466526,
-      "active_usd_contribution": -0.0001562359,
+      "active_fx_contribution": -0.0001472906,
+      "active_usd_contribution": -0.0001568739,
       "avg_weight": 0.004391,
       "avg_bm_weight": 0.004394,
       "avg_active_weight": -3e-06,
-      "latest_weight": 0.001727,
+      "latest_weight": 0.001734,
       "latest_bm_weight": 0.00195,
-      "latest_active": -0.000223
+      "latest_active": -0.000216
     },
     {
       "ticker": "ICE",
@@ -2613,32 +2613,9 @@
       "avg_weight": 0.001821,
       "avg_bm_weight": 0.00194,
       "avg_active_weight": -0.000119,
-      "latest_weight": 0.00105,
+      "latest_weight": 0.001047,
       "latest_bm_weight": 0.001281,
-      "latest_active": -0.000232
-    },
-    {
-      "ticker": "ITX",
-      "sector": "Consumer Discretionary",
-      "currency": "EUR",
-      "portfolio_contribution": 0.003557,
-      "benchmark_contribution": 0.003719,
-      "active_contribution": -0.000162,
-      "portfolio_local_contribution": 0.0033311376,
-      "portfolio_fx_contribution": 0.0002255749,
-      "portfolio_usd_contribution": 0.0035567125,
-      "benchmark_local_contribution": 0.003498385,
-      "benchmark_fx_contribution": 0.0002203338,
-      "benchmark_usd_contribution": 0.0037187188,
-      "active_local_contribution": -0.0001672475,
-      "active_fx_contribution": 5.2412e-06,
-      "active_usd_contribution": -0.0001620063,
-      "avg_weight": 0.003132,
-      "avg_bm_weight": 0.003375,
-      "avg_active_weight": -0.000243,
-      "latest_weight": 0.002753,
-      "latest_bm_weight": 0.003008,
-      "latest_active": -0.000255
+      "latest_active": -0.000235
     },
     {
       "ticker": "DLR",
@@ -2659,78 +2636,101 @@
       "avg_weight": 0.00102,
       "avg_bm_weight": 0.00119,
       "avg_active_weight": -0.00017,
-      "latest_weight": 0.000786,
+      "latest_weight": 0.000783,
       "latest_bm_weight": 0.001075,
-      "latest_active": -0.00029
+      "latest_active": -0.000292
+    },
+    {
+      "ticker": "ITX",
+      "sector": "Consumer Discretionary",
+      "currency": "EUR",
+      "portfolio_contribution": 0.003583,
+      "benchmark_contribution": 0.003746,
+      "active_contribution": -0.000163,
+      "portfolio_local_contribution": 0.0033311376,
+      "portfolio_fx_contribution": 0.0002513889,
+      "portfolio_usd_contribution": 0.0035825265,
+      "benchmark_local_contribution": 0.003498385,
+      "benchmark_fx_contribution": 0.0002472896,
+      "benchmark_usd_contribution": 0.0037456746,
+      "active_local_contribution": -0.0001672475,
+      "active_fx_contribution": 4.0994e-06,
+      "active_usd_contribution": -0.0001631481,
+      "avg_weight": 0.003132,
+      "avg_bm_weight": 0.003375,
+      "avg_active_weight": -0.000243,
+      "latest_weight": 0.002773,
+      "latest_bm_weight": 0.003008,
+      "latest_active": -0.000235
     },
     {
       "ticker": "9432",
       "sector": "Communication Services",
       "currency": "JPY",
-      "portfolio_contribution": 0.001542,
-      "benchmark_contribution": 0.001739,
-      "active_contribution": -0.000197,
+      "portfolio_contribution": 0.001552,
+      "benchmark_contribution": 0.00175,
+      "active_contribution": -0.000198,
       "portfolio_local_contribution": 0.0024601038,
-      "portfolio_fx_contribution": -0.0009181034,
-      "portfolio_usd_contribution": 0.0015420003,
+      "portfolio_fx_contribution": -0.0009080025,
+      "portfolio_usd_contribution": 0.0015521013,
       "benchmark_local_contribution": 0.0026744572,
-      "benchmark_fx_contribution": -0.0009356886,
-      "benchmark_usd_contribution": 0.0017387686,
+      "benchmark_fx_contribution": -0.0009246672,
+      "benchmark_usd_contribution": 0.0017497901,
       "active_local_contribution": -0.0002143534,
-      "active_fx_contribution": 1.75852e-05,
-      "active_usd_contribution": -0.0001967683,
+      "active_fx_contribution": 1.66647e-05,
+      "active_usd_contribution": -0.0001976888,
       "avg_weight": 0.002473,
       "avg_bm_weight": 0.00295,
       "avg_active_weight": -0.000477,
-      "latest_weight": 0.001087,
+      "latest_weight": 0.001095,
       "latest_bm_weight": 0.001327,
-      "latest_active": -0.00024
+      "latest_active": -0.000232
     },
     {
       "ticker": "TTE",
       "sector": "Energy",
       "currency": "EUR",
-      "portfolio_contribution": 0.00343,
-      "benchmark_contribution": 0.003629,
-      "active_contribution": -0.000199,
+      "portfolio_contribution": 0.003455,
+      "benchmark_contribution": 0.003655,
+      "active_contribution": -0.0002,
       "portfolio_local_contribution": 0.0032730541,
-      "portfolio_fx_contribution": 0.0001565684,
-      "portfolio_usd_contribution": 0.0034296225,
+      "portfolio_fx_contribution": 0.0001822884,
+      "portfolio_usd_contribution": 0.0034553425,
       "benchmark_local_contribution": 0.003468521,
-      "benchmark_fx_contribution": 0.0001602058,
-      "benchmark_usd_contribution": 0.0036287268,
+      "benchmark_fx_contribution": 0.0001868014,
+      "benchmark_usd_contribution": 0.0036553224,
       "active_local_contribution": -0.0001954669,
-      "active_fx_contribution": -3.6374e-06,
-      "active_usd_contribution": -0.0001991043,
+      "active_fx_contribution": -4.5129e-06,
+      "active_usd_contribution": -0.0001999798,
       "avg_weight": 0.003685,
       "avg_bm_weight": 0.004231,
       "avg_active_weight": -0.000546,
-      "latest_weight": 0.002742,
+      "latest_weight": 0.002763,
       "latest_bm_weight": 0.002968,
-      "latest_active": -0.000226
+      "latest_active": -0.000205
     },
     {
       "ticker": "MUV2",
       "sector": "Financials",
       "currency": "EUR",
-      "portfolio_contribution": 0.002007,
-      "benchmark_contribution": 0.002218,
-      "active_contribution": -0.000211,
+      "portfolio_contribution": 0.002016,
+      "benchmark_contribution": 0.002228,
+      "active_contribution": -0.000212,
       "portfolio_local_contribution": 0.0018339402,
-      "portfolio_fx_contribution": 0.000173295,
-      "portfolio_usd_contribution": 0.0020072352,
+      "portfolio_fx_contribution": 0.0001823669,
+      "portfolio_usd_contribution": 0.0020163071,
       "benchmark_local_contribution": 0.0020506872,
-      "benchmark_fx_contribution": 0.000167501,
-      "benchmark_usd_contribution": 0.0022181882,
+      "benchmark_fx_contribution": 0.000177528,
+      "benchmark_usd_contribution": 0.0022282152,
       "active_local_contribution": -0.000216747,
-      "active_fx_contribution": 5.7939e-06,
-      "active_usd_contribution": -0.000210953,
+      "active_fx_contribution": 4.8389e-06,
+      "active_usd_contribution": -0.0002119081,
       "avg_weight": 0.001293,
       "avg_bm_weight": 0.001442,
       "avg_active_weight": -0.000149,
-      "latest_weight": 0.000886,
+      "latest_weight": 0.000893,
       "latest_bm_weight": 0.001119,
-      "latest_active": -0.000233
+      "latest_active": -0.000226
     },
     {
       "ticker": "HD",
@@ -2751,9 +2751,9 @@
       "avg_weight": 0.008256,
       "avg_bm_weight": 0.009214,
       "avg_active_weight": -0.000959,
-      "latest_weight": 0.004647,
+      "latest_weight": 0.004638,
       "latest_bm_weight": 0.004918,
-      "latest_active": -0.000272
+      "latest_active": -0.00028
     },
     {
       "ticker": "DE",
@@ -2774,32 +2774,32 @@
       "avg_weight": 0.002676,
       "avg_bm_weight": 0.002827,
       "avg_active_weight": -0.00015,
-      "latest_weight": 0.002087,
+      "latest_weight": 0.002083,
       "latest_bm_weight": 0.002323,
-      "latest_active": -0.000236
+      "latest_active": -0.00024
     },
     {
       "ticker": "ZURN",
       "sector": "Financials",
       "currency": "CHF",
-      "portfolio_contribution": 0.002515,
-      "benchmark_contribution": 0.00275,
-      "active_contribution": -0.000235,
+      "portfolio_contribution": 0.002544,
+      "benchmark_contribution": 0.002781,
+      "active_contribution": -0.000237,
       "portfolio_local_contribution": 0.0020545184,
-      "portfolio_fx_contribution": 0.0004606633,
-      "portfolio_usd_contribution": 0.0025151817,
+      "portfolio_fx_contribution": 0.0004894564,
+      "portfolio_usd_contribution": 0.0025439748,
       "benchmark_local_contribution": 0.0022428786,
-      "benchmark_fx_contribution": 0.0005074969,
-      "benchmark_usd_contribution": 0.0027503755,
+      "benchmark_fx_contribution": 0.0005377913,
+      "benchmark_usd_contribution": 0.0027806699,
       "active_local_contribution": -0.0001883602,
-      "active_fx_contribution": -4.68336e-05,
-      "active_usd_contribution": -0.0002351938,
+      "active_fx_contribution": -4.83349e-05,
+      "active_usd_contribution": -0.0002366951,
       "avg_weight": 0.0019,
       "avg_bm_weight": 0.002066,
       "avg_active_weight": -0.000167,
-      "latest_weight": 0.001408,
+      "latest_weight": 0.001434,
       "latest_bm_weight": 0.001615,
-      "latest_active": -0.000207
+      "latest_active": -0.000181
     },
     {
       "ticker": "AON",
@@ -2820,32 +2820,32 @@
       "avg_weight": 0.001582,
       "avg_bm_weight": 0.001746,
       "avg_active_weight": -0.000164,
-      "latest_weight": 0.00085,
+      "latest_weight": 0.000848,
       "latest_bm_weight": 0.001064,
-      "latest_active": -0.000214
+      "latest_active": -0.000216
     },
     {
       "ticker": "AI",
       "sector": "Materials",
       "currency": "EUR",
-      "portfolio_contribution": 0.002589,
-      "benchmark_contribution": 0.00284,
-      "active_contribution": -0.000251,
+      "portfolio_contribution": 0.002605,
+      "benchmark_contribution": 0.002856,
+      "active_contribution": -0.000252,
       "portfolio_local_contribution": 0.0024396949,
-      "portfolio_fx_contribution": 0.0001496429,
-      "portfolio_usd_contribution": 0.0025893379,
+      "portfolio_fx_contribution": 0.0001648588,
+      "portfolio_usd_contribution": 0.0026045537,
       "benchmark_local_contribution": 0.0026682515,
-      "benchmark_fx_contribution": 0.0001718225,
-      "benchmark_usd_contribution": 0.002840074,
+      "benchmark_fx_contribution": 0.0001879804,
+      "benchmark_usd_contribution": 0.0028562318,
       "active_local_contribution": -0.0002285565,
-      "active_fx_contribution": -2.21796e-05,
-      "active_usd_contribution": -0.0002507361,
+      "active_fx_contribution": -2.31216e-05,
+      "active_usd_contribution": -0.0002516781,
       "avg_weight": 0.002255,
       "avg_bm_weight": 0.002451,
       "avg_active_weight": -0.000195,
-      "latest_weight": 0.001571,
+      "latest_weight": 0.001583,
       "latest_bm_weight": 0.001803,
-      "latest_active": -0.000232
+      "latest_active": -0.00022
     },
     {
       "ticker": "BSX",
@@ -2866,9 +2866,9 @@
       "avg_weight": 0.002084,
       "avg_bm_weight": 0.002224,
       "avg_active_weight": -0.000141,
-      "latest_weight": 0.001427,
+      "latest_weight": 0.001424,
       "latest_bm_weight": 0.001069,
-      "latest_active": 0.000358
+      "latest_active": 0.000355
     },
     {
       "ticker": "TJX",
@@ -2889,32 +2889,32 @@
       "avg_weight": 0.00257,
       "avg_bm_weight": 0.002738,
       "avg_active_weight": -0.000169,
-      "latest_weight": 0.002203,
+      "latest_weight": 0.002198,
       "latest_bm_weight": 0.002436,
-      "latest_active": -0.000233
+      "latest_active": -0.000237
     },
     {
       "ticker": "IBE",
       "sector": "Utilities",
       "currency": "EUR",
-      "portfolio_contribution": 0.003517,
-      "benchmark_contribution": 0.00379,
+      "portfolio_contribution": 0.003537,
+      "benchmark_contribution": 0.00381,
       "active_contribution": -0.000273,
       "portfolio_local_contribution": 0.0033266732,
-      "portfolio_fx_contribution": 0.000189936,
-      "portfolio_usd_contribution": 0.0035166092,
+      "portfolio_fx_contribution": 0.000209903,
+      "portfolio_usd_contribution": 0.0035365762,
       "benchmark_local_contribution": 0.0035877436,
-      "benchmark_fx_contribution": 0.0002020387,
-      "benchmark_usd_contribution": 0.0037897822,
+      "benchmark_fx_contribution": 0.0002221903,
+      "benchmark_usd_contribution": 0.0038099338,
       "active_local_contribution": -0.0002610703,
-      "active_fx_contribution": -1.21027e-05,
-      "active_usd_contribution": -0.0002731731,
+      "active_fx_contribution": -1.22873e-05,
+      "active_usd_contribution": -0.0002733576,
       "avg_weight": 0.002287,
       "avg_bm_weight": 0.002423,
       "avg_active_weight": -0.000137,
-      "latest_weight": 0.002101,
+      "latest_weight": 0.002116,
       "latest_bm_weight": 0.002282,
-      "latest_active": -0.000182
+      "latest_active": -0.000166
     },
     {
       "ticker": "SBUX",
@@ -2935,32 +2935,32 @@
       "avg_weight": 0.002968,
       "avg_bm_weight": 0.003231,
       "avg_active_weight": -0.000262,
-      "latest_weight": 0.001539,
+      "latest_weight": 0.001535,
       "latest_bm_weight": 0.001766,
-      "latest_active": -0.000227
+      "latest_active": -0.000231
     },
     {
       "ticker": "BNP",
       "sector": "Financials",
       "currency": "EUR",
-      "portfolio_contribution": 0.002415,
-      "benchmark_contribution": 0.002741,
-      "active_contribution": -0.000326,
+      "portfolio_contribution": 0.002432,
+      "benchmark_contribution": 0.00276,
+      "active_contribution": -0.000328,
       "portfolio_local_contribution": 0.00233975,
-      "portfolio_fx_contribution": 7.52177e-05,
-      "portfolio_usd_contribution": 0.0024149677,
+      "portfolio_fx_contribution": 9.24442e-05,
+      "portfolio_usd_contribution": 0.0024321942,
       "benchmark_local_contribution": 0.0026486198,
-      "benchmark_fx_contribution": 9.28271e-05,
-      "benchmark_usd_contribution": 0.0027414468,
+      "benchmark_fx_contribution": 0.0001110943,
+      "benchmark_usd_contribution": 0.0027597141,
       "active_local_contribution": -0.0003088698,
-      "active_fx_contribution": -1.76094e-05,
-      "active_usd_contribution": -0.0003264791,
+      "active_fx_contribution": -1.86501e-05,
+      "active_usd_contribution": -0.0003275199,
       "avg_weight": 0.001952,
       "avg_bm_weight": 0.002188,
       "avg_active_weight": -0.000236,
-      "latest_weight": 0.001795,
+      "latest_weight": 0.001809,
       "latest_bm_weight": 0.002038,
-      "latest_active": -0.000243
+      "latest_active": -0.00023
     },
     {
       "ticker": "BX",
@@ -2989,47 +2989,47 @@
       "ticker": "CS",
       "sector": "Financials",
       "currency": "EUR",
-      "portfolio_contribution": 0.002135,
-      "benchmark_contribution": 0.002497,
-      "active_contribution": -0.000361,
+      "portfolio_contribution": 0.002149,
+      "benchmark_contribution": 0.002511,
+      "active_contribution": -0.000362,
       "portfolio_local_contribution": 0.0020147792,
-      "portfolio_fx_contribution": 0.0001206897,
-      "portfolio_usd_contribution": 0.0021354689,
+      "portfolio_fx_contribution": 0.0001338468,
+      "portfolio_usd_contribution": 0.002148626,
       "benchmark_local_contribution": 0.0023668924,
-      "benchmark_fx_contribution": 0.0001296571,
-      "benchmark_usd_contribution": 0.0024965494,
+      "benchmark_fx_contribution": 0.0001437748,
+      "benchmark_usd_contribution": 0.0025106672,
       "active_local_contribution": -0.0003521132,
-      "active_fx_contribution": -8.9673e-06,
-      "active_usd_contribution": -0.0003610805,
+      "active_fx_contribution": -9.928e-06,
+      "active_usd_contribution": -0.0003620412,
       "avg_weight": 0.001788,
       "avg_bm_weight": 0.00206,
       "avg_active_weight": -0.000272,
-      "latest_weight": 0.001341,
+      "latest_weight": 0.001352,
       "latest_bm_weight": 0.001576,
-      "latest_active": -0.000234
+      "latest_active": -0.000224
     },
     {
       "ticker": "SAP",
       "sector": "Technology",
       "currency": "EUR",
-      "portfolio_contribution": 0.005892,
-      "benchmark_contribution": 0.006257,
-      "active_contribution": -0.000365,
+      "portfolio_contribution": 0.005921,
+      "benchmark_contribution": 0.006291,
+      "active_contribution": -0.00037,
       "portfolio_local_contribution": 0.0055156558,
-      "portfolio_fx_contribution": 0.000375949,
-      "portfolio_usd_contribution": 0.0058916048,
+      "portfolio_fx_contribution": 0.0004053651,
+      "portfolio_usd_contribution": 0.0059210209,
       "benchmark_local_contribution": 0.0056019789,
-      "benchmark_fx_contribution": 0.0006548452,
-      "benchmark_usd_contribution": 0.0062568242,
+      "benchmark_fx_contribution": 0.0006887173,
+      "benchmark_usd_contribution": 0.0062906962,
       "active_local_contribution": -8.63231e-05,
-      "active_fx_contribution": -0.0002788962,
-      "active_usd_contribution": -0.0003652194,
+      "active_fx_contribution": -0.0002833522,
+      "active_usd_contribution": -0.0003696753,
       "avg_weight": 0.004144,
       "avg_bm_weight": 0.0055,
       "avg_active_weight": -0.001356,
-      "latest_weight": 0.003154,
+      "latest_weight": 0.003178,
       "latest_bm_weight": 0.00378,
-      "latest_active": -0.000625
+      "latest_active": -0.000602
     },
     {
       "ticker": "MCD",
@@ -3050,9 +3050,9 @@
       "avg_weight": 0.004762,
       "avg_bm_weight": 0.005438,
       "avg_active_weight": -0.000676,
-      "latest_weight": 0.002525,
+      "latest_weight": 0.00252,
       "latest_bm_weight": 0.002761,
-      "latest_active": -0.000236
+      "latest_active": -0.000241
     },
     {
       "ticker": "VST",
@@ -3081,24 +3081,24 @@
       "ticker": "RIO",
       "sector": "Materials",
       "currency": "GBP",
-      "portfolio_contribution": 0.004613,
-      "benchmark_contribution": 0.004986,
-      "active_contribution": -0.000372,
+      "portfolio_contribution": 0.004621,
+      "benchmark_contribution": 0.005,
+      "active_contribution": -0.000379,
       "portfolio_local_contribution": 0.004370748,
-      "portfolio_fx_contribution": 0.0002425827,
-      "portfolio_usd_contribution": 0.0046133306,
+      "portfolio_fx_contribution": 0.0002500245,
+      "portfolio_usd_contribution": 0.0046207725,
       "benchmark_local_contribution": 0.0046865033,
-      "benchmark_fx_contribution": 0.0002992029,
-      "benchmark_usd_contribution": 0.0049857062,
+      "benchmark_fx_contribution": 0.0003131475,
+      "benchmark_usd_contribution": 0.0049996508,
       "active_local_contribution": -0.0003157553,
-      "active_fx_contribution": -5.66202e-05,
-      "active_usd_contribution": -0.0003723755,
+      "active_fx_contribution": -6.3123e-05,
+      "active_usd_contribution": -0.0003788783,
       "avg_weight": 0.002867,
       "avg_bm_weight": 0.00332,
       "avg_active_weight": -0.000453,
-      "latest_weight": 0.001185,
+      "latest_weight": 0.001189,
       "latest_bm_weight": 0.002421,
-      "latest_active": -0.001236
+      "latest_active": -0.001232
     },
     {
       "ticker": "ARM",
@@ -3119,9 +3119,9 @@
       "avg_weight": 0.001123,
       "avg_bm_weight": 0.001084,
       "avg_active_weight": 3.9e-05,
-      "latest_weight": 0.005362,
+      "latest_weight": 0.005353,
       "latest_bm_weight": 0.003954,
-      "latest_active": 0.001408
+      "latest_active": 0.001398
     },
     {
       "ticker": "SYK",
@@ -3142,9 +3142,9 @@
       "avg_weight": 0.002429,
       "avg_bm_weight": 0.002933,
       "avg_active_weight": -0.000504,
-      "latest_weight": 0.001713,
+      "latest_weight": 0.001709,
       "latest_bm_weight": 0.001858,
-      "latest_active": -0.000145
+      "latest_active": -0.000149
     },
     {
       "ticker": "EQIX",
@@ -3165,9 +3165,9 @@
       "avg_weight": 0.001743,
       "avg_bm_weight": 0.001928,
       "avg_active_weight": -0.000185,
-      "latest_weight": 0.001326,
+      "latest_weight": 0.001323,
       "latest_bm_weight": 0.001565,
-      "latest_active": -0.000239
+      "latest_active": -0.000242
     },
     {
       "ticker": "C",
@@ -3188,9 +3188,9 @@
       "avg_weight": 0.003677,
       "avg_bm_weight": 0.003966,
       "avg_active_weight": -0.000288,
-      "latest_weight": 0.001567,
+      "latest_weight": 0.001563,
       "latest_bm_weight": 0.003375,
-      "latest_active": -0.001808
+      "latest_active": -0.001812
     },
     {
       "ticker": "LOW",
@@ -3211,32 +3211,9 @@
       "avg_weight": 0.003447,
       "avg_bm_weight": 0.003556,
       "avg_active_weight": -0.000109,
-      "latest_weight": 0.001537,
+      "latest_weight": 0.001533,
       "latest_bm_weight": 0.001767,
-      "latest_active": -0.00023
-    },
-    {
-      "ticker": "SAN",
-      "sector": "Healthcare",
-      "currency": "EUR",
-      "portfolio_contribution": 0.001294,
-      "benchmark_contribution": 0.001729,
-      "active_contribution": -0.000435,
-      "portfolio_local_contribution": 0.0010320835,
-      "portfolio_fx_contribution": 0.0002621388,
-      "portfolio_usd_contribution": 0.0012942223,
-      "benchmark_local_contribution": 0.0015971799,
-      "benchmark_fx_contribution": 0.0001316386,
-      "benchmark_usd_contribution": 0.0017288185,
-      "active_local_contribution": -0.0005650964,
-      "active_fx_contribution": 0.0001305002,
-      "active_usd_contribution": -0.0004345962,
-      "avg_weight": 0.003096,
-      "avg_bm_weight": 0.003715,
-      "avg_active_weight": -0.000619,
-      "latest_weight": 0.001359,
-      "latest_bm_weight": 0.001587,
-      "latest_active": -0.000227
+      "latest_active": -0.000234
     },
     {
       "ticker": "ISRG",
@@ -3257,9 +3234,32 @@
       "avg_weight": 0.002649,
       "avg_bm_weight": 0.003074,
       "avg_active_weight": -0.000425,
-      "latest_weight": 0.001746,
+      "latest_weight": 0.001742,
       "latest_bm_weight": 0.00202,
-      "latest_active": -0.000274
+      "latest_active": -0.000278
+    },
+    {
+      "ticker": "SAN",
+      "sector": "Healthcare",
+      "currency": "EUR",
+      "portfolio_contribution": 0.001308,
+      "benchmark_contribution": 0.001743,
+      "active_contribution": -0.000436,
+      "portfolio_local_contribution": 0.0010320835,
+      "portfolio_fx_contribution": 0.0002754556,
+      "portfolio_usd_contribution": 0.0013075391,
+      "benchmark_local_contribution": 0.0015971799,
+      "benchmark_fx_contribution": 0.0001459321,
+      "benchmark_usd_contribution": 0.001743112,
+      "active_local_contribution": -0.0005650964,
+      "active_fx_contribution": 0.0001295235,
+      "active_usd_contribution": -0.0004355729,
+      "avg_weight": 0.003096,
+      "avg_bm_weight": 0.003715,
+      "avg_active_weight": -0.000619,
+      "latest_weight": 0.001369,
+      "latest_bm_weight": 0.001587,
+      "latest_active": -0.000217
     },
     {
       "ticker": "ADSK",
@@ -3280,9 +3280,9 @@
       "avg_weight": 0.000964,
       "avg_bm_weight": 0.001466,
       "avg_active_weight": -0.000503,
-      "latest_weight": 0.000267,
+      "latest_weight": 0.000265,
       "latest_bm_weight": 0.000761,
-      "latest_active": -0.000494
+      "latest_active": -0.000496
     },
     {
       "ticker": "KKR",
@@ -3303,9 +3303,9 @@
       "avg_weight": 0.000943,
       "avg_bm_weight": 0.001365,
       "avg_active_weight": -0.000421,
-      "latest_weight": 0.00127,
+      "latest_weight": 0.001267,
       "latest_bm_weight": 0.001406,
-      "latest_active": -0.000137
+      "latest_active": -0.00014
     },
     {
       "ticker": "COST",
@@ -3326,9 +3326,9 @@
       "avg_weight": 0.006447,
       "avg_bm_weight": 0.00674,
       "avg_active_weight": -0.000293,
-      "latest_weight": 0.005953,
+      "latest_weight": 0.005943,
       "latest_bm_weight": 0.006231,
-      "latest_active": -0.000278
+      "latest_active": -0.000288
     },
     {
       "ticker": "BLK",
@@ -3349,32 +3349,32 @@
       "avg_weight": 0.002752,
       "avg_bm_weight": 0.003235,
       "avg_active_weight": -0.000483,
-      "latest_weight": 0.002503,
+      "latest_weight": 0.002498,
       "latest_bm_weight": 0.002753,
-      "latest_active": -0.00025
+      "latest_active": -0.000255
     },
     {
       "ticker": "7203",
       "sector": "Consumer Discretionary",
       "currency": "JPY",
-      "portfolio_contribution": 0.004574,
-      "benchmark_contribution": 0.005092,
-      "active_contribution": -0.000518,
+      "portfolio_contribution": 0.004603,
+      "benchmark_contribution": 0.005124,
+      "active_contribution": -0.000521,
       "portfolio_local_contribution": 0.0068183358,
-      "portfolio_fx_contribution": -0.0022443146,
-      "portfolio_usd_contribution": 0.0045740212,
+      "portfolio_fx_contribution": -0.0022151236,
+      "portfolio_usd_contribution": 0.0046032122,
       "benchmark_local_contribution": 0.0076584927,
-      "benchmark_fx_contribution": -0.0025669517,
-      "benchmark_usd_contribution": 0.005091541,
+      "benchmark_fx_contribution": -0.0025343612,
+      "benchmark_usd_contribution": 0.0051241314,
       "active_local_contribution": -0.0008401569,
-      "active_fx_contribution": 0.0003226371,
-      "active_usd_contribution": -0.0005175198,
+      "active_fx_contribution": 0.0003192376,
+      "active_usd_contribution": -0.0005209193,
       "avg_weight": 0.007022,
       "avg_bm_weight": 0.00776,
       "avg_active_weight": -0.000738,
-      "latest_weight": 0.003379,
+      "latest_weight": 0.003402,
       "latest_bm_weight": 0.003923,
-      "latest_active": -0.000544
+      "latest_active": -0.000521
     },
     {
       "ticker": "SHW",
@@ -3395,9 +3395,9 @@
       "avg_weight": 0.00171,
       "avg_bm_weight": 0.001961,
       "avg_active_weight": -0.000252,
-      "latest_weight": 0.001008,
+      "latest_weight": 0.001005,
       "latest_bm_weight": 0.001225,
-      "latest_active": -0.000217
+      "latest_active": -0.00022
     },
     {
       "ticker": "CEG",
@@ -3418,9 +3418,9 @@
       "avg_weight": 0.000376,
       "avg_bm_weight": 0.00075,
       "avg_active_weight": -0.000373,
-      "latest_weight": 0.000412,
+      "latest_weight": 0.000411,
       "latest_bm_weight": 0.001382,
-      "latest_active": -0.00097
+      "latest_active": -0.000971
     },
     {
       "ticker": "MCO",
@@ -3441,32 +3441,9 @@
       "avg_weight": 0.00148,
       "avg_bm_weight": 0.001758,
       "avg_active_weight": -0.000278,
-      "latest_weight": 0.001014,
+      "latest_weight": 0.001012,
       "latest_bm_weight": 0.00123,
-      "latest_active": -0.000215
-    },
-    {
-      "ticker": "CFR",
-      "sector": "Consumer Discretionary",
-      "currency": "CHF",
-      "portfolio_contribution": 0.002337,
-      "benchmark_contribution": 0.002904,
-      "active_contribution": -0.000567,
-      "portfolio_local_contribution": 0.0019122956,
-      "portfolio_fx_contribution": 0.0004244375,
-      "portfolio_usd_contribution": 0.0023367332,
-      "benchmark_local_contribution": 0.0024179556,
-      "benchmark_fx_contribution": 0.0004855742,
-      "benchmark_usd_contribution": 0.0029035298,
-      "active_local_contribution": -0.00050566,
-      "active_fx_contribution": -6.11367e-05,
-      "active_usd_contribution": -0.0005667967,
-      "avg_weight": 0.002203,
-      "avg_bm_weight": 0.002039,
-      "avg_active_weight": 0.000165,
-      "latest_weight": 0.001757,
-      "latest_bm_weight": 0.00199,
-      "latest_active": -0.000233
+      "latest_active": -0.000218
     },
     {
       "ticker": "SPGI",
@@ -3487,55 +3464,78 @@
       "avg_weight": 0.002549,
       "avg_bm_weight": 0.003082,
       "avg_active_weight": -0.000533,
-      "latest_weight": 0.001701,
+      "latest_weight": 0.001698,
       "latest_bm_weight": 0.001845,
-      "latest_active": -0.000144
+      "latest_active": -0.000147
+    },
+    {
+      "ticker": "CFR",
+      "sector": "Consumer Discretionary",
+      "currency": "CHF",
+      "portfolio_contribution": 0.002372,
+      "benchmark_contribution": 0.002941,
+      "active_contribution": -0.000569,
+      "portfolio_local_contribution": 0.0019122956,
+      "portfolio_fx_contribution": 0.0004597815,
+      "portfolio_usd_contribution": 0.0023720772,
+      "benchmark_local_contribution": 0.0024179556,
+      "benchmark_fx_contribution": 0.0005229026,
+      "benchmark_usd_contribution": 0.0029408582,
+      "active_local_contribution": -0.00050566,
+      "active_fx_contribution": -6.3121e-05,
+      "active_usd_contribution": -0.000568781,
+      "avg_weight": 0.002203,
+      "avg_bm_weight": 0.002039,
+      "avg_active_weight": 0.000165,
+      "latest_weight": 0.001789,
+      "latest_bm_weight": 0.00199,
+      "latest_active": -0.000201
     },
     {
       "ticker": "AIR",
       "sector": "Industrials",
       "currency": "EUR",
-      "portfolio_contribution": 0.002271,
-      "benchmark_contribution": 0.00292,
-      "active_contribution": -0.000648,
+      "portfolio_contribution": 0.002295,
+      "benchmark_contribution": 0.002945,
+      "active_contribution": -0.000649,
       "portfolio_local_contribution": 0.0020770933,
-      "portfolio_fx_contribution": 0.0001942686,
-      "portfolio_usd_contribution": 0.0022713619,
+      "portfolio_fx_contribution": 0.000218321,
+      "portfolio_usd_contribution": 0.0022954142,
       "benchmark_local_contribution": 0.0027908997,
-      "benchmark_fx_contribution": 0.0001286445,
-      "benchmark_usd_contribution": 0.0029195442,
+      "benchmark_fx_contribution": 0.0001538397,
+      "benchmark_usd_contribution": 0.0029447394,
       "active_local_contribution": -0.0007138065,
-      "active_fx_contribution": 6.56242e-05,
-      "active_usd_contribution": -0.0006481823,
+      "active_fx_contribution": 6.44813e-05,
+      "active_usd_contribution": -0.0006493252,
       "avg_weight": 0.002439,
       "avg_bm_weight": 0.003188,
       "avg_active_weight": -0.00075,
-      "latest_weight": 0.002556,
+      "latest_weight": 0.002575,
       "latest_bm_weight": 0.002812,
-      "latest_active": -0.000255
+      "latest_active": -0.000236
     },
     {
       "ticker": "DTE",
       "sector": "Communication Services",
       "currency": "EUR",
-      "portfolio_contribution": 0.002607,
-      "benchmark_contribution": 0.003269,
-      "active_contribution": -0.000662,
+      "portfolio_contribution": 0.002627,
+      "benchmark_contribution": 0.00329,
+      "active_contribution": -0.000663,
       "portfolio_local_contribution": 0.0022943996,
-      "portfolio_fx_contribution": 0.0003127602,
-      "portfolio_usd_contribution": 0.0026071598,
+      "portfolio_fx_contribution": 0.000332858,
+      "portfolio_usd_contribution": 0.0026272575,
       "benchmark_local_contribution": 0.0029755708,
-      "benchmark_fx_contribution": 0.0002932973,
-      "benchmark_usd_contribution": 0.003268868,
+      "benchmark_fx_contribution": 0.0003144979,
+      "benchmark_usd_contribution": 0.0032900687,
       "active_local_contribution": -0.0006811712,
-      "active_fx_contribution": 1.94629e-05,
-      "active_usd_contribution": -0.0006617083,
+      "active_fx_contribution": 1.83601e-05,
+      "active_usd_contribution": -0.0006628111,
       "avg_weight": 0.002477,
       "avg_bm_weight": 0.003164,
       "avg_active_weight": -0.000687,
-      "latest_weight": 0.002115,
+      "latest_weight": 0.002131,
       "latest_bm_weight": 0.002366,
-      "latest_active": -0.00025
+      "latest_active": -0.000235
     },
     {
       "ticker": "MDLZ",
@@ -3556,9 +3556,9 @@
       "avg_weight": 0.001822,
       "avg_bm_weight": 0.002536,
       "avg_active_weight": -0.000714,
-      "latest_weight": 0.000952,
+      "latest_weight": 0.00095,
       "latest_bm_weight": 0.001169,
-      "latest_active": -0.000216
+      "latest_active": -0.000219
     },
     {
       "ticker": "KEYS",
@@ -3579,9 +3579,9 @@
       "avg_weight": 0.000537,
       "avg_bm_weight": 0.00076,
       "avg_active_weight": -0.000223,
-      "latest_weight": 0.000623,
+      "latest_weight": 0.000621,
       "latest_bm_weight": 0.001012,
-      "latest_active": -0.000389
+      "latest_active": -0.000391
     },
     {
       "ticker": "UNP",
@@ -3602,9 +3602,9 @@
       "avg_weight": 0.003324,
       "avg_bm_weight": 0.004041,
       "avg_active_weight": -0.000718,
-      "latest_weight": 0.002346,
+      "latest_weight": 0.002342,
       "latest_bm_weight": 0.002594,
-      "latest_active": -0.000248
+      "latest_active": -0.000252
     },
     {
       "ticker": "SPOT",
@@ -3625,55 +3625,55 @@
       "avg_weight": 0.003048,
       "avg_bm_weight": 0.001402,
       "avg_active_weight": 0.001646,
-      "latest_weight": 0.000983,
+      "latest_weight": 0.000981,
       "latest_bm_weight": 0.001553,
-      "latest_active": -0.00057
+      "latest_active": -0.000573
     },
     {
       "ticker": "ABBN",
       "sector": "Industrials",
       "currency": "CHF",
-      "portfolio_contribution": 0.003391,
-      "benchmark_contribution": 0.00421,
-      "active_contribution": -0.000819,
+      "portfolio_contribution": 0.003436,
+      "benchmark_contribution": 0.00426,
+      "active_contribution": -0.000824,
       "portfolio_local_contribution": 0.0029814417,
-      "portfolio_fx_contribution": 0.0004097747,
-      "portfolio_usd_contribution": 0.0033912163,
+      "portfolio_fx_contribution": 0.0004547766,
+      "portfolio_usd_contribution": 0.0034362183,
       "benchmark_local_contribution": 0.0037703095,
-      "benchmark_fx_contribution": 0.0004398667,
-      "benchmark_usd_contribution": 0.0042101762,
+      "benchmark_fx_contribution": 0.000489433,
+      "benchmark_usd_contribution": 0.0042597425,
       "active_local_contribution": -0.0007888678,
-      "active_fx_contribution": -3.0092e-05,
-      "active_usd_contribution": -0.0008189598,
+      "active_fx_contribution": -3.46564e-05,
+      "active_usd_contribution": -0.0008235242,
       "avg_weight": 0.00184,
       "avg_bm_weight": 0.002133,
       "avg_active_weight": -0.000293,
-      "latest_weight": 0.002272,
+      "latest_weight": 0.002312,
       "latest_bm_weight": 0.002642,
-      "latest_active": -0.000371
+      "latest_active": -0.00033
     },
     {
       "ticker": "SU",
       "sector": "Industrials",
       "currency": "EUR",
-      "portfolio_contribution": 0.004219,
-      "benchmark_contribution": 0.005058,
-      "active_contribution": -0.000838,
+      "portfolio_contribution": 0.004237,
+      "benchmark_contribution": 0.005084,
+      "active_contribution": -0.000846,
       "portfolio_local_contribution": 0.0040613765,
-      "portfolio_fx_contribution": 0.0001580218,
-      "portfolio_usd_contribution": 0.0042193984,
+      "portfolio_fx_contribution": 0.0001758293,
+      "portfolio_usd_contribution": 0.0042372058,
       "benchmark_local_contribution": 0.0048912882,
-      "benchmark_fx_contribution": 0.0001665258,
-      "benchmark_usd_contribution": 0.005057814,
+      "benchmark_fx_contribution": 0.0001924069,
+      "benchmark_usd_contribution": 0.0050836951,
       "active_local_contribution": -0.0008299117,
-      "active_fx_contribution": -8.504e-06,
-      "active_usd_contribution": -0.0008384156,
+      "active_fx_contribution": -1.65776e-05,
+      "active_usd_contribution": -0.0008464893,
       "avg_weight": 0.00232,
       "avg_bm_weight": 0.002717,
       "avg_active_weight": -0.000397,
-      "latest_weight": 0.00186,
+      "latest_weight": 0.001874,
       "latest_bm_weight": 0.002888,
-      "latest_active": -0.001028
+      "latest_active": -0.001014
     },
     {
       "ticker": "TTWO",
@@ -3694,9 +3694,9 @@
       "avg_weight": 0.000765,
       "avg_bm_weight": 0.000646,
       "avg_active_weight": 0.000119,
-      "latest_weight": 0.000526,
+      "latest_weight": 0.000524,
       "latest_bm_weight": 0.000662,
-      "latest_active": -0.000137
+      "latest_active": -0.000139
     },
     {
       "ticker": "PG",
@@ -3717,9 +3717,9 @@
       "avg_weight": 0.007396,
       "avg_bm_weight": 0.010115,
       "avg_active_weight": -0.002719,
-      "latest_weight": 0.004651,
+      "latest_weight": 0.004642,
       "latest_bm_weight": 0.004873,
-      "latest_active": -0.000223
+      "latest_active": -0.000231
     },
     {
       "ticker": "WDC",
@@ -3763,9 +3763,9 @@
       "avg_weight": 0.002324,
       "avg_bm_weight": 0.003034,
       "avg_active_weight": -0.00071,
-      "latest_weight": 0.00094,
+      "latest_weight": 0.000937,
       "latest_bm_weight": 0.001174,
-      "latest_active": -0.000234
+      "latest_active": -0.000236
     },
     {
       "ticker": "RACE",
@@ -3786,9 +3786,9 @@
       "avg_weight": 0.001444,
       "avg_bm_weight": 0.001375,
       "avg_active_weight": 6.9e-05,
-      "latest_weight": 0.000826,
+      "latest_weight": 0.000824,
       "latest_bm_weight": 0.00106,
-      "latest_active": -0.000234
+      "latest_active": -0.000236
     },
     {
       "ticker": "ETN",
@@ -3809,9 +3809,9 @@
       "avg_weight": 0.001591,
       "avg_bm_weight": 0.002077,
       "avg_active_weight": -0.000487,
-      "latest_weight": 0.000136,
+      "latest_weight": 0.000135,
       "latest_bm_weight": 0.002449,
-      "latest_active": -0.002312
+      "latest_active": -0.002313
     },
     {
       "ticker": "RTX",
@@ -3832,9 +3832,9 @@
       "avg_weight": 0.002859,
       "avg_bm_weight": 0.004096,
       "avg_active_weight": -0.001237,
-      "latest_weight": 0.00281,
+      "latest_weight": 0.002805,
       "latest_bm_weight": 0.004442,
-      "latest_active": -0.001632
+      "latest_active": -0.001637
     },
     {
       "ticker": "CVX",
@@ -3855,9 +3855,9 @@
       "avg_weight": 0.006778,
       "avg_bm_weight": 0.007645,
       "avg_active_weight": -0.000867,
-      "latest_weight": 0.004346,
+      "latest_weight": 0.004338,
       "latest_bm_weight": 0.005941,
-      "latest_active": -0.001595
+      "latest_active": -0.001603
     },
     {
       "ticker": "APH",
@@ -3878,9 +3878,9 @@
       "avg_weight": 0.001531,
       "avg_bm_weight": 0.001623,
       "avg_active_weight": -9.2e-05,
-      "latest_weight": 0.00595,
+      "latest_weight": 0.00594,
       "latest_bm_weight": 0.002876,
-      "latest_active": 0.003075
+      "latest_active": 0.003064
     },
     {
       "ticker": "MRK",
@@ -3901,9 +3901,9 @@
       "avg_weight": 0.00518,
       "avg_bm_weight": 0.00707,
       "avg_active_weight": -0.00189,
-      "latest_weight": 0.003202,
+      "latest_weight": 0.003196,
       "latest_bm_weight": 0.004874,
-      "latest_active": -0.001672
+      "latest_active": -0.001679
     },
     {
       "ticker": "DIS",
@@ -3924,9 +3924,9 @@
       "avg_weight": 0.005007,
       "avg_bm_weight": 0.00669,
       "avg_active_weight": -0.001683,
-      "latest_weight": 0.002406,
+      "latest_weight": 0.002401,
       "latest_bm_weight": 0.002623,
-      "latest_active": -0.000217
+      "latest_active": -0.000222
     },
     {
       "ticker": "PWR",
@@ -3947,9 +3947,9 @@
       "avg_weight": 0.000356,
       "avg_bm_weight": 0.000656,
       "avg_active_weight": -0.0003,
-      "latest_weight": 8.9e-05,
+      "latest_weight": 8.7e-05,
       "latest_bm_weight": 0.00153,
-      "latest_active": -0.001441
+      "latest_active": -0.001442
     },
     {
       "ticker": "AMZN",
@@ -3993,9 +3993,9 @@
       "avg_weight": 0.002419,
       "avg_bm_weight": 0.003937,
       "avg_active_weight": -0.001518,
-      "latest_weight": 0.000922,
+      "latest_weight": 0.000919,
       "latest_bm_weight": 0.001055,
-      "latest_active": -0.000133
+      "latest_active": -0.000135
     },
     {
       "ticker": "CRM",
@@ -4016,26 +4016,26 @@
       "avg_weight": 0.004315,
       "avg_bm_weight": 0.005794,
       "avg_active_weight": -0.001479,
-      "latest_weight": 0.001461,
+      "latest_weight": 0.001458,
       "latest_bm_weight": 0.002348,
-      "latest_active": -0.000886
+      "latest_active": -0.00089
     },
     {
       "ticker": "IFX",
       "sector": "Technology",
       "currency": "EUR",
-      "portfolio_contribution": 0.000629,
-      "benchmark_contribution": 0.001916,
-      "active_contribution": -0.001287,
+      "portfolio_contribution": 0.00063,
+      "benchmark_contribution": 0.001928,
+      "active_contribution": -0.001297,
       "portfolio_local_contribution": 0.0005795909,
-      "portfolio_fx_contribution": 4.9805e-05,
-      "portfolio_usd_contribution": 0.000629396,
+      "portfolio_fx_contribution": 5.07157e-05,
+      "portfolio_usd_contribution": 0.0006303066,
       "benchmark_local_contribution": 0.0018601295,
-      "benchmark_fx_contribution": 5.6165e-05,
-      "benchmark_usd_contribution": 0.0019162945,
+      "benchmark_fx_contribution": 6.75688e-05,
+      "benchmark_usd_contribution": 0.0019276983,
       "active_local_contribution": -0.0012805386,
-      "active_fx_contribution": -6.36e-06,
-      "active_usd_contribution": -0.0012868986,
+      "active_fx_contribution": -1.68531e-05,
+      "active_usd_contribution": -0.0012973917,
       "avg_weight": 0.000643,
       "avg_bm_weight": 0.00125,
       "avg_active_weight": -0.000608,
@@ -4062,9 +4062,9 @@
       "avg_weight": 0.003219,
       "avg_bm_weight": 0.004287,
       "avg_active_weight": -0.001068,
-      "latest_weight": 0.004275,
+      "latest_weight": 0.004267,
       "latest_bm_weight": 0.003204,
-      "latest_active": 0.001071
+      "latest_active": 0.001063
     },
     {
       "ticker": "ABBV",
@@ -4085,9 +4085,9 @@
       "avg_weight": 0.005343,
       "avg_bm_weight": 0.006751,
       "avg_active_weight": -0.001407,
-      "latest_weight": 0.005636,
+      "latest_weight": 0.005626,
       "latest_bm_weight": 0.006687,
-      "latest_active": -0.001051
+      "latest_active": -0.001061
     },
     {
       "ticker": "LIN",
@@ -4108,9 +4108,9 @@
       "avg_weight": 0.003438,
       "avg_bm_weight": 0.004638,
       "avg_active_weight": -0.0012,
-      "latest_weight": 0.002916,
+      "latest_weight": 0.002911,
       "latest_bm_weight": 0.003225,
-      "latest_active": -0.000309
+      "latest_active": -0.000315
     },
     {
       "ticker": "PM",
@@ -4131,9 +4131,9 @@
       "avg_weight": 0.003747,
       "avg_bm_weight": 0.00471,
       "avg_active_weight": -0.000963,
-      "latest_weight": 0.004046,
+      "latest_weight": 0.004039,
       "latest_bm_weight": 0.004274,
-      "latest_active": -0.000228
+      "latest_active": -0.000235
     },
     {
       "ticker": "RBLX",
@@ -4154,9 +4154,9 @@
       "avg_weight": 0.000516,
       "avg_bm_weight": 0.000613,
       "avg_active_weight": -9.7e-05,
-      "latest_weight": 0.003765,
+      "latest_weight": 0.003758,
       "latest_bm_weight": 0.000395,
-      "latest_active": 0.00337
+      "latest_active": 0.003363
     },
     {
       "ticker": "ABT",
@@ -4185,47 +4185,47 @@
       "ticker": "ASML",
       "sector": "Technology",
       "currency": "EUR",
-      "portfolio_contribution": 0.016356,
-      "benchmark_contribution": 0.017846,
-      "active_contribution": -0.00149,
+      "portfolio_contribution": 0.016438,
+      "benchmark_contribution": 0.017937,
+      "active_contribution": -0.001498,
       "portfolio_local_contribution": 0.0155403314,
-      "portfolio_fx_contribution": 0.0008156156,
-      "portfolio_usd_contribution": 0.016355947,
+      "portfolio_fx_contribution": 0.0008978248,
+      "portfolio_usd_contribution": 0.0164381562,
       "benchmark_local_contribution": 0.0176501527,
-      "benchmark_fx_contribution": 0.0001956496,
-      "benchmark_usd_contribution": 0.0178458023,
+      "benchmark_fx_contribution": 0.0002864693,
+      "benchmark_usd_contribution": 0.0179366219,
       "active_local_contribution": -0.0021098213,
-      "active_fx_contribution": 0.0006199661,
-      "active_usd_contribution": -0.0014898552,
+      "active_fx_contribution": 0.0006113555,
+      "active_usd_contribution": -0.0014984658,
       "avg_weight": 0.006148,
       "avg_bm_weight": 0.007007,
       "avg_active_weight": -0.000859,
-      "latest_weight": 0.009041,
+      "latest_weight": 0.009108,
       "latest_bm_weight": 0.010123,
-      "latest_active": -0.001081
+      "latest_active": -0.001015
     },
     {
       "ticker": "285A",
       "sector": "Technology",
       "currency": "JPY",
-      "portfolio_contribution": 0.001238,
-      "benchmark_contribution": 0.002811,
-      "active_contribution": -0.001572,
+      "portfolio_contribution": 0.001247,
+      "benchmark_contribution": 0.002833,
+      "active_contribution": -0.001586,
       "portfolio_local_contribution": 0.0012867105,
-      "portfolio_fx_contribution": -4.84642e-05,
-      "portfolio_usd_contribution": 0.0012382463,
+      "portfolio_fx_contribution": -3.98247e-05,
+      "portfolio_usd_contribution": 0.0012468858,
       "benchmark_local_contribution": 0.002923596,
-      "benchmark_fx_contribution": -0.0001130865,
-      "benchmark_usd_contribution": 0.0028105095,
+      "benchmark_fx_contribution": -9.10614e-05,
+      "benchmark_usd_contribution": 0.0028325346,
       "active_local_contribution": -0.0016368855,
-      "active_fx_contribution": 6.46222e-05,
-      "active_usd_contribution": -0.0015722632,
+      "active_fx_contribution": 5.12366e-05,
+      "active_usd_contribution": -0.0015856488,
       "avg_weight": 9.4e-05,
       "avg_bm_weight": 0.000214,
       "avg_active_weight": -0.000121,
-      "latest_weight": 0.002531,
+      "latest_weight": 0.002505,
       "latest_bm_weight": 0.00261,
-      "latest_active": -7.9e-05
+      "latest_active": -0.000104
     },
     {
       "ticker": "SNPS",
@@ -4246,32 +4246,9 @@
       "avg_weight": 0.000536,
       "avg_bm_weight": 0.001436,
       "avg_active_weight": -0.000901,
-      "latest_weight": 0.00087,
+      "latest_weight": 0.000868,
       "latest_bm_weight": 0.001132,
-      "latest_active": -0.000262
-    },
-    {
-      "ticker": "8306",
-      "sector": "Financials",
-      "currency": "JPY",
-      "portfolio_contribution": 0.0028,
-      "benchmark_contribution": 0.004615,
-      "active_contribution": -0.001814,
-      "portfolio_local_contribution": 0.0033000594,
-      "portfolio_fx_contribution": -0.0004999395,
-      "portfolio_usd_contribution": 0.0028001199,
-      "benchmark_local_contribution": 0.0053729953,
-      "benchmark_fx_contribution": -0.0007584282,
-      "benchmark_usd_contribution": 0.0046145671,
-      "active_local_contribution": -0.002072936,
-      "active_fx_contribution": 0.0002584888,
-      "active_usd_contribution": -0.0018144472,
-      "avg_weight": 0.00202,
-      "avg_bm_weight": 0.002808,
-      "avg_active_weight": -0.000788,
-      "latest_weight": 0.001015,
-      "latest_bm_weight": 0.003819,
-      "latest_active": -0.002805
+      "latest_active": -0.000264
     },
     {
       "ticker": "NKE",
@@ -4292,9 +4269,32 @@
       "avg_weight": 0.00481,
       "avg_bm_weight": 0.004839,
       "avg_active_weight": -2.9e-05,
-      "latest_weight": 0.000734,
+      "latest_weight": 0.000732,
       "latest_bm_weight": 0.000869,
-      "latest_active": -0.000134
+      "latest_active": -0.000136
+    },
+    {
+      "ticker": "8306",
+      "sector": "Financials",
+      "currency": "JPY",
+      "portfolio_contribution": 0.00281,
+      "benchmark_contribution": 0.004646,
+      "active_contribution": -0.001837,
+      "portfolio_local_contribution": 0.0033000594,
+      "portfolio_fx_contribution": -0.00049044,
+      "portfolio_usd_contribution": 0.0028096194,
+      "benchmark_local_contribution": 0.0053729953,
+      "benchmark_fx_contribution": -0.000726606,
+      "benchmark_usd_contribution": 0.0046463893,
+      "active_local_contribution": -0.002072936,
+      "active_fx_contribution": 0.000236166,
+      "active_usd_contribution": -0.0018367699,
+      "avg_weight": 0.00202,
+      "avg_bm_weight": 0.002808,
+      "avg_active_weight": -0.000788,
+      "latest_weight": 0.001022,
+      "latest_bm_weight": 0.003819,
+      "latest_active": -0.002798
     },
     {
       "ticker": "ACN",
@@ -4315,9 +4315,9 @@
       "avg_weight": 0.002798,
       "avg_bm_weight": 0.004994,
       "avg_active_weight": -0.002196,
-      "latest_weight": 0.006649,
+      "latest_weight": 0.006638,
       "latest_bm_weight": 0.001547,
-      "latest_active": 0.005102
+      "latest_active": 0.00509
     },
     {
       "ticker": "KO",
@@ -4338,9 +4338,9 @@
       "avg_weight": 0.005473,
       "avg_bm_weight": 0.007572,
       "avg_active_weight": -0.0021,
-      "latest_weight": 0.0053,
+      "latest_weight": 0.005291,
       "latest_bm_weight": 0.005585,
-      "latest_active": -0.000285
+      "latest_active": -0.000294
     },
     {
       "ticker": "CDNS",
@@ -4384,9 +4384,9 @@
       "avg_weight": 0.001054,
       "avg_bm_weight": 0.002509,
       "avg_active_weight": -0.001454,
-      "latest_weight": 0.001049,
+      "latest_weight": 0.001047,
       "latest_bm_weight": 0.002229,
-      "latest_active": -0.00118
+      "latest_active": -0.001182
     },
     {
       "ticker": "GS",
@@ -4407,9 +4407,9 @@
       "avg_weight": 0.002884,
       "avg_bm_weight": 0.003692,
       "avg_active_weight": -0.000808,
-      "latest_weight": 0.003353,
+      "latest_weight": 0.003346,
       "latest_bm_weight": 0.004604,
-      "latest_active": -0.001251
+      "latest_active": -0.001257
     },
     {
       "ticker": "SNDK",
@@ -4453,9 +4453,9 @@
       "avg_weight": 0.005715,
       "avg_bm_weight": 0.006658,
       "avg_active_weight": -0.000943,
-      "latest_weight": 0.003941,
+      "latest_weight": 0.003934,
       "latest_bm_weight": 0.006429,
-      "latest_active": -0.002488
+      "latest_active": -0.002495
     },
     {
       "ticker": "PEP",
@@ -4476,9 +4476,9 @@
       "avg_weight": 0.004051,
       "avg_bm_weight": 0.006347,
       "avg_active_weight": -0.002296,
-      "latest_weight": 0.002549,
+      "latest_weight": 0.002544,
       "latest_bm_weight": 0.002795,
-      "latest_active": -0.000246
+      "latest_active": -0.000251
     },
     {
       "ticker": "BAC",
@@ -4499,9 +4499,9 @@
       "avg_weight": 0.007666,
       "avg_bm_weight": 0.00881,
       "avg_active_weight": -0.001144,
-      "latest_weight": 0.003616,
+      "latest_weight": 0.003609,
       "latest_bm_weight": 0.006565,
-      "latest_active": -0.002948
+      "latest_active": -0.002955
     },
     {
       "ticker": "TMUS",
@@ -4522,9 +4522,9 @@
       "avg_weight": 0.002994,
       "avg_bm_weight": 0.004597,
       "avg_active_weight": -0.001603,
-      "latest_weight": 0.002647,
+      "latest_weight": 0.002642,
       "latest_bm_weight": 0.002865,
-      "latest_active": -0.000218
+      "latest_active": -0.000224
     },
     {
       "ticker": "MSFT",
@@ -4553,24 +4553,24 @@
       "ticker": "SIE",
       "sector": "Industrials",
       "currency": "EUR",
-      "portfolio_contribution": 0.003739,
-      "benchmark_contribution": 0.006019,
-      "active_contribution": -0.002279,
+      "portfolio_contribution": 0.003756,
+      "benchmark_contribution": 0.006051,
+      "active_contribution": -0.002295,
       "portfolio_local_contribution": 0.0035172364,
-      "portfolio_fx_contribution": 0.0002222402,
-      "portfolio_usd_contribution": 0.0037394767,
+      "portfolio_fx_contribution": 0.0002390876,
+      "portfolio_usd_contribution": 0.003756324,
       "benchmark_local_contribution": 0.0056959822,
-      "benchmark_fx_contribution": 0.0003226282,
-      "benchmark_usd_contribution": 0.0060186104,
+      "benchmark_fx_contribution": 0.0003553374,
+      "benchmark_usd_contribution": 0.0060513196,
       "active_local_contribution": -0.0021787457,
-      "active_fx_contribution": -0.000100388,
-      "active_usd_contribution": -0.0022791337,
+      "active_fx_contribution": -0.0001162498,
+      "active_usd_contribution": -0.0022949956,
       "avg_weight": 0.002492,
       "avg_bm_weight": 0.003879,
       "avg_active_weight": -0.001387,
-      "latest_weight": 0.001753,
+      "latest_weight": 0.001766,
       "latest_bm_weight": 0.00365,
-      "latest_active": -0.001897
+      "latest_active": -0.001884
     },
     {
       "ticker": "TXN",
@@ -4591,9 +4591,9 @@
       "avg_weight": 0.002672,
       "avg_bm_weight": 0.00445,
       "avg_active_weight": -0.001778,
-      "latest_weight": 0.001985,
+      "latest_weight": 0.001981,
       "latest_bm_weight": 0.003634,
-      "latest_active": -0.001648
+      "latest_active": -0.001653
     },
     {
       "ticker": "CAT",
@@ -4614,9 +4614,9 @@
       "avg_weight": 0.003137,
       "avg_bm_weight": 0.003755,
       "avg_active_weight": -0.000617,
-      "latest_weight": 0.00106,
+      "latest_weight": 0.001057,
       "latest_bm_weight": 0.005649,
-      "latest_active": -0.004589
+      "latest_active": -0.004592
     },
     {
       "ticker": "DHR",
@@ -4637,9 +4637,9 @@
       "avg_weight": 0.002749,
       "avg_bm_weight": 0.004629,
       "avg_active_weight": -0.00188,
-      "latest_weight": 0.00182,
+      "latest_weight": 0.001816,
       "latest_bm_weight": 0.002051,
-      "latest_active": -0.000231
+      "latest_active": -0.000234
     },
     {
       "ticker": "NXPI",
@@ -4660,9 +4660,9 @@
       "avg_weight": 0.000685,
       "avg_bm_weight": 0.001358,
       "avg_active_weight": -0.000672,
-      "latest_weight": 0.003698,
+      "latest_weight": 0.003691,
       "latest_bm_weight": 0.000843,
-      "latest_active": 0.002854
+      "latest_active": 0.002847
     },
     {
       "ticker": "TMO",
@@ -4683,9 +4683,9 @@
       "avg_weight": 0.003378,
       "avg_bm_weight": 0.005366,
       "avg_active_weight": -0.001989,
-      "latest_weight": 0.002756,
+      "latest_weight": 0.00275,
       "latest_bm_weight": 0.003183,
-      "latest_active": -0.000427
+      "latest_active": -0.000433
     },
     {
       "ticker": "NEE",
@@ -4706,9 +4706,9 @@
       "avg_weight": 0.006538,
       "avg_bm_weight": 0.00419,
       "avg_active_weight": 0.002348,
-      "latest_weight": 0.002385,
+      "latest_weight": 0.00238,
       "latest_bm_weight": 0.002629,
-      "latest_active": -0.000244
+      "latest_active": -0.000249
     },
     {
       "ticker": "DDOG",
@@ -4752,9 +4752,9 @@
       "avg_weight": 0.002832,
       "avg_bm_weight": 0.004159,
       "avg_active_weight": -0.001327,
-      "latest_weight": 0.00182,
+      "latest_weight": 0.001817,
       "latest_bm_weight": 0.004994,
-      "latest_active": -0.003173
+      "latest_active": -0.003177
     },
     {
       "ticker": "INTC",
@@ -4775,9 +4775,9 @@
       "avg_weight": 0.005641,
       "avg_bm_weight": 0.006031,
       "avg_active_weight": -0.000389,
-      "latest_weight": 0.004874,
+      "latest_weight": 0.004865,
       "latest_bm_weight": 0.007468,
-      "latest_active": -0.002594
+      "latest_active": -0.002603
     },
     {
       "ticker": "JNJ",
@@ -4798,9 +4798,9 @@
       "avg_weight": 0.006951,
       "avg_bm_weight": 0.012429,
       "avg_active_weight": -0.005478,
-      "latest_weight": 0.005924,
+      "latest_weight": 0.005913,
       "latest_bm_weight": 0.009549,
-      "latest_active": -0.003625
+      "latest_active": -0.003636
     },
     {
       "ticker": "JPM",
@@ -4821,55 +4821,55 @@
       "avg_weight": 0.009993,
       "avg_bm_weight": 0.013863,
       "avg_active_weight": -0.00387,
-      "latest_weight": 0.003819,
+      "latest_weight": 0.003812,
       "latest_bm_weight": 0.014113,
-      "latest_active": -0.010294
+      "latest_active": -0.010301
     },
     {
       "ticker": "NESN",
       "sector": "Consumer Staples",
       "currency": "CHF",
-      "portfolio_contribution": 0.002026,
-      "benchmark_contribution": 0.005785,
-      "active_contribution": -0.003758,
+      "portfolio_contribution": 0.002093,
+      "benchmark_contribution": 0.005854,
+      "active_contribution": -0.003761,
       "portfolio_local_contribution": 0.000964214,
-      "portfolio_fx_contribution": 0.0010620939,
-      "portfolio_usd_contribution": 0.002026308,
+      "portfolio_fx_contribution": 0.0011286629,
+      "portfolio_usd_contribution": 0.0020928769,
       "benchmark_local_contribution": 0.0037351837,
-      "benchmark_fx_contribution": 0.002049516,
-      "benchmark_usd_contribution": 0.0057846997,
+      "benchmark_fx_contribution": 0.0021183817,
+      "benchmark_usd_contribution": 0.0058535653,
       "active_local_contribution": -0.0027709696,
-      "active_fx_contribution": -0.0009874221,
-      "active_usd_contribution": -0.0037583917,
+      "active_fx_contribution": -0.0009897188,
+      "active_usd_contribution": -0.0037606884,
       "avg_weight": 0.003842,
       "avg_bm_weight": 0.009449,
       "avg_active_weight": -0.005607,
-      "latest_weight": 0.00342,
+      "latest_weight": 0.003481,
       "latest_bm_weight": 0.003671,
-      "latest_active": -0.000251
+      "latest_active": -0.000191
     },
     {
       "ticker": "NOVN",
       "sector": "Healthcare",
       "currency": "CHF",
-      "portfolio_contribution": 0.002553,
-      "benchmark_contribution": 0.006854,
-      "active_contribution": -0.0043,
+      "portfolio_contribution": 0.002616,
+      "benchmark_contribution": 0.00694,
+      "active_contribution": -0.004324,
       "portfolio_local_contribution": 0.002032175,
-      "portfolio_fx_contribution": 0.0005209876,
-      "portfolio_usd_contribution": 0.0025531625,
+      "portfolio_fx_contribution": 0.0005840834,
+      "portfolio_usd_contribution": 0.0026162583,
       "benchmark_local_contribution": 0.0053588516,
-      "benchmark_fx_contribution": 0.0014947642,
-      "benchmark_usd_contribution": 0.0068536158,
+      "benchmark_fx_contribution": 0.0015809868,
+      "benchmark_usd_contribution": 0.0069398384,
       "active_local_contribution": -0.0033266766,
-      "active_fx_contribution": -0.0009737766,
-      "active_usd_contribution": -0.0043004533,
+      "active_fx_contribution": -0.0009969034,
+      "active_usd_contribution": -0.0043235801,
       "avg_weight": 0.002745,
       "avg_bm_weight": 0.00695,
       "avg_active_weight": -0.004205,
-      "latest_weight": 0.001648,
+      "latest_weight": 0.001742,
       "latest_bm_weight": 0.004596,
-      "latest_active": -0.002949
+      "latest_active": -0.002854
     },
     {
       "ticker": "KLAC",
@@ -4913,9 +4913,9 @@
       "avg_weight": 0.006307,
       "avg_bm_weight": 0.011056,
       "avg_active_weight": -0.004749,
-      "latest_weight": 0.002372,
+      "latest_weight": 0.002367,
       "latest_bm_weight": 0.005168,
-      "latest_active": -0.002796
+      "latest_active": -0.002801
     },
     {
       "ticker": "AAPL",
@@ -4936,9 +4936,9 @@
       "avg_weight": 0.058861,
       "avg_bm_weight": 0.067436,
       "avg_active_weight": -0.008575,
-      "latest_weight": 0.060971,
+      "latest_weight": 0.060871,
       "latest_bm_weight": 0.06613,
-      "latest_active": -0.005159
+      "latest_active": -0.005259
     },
     {
       "ticker": "WMT",
@@ -4959,9 +4959,9 @@
       "avg_weight": 0.010709,
       "avg_bm_weight": 0.013505,
       "avg_active_weight": -0.002796,
-      "latest_weight": 0.005803,
+      "latest_weight": 0.005793,
       "latest_bm_weight": 0.013399,
-      "latest_active": -0.007596
+      "latest_active": -0.007606
     },
     {
       "ticker": "MA",
@@ -4982,9 +4982,9 @@
       "avg_weight": 0.005646,
       "avg_bm_weight": 0.010602,
       "avg_active_weight": -0.004955,
-      "latest_weight": 0.006441,
+      "latest_weight": 0.00643,
       "latest_bm_weight": 0.007355,
-      "latest_active": -0.000913
+      "latest_active": -0.000925
     },
     {
       "ticker": "AMAT",
@@ -5010,6 +5010,29 @@
       "latest_active": -0.005849
     },
     {
+      "ticker": "005930",
+      "sector": "Technology",
+      "currency": "KRW",
+      "portfolio_contribution": 0.012128,
+      "benchmark_contribution": 0.018748,
+      "active_contribution": -0.00662,
+      "portfolio_local_contribution": 0.0118048457,
+      "portfolio_fx_contribution": 0.0003232074,
+      "portfolio_usd_contribution": 0.0121280531,
+      "benchmark_local_contribution": 0.0201560356,
+      "benchmark_fx_contribution": -0.0014083942,
+      "benchmark_usd_contribution": 0.0187476414,
+      "active_local_contribution": -0.0083511899,
+      "active_fx_contribution": 0.0017316016,
+      "active_usd_contribution": -0.0066195883,
+      "avg_weight": 0.007375,
+      "avg_bm_weight": 0.009939,
+      "avg_active_weight": -0.002564,
+      "latest_weight": 0.025211,
+      "latest_bm_weight": 0.015202,
+      "latest_active": 0.010009
+    },
+    {
       "ticker": "NVDA",
       "sector": "Technology",
       "currency": "USD",
@@ -5031,29 +5054,6 @@
       "latest_weight": 0.077722,
       "latest_bm_weight": 0.077722,
       "latest_active": 0.0
-    },
-    {
-      "ticker": "005930",
-      "sector": "Technology",
-      "currency": "KRW",
-      "portfolio_contribution": 0.011812,
-      "benchmark_contribution": 0.018528,
-      "active_contribution": -0.006716,
-      "portfolio_local_contribution": 0.0118048457,
-      "portfolio_fx_contribution": 7.3078e-06,
-      "portfolio_usd_contribution": 0.0118121535,
-      "benchmark_local_contribution": 0.0201560356,
-      "benchmark_fx_contribution": -0.0016282582,
-      "benchmark_usd_contribution": 0.0185277774,
-      "active_local_contribution": -0.0083511899,
-      "active_fx_contribution": 0.001635566,
-      "active_usd_contribution": -0.0067156239,
-      "avg_weight": 0.007375,
-      "avg_bm_weight": 0.009939,
-      "avg_active_weight": -0.002564,
-      "latest_weight": 0.025156,
-      "latest_bm_weight": 0.015202,
-      "latest_active": 0.009954
     },
     {
       "ticker": "GOOGL",
@@ -5097,9 +5097,9 @@
       "avg_weight": 0.002026,
       "avg_bm_weight": 0.001643,
       "avg_active_weight": 0.000384,
-      "latest_weight": 0.004675,
+      "latest_weight": 0.004694,
       "latest_bm_weight": 0.004426,
-      "latest_active": 0.000249
+      "latest_active": 0.000268
     },
     {
       "ticker": "BRK/B",
@@ -5120,32 +5120,32 @@
       "avg_weight": 0.012235,
       "avg_bm_weight": 0.020704,
       "avg_active_weight": -0.008469,
-      "latest_weight": 0.012062,
+      "latest_weight": 0.012042,
       "latest_bm_weight": 0.015659,
-      "latest_active": -0.003597
+      "latest_active": -0.003617
     },
     {
       "ticker": "MC",
       "sector": "Consumer Discretionary",
       "currency": "EUR",
-      "portfolio_contribution": 0.002129,
-      "benchmark_contribution": 0.010025,
-      "active_contribution": -0.007896,
+      "portfolio_contribution": 0.002162,
+      "benchmark_contribution": 0.010059,
+      "active_contribution": -0.007897,
       "portfolio_local_contribution": 0.0019309299,
-      "portfolio_fx_contribution": 0.0001985612,
-      "portfolio_usd_contribution": 0.0021294911,
+      "portfolio_fx_contribution": 0.0002310982,
+      "portfolio_usd_contribution": 0.0021620281,
       "benchmark_local_contribution": 0.0096894911,
-      "benchmark_fx_contribution": 0.0003356577,
-      "benchmark_usd_contribution": 0.0100251488,
+      "benchmark_fx_contribution": 0.0003693076,
+      "benchmark_usd_contribution": 0.0100587987,
       "active_local_contribution": -0.0077585612,
-      "active_fx_contribution": -0.0001370965,
-      "active_usd_contribution": -0.0078956577,
+      "active_fx_contribution": -0.0001382094,
+      "active_usd_contribution": -0.0078967706,
       "avg_weight": 0.005447,
       "avg_bm_weight": 0.009283,
       "avg_active_weight": -0.003836,
-      "latest_weight": 0.003502,
+      "latest_weight": 0.003528,
       "latest_bm_weight": 0.003746,
-      "latest_active": -0.000244
+      "latest_active": -0.000218
     },
     {
       "ticker": "LRCX",
@@ -5189,32 +5189,32 @@
       "avg_weight": 0.005566,
       "avg_bm_weight": 0.014585,
       "avg_active_weight": -0.00902,
-      "latest_weight": 0.003456,
+      "latest_weight": 0.003449,
       "latest_bm_weight": 0.00994,
-      "latest_active": -0.006484
+      "latest_active": -0.006491
     },
     {
       "ticker": "000660",
       "sector": "Technology",
       "currency": "KRW",
-      "portfolio_contribution": 0.004725,
-      "benchmark_contribution": 0.013455,
-      "active_contribution": -0.00873,
+      "portfolio_contribution": 0.004825,
+      "benchmark_contribution": 0.013618,
+      "active_contribution": -0.008794,
       "portfolio_local_contribution": 0.0062794563,
-      "portfolio_fx_contribution": -0.0015544387,
-      "portfolio_usd_contribution": 0.0047250176,
+      "portfolio_fx_contribution": -0.001454817,
+      "portfolio_usd_contribution": 0.0048246394,
       "benchmark_local_contribution": 0.013737024,
-      "benchmark_fx_contribution": -0.0002824951,
-      "benchmark_usd_contribution": 0.0134545288,
+      "benchmark_fx_contribution": -0.0001185867,
+      "benchmark_usd_contribution": 0.0136184373,
       "active_local_contribution": -0.0074575676,
-      "active_fx_contribution": -0.0012719436,
-      "active_usd_contribution": -0.0087295112,
+      "active_fx_contribution": -0.0013362303,
+      "active_usd_contribution": -0.0087937979,
       "avg_weight": 0.003488,
       "avg_bm_weight": 0.002894,
       "avg_active_weight": 0.000594,
-      "latest_weight": 0.006785,
+      "latest_weight": 0.006872,
       "latest_bm_weight": 0.011609,
-      "latest_active": -0.004825
+      "latest_active": -0.004737
     },
     {
       "ticker": "MRVL",
@@ -5235,9 +5235,9 @@
       "avg_weight": 0.001933,
       "avg_bm_weight": 0.001274,
       "avg_active_weight": 0.000659,
-      "latest_weight": 0.000359,
+      "latest_weight": 0.000357,
       "latest_bm_weight": 0.002762,
-      "latest_active": -0.002403
+      "latest_active": -0.002404
     },
     {
       "ticker": "TSM",
@@ -5258,26 +5258,26 @@
       "avg_weight": 0.013929,
       "avg_bm_weight": 0.017368,
       "avg_active_weight": -0.003438,
-      "latest_weight": 0.022467,
+      "latest_weight": 0.022429,
       "latest_bm_weight": 0.031338,
-      "latest_active": -0.008871
+      "latest_active": -0.008909
     },
     {
       "ticker": "NOVOB",
       "sector": "Healthcare",
       "currency": "DKK",
-      "portfolio_contribution": -0.000978,
-      "benchmark_contribution": 0.008717,
-      "active_contribution": -0.009695,
+      "portfolio_contribution": -0.000926,
+      "benchmark_contribution": 0.008744,
+      "active_contribution": -0.009669,
       "portfolio_local_contribution": -0.0029647033,
-      "portfolio_fx_contribution": 0.0019863392,
-      "portfolio_usd_contribution": -0.0009783641,
+      "portfolio_fx_contribution": 0.0020391147,
+      "portfolio_usd_contribution": -0.0009255886,
       "benchmark_local_contribution": 0.0085304653,
-      "benchmark_fx_contribution": 0.0001861087,
-      "benchmark_usd_contribution": 0.008716574,
+      "benchmark_fx_contribution": 0.0002132651,
+      "benchmark_usd_contribution": 0.0087437304,
       "active_local_contribution": -0.0114951687,
-      "active_fx_contribution": 0.0018002305,
-      "active_usd_contribution": -0.0096949381,
+      "active_fx_contribution": 0.0018258496,
+      "active_usd_contribution": -0.0096693191,
       "avg_weight": 0.009252,
       "avg_bm_weight": 0.007518,
       "avg_active_weight": 0.001734,
@@ -5304,47 +5304,47 @@
       "avg_weight": 0.008134,
       "avg_bm_weight": 0.011776,
       "avg_active_weight": -0.003643,
-      "latest_weight": 0.028473,
+      "latest_weight": 0.028426,
       "latest_bm_weight": 0.026423,
-      "latest_active": 0.002049
+      "latest_active": 0.002002
     }
   ],
   "by_sector": [
     {
       "sector": "Technology",
-      "portfolio_contribution": 1.203939,
-      "benchmark_contribution": 0.87914,
-      "active_contribution": 0.324804
+      "portfolio_contribution": 1.204758,
+      "benchmark_contribution": 0.879744,
+      "active_contribution": 0.325022
     },
     {
       "sector": "Consumer Discretionary",
-      "portfolio_contribution": 0.216074,
-      "benchmark_contribution": 0.152881,
-      "active_contribution": 0.063189
+      "portfolio_contribution": 0.216197,
+      "benchmark_contribution": 0.153011,
+      "active_contribution": 0.063182
     },
     {
       "sector": "Industrials",
-      "portfolio_contribution": 0.14183,
-      "benchmark_contribution": 0.08096,
-      "active_contribution": 0.060872
+      "portfolio_contribution": 0.142001,
+      "benchmark_contribution": 0.081139,
+      "active_contribution": 0.060862
     },
     {
       "sector": "Energy",
-      "portfolio_contribution": 0.062744,
-      "benchmark_contribution": 0.02889,
-      "active_contribution": 0.033854
+      "portfolio_contribution": 0.062783,
+      "benchmark_contribution": 0.028938,
+      "active_contribution": 0.033845
     },
     {
       "sector": "Materials",
-      "portfolio_contribution": 0.037015,
-      "benchmark_contribution": 0.023155,
-      "active_contribution": 0.013861
+      "portfolio_contribution": 0.037039,
+      "benchmark_contribution": 0.023185,
+      "active_contribution": 0.013853
     },
     {
       "sector": "Communication Services",
-      "portfolio_contribution": 0.049883,
-      "benchmark_contribution": 0.03604,
-      "active_contribution": 0.013845
+      "portfolio_contribution": 0.049937,
+      "benchmark_contribution": 0.036097,
+      "active_contribution": 0.013842
     },
     {
       "sector": "Real Estate",
@@ -5354,27 +5354,27 @@
     },
     {
       "sector": "Utilities",
-      "portfolio_contribution": 0.009699,
-      "benchmark_contribution": 0.013184,
+      "portfolio_contribution": 0.009719,
+      "benchmark_contribution": 0.013204,
       "active_contribution": -0.003486
     },
     {
       "sector": "Healthcare",
-      "portfolio_contribution": 0.103743,
-      "benchmark_contribution": 0.117761,
-      "active_contribution": -0.01402
+      "portfolio_contribution": 0.103889,
+      "benchmark_contribution": 0.117908,
+      "active_contribution": -0.014023
     },
     {
       "sector": "Consumer Staples",
-      "portfolio_contribution": 0.054409,
-      "benchmark_contribution": 0.070205,
-      "active_contribution": -0.015794
+      "portfolio_contribution": 0.054509,
+      "benchmark_contribution": 0.070315,
+      "active_contribution": -0.015806
     },
     {
       "sector": "Financials",
-      "portfolio_contribution": 0.14255,
-      "benchmark_contribution": 0.170677,
-      "active_contribution": -0.028121
+      "portfolio_contribution": 0.142679,
+      "benchmark_contribution": 0.170841,
+      "active_contribution": -0.02816
     }
   ],
   "currency_attribution_file": "currency.json"

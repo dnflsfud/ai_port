@@ -1,0 +1,49 @@
+{
+  "preregistration": "decision log §S13.45-B",
+  "harvest": "outputs\\codex_causal_rank_65\\backtest_result.pkl",
+  "sample_n": 88,
+  "p0": {
+    "mean": -0.009925,
+    "t": -0.46,
+    "subperiod_means": [
+      -0.013403,
+      -0.045854,
+      0.029602
+    ],
+    "subperiod_signs": 1,
+    "pass": false
+  },
+  "p1": {
+    "mean": -0.006212,
+    "t": -0.304,
+    "subperiod_means": [
+      -0.002904,
+      -0.042368,
+      0.026521
+    ],
+    "subperiod_signs": 1,
+    "pass": false
+  },
+  "overall_pass": false,
+  "verdict": "SHELVE",
+  "vintage": {
+    "pkl_last_date": "2026-08-19",
+    "expected_pkl_last_date": "2026-08-19",
+    "pkl_mtime": "2026-08-19 06:13:05",
+    "workbook_mtime": "2026-08-19 04:49:14",
+    "pkl_after_workbook": true
+  },
+  "diagnostics": {
+    "self_mom_corr_mean": 0.5685,
+    "sector_ic": {
+      "mean": -0.002754,
+      "t": -0.152,
+      "subperiod_signs": 1
+    },
+    "score_corr_mean": -0.0858,
+    "valid_names_mean": 190.2,
+    "valid_names_min": 180,
+    "skipped_dates": 1,
+    "skipped_burnin": 8
+  }
+}

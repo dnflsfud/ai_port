@@ -1,0 +1,101 @@
+{
+  "preregistration": "decision log §S13.45-D (2026-08-19)",
+  "vintage": {
+    "expected_date": "2026-08-19",
+    "pkl_mtime": "2026-08-19 15:13:05",
+    "workbook_mtime": "2026-08-19 13:49:14",
+    "last_daily_weights": "2026-08-19",
+    "match": true
+  },
+  "sample_n": 97,
+  "contrib_n": 96,
+  "skipped_dates": 0,
+  "n_valid_avg": 189.38144329896906,
+  "p0": {
+    "share_outside_top5": 0.6934217219230832,
+    "threshold": 0.4,
+    "pass": true
+  },
+  "p1": {
+    "contribution_sum": 0.3037862787194742,
+    "subperiod_signs": [
+      1,
+      1,
+      1
+    ],
+    "pass": true
+  },
+  "overall_pass": true,
+  "verdict": "PASS",
+  "bucket_table": {
+    "1-5": {
+      "ow_share_mean": 0.3065782780769169,
+      "uw_share_mean": 0.08431927232485203,
+      "ow_contrib_sum": 0.30947222585004225,
+      "uw_contrib_sum": -0.018782650689256927,
+      "ow_contrib_thirds_signs": [
+        1,
+        1,
+        1
+      ]
+    },
+    "6-20": {
+      "ow_share_mean": 0.3227404420414307,
+      "uw_share_mean": 0.15951394354754347,
+      "ow_contrib_sum": 0.23988266059024435,
+      "uw_contrib_sum": -0.014771940688493865,
+      "ow_contrib_thirds_signs": [
+        1,
+        1,
+        1
+      ]
+    },
+    "21-50": {
+      "ow_share_mean": 0.28075773730477,
+      "uw_share_mean": 0.20374857371396363,
+      "ow_contrib_sum": 0.06390361812922984,
+      "uw_contrib_sum": -0.04750353391902081,
+      "ow_contrib_thirds_signs": [
+        1,
+        1,
+        1
+      ]
+    },
+    "51-100": {
+      "ow_share_mean": 0.08992354257687166,
+      "uw_share_mean": 0.25103343384430615,
+      "ow_contrib_sum": -0.0014899996103740522,
+      "uw_contrib_sum": -0.06460336848312456,
+      "ow_contrib_thirds_signs": [
+        1,
+        -1,
+        -1
+      ]
+    },
+    "101+": {
+      "ow_share_mean": 0.0,
+      "uw_share_mean": 0.3013847765693278,
+      "ow_contrib_sum": -0.13812798521515485,
+      "uw_contrib_sum": 0.6193020135238836,
+      "ow_contrib_thirds_signs": [
+        -1,
+        -1,
+        -1
+      ]
+    },
+    "unranked": {
+      "ow_share_mean": 1.0720026301358935e-14,
+      "uw_share_mean": 6.902146436699011e-15
+    }
+  },
+  "diagnostics": {
+    "share_outside_top20": 0.37068127988165234,
+    "gross_ow_avg": 0.19332368655635274,
+    "gross_uw_avg": 0.19332368655635312
+  },
+  "assumptions": [
+    "(c) contribution uses signed active_i (preregistered formula verbatim; buckets decompose the realized 21BD active return)",
+    "rank ties broken by method='first' (deterministic)",
+    "(a)/(b) denominators are all-name gross OW/UW; NaN-mu remainder reported as 'unranked' bucket"
+  ]
+}

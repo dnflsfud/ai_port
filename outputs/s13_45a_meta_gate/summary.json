@@ -1,0 +1,45 @@
+{
+  "preregistration": "decision log §S13.45-A",
+  "harvest": "outputs\\codex_causal_rank_65\\backtest_result.pkl",
+  "sample_n": 95,
+  "p0": {
+    "coef": 0.393996,
+    "t": 1.056,
+    "pass": false
+  },
+  "p1": {
+    "coef": 0.344228,
+    "t": 0.906,
+    "coef_trailing_ic6": -0.192088,
+    "t_trailing_ic6": -0.534,
+    "pass": false
+  },
+  "p2": {
+    "diff": 0.030659,
+    "subperiod_diffs": [
+      0.128753,
+      -0.036339,
+      0.012192
+    ],
+    "subperiod_signs": 2,
+    "pass": true
+  },
+  "overall_pass": false,
+  "verdict": "SHELVE",
+  "vintage": {
+    "pkl_last_date": "2026-08-19",
+    "pkl_mtime": "2026-08-19 06:13:05",
+    "workbook_mtime": "2026-08-19 04:49:14",
+    "pkl_after_workbook": true
+  },
+  "diagnostics": {
+    "pred_disp_t_nw": -2.172,
+    "mkt_vol21_t_nw": 0.839,
+    "corr_rank_stab_trailing_ic6": -0.316,
+    "rank_stab_mean": 0.8306,
+    "fwd_ic_mean": 0.0554,
+    "ic_crosscheck_corr": 0.725,
+    "ic_crosscheck_n": 96,
+    "skipped_dates": 1
+  }
+}

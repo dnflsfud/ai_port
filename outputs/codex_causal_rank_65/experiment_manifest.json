@@ -92,6 +92,7 @@
     "growth_tilt_rev_tg_share": 0.0,
     "growth_tilt_rev_weight": 0.5,
     "growth_tilt_weight": 0.25,
+    "implied_corr_covariance_enabled": false,
     "implied_vol_features_enabled": false,
     "index_eps_feature_names": null,
     "index_eps_features_enabled": false,
@@ -304,6 +305,6 @@
     "variant_label": "codex_causal_rank_65"
   },
   "git_dirty": true,
-  "git_hash": "5a80b2034637d895977718a78a23d509db76c900",
-  "timestamp_utc": "2026-08-19T06:13:05Z"
+  "git_hash": "6d0ad3b7799e56ff9d1b1f6164a85014a498a8bd",
+  "timestamp_utc": "2026-08-20T03:12:43Z"
 }

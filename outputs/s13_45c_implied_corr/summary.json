@@ -1,0 +1,148 @@
+{
+  "preregistration": "decision log §S13.45-C (2026-08-19)",
+  "vintage": {
+    "expected_date": "2026-08-19",
+    "pkl_mtime": "2026-08-19 15:13:05",
+    "workbook_mtime": "2026-08-19 13:49:14",
+    "last_daily_weights": "2026-08-19",
+    "match": true
+  },
+  "sample_n_days": 3130,
+  "p0": {
+    "coef": 0.597782,
+    "t": 8.432,
+    "coef_trailing": -0.021549,
+    "t_trailing": -0.238,
+    "nw_lag": 21,
+    "threshold_t": 2.0,
+    "pass": true
+  },
+  "p1": {
+    "rmse_base": 0.142099,
+    "rmse_aug": 0.125646,
+    "improvement": 0.1158,
+    "per_split": [
+      {
+        "n_train": 783,
+        "n_eval": 783,
+        "rmse_base": 0.168816,
+        "rmse_aug": 0.15326,
+        "improvement": 0.0921
+      },
+      {
+        "n_train": 1566,
+        "n_eval": 782,
+        "rmse_base": 0.125325,
+        "rmse_aug": 0.117462,
+        "improvement": 0.0627
+      },
+      {
+        "n_train": 2348,
+        "n_eval": 782,
+        "rmse_base": 0.127909,
+        "rmse_aug": 0.100324,
+        "improvement": 0.2157
+      }
+    ],
+    "threshold": 0.05,
+    "pass": true
+  },
+  "p2": {
+    "valid_days": 3151,
+    "threshold": 750,
+    "pass": true
+  },
+  "overall_pass": true,
+  "verdict": "PASS",
+  "diagnostics": {
+    "iv_unit": "percent_annualized",
+    "iv_median_raw": 26.675,
+    "n_iv_stock_columns": 200,
+    "first_valid_icorr_date": "2014-07-21",
+    "coverage_mean": 1.0,
+    "coverage_min": 1.0,
+    "coverage_by_year": {
+      "2014": {
+        "valid_days": 118,
+        "mean_coverage": 1.0,
+        "mean_icorr": 0.381
+      },
+      "2015": {
+        "valid_days": 261,
+        "mean_coverage": 1.0,
+        "mean_icorr": 0.378
+      },
+      "2016": {
+        "valid_days": 261,
+        "mean_coverage": 1.0,
+        "mean_icorr": 0.335
+      },
+      "2017": {
+        "valid_days": 260,
+        "mean_coverage": 1.0,
+        "mean_icorr": 0.192
+      },
+      "2018": {
+        "valid_days": 260,
+        "mean_coverage": 1.0,
+        "mean_icorr": 0.292
+      },
+      "2019": {
+        "valid_days": 261,
+        "mean_coverage": 1.0,
+        "mean_icorr": 0.322
+      },
+      "2020": {
+        "valid_days": 262,
+        "mean_coverage": 1.0,
+        "mean_icorr": 0.454
+      },
+      "2021": {
+        "valid_days": 261,
+        "mean_coverage": 1.0,
+        "mean_icorr": 0.291
+      },
+      "2022": {
+        "valid_days": 259,
+        "mean_coverage": 1.0,
+        "mean_icorr": 0.444
+      },
+      "2023": {
+        "valid_days": 260,
+        "mean_coverage": 1.0,
+        "mean_icorr": 0.291
+      },
+      "2024": {
+        "valid_days": 262,
+        "mean_coverage": 1.0,
+        "mean_icorr": 0.164
+      },
+      "2025": {
+        "valid_days": 261,
+        "mean_coverage": 1.0,
+        "mean_icorr": 0.22
+      },
+      "2026": {
+        "valid_days": 165,
+        "mean_coverage": 1.0,
+        "mean_icorr": 0.146
+      }
+    },
+    "outside_unit_interval_rate": 0.0006,
+    "n_outside_unit_interval": 2,
+    "corr_icorr_vs_trailing": 0.6169,
+    "mean_spread_icorr_minus_trailing": 0.0058,
+    "mean_icorr": 0.3031,
+    "mean_rho_trail": 0.2973,
+    "mean_rho_fwd": 0.2794,
+    "target_autocorr_lag1": 0.9837,
+    "target_autocorr_lag21": 0.3998,
+    "mean_bm_weight_dropped_for_realized": 0.00142
+  },
+  "assumptions": [
+    "realized comparator/target computed on the IV-valid set intersected with dense-return names (identity stays exact); dropped bm weight reported as diagnostic",
+    "trailing window = t-125..t (inclusive), target window = t+1..t+21",
+    "std uses ddof=1 throughout; [0,1]-NaN rule applied to ICorr only (preregistered clause); realized values reported as computed",
+    "iv30 values converted percent -> decimal (identity is scale-invariant; conversion is for logging consistency)"
+  ]
+}
