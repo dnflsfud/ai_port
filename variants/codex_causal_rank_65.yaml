@@ -17,7 +17,13 @@ overrides:
   causal_validation_enabled: true
   execution_signal_lag_days: 1
   rank_relevance_levels: 10
-  rank_eval_at: [5, 10]
+  # S13.47 (2026-08-20): rank_eval_at [5, 10] -> [20], adopted by user
+  # override — decision log S13.47 Production flip (E1 bar missed at
+  # dIR +0.2028 but DSR p=0.0543 beats the S13.41/S13.31 promotion
+  # precedents; degeneracy improved 13/33 -> 10/33). Early stopping is
+  # argmax@20. Rollback = restore "rank_eval_at: [5, 10]" on this line
+  # (bit-deterministic pipeline reproduces the old baseline exactly).
+  rank_eval_at: [20]
 
   # Model/data pins copied from the production S0 variant.
   train_window: 1260

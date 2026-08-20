@@ -206,8 +206,7 @@
     "projection_fallback_mode": "target",
     "putcall_features_enabled": false,
     "rank_eval_at": [
-      5,
-      10
+      20
     ],
     "rank_relevance_levels": 10,
     "rebalance_at_month_end": false,
@@ -305,6 +304,6 @@
     "variant_label": "codex_causal_rank_65"
   },
   "git_dirty": true,
-  "git_hash": "6d0ad3b7799e56ff9d1b1f6164a85014a498a8bd",
-  "timestamp_utc": "2026-08-20T03:12:43Z"
+  "git_hash": "f61364e7cff86e800c963725a1ce0ab72d2e32a5",
+  "timestamp_utc": "2026-08-20T07:14:39Z"
 }

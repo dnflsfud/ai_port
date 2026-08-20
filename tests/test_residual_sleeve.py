@@ -78,6 +78,7 @@ def test_default_off_and_variant_has_one_semantic_delta():
             "vol_quality_tilt_enabled",
             "vol_quality_tilt_lambda",
             "option_vol_covariance_enabled",  # S13.41 promotion (2026-08-13)
+            "rank_eval_at",  # S13.47 promotion (2026-08-20): [5, 10] -> [20]
         ):
             continue
         assert arm_overrides[key] == value

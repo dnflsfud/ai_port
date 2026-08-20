@@ -1,30 +1,30 @@
 {
   "as_of": "2026-08-19",
-  "annual_return": 0.26274867034560345,
-  "annual_vol": 0.19829810891908967,
-  "sharpe_ratio": 1.3250185378863655,
-  "active_return": 0.0563260218105488,
-  "tracking_error": 0.03457231453728244,
-  "information_ratio": 1.6292233414053716,
-  "realized_beta": 1.0418414135317098,
-  "avg_annual_turnover": 0.7523268212138899,
-  "avg_ic": 0.02035085019178906,
-  "total_return": 5.470493575048477,
+  "annual_return": 0.27079352491776554,
+  "annual_vol": 0.1996494709454696,
+  "sharpe_ratio": 1.3563448159185334,
+  "active_return": 0.0633407727403601,
+  "tracking_error": 0.03457474623649792,
+  "information_ratio": 1.8319953039451689,
+  "realized_beta": 1.0494815747554644,
+  "avg_annual_turnover": 0.7764318065684073,
+  "avg_ic": 0.018456457854361133,
+  "total_return": 5.80789646563015,
   "bm_total_return": 3.224711850432482,
-  "max_drawdown": -0.32286263998737286,
+  "max_drawdown": -0.3213831702536806,
   "sub_period_ir": {
-    "P1_ir": 1.3895469607271564,
-    "P2_ir": 0.8676716034909393,
-    "P3_ir": 2.293474552817738
+    "P1_ir": 1.4211719424214957,
+    "P2_ir": 0.7561226047506333,
+    "P3_ir": 2.908732341646557
   },
   "sp500": {
     "annual_return": 0.1471406266275217,
     "annual_vol": 0.19627885427873856,
     "sharpe_ratio": 0.7496509349833735,
-    "active_return": 0.10595139162440059,
-    "tracking_error": 0.05664370430072151,
-    "information_ratio": 1.8704883964139154,
-    "beta": 0.9886823319963371,
+    "active_return": 0.11446640027374166,
+    "tracking_error": 0.05721081329188323,
+    "information_ratio": 2.000782608870578,
+    "beta": 0.9951144457912637,
     "total_return": 1.8770913987544118,
     "sub_period_ir": {
       "P1_ir": NaN,
@@ -36,68 +36,68 @@
     "2018": {
       "portfolio": -0.0441,
       "benchmark": -0.045,
-      "active": 0.0008,
+      "active": 0.0009,
       "sp500": -0.0623,
       "active_vs_sp500": 0.0182
     },
     "2019": {
-      "portfolio": 0.3948,
+      "portfolio": 0.4062,
       "benchmark": 0.3505,
-      "active": 0.0443,
+      "active": 0.0557,
       "sp500": 0.2888,
-      "active_vs_sp500": 0.106
+      "active_vs_sp500": 0.1174
     },
     "2020": {
-      "portfolio": 0.4019,
+      "portfolio": 0.3994,
       "benchmark": 0.2821,
-      "active": 0.1198,
+      "active": 0.1173,
       "sp500": 0.1626,
-      "active_vs_sp500": 0.2393
+      "active_vs_sp500": 0.2368
     },
     "2021": {
-      "portfolio": 0.3041,
+      "portfolio": 0.306,
       "benchmark": 0.2739,
-      "active": 0.0302,
+      "active": 0.0321,
       "sp500": 0.2689,
-      "active_vs_sp500": 0.0352
+      "active_vs_sp500": 0.0371
     },
     "2022": {
-      "portfolio": -0.2364,
+      "portfolio": -0.2472,
       "benchmark": -0.2046,
-      "active": -0.0318,
+      "active": -0.0426,
       "sp500": -0.1944,
-      "active_vs_sp500": -0.042
+      "active_vs_sp500": -0.0528
     },
     "2023": {
-      "portfolio": 0.4942,
+      "portfolio": 0.4893,
       "benchmark": 0.3646,
-      "active": 0.1296,
+      "active": 0.1248,
       "sp500": 0.2423,
-      "active_vs_sp500": 0.2519
+      "active_vs_sp500": 0.247
     },
     "2024": {
-      "portfolio": 0.399,
+      "portfolio": 0.4545,
       "benchmark": 0.2841,
-      "active": 0.1149,
+      "active": 0.1704,
       "sp500": 0.2331,
-      "active_vs_sp500": 0.1659
+      "active_vs_sp500": 0.2214
     },
     "2025": {
-      "portfolio": 0.3423,
+      "portfolio": 0.3562,
       "benchmark": 0.2371,
-      "active": 0.1052,
+      "active": 0.1191,
       "sp500": 0.1639,
-      "active_vs_sp500": 0.1784
+      "active_vs_sp500": 0.1923
     },
     "2026": {
-      "portfolio": 0.239,
+      "portfolio": 0.253,
       "benchmark": 0.1632,
-      "active": 0.0758,
+      "active": 0.0898,
       "sp500": 0.1236,
-      "active_vs_sp500": 0.1154
+      "active_vs_sp500": 0.1294
     }
   },
-  "optimizer_failure_rate": 0.0,
+  "optimizer_failure_rate": 0.010309278350515464,
   "optimizer_solver_counts": {
     "ECOS": 194
   },
@@ -105,57 +105,43 @@
   "model_quality": {
     "source": "walk_forward_train",
     "total_retrains": 33,
-    "degenerate_retrains": 13,
-    "degenerate_rate": 0.3939393939393939,
+    "degenerate_retrains": 10,
+    "degenerate_rate": 0.30303030303030304,
     "min_model_trees": 10,
     "max_degenerate_model_rate": 0.25,
     "fail_on_degenerate_model_rate": false,
     "events": [
       {
-        "date": "2019-11-13",
-        "n_trees": 1,
-        "min_model_trees": 10,
-        "candidate_features": 62,
-        "reused_prev_model": true
-      },
-      {
-        "date": "2020-02-10",
-        "n_trees": 3,
+        "date": "2020-10-30",
+        "n_trees": 6,
         "min_model_trees": 10,
         "candidate_features": 62,
         "reused_prev_model": true
       },
       {
         "date": "2021-07-22",
-        "n_trees": 1,
+        "n_trees": 2,
         "min_model_trees": 10,
         "candidate_features": 62,
         "reused_prev_model": true
       },
       {
         "date": "2022-01-14",
-        "n_trees": 1,
+        "n_trees": 7,
         "min_model_trees": 10,
         "candidate_features": 62,
         "reused_prev_model": true
       },
       {
         "date": "2022-07-11",
-        "n_trees": 5,
-        "min_model_trees": 10,
-        "candidate_features": 62,
-        "reused_prev_model": true
-      },
-      {
-        "date": "2022-10-06",
-        "n_trees": 5,
+        "n_trees": 7,
         "min_model_trees": 10,
         "candidate_features": 62,
         "reused_prev_model": true
       },
       {
         "date": "2023-03-31",
-        "n_trees": 3,
+        "n_trees": 8,
         "min_model_trees": 10,
         "candidate_features": 62,
         "reused_prev_model": true
@@ -169,35 +155,28 @@
       },
       {
         "date": "2023-12-21",
-        "n_trees": 4,
-        "min_model_trees": 10,
-        "candidate_features": 62,
-        "reused_prev_model": true
-      },
-      {
-        "date": "2024-03-19",
         "n_trees": 1,
         "min_model_trees": 10,
         "candidate_features": 62,
         "reused_prev_model": true
       },
       {
-        "date": "2024-06-14",
+        "date": "2024-03-19",
         "n_trees": 2,
+        "min_model_trees": 10,
+        "candidate_features": 62,
+        "reused_prev_model": true
+      },
+      {
+        "date": "2024-06-14",
+        "n_trees": 3,
         "min_model_trees": 10,
         "candidate_features": 62,
         "reused_prev_model": true
       },
       {
         "date": "2025-08-29",
-        "n_trees": 6,
-        "min_model_trees": 10,
-        "candidate_features": 62,
-        "reused_prev_model": true
-      },
-      {
-        "date": "2026-08-18",
-        "n_trees": 2,
+        "n_trees": 5,
         "min_model_trees": 10,
         "candidate_features": 62,
         "reused_prev_model": true

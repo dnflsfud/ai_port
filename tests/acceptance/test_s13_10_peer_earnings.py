@@ -71,7 +71,9 @@ def test_arm_variant_differs_from_production_by_exactly_the_flag():
 
     assert arm["peer_earnings_cascade_feature_enabled"] is True
     delta = {k: v for k, v in arm.items() if prod.get(k, "<absent>") != v}
-    assert set(delta) == {"peer_earnings_cascade_feature_enabled"}, delta
+    # S13.47 promotion (2026-08-20): production rank_eval_at [5, 10] -> [20];
+    # historical arms pin the pre-promotion value.
+    assert set(delta) - {"rank_eval_at"} == {"peer_earnings_cascade_feature_enabled"}, delta
     # These settings were adopted into production after this historical arm.
     post_arm_production_flags = {
         "fwd_sales_slope_features_enabled",

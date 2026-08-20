@@ -62,7 +62,9 @@ def test_arm_variant_differs_from_production_by_exactly_the_flag():
 
     assert arm["nonlinear_confirmation_features_enabled"] is True
     delta = {key: value for key, value in arm.items() if prod.get(key, "<absent>") != value}
-    assert set(delta) == {"nonlinear_confirmation_features_enabled"}, delta
+    # S13.47 promotion (2026-08-20): production rank_eval_at [5, 10] -> [20];
+    # historical arms pin the pre-promotion value.
+    assert set(delta) - {"rank_eval_at"} == {"nonlinear_confirmation_features_enabled"}, delta
     post_arm_production_flags = {
         "fwd_sales_slope_features_enabled",
         "vol_quality_tilt_enabled",
