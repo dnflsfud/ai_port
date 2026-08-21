@@ -1,0 +1,72 @@
+{
+  "preregistration": "decision log §S13.48-A (2026-08-21)",
+  "vintage": {
+    "expected_last_daily_weights": "2026-08-19",
+    "last_daily_weights": "2026-08-19",
+    "pkl_mtime": "2026-08-21 12:15:13",
+    "workbook_mtime": "2026-08-19 13:49:14",
+    "index_mtime": "2026-08-21 11:16:45",
+    "expected_workbook_mtime": "2026-08-19 13:49",
+    "expected_index_mtime": "2026-08-21 11:16"
+  },
+  "n_rebalances": 97,
+  "n_used": 81,
+  "n_skipped": 16,
+  "skip_reasons": {
+    "no_prev_daily": 1,
+    "split_empty": 14,
+    "no_fwd_window": 1
+  },
+  "decimals": 7,
+  "fwd_days": 21,
+  "years": 7.72621492128679,
+  "p0": {
+    "S": 0.1523354380019243,
+    "bar": 0.2,
+    "pass": false
+  },
+  "p1": {
+    "Ghat": 0.004157361168524448,
+    "thirds_sums": [
+      0.0008518008100030484,
+      0.0014782349951060819,
+      0.0018273253634153177
+    ],
+    "pass": true
+  },
+  "p2": {
+    "Ghat_annual": 0.0005380851051748954,
+    "bar": 0.001,
+    "pass": false
+  },
+  "overall_pass": false,
+  "verdict": "SHELVE",
+  "diagnostics": {
+    "m_median": 159.0,
+    "m_min": 2,
+    "m_max": 186,
+    "c_sign_counts": {
+      "negative": 41,
+      "zero": 4,
+      "positive": 36
+    },
+    "c_abs_median": 4.29e-05,
+    "mu_sd_median": 0.9482133124483976,
+    "g_mean": 0.011425685128055455,
+    "turnover_mean": 0.06280959999601304,
+    "S_series": {
+      "mean": 0.1523354380019243,
+      "median": 0.13040989309583084,
+      "min": 0.0,
+      "max": 0.49377430395577304,
+      "std": 0.1463673908609494,
+      "frac_ge_bar": 0.2839506172839506
+    }
+  },
+  "assumptions": [
+    "h_t = (finite-mu cluster members)//2; odd clusters drop the median member so the halves stay disjoint and equal-sized (preregistered m_t/2 is not integral for odd m_t)",
+    "non-finite mu members are dropped before the split",
+    "tail rebalances without a full 21BD forward window are skipped"
+  ],
+  "runtime_s": 411.5
+}

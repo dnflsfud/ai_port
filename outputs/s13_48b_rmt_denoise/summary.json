@@ -1,0 +1,75 @@
+{
+  "preregistration": "decision log §S13.48-B (2026-08-21)",
+  "vintage": {
+    "expected_workbook_mtime": "2026-08-19 13:49",
+    "expected_index_mtime": "2026-08-21 11:16",
+    "expected_last_daily_weights": "2026-08-19",
+    "pkl_mtime": "2026-08-21 12:15:13",
+    "workbook_mtime": "2026-08-19 13:49:14",
+    "index_mtime": "2026-08-21 11:16:45",
+    "last_daily_weights": "2026-08-19"
+  },
+  "n_rebalances": 97,
+  "n_used": 97,
+  "n_skipped": 3,
+  "skip_reasons": {
+    "qlike_unavailable": 2,
+    "mvo_no_prev_daily": 1
+  },
+  "p0": {
+    "n_eval": 95,
+    "mean_exq_base": 0.2554453636827918,
+    "mean_exq_rmt": 0.38674478900734977,
+    "improvement": -0.5140019902165991,
+    "threshold": 0.05,
+    "thirds": [
+      -0.4545,
+      -0.244,
+      -0.8374
+    ],
+    "pass": false
+  },
+  "p1i": {
+    "median_floor_share": 3.892769477589169e-06,
+    "mean_floor_share": 4.337456512552169e-06,
+    "threshold": 0.1,
+    "pass": false
+  },
+  "p1ii": {
+    "n_samples_requested": 24,
+    "n_samples_used": 23,
+    "median_l1": 0.012619093618222482,
+    "threshold": 0.005,
+    "median_scale": 0.7735856668677904,
+    "pass": true
+  },
+  "p2": {
+    "median_active_share": 0.22499999970787532,
+    "median_te_exante": 0.03894955229972663,
+    "active_share_threshold": 0.18,
+    "te_threshold": 0.03,
+    "pass": true
+  },
+  "degenerate_warning": true,
+  "diagnostics": {
+    "median_replaced_share": 0.97,
+    "median_n_replaced": 194.0,
+    "median_q": 1.5873015873015872,
+    "median_lambda_plus": 0.0021856223277432144,
+    "median_sigma_bar_sq": 0.00042796056809829433,
+    "median_floor_ref": 2.8279211817346764e-08,
+    "median_v_base": 3.982549984755236e-06,
+    "median_v_rmt": 3.118079918222669e-06,
+    "degenerate_bar": 0.95,
+    "cov_input_panel": "data.returns_masked (사전등록 명세 축자)",
+    "pairwise_path_dates": 87,
+    "cov_lookback": 126
+  },
+  "notes": [
+    "ex-ante 분산과 전진 실현 액티브 분산 모두 일별 단위 (estimate_covariance는 일별 공분산 반환 — portfolio_optimizer.py:87 degenerate 반환값 0.04/252). excess-QLIKE는 예측/실현 비율만 쓰므로 연율화 여부에 불변.",
+    "hist 창 = returns.iloc[pos-cov_lookback:pos] — t 자신 제외 (backtest.py:1537-1538 hist_start:t_idx 축자 일치).",
+    "SPEC-CODE MISMATCH: 명세는 cov 입력을 data.returns_masked로 지정하나 production 경로는 data.raw_returns(backtest.py:1432/1989-1991)를 쓴다. 명세를 축자 이행했고 pairwise_path_dates로 floor 경로 진입 횟수를 병기."
+  ],
+  "overall_pass": false,
+  "verdict": "SHELVE"
+}

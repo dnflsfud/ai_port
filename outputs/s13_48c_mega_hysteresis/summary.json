@@ -1,0 +1,155 @@
+{
+  "preregistration": "decision log §S13.48-C (2026-08-21)",
+  "vintage": {
+    "expected_date": "2026-08-19",
+    "expected_workbook_mtime": "2026-08-19 13:49",
+    "expected_index_mtime": "2026-08-21 11:16",
+    "pkl_mtime": "2026-08-21 12:15:13",
+    "workbook_mtime": "2026-08-19 13:49:14",
+    "index_mtime": "2026-08-21 11:16:45",
+    "last_daily_weights": "2026-08-19"
+  },
+  "mega_params_from_cfg": {
+    "mega_cap_bm_threshold": 0.04,
+    "mega_cap_funding_k": 4,
+    "mega_cap_funding_score_max": 0.0,
+    "mega_cap_protection_enabled": true,
+    "mega_cap_funding_mode": true
+  },
+  "uw_tol": 0.005,
+  "n_rebalances": 97,
+  "n_used": 96,
+  "n_paired": 95,
+  "n_skipped": 1,
+  "skip_reasons": {
+    "no_prior_daily_weights": 1
+  },
+  "p0": {
+    "flip_rebalance_rate": 0.6947368421052632,
+    "n_flip": 66,
+    "n_paired": 95,
+    "bar": 0.25,
+    "pass": true
+  },
+  "p1_i": {
+    "proxy_agreement": 0.3235294117647059,
+    "hits": 77,
+    "pairs": 238,
+    "bar": 0.95,
+    "pass": false
+  },
+  "p1_ii": {
+    "ratio": 2.013940865539359,
+    "median_abs_delta_flip": 0.0001582007946788408,
+    "median_abs_delta_nonflip_mega": 7.855284997976969e-05,
+    "n_flip_pairs": 86,
+    "n_nonflip_pairs": 297,
+    "bar": 2.0,
+    "pass": true
+  },
+  "p2": {
+    "flip_l1_share": 0.03939410196722702,
+    "flip_l1": 0.24332694441769442,
+    "total_two_way_l1": 6.176735406232244,
+    "bar": 0.05,
+    "pass": false
+  },
+  "overall_pass": false,
+  "verdict": "SHELVE",
+  "diagnostics": {
+    "flip_count_per_rebalance": {
+      "n": 95,
+      "min": 0.0,
+      "median": 1.0,
+      "mean": 0.9052631578947369,
+      "max": 2.0
+    },
+    "flip_count_histogram": {
+      "0": 29,
+      "1": 46,
+      "2": 20
+    },
+    "mega_count_per_rebalance": {
+      "n": 96,
+      "min": 2.0,
+      "median": 4.0,
+      "mean": 3.90625,
+      "max": 5.0
+    },
+    "funding_set_size_per_rebalance": {
+      "n": 96,
+      "min": 1.0,
+      "median": 3.0,
+      "mean": 2.4791666666666665,
+      "max": 4.0
+    },
+    "entered_mu": {
+      "n": 42,
+      "min": -1.297612625528679,
+      "median": -0.26254364160613164,
+      "mean": -0.40608275481945133,
+      "max": -0.0036994621166229757
+    },
+    "exited_mu": {
+      "n": 44,
+      "min": -0.9375361656296949,
+      "median": 0.21317534959234408,
+      "mean": 0.19022184998325056,
+      "max": 1.614144487615767
+    },
+    "flip_rebalances_by_year": {
+      "2019": {
+        "flip": 6,
+        "total": 12
+      },
+      "2020": {
+        "flip": 11,
+        "total": 13
+      },
+      "2021": {
+        "flip": 9,
+        "total": 12
+      },
+      "2022": {
+        "flip": 8,
+        "total": 12
+      },
+      "2023": {
+        "flip": 8,
+        "total": 13
+      },
+      "2024": {
+        "flip": 9,
+        "total": 12
+      },
+      "2025": {
+        "flip": 9,
+        "total": 13
+      },
+      "2026": {
+        "flip": 6,
+        "total": 8
+      }
+    },
+    "flip_rate_thirds": [
+      0.7096774193548387,
+      0.625,
+      0.75
+    ],
+    "turnover_per_rebalance": {
+      "n": 96,
+      "min": 0.01157968517373509,
+      "median": 0.06236722623544,
+      "mean": 0.06434099381491921,
+      "max": 0.4233127923441543
+    },
+    "median_abs_delta_flip": 0.0001582007946788408,
+    "median_abs_delta_nonflip_mega": 7.855284997976969e-05
+  },
+  "assumptions": [
+    "fs_{t-1} = 직전 '사용된' 리밸의 funding_set (스킵된 리밸은 건너뜀)",
+    "첫 사용 리밸은 flip 정의 불가 → P0·P1(ii) 표본에서 제외; P1(i)와 P2 분모(Σ turnover_t)는 사용된 전 리밸 포함",
+    "entered/exited mu는 당일 t의 mu (그 선택을 만든 값)",
+    "delta는 사후 w+ 와 드리프트 사전 w- 의 차 — two-way L1"
+  ]
+}
