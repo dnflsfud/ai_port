@@ -1,0 +1,134 @@
+{
+  "preregistration": "decision log §S13.49 (2026-08-21)",
+  "vintage": {
+    "expected_workbook_mtime": "2026-08-19 13:49",
+    "expected_index_mtime": "2026-08-21 11:16",
+    "expected_last_daily_weights": "2026-08-19",
+    "pkl_mtime": "2026-08-21 12:15:13",
+    "workbook_mtime": "2026-08-19 13:49:14",
+    "index_mtime": "2026-08-21 11:16:45",
+    "last_daily_weights": "2026-08-19"
+  },
+  "config": {
+    "enforce_score_gated_ow": true,
+    "score_threshold_for_ow": 0.0,
+    "mega_cap_bm_threshold": 0.04,
+    "mega_cap_protection_enabled": true,
+    "mega_cap_funding_score_max": 0.0,
+    "cov_lookback": 126,
+    "replace_field_diff": []
+  },
+  "n_rebalances": 97,
+  "n_used": 97,
+  "n_skipped": 1,
+  "skip_reasons": {
+    "mvo_no_prev_daily": 1
+  },
+  "g0": {
+    "median_binding_share": 0.06382978723404255,
+    "mean_binding_share": 0.17761807878567,
+    "threshold": 0.05,
+    "n_dates_any_binding": 85,
+    "binding_share_dist": {
+      "min": 0.0,
+      "p10": 0.0,
+      "median": 0.06382978723404255,
+      "p90": 0.5237174489318572,
+      "max": 1.0,
+      "mean": 0.17761807878567
+    },
+    "pass": true
+  },
+  "g1": {
+    "n_samples_requested": 24,
+    "n_samples_used": 23,
+    "median_l1": 2.258106347688133e-06,
+    "threshold": 0.005,
+    "l1_dist": {
+      "min": 9.807948459769405e-09,
+      "p10": 4.318725477704975e-08,
+      "median": 2.258106347688133e-06,
+      "p90": 0.012624657273036405,
+      "max": 0.03919968074560642,
+      "mean": 0.005259857213180107
+    },
+    "median_active_share_on": 0.22499999987148236,
+    "median_active_share_off": 0.22499999988283845,
+    "median_n_ow_released": 0.0,
+    "total_n_ow_released": 93,
+    "pass": false
+  },
+  "g2": {
+    "sd_g": 0.03534008757919061,
+    "range_g": 0.16366780137245363,
+    "median_g": 0.569060773480663,
+    "sd_threshold": 0.04,
+    "range_threshold": 0.15,
+    "g_dist": {
+      "min": 0.4946236559139785,
+      "p10": 0.5270570359981299,
+      "median": 0.569060773480663,
+      "p90": 0.6185567010309279,
+      "max": 0.6582914572864321,
+      "mean": 0.5702408871919656
+    },
+    "q_candidate": 0.569,
+    "pass": false
+  },
+  "diagnostics": {
+    "bind_tol": 1e-06,
+    "ow_tol": 1e-09,
+    "gap_bm_minus_w_gated": {
+      "n": 10247,
+      "min": 0.0,
+      "p10": 2.5784135763984333e-11,
+      "median": 0.00034912537502581557,
+      "p90": 0.002989763040456408,
+      "max": 0.01745312416498472
+    },
+    "n_gate_targets_dist": {
+      "min": 88.0,
+      "p10": 94.0,
+      "median": 105.0,
+      "p90": 119.0,
+      "max": 128.0,
+      "mean": 105.63917525773196
+    },
+    "n_ow_dist": {
+      "min": 0.0,
+      "p10": 10.600000000000001,
+      "median": 28.0,
+      "p90": 41.0,
+      "max": 52.0,
+      "mean": 26.989690721649485
+    },
+    "n_ow_gated_total": 0,
+    "n_invalid_mu_dist": {
+      "min": 0.0,
+      "p10": 4.0,
+      "median": 9.0,
+      "p90": 19.0,
+      "max": 22.0,
+      "mean": 10.618556701030927
+    },
+    "n_mega_dist": {
+      "min": 2.0,
+      "p10": 3.0,
+      "median": 4.0,
+      "p90": 5.0,
+      "max": 5.0,
+      "mean": 3.8969072164948453
+    },
+    "n_tickers": 200
+  },
+  "notes": [
+    "게이트 대상 = portfolio_optimizer.py:413-422 미러(mu <= threshold, 등호 포함)에서 mega(bm >= mega_cap_bm_threshold)와 비유한 mu를 제외 — 각각 :373-392 mega-cap 블록과 :406-407 w==bm 핀이 교락시키기 때문(사전등록 G0 정의).",
+    "G2의 g_t는 사전등록 정의대로 mega·invalid 제외 없이 전 유효 종목 기준.",
+    "G1의 게이트 OFF cfg는 dataclasses.replace(cfg, enforce_score_gated_ow=False)이며, 그 외 전 필드가 repr 동일함을 실행 시 검증(replace_field_diff == []). 그 외 인자(mu·cov·prev_weights·bm·sector_map)는 동일 객체를 재사용.",
+    "공분산 입력 = data.raw_returns를 returns.index/tickers로 reindex한 패널(production backtest.py:1989-1991 -> :1432 risk_source와 동일). §S13.48-B가 returns_masked를 써서 SPEC-CODE MISMATCH 지적을 받은 건을 측정 전에 바로잡은 것이다(결정 로그 §S13.49 측정 전 정정).",
+    "hist 창 = returns.iloc[pos-cov_lookback:pos] — t 자신 제외 (backtest.py:1537-1538 hist_start:t_idx 축자 일치)."
+  ],
+  "overall_pass": false,
+  "verdict": "SHELVE",
+  "runtime_s": 423.8
+}
