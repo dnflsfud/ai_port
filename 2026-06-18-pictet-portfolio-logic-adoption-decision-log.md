@@ -6303,3 +6303,99 @@ OW로 풀려나는 종목 수("released OW")는 0~**29**(2025-04-07), 15(2022-03
 추정치로는 쓰지 않는다**. 사전등록의 바는 항상 전 구간(97 리밸) 통계로 검정
 가능한 형태여야 하며, 1일 관측을 근거로 사전 기대치를 서술할 때는 본 절처럼
 **반증 가능성을 명시**한다.
+
+## §S13.50 A축 재설계 — 알파-가중 투영의 직접 반사실 사전점검 — 사전등록 (2026-08-21, 측정 전)
+
+**출처**: §S13.48-A(SHELVE) 후 사용자 지시 2026-08-21 "A축 재설계 재도전"
+(상금 상한이 연 0.05%p대라는 메인의 고지를 받은 상태에서의 재확인).
+
+### 왜 재설계인가 — §S13.48-A의 구조적 한계
+
+§S13.48-A는 **예산 승수 성분(균일 클로백 블록)만** 측정했고, 그 결과 상금이
+`|c_t|`의 크기에 묶였다. 실측치로 상한이 산술적으로 계산된다:
+`|c_t|` 중앙값 4.29e-05 × 군집 중앙값 159종 ≈ 북의 **0.68%**,
+μ 단면 스프레드 `g_mean` **1.14%p/21BD**, 연 12리밸
+→ 0.0068 × 0.0114 × 12 / 2 ≈ **0.047%p/yr** (실측 +0.054%p와 정합).
+비용 채널도 작다: 블록 15.2% × turnover 0.776 × one_way_tc 0.0010 = **1.2bp/yr**.
+
+**따라서 "균일 클로백을 어떻게 배분할 것인가"만 바꾸는 재설계는 어떤 형태든
+연 0.05%p대를 넘을 수 없다.** 재도전이 의미를 가지려면 대상과 측정을 모두
+바꿔야 한다:
+
+1. **대상 확대**: 투영은 예산 제약뿐 아니라 **바인딩하는 모든 제약**
+   (TE 캡·섹터·`norm1(w−bm) ≤ 0.45`·per-stock 캡·score gate·mega-cap)에 대해서도
+   μ를 전혀 보지 않고 변위를 만든다. §S13.48-A는 그중 예산 성분만 봤다.
+   재설계는 **총 변위 d_t = w⁺_t − candidate_t** 전체를 대상으로 한다.
+2. **프록시 폐기·직접 측정**: §S13.48-A의 Ĝ는 "군집을 μ 상·하위 절반으로
+   갈랐을 때의 전진수익 차"라는 **반사실 프록시**였다. 재설계는
+   **사전약정된 arm(κ=3.0 알파-가중 투영)을 실제로 풀어서** 그 북과 현행 북의
+   전진 초과수익 차를 직접 잰다. 백테스트가 아니라 리밸일별 단면 측정이다.
+
+### 공통 표본·프레임 (고정)
+
+§S13.48/49와 동일: pkl `outputs/codex_causal_rank_65/backtest_result.pkl`
+(08-21 12:15 배치, IR 1.8319953039451689), 빈티지 쌍 = 워크북 08-19 13:49 +
+Index.xlsx 08-21 11:16, 리밸 그리드 **97 전수**(샘플링 없음), 전진수익 =
+§S13.30 `_fwd_return`(t+1..t+21). **공분산 입력은 production `raw_returns`
+경로**(`backtest.py:1989-1991`→`:1432`) — §S13.49 측정 전 정정을 승계한다.
+인벤토리: read-only 사전점검 **미산입(467 불변)**. 사전 관측 **0건**
+(본 절의 어떤 수치도 측정된 바 없다).
+
+### 재구성 정의 (측정 전 고정)
+
+리밸일 t마다 production 경로를 축자 재현한다:
+1. `w⁻_t = _drift_weights(daily_weights[t_prev], returns.loc[t])` (§S13.48-A 동일)
+2. `target_t = optimize_portfolio(pred_row, hist_returns, w⁻_t, sector_map, bm_w)`
+   — 인자·config 전부 production 그대로.
+3. `trailing_ic_mean_t` = `res.ic_series` 중 **날짜 < t** 인 마지막
+   `cfg.trailing_ic_window`(=6)개의 `nanmean`; 사용 가능 개수 < 2면 **0.0**
+   (`backtest.py:1576-1581` 축자).
+4. `confidence_t = compute_signal_confidence(pred_row, raw_row, trailing_ic_mean_t,
+   spread_scale=cfg.confidence_spread_scale)`, `raw_row = res.raw_predictions.loc[t]`.
+5. `candidate_t = apply_dynamic_execution(w⁻_t, target_t, confidence_t, cfg)`
+6. `w_0 = project_portfolio_weights(candidate_t, ..., config=cfg)` — **현행**
+7. `w_κ` = 6과 동일하되 목적함수만
+   `Minimize(sum_squares(multiply(sqrt(v), w − candidate)))`,
+   **v_i = 1 + κ·pct_rank(μ_i), κ = 3.0** (§S13.48-A 사전약정 그대로, **스윕 금지**),
+   μ 비유한은 v=1. 제약 집합은 6과 **완전히 동일**.
+8. `fwdex21_i,t` = 종목 i의 t+1..t+21 누적수익 − 동기간 벤치마크 수익
+   (bm = 당일 `bm_fn` 비중의 buy-and-hold, §S13.48-A 동일 관용).
+
+### 게이트 (측정 전 고정 — 전부 PASS여야 arm 설계 자격)
+
+- **E0 (재구성 인증 — 하드 게이트, 다른 게이트보다 먼저 판정)**:
+  `w_0`가 실제 `res.portfolio_weights[t]`를 재현하는가.
+  **median_t L1(w_0, w⁺_t) ≤ 1e-6 AND 샘플의 ≥ 90%에서 L1 ≤ 1e-5.**
+  미달 = 재구성 실패 → **나머지 게이트 판정 무효, 즉시 중단·보고**(§9).
+  부수 필수: L1 분포, 재현 실패 날짜 목록, solver fallback 건수.
+- **P1 (알파 이득 — 방향)**: `gain_t = (w_κ − w_0) · fwdex21_t`.
+  **Σ_t gain_t > 0 AND 시간순 3분할 3/3 양.**
+- **P2 (경제성)**: `Σ_t gain_t / years` **≥ +0.0010 (+0.10%p/yr)** —
+  **§S13.48-A P2와 동일 바**(사후 완화 아님을 명시).
+- **P3 (무비용 확인)**: 리밸당 평균 추가 회전
+  `mean_t(‖w_κ − w⁻_t‖₁ − ‖w_0 − w⁻_t‖₁) ≤ 0.0008`
+  (연 1%p ÷ 12리밸 — §S13.48-A E1의 turnover Δ ≤ +1%p 하드 FAIL 조건을
+  리밸 단위로 환산). 초과 = "거래량 불변" 전제 파괴 → SHELVE.
+
+**전부 PASS 시**: κ=3.0 알파-가중 투영 arm을 **별도 사전등록**(백테스트 실행은
+그때 사용자 승인 후). **하나라도 FAIL 시**: SHELVE, **투영 계량 축 종결**
+(§S13.48-A의 예산 성분 + 본 절의 총 변위로 이 축의 두 층이 모두 소진된다).
+
+### 절차/검증 의무
+
+스크립트 1본 `scripts/precheck_s13_50_alpha_weighted_projection.py`
+(read-only, **백테스트 없음**, 97 리밸 × 1 MVO + 2 투영 = cvxpy ~291 solve)
++ 단위테스트(plain 함수, fixture 없음). 실행 선행 검증은 §S13.49와 동일한
+빈티지 3중 가드 + `res.ic_series`·`res.raw_predictions` 존재 확인.
+**κ 분기 요건**: κ==0.0이면 원래 `sum_squares(w − candidate)` 표현식을 그대로
+타는 명시적 분기를 두어, E0 재현이 가중 이차형의 canonicalization 차이에
+오염되지 않게 한다. 산출물 `outputs/s13_50_alpha_weighted_projection/summary.json`.
+구현은 독립 에이전트 1본(본실행 금지) → 메인이 단일 foreground 실행 →
+독립 검증. **본 사전등록은 측정 전에 단독 커밋한다**(§S13.48 검증자 ④(i) 채택).
+
+**사전 기대치 기록**: E0가 최다 사망 지점으로 예상된다 — confidence·eta·
+no-trade band·trailing IC를 전부 축자 재현해야 하고 하나라도 어긋나면 w_0가
+w⁺를 재현하지 못한다. E0를 통과해도 P2(+0.10%p/yr)는 위 산술 상한 논거상
+**예산 성분만으로는 도달 불가**이므로, 통과하려면 **제약 성분(TE 캡·액티브셰어
+L1 등)의 변위가 예산 성분보다 실질적으로 커야 한다** — 이것이 본 절이 실제로
+검정하는 미지수다. SHELVE가 기본 기대치.
