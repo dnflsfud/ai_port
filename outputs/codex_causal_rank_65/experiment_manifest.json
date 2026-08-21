@@ -303,7 +303,7 @@
     "tuning_mode": "production",
     "variant_label": "codex_causal_rank_65"
   },
-  "git_dirty": true,
-  "git_hash": "f61364e7cff86e800c963725a1ce0ab72d2e32a5",
-  "timestamp_utc": "2026-08-20T07:14:39Z"
+  "git_dirty": false,
+  "git_hash": "ded6585b7f04e162b68dcd6b80ffe26c88e6213b",
+  "timestamp_utc": "2026-08-21T03:15:13Z"
 }
