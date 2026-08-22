@@ -1,0 +1,187 @@
+{
+  "preregistration": "decision log §S13.50 (2026-08-21)",
+  "vintage": {
+    "expected_workbook_mtime": "2026-08-19 13:49",
+    "expected_index_mtime": "2026-08-21 11:16",
+    "expected_last_daily_weights": "2026-08-19",
+    "pkl_mtime": "2026-08-21 12:15:13",
+    "workbook_mtime": "2026-08-19 13:49:14",
+    "index_mtime": "2026-08-21 11:16:45",
+    "last_daily_weights": "2026-08-19"
+  },
+  "config": {
+    "kappa": 3.0,
+    "fwd_days": 21,
+    "cov_lookback": 126,
+    "trailing_ic_window": 6,
+    "confidence_spread_scale": 0.2,
+    "projection_fallback_mode": "target",
+    "max_te_annual": 0.035,
+    "sector_deviation": 0.1,
+    "no_trade_band": 0.003,
+    "partial_rebalance_eta": 0.5,
+    "option_vol_covariance_enabled": true,
+    "allow_scs_on_ecos_exception": false
+  },
+  "n_rebalances": 97,
+  "n_used": 95,
+  "n_skipped": 3,
+  "skip_reasons": {
+    "no_prev_daily": 1,
+    "optimizer_fallback": 1,
+    "no_fwd_window(gain only)": 1
+  },
+  "years": 7.72621492128679,
+  "e0": {
+    "median_l1": 1.096113733554582e-09,
+    "median_threshold": 1e-06,
+    "tail_frac_le_bar": 0.9894736842105263,
+    "tail_bar": 1e-05,
+    "tail_frac_threshold": 0.9,
+    "n_repro_fail": 1,
+    "repro_fail_dates": [
+      "2021-11-18"
+    ],
+    "pass": true
+  },
+  "diagnostics": {
+    "l1_repro": {
+      "n": 95,
+      "min": 0.0,
+      "p10": 0.0,
+      "median": 1.096113733554582e-09,
+      "mean": 3.195666713232685e-07,
+      "p90": 1.0196421724206535e-07,
+      "max": 1.0032523092995221e-05
+    },
+    "conf": {
+      "n": 95,
+      "min": 0.2,
+      "p10": 0.2,
+      "median": 0.736979085925416,
+      "mean": 0.6218364394916903,
+      "p90": 1.0,
+      "max": 1.0
+    },
+    "tic": {
+      "n": 95,
+      "min": -0.12709819600591496,
+      "p10": -0.04173745283937346,
+      "median": 0.019479163437016642,
+      "mean": 0.02008376099560299,
+      "p90": 0.09210227437983665,
+      "max": 0.12446202048242062
+    },
+    "proj_displacement": {
+      "n": 95,
+      "min": 0.0014939426805033345,
+      "p10": 0.006739825143992626,
+      "median": 0.01836629676629959,
+      "mean": 0.024785254193874312,
+      "p90": 0.05529222430743662,
+      "max": 0.09012375972562026
+    },
+    "proj_displacement_kappa": {
+      "n": 95,
+      "min": 0.0014939426785904341,
+      "p10": 0.006739824962519053,
+      "median": 0.01836629647628983,
+      "mean": 0.025590817651499082,
+      "p90": 0.055870913782800055,
+      "max": 0.09560876442606431
+    },
+    "l1_w0_wk": {
+      "n": 95,
+      "min": 3.47112910231188e-05,
+      "p10": 0.0006848437470376364,
+      "median": 0.0034814790173104604,
+      "mean": 0.004714300082488693,
+      "p90": 0.01047432568344399,
+      "max": 0.021757370577385637
+    },
+    "turnover_0": {
+      "n": 95,
+      "min": 0.011579685031144081,
+      "p10": 0.023992809200597605,
+      "median": 0.06148760420644765,
+      "mean": 0.06056238772393601,
+      "p90": 0.09305075377025501,
+      "max": 0.14999999824860846
+    },
+    "drift_gap_masked_vs_dense": {
+      "n": 95,
+      "min": 0.0,
+      "p10": 0.0,
+      "median": 3.3914059231079824e-18,
+      "mean": 7.379089144691574e-17,
+      "p90": 2.356406968809413e-16,
+      "max": 1.1350185999408507e-15
+    },
+    "solver_counts": {
+      "optimizer": {
+        "ECOS": 95
+      },
+      "projection_kappa0": {
+        "ECOS": 95
+      },
+      "projection_kappa": {
+        "ECOS": 95
+      }
+    },
+    "n_tickers": 200
+  },
+  "notes": [
+    "w⁻ = _drift_weights(daily_weights[t_prev], returns_masked.loc[t]) — §S13.48-A 사전등록 관용. production simulate_portfolio는 dense data.returns + _sanitize_daily_ret를 쓴다(backtest.py:1497,:1510); 두 경로 차이는 diagnostics.drift_gap_masked_vs_dense로 계량된다.",
+    "공분산 입력 = data.raw_returns를 data.returns.index/tickers로 reindex한 패널(backtest.py:1989-1991 -> :1432 risk_source). hist 창은 iloc[pos-cov_lookback:pos] — t 자신 제외(:1537-1538 축자).",
+    "target은 backtest.py:2058-2131의 _optimizer_fn을 복제한다: estimate_covariance -> (S13.41 ON이면) 대각 스케일 -> optimize_portfolio. S13.41이 production ON이므로 이 스케일을 빼면 TE 제약이 달라져 E0가 구조적으로 깨진다. 그 외 분기(S13.46 icorr·factor_neutral·winner_trim·carry-TE·score_based)는 UNSUPPORTED_FLAGS 가드로 실행 전 차단.",
+    "cov_matrix는 production과 동일하게 optimizer diagnostics에서 받아 투영에 재사용한다(backtest.py:1613-1618의 None-분기까지 미러).",
+    "전진수익 창이 없는 꼬리 리밸은 gain=NaN으로 남겨 E0 표본에는 포함하고 P1/P2에서만 제외한다. years는 §S13.48-A와 동일하게 전 리밸 구간 기준.",
+    "P3는 사전등록 정의대로 two-way L1 차 mean_t(‖w_κ−w⁻‖₁ − ‖w_0−w⁻‖₁) ≤ 0.0008."
+  ],
+  "assumptions": [
+    "pct_rank = (평균순위 - 1)/(유한 μ 수 - 1) — 최소 μ가 v=1.0, 최대 μ가 v=1+κ. 유한 μ가 1개뿐이면 pct=0.0.",
+    "동점 μ는 평균 순위(numpy 구현, scipy 미사용)."
+  ],
+  "p1": {
+    "gain_sum": 0.0021986919318109283,
+    "n_gain": 94,
+    "thirds_sums": [
+      0.0008043362240183513,
+      -0.00010842462669390717,
+      0.0015027803344864837
+    ],
+    "pass": false
+  },
+  "p2": {
+    "gain_annual": 0.00028457555921117706,
+    "threshold": 0.001,
+    "years": 7.72621492128679,
+    "pass": false
+  },
+  "p3": {
+    "mean_extra_turnover": 0.0008486586247009093,
+    "threshold": 0.0008,
+    "extra_turnover_dist": {
+      "n": 95,
+      "min": -0.0009628400957769345,
+      "p10": -0.00012128575946717402,
+      "median": 5.4585320623253e-05,
+      "mean": 0.0008486586247009093,
+      "p90": 0.00404938410867729,
+      "max": 0.008300051867039221
+    },
+    "pass": false
+  },
+  "gain_dist": {
+    "n": 94,
+    "min": -0.00026069420853503197,
+    "p10": -0.00010710320315784754,
+    "median": 5.6756170808106855e-06,
+    "mean": 2.339033970011626e-05,
+    "p90": 0.00014750034893593677,
+    "max": 0.0008499945339611914
+  },
+  "overall_pass": false,
+  "verdict": "SHELVE",
+  "runtime_s": 566.8
+}
