@@ -54,3 +54,22 @@ def test_trailing_ic_mean_uses_only_the_last_window_values():
     t = pd.Timestamp("2020-01-10")                      # 전 9개 모두 사용 가능
     # window=6 -> 마지막 6개(4..9) 평균 = 6.5 (앞의 3개는 무시)
     assert np.isclose(trailing_ic_mean(s, t, 6), 6.5, atol=1e-12)
+
+
+def test_load_checkpoint_roundtrip_and_partial_line(tmp_path):
+    """체크포인트는 온전한 줄만 복원하고, 중단으로 잘린 줄은 버린다."""
+    from scripts.precheck_s13_50_alpha_weighted_projection import load_checkpoint
+
+    path = tmp_path / "rows.jsonl"
+    assert load_checkpoint(path) == {}
+
+    path.write_text(
+        '{"date": "2019-01-02", "gain": 1.5}\n'
+        '{"date": "2019-02-01", "gain": -0.25}\n'
+        '{"date": "2019-03-0',           # kill 로 잘린 마지막 줄
+        encoding="utf-8",
+    )
+    done = load_checkpoint(path)
+    assert sorted(done) == ["2019-01-02", "2019-02-01"]
+    assert done["2019-01-02"]["gain"] == 1.5
+    assert done["2019-02-01"]["gain"] == -0.25

@@ -31,6 +31,7 @@
 
 import bisect
 import json
+import os
 import pickle
 import sys
 import time
@@ -45,6 +46,7 @@ sys.path.insert(0, str(AI_PORT))
 VARIANT = Path("variants/codex_causal_rank_65.yaml")
 PKL = Path("outputs/codex_causal_rank_65/backtest_result.pkl")
 OUT_DIR = Path("outputs/s13_50_alpha_weighted_projection")
+CKPT = OUT_DIR / "rows.jsonl"   # 리밸일별 체크포인트(중단 내성). 값에 영향 없음.
 
 KAPPA = 3.0              # 사전약정 단일 값 — 스윕 금지
 FWD = 21                 # 전진 영업일
@@ -233,6 +235,29 @@ def _dist(series) -> dict:
 # 실행
 # ---------------------------------------------------------------------------
 
+def load_checkpoint(path) -> dict:
+    """이미 계산된 리밸일 레코드를 date -> row 로 되돌린다.
+
+    중단 시 마지막 줄이 잘릴 수 있으므로 파싱 실패 줄은 버린다. 레코드는
+    리밸일마다 독립·결정적으로 계산되므로 재사용이 값을 바꾸지 않는다.
+    """
+    done = {}
+    path = Path(path)
+    if not path.exists():
+        return done
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            row = json.loads(line)
+        except ValueError:
+            continue
+        if isinstance(row, dict) and "date" in row:
+            done[row["date"]] = row
+    return done
+
+
 def main() -> None:
     from run_variant import compose_config, load_manifest
     from scripts.preflight_s13_30_vol_quality import _fwd_return
@@ -327,11 +352,19 @@ def main() -> None:
           f"  kappa={KAPPA}")
 
     rows, skip_reasons = [], {}
+    done = load_checkpoint(CKPT)
+    if done:
+        print(f"[resume] 체크포인트 {len(done)}건 재사용 — {CKPT}")
+    ckpt_fh = open(CKPT, "a", encoding="utf-8")
 
     def _skip(reason):
         skip_reasons[reason] = skip_reasons.get(reason, 0) + 1
 
     for dt in rebal_dates:
+        key = str(dt.date())
+        if key in done:
+            rows.append(done[key])
+            continue
         if dt not in preds.index:
             _skip("date_not_in_predictions")
             continue
@@ -454,12 +487,15 @@ def main() -> None:
             "status_projk": dk.get("status"),
         })
         r = rows[-1]
+        print(json.dumps(r, ensure_ascii=False), file=ckpt_fh, flush=True)
+        os.fsync(ckpt_fh.fileno())
         print(f"[t] {r['date']}  L1repro {r['l1_repro']:.2e}"
               f"  disp {r['proj_displacement']:.5f}"
               f"  |wk-w0| {r['l1_w0_wk']:.5f}"
               f"  gain {r['gain']:+.6f}  dTO {r['extra_turnover']:+.5f}"
               f"  conf {r['conf']:.3f}  tic {r['tic']:+.4f}")
 
+    ckpt_fh.close()
     if not rows:
         sys.exit("[ABORT] 사용 가능한 리밸일 0건 — 보고 요망")
     df = pd.DataFrame(rows)
