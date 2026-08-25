@@ -6760,3 +6760,53 @@ Factset_re_study → D_Factset 251열 전파, FwdEPS 235) → ③ universe_confi
   "IM": "EUR"` + **`config.listing_dates` §S14 등록(† 9건 — 특히 TKO 2023-09-12·
   HWM 2020-04-01 무빙 이력 필수)** + expected_universe_size 250 핀 + 새 S0(250)
   ECOS 재인증 + frozen overlay paired replay. **250 이전 수치(1.8320) 비교 금지.**
+
+## S14.2 사전등록 (단계 ⑤ 단독 arm — ai_port 250 전환 + 새 S0(250) + frozen overlay paired replay) — 2026-08-25
+
+사용자 착수 지시("단독 arm … 진행해줘"). **측정 전 사전등록**(§S13.50 규율 —
+이 섹션을 측정 전에 단독 커밋).
+
+**범위(데이터 계층만 — 성능 파라미터 무변경)**:
+1. `src/data_loader.py`: TICKERS 200→**250**(§S14 슬레이트 순서 = Universe_Meta
+   순서 그대로 꼬리 추가) · `MARKET_TO_CURRENCY "IM": "EUR"`(신규 FX 페어 0) ·
+   `FALLBACK_TICKER_CURRENCY` 비USD 11종(ASM·UCG·RMS·ENEL=EUR, UBSG·ROP=CHF,
+   8316·7011·6758·4063=JPY, REL=GBP).
+2. `src/config.py` `listing_dates` +8: IPO 상수 유령 6(TEAM 2015-12-10 ·
+   ZS 2018-03-16 · NET 2019-09-13 · SNOW 2020-09-16 · APP 2021-04-15 ·
+   RDDT 2024-03-21) + **무빙 전신 이력 2(TKO 2023-09-12=WWE 이력 차단 ·
+   HWM 2020-04-01=Arconic 이력 차단 — auto-infer 불가라 명시 등록이 유일 방어)**.
+   마스크 없음(† 연속성 인정): COHR(IIVI 계보)·APO·ROP(§S14.1 백필 PASS)·
+   MDT·6758·UBSG.
+3. 핀: `scripts/audit_usd_cap_benchmark.py` EXPECTED 250 ·
+   production/challenger variant `expected_universe_size: 250` ·
+   display_name 200→250 라벨 정정(§S13.3 선례).
+4. 테스트 핀 갱신(red→green): test_universe_fx_conversion ·
+   test_config · acceptance/test_listing_mask(SPEC_LISTING_DATES) ·
+   test_audit_usd_cap_benchmark · test_run_variant ·
+   test_s13/test_s14_universe_config_append(적용 후 상태로 전환).
+   과거 arm yaml(150/200 핀)은 역사 기록이라 무변경.
+
+**측정 계획(전부 ECOS·`--no-cache`·단일 foreground, schtasks 일회성)**:
+- **런 1 = 새 S0(250)**: `run_variant.py --variant variants/codex_causal_rank_65.yaml`
+  — production config **그대로**(rank_eval_at [20]·slope·vol-quality tilt·
+  optvol-cov 포함, 오버레이 재튜닝 없음). 기록: IR/TE/turnover/realized_beta/
+  퇴화율/솔버. **이 수치가 250 시대 유일 기준선이며 250 이전 수치(1.8320 포함)와
+  비교 금지 — ΔIR 판정 자체가 없음(기준선 수립 이벤트).**
+- **런 2 = frozen overlay paired replay base**: 신규
+  `variants/s14_overlay_base_250.yaml` = production − **후예측 오버레이 스택
+  4종 OFF**(pead_boost·growth_tilt·value_trap_gate·vol_quality_tilt).
+  그 외 전부 동일(동일 빈티지·동일 Σ 경로 optvol-cov ON·동일 시드).
+  영수증 = ΔIR/ΔTE/Δturnover(overlay−base) — **관측 기록만**. 오버레이
+  제거/재튜닝은 이번 범위 밖(해로움이 명확·부호 일관하면 별도 사전등록 후
+  후속 — §8 overlay 규칙).
+- 유효 빈티지 쌍 고정: ai_signal_data 2026-08-25 20:47:55 + Index.xlsx
+  2026-08-25 16:37:36(§S13.47 규율 — 런 전후 mtime 확인). 사전 점검:
+  C: 여유 9.0GB(≥2GB/런), ECOS True.
+
+**합격 기준(판정 가능)**: ⑴ 전체 pytest 스위트 PASS(597 기준 ±핀 조정),
+⑵ 런 1·2 정상 종료 + 솔버 전부 ECOS(fallback 0 확인), ⑶ 런 1 실현 TE ≤ 4.5%
+가드, ⑷ 런 1 유니버스 가드 250 통과(구성 검사 포함), ⑸ 상장 마스크 경계 감사
+— 등록 8종의 마스크 적용을 번들에서 확인(특히 TKO/HWM pre-date 이력 차단),
+⑹ paired replay 영수증 기록. **인벤토리 불변**(선택 이벤트 0 — 기준선
+재인증 + 진단 영수증, 채택/기각 판정 없음). **forward monitoring clock은
+250 전환일 2026-08-25부터 재시작**(200 시대 인증·모니터링 이력 이월 금지).
