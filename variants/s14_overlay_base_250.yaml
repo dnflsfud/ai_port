@@ -1,31 +1,33 @@
-label: iter15_65tkr_reb21_vtg
-display_name: Legacy S0 (250)
-portfolio_role: challenger
+label: s14_overlay_base_250
+display_name: S14.2 overlay-free base (250)
+portfolio_role: experiment
 description: >
-  PRODUCTION. iter15_65tkr_reb21 + post-prediction value-trap gate.
-  The value-trap gate zeroes score for (cheap PE z<-0.5) &
-  (momentum_252d<-0.5) & (oper_margin_accel>+0.5).
-  CS-DR-Alpha is OFF (2026-06-10): the original validation had two confounds
-  (walk-forward fold-skip kept DR inactive for the first ~5y of the backtest;
-  the 2-pass path skipped the prediction EMA, so passthrough regions traded
-  the un-smoothed raw LGBM signal). After fixing both, the honest 2x2 ablation
-  (outputs/dr_ablation_2x2, data vintage 2026-06-05) shows DR's marginal
-  contribution is decisively negative: dIR -0.71 (no-EMA pair) / -0.58 (EMA
-  pair) vs the matching baseline, in every sub-period including fully-trained
-  P3. Lower turnover (-0.16~-0.23) does not compensate. See
-  docs/RL_DR_ALPHA_RESULTS.md (2026-06-10 re-validation) before re-enabling.
-out_dir: outputs/iter15_65tkr_reb21_vtg
+  S14.2 frozen-overlay paired-replay BASE (decision log S14.2 preregistration).
+  Identical to the production codex_causal_rank_65 config (same vintage, same
+  signal path, same optimizer, same option-vol covariance) except the four
+  post-prediction score overlays are OFF: pead_boost, growth_tilt,
+  value_trap_gate, vol_quality_tilt. The receipt is the observed
+  overlay-minus-base delta (IR/TE/turnover) at 250 names — a diagnostic
+  record only; overlay removal or re-tuning is out of scope for S14.
+out_dir: outputs/s14_overlay_base_250
 tuning_mode: production
 overrides:
-  # Model/data baseline pins.
+  # Causal ranking model — identical to production.
+  model_objective: cross_sectional_rank
+  causal_validation_enabled: true
+  execution_signal_lag_days: 1
+  rank_relevance_levels: 10
+  rank_eval_at: [20]
+
+  # Model/data pins copied from the production S0 variant.
   train_window: 1260
   retrain_freq: 63
   val_window: 126
   prediction_ema_alpha: 0.5
   early_stopping_rounds: 100
   lgbm_params:
-    objective: regression
-    metric: mse
+    objective: rank_xendcg
+    metric: ndcg
     learning_rate: 0.02
     num_leaves: 31
     max_depth: 5
@@ -49,11 +51,11 @@ overrides:
   max_tail_ffill_days: 10
   fail_on_stale_tail_ffill: false
 
-  # Benchmark / optimizer / execution pins.
+  # Benchmark / optimizer / execution pins — identical to production.
   benchmark_type: cap_weighted
   risk_aversion: 1.0
   turnover_penalty: 0.03
-  max_te_annual: 0.045
+  max_te_annual: 0.035
   max_single_turnover: 0.15
   sector_deviation: 0.10
   cov_lookback: 126
@@ -74,7 +76,7 @@ overrides:
   one_way_tc: 0.0010
   rebalance_freq: 21
 
-  # Mega-cap / proportional-cap controls.
+  # Mega-cap / proportional-cap controls — identical to production.
   mega_cap_protection_enabled: true
   mega_cap_bm_threshold: 0.04
   mega_cap_wide_uw_cap: 0.10
@@ -86,12 +88,14 @@ overrides:
   bm_proportional_cap_vol_scale_floor: 0.5
   bm_proportional_cap_vol_lookback: 63
 
-  # Post-prediction overlays.
-  pead_boost_enabled: true
+  # Post-prediction overlays — the ONLY deltas vs production: the frozen
+  # overlay stack is switched OFF for the paired replay (S14.2). Sub-params
+  # are kept pinned at the production values so the diff is the four flags.
+  pead_boost_enabled: false
   pead_boost_weight: 0.30
   pead_decay_days: 7.0
   pead_max_days: 21
-  growth_tilt_enabled: true
+  growth_tilt_enabled: false
   growth_tilt_weight: 0.25
   growth_tilt_rev_weight: 0.50
   growth_tilt_fundamental_weight: 0.50
@@ -100,24 +104,26 @@ overrides:
   growth_tilt_rev_sales_share: 0.50
   growth_tilt_rev_tg_share: 0.00
   signal_stability_lambda: 0.0
-  value_trap_gate_enabled: true
+  value_trap_gate_enabled: false
   vtg_pe_z_threshold: -0.5
   vtg_momentum_threshold: -0.5
   vtg_accel_threshold: 0.5
   vtg_scale: 0.0
 
-  # Causal discipline flip (2026-07-10): fix val-label leakage past the
-  # prediction date (early-stopping) and same-close execution optimism.
-  # See decision log "Production flips". Rollback = revert these two lines.
-  causal_validation_enabled: true
-  execution_signal_lag_days: 1
-
-  # Operating guardrails / solver protocol.
+  # Operating guardrails / solver protocol — identical to production.
   allow_scs_on_ecos_exception: false
   max_name_active_risk_share: 0.35
   max_sector_active_risk_share: 0.85  # recalibrated 2026-07-18, decision log S10.1
   expected_universe_size: 250  # point-in-time membership guard, decision log S14.2
-  # CS-DR-Alpha — disabled after the 2026-06-10 honest re-validation (above).
-  # Engine + harness remain available for research:
-  #   scripts/run_dr_alpha.py (single/grid), scripts/run_dr_ablation.py (2x2).
   dr_alpha_enabled: false
+
+  # Adopted feature block — identical to production (S13.25).
+  fwd_sales_slope_features_enabled: true
+
+  # Vol-tercile quality tilt — part of the frozen overlay stack, OFF in the
+  # base leg (production keeps it ON per S13.32).
+  vol_quality_tilt_enabled: false
+
+  # S13.41 option-IV vol-forecast covariance diagonal — identical to
+  # production (risk-model channel, not a score overlay).
+  option_vol_covariance_enabled: true

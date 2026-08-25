@@ -125,6 +125,14 @@ TICKERS = [
     "AXON", "UBER", "AIR", "SAF", "MRK", "AMGN", "SYK", "MCK", "NOVN",
     "NKE", "ORLY", "DASH", "CFR", "TTD", "RBLX", "9432", "9433",
     "PEP", "MDLZ", "OR", "CVX", "TTE", "NEM", "SHW", "SO",
+    # Expansion 2026-08-25 (50) -- decision log §S14/§S14.2, Universe_Meta order
+    "APP", "SNOW", "NET", "ZS", "TEAM", "COHR", "ON", "FICO",
+    "HPE", "VRSN", "ASM", "MRSH", "APO", "MSCI", "BNY", "IBKR",
+    "UBSG", "UCG", "8316", "ADP", "HWM", "WM", "PH", "REL",
+    "7011", "ROP", "GILD", "PFE", "MDT", "HCA", "ZTS", "RMS",
+    "6758", "CMG", "MAR", "GM", "GRMN", "RDDT", "LYV", "TKO",
+    "MO", "CL", "MNST", "COP", "SLB", "APD", "4063", "NRG",
+    "ENEL", "WELL",
 ]
 
 # Bloomberg listing suffix -> local trading currency. Universe_Meta is the
@@ -140,6 +148,7 @@ MARKET_TO_CURRENCY = {
     "LN": "GBP",
     "DC": "DKK",
     "SM": "EUR",  # Spain (ITX, IBE) — S11 expansion, decision log §S11
+    "IM": "EUR",  # Milan (UCG, ENEL) — S14 expansion, no new FX pair
 }
 
 # Raw quote convention -> USD per one unit of local currency. ``inverse``
@@ -176,6 +185,11 @@ FALLBACK_TICKER_CURRENCY = {
     "SAF": "EUR", "OR": "EUR", "TTE": "EUR",
     "6146": "JPY", "6981": "JPY", "9432": "JPY", "9433": "JPY",
     "NOVN": "CHF", "CFR": "CHF",
+    # Expansion 2026-08-25 (non-USD 11 of 50) -- decision log §S14.2
+    "ASM": "EUR", "UCG": "EUR", "RMS": "EUR", "ENEL": "EUR",
+    "UBSG": "CHF", "ROP": "CHF",
+    "8316": "JPY", "7011": "JPY", "6758": "JPY", "4063": "JPY",
+    "REL": "GBP",
 }
 
 SENT_TREND_SHEETS = {

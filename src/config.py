@@ -164,6 +164,15 @@ class PipelineConfig:
         # Discover absorption, measured cap discontinuity +99.4% (1d +67.1%
         # on 2025-05-19) — pre-merger history is a different economic entity.
         "WDC": "2025-02-24", "COF": "2025-05-19",
+        # S14 250-name expansion (decision log §S14.2). IPO listings whose
+        # pre-listing history is a constant ghost (audited §S14.1):
+        "TEAM": "2015-12-10", "ZS": "2018-03-16", "NET": "2019-09-13",
+        "SNOW": "2020-09-16", "APP": "2021-04-15", "RDDT": "2024-03-21",
+        # Moving-predecessor continuity masks: TKO pre-2023-09 carries live
+        # WWE history and HWM pre-2020-04 carries live Arconic history, so
+        # the leading-flat auto-infer cannot detect them — this explicit
+        # registration is the only defence (PIT-contract §6).
+        "TKO": "2023-09-12", "HWM": "2020-04-01",
     })
     # Point-in-time universe guard (§S11.4): expected member count of
     # Universe_Meta ∩ essential sheets. None disables the check (synthetic

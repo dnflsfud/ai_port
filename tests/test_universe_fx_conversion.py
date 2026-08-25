@@ -67,14 +67,16 @@ def _patch_raw(monkeypatch, raw):
     )
 
 
-def test_fallback_universe_has_exact_200_workbook_order():
-    # §S13.3: 150 -> 200 expansion, Universe_Meta workbook order.
-    assert len(TICKERS) == 200
-    assert len(set(TICKERS)) == 200
+def test_fallback_universe_has_exact_250_workbook_order():
+    # §S14: 200 -> 250 expansion, Universe_Meta workbook order.
+    assert len(TICKERS) == 250
+    assert len(set(TICKERS)) == 250
     assert TICKERS[:5] == ["AAPL", "MSFT", "GOOGL", "AMZN", "META"]
     assert TICKERS[145:150] == ["KO", "ULVR", "ECL", "AI", "IBE"]
     assert TICKERS[150:155] == ["INTU", "SNPS", "APH", "MSI", "CRWD"]
-    assert TICKERS[-5:] == ["CVX", "TTE", "NEM", "SHW", "SO"]
+    assert TICKERS[195:200] == ["CVX", "TTE", "NEM", "SHW", "SO"]
+    assert TICKERS[200:205] == ["APP", "SNOW", "NET", "ZS", "TEAM"]
+    assert TICKERS[-5:] == ["APD", "4063", "NRG", "ENEL", "WELL"]
 
 
 def test_usd_and_listing_guardrails_are_enabled_for_100_name_regime():
@@ -119,6 +121,17 @@ def test_usd_and_listing_guardrails_are_enabled_for_100_name_regime():
         # COF Discover absorption +99.4% cap discontinuity)
         "WDC": "2025-02-24",
         "COF": "2025-05-19",
+        # S14 250-name expansion (decision log §S14.2) — IPO constant ghosts
+        "TEAM": "2015-12-10",
+        "ZS": "2018-03-16",
+        "NET": "2019-09-13",
+        "SNOW": "2020-09-16",
+        "APP": "2021-04-15",
+        "RDDT": "2024-03-21",
+        # S14 moving-predecessor continuity masks (auto-infer 불가 — §S14.1
+        # 유령 감사: TKO pre-2023-09 = WWE, HWM pre-2020-04 = Arconic)
+        "TKO": "2023-09-12",
+        "HWM": "2020-04-01",
     }
 
 

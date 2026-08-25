@@ -40,10 +40,12 @@ def test_s14_no_overlap_and_allocation():
     entries = _load_staged().S14_ENTRIES
     from src.data_loader import TICKERS
 
-    # 적용 전 기준: ai_port TICKERS는 아직 200 (§S14 잔여 단계 ⑤에서 250 확장).
-    assert len(TICKERS) == 200
+    # §S14.2(단계 ⑤) 적용 후 기준: 스테이징 50종이 그대로 TICKERS[200:] 꼬리가
+    # 됐다 (§S13 계약 테스트와 동일 패턴).
+    assert len(TICKERS) == 250
     simple = {t.rsplit(" ", 2)[0] for t in entries}
-    assert not (simple & set(TICKERS))
+    assert simple == set(TICKERS[200:])
+    assert not (simple & set(TICKERS[:200]))
     # 사전등록 배분 (MSCI World 비례, GPT 교차리뷰 3회 반영 확정본 —
     # GRMN은 Consumer Discretionary(GICS), Roper 보류로 ROP=로슈 무충돌)
     assert Counter(m["sector"] for m in entries.values()) == {

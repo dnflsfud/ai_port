@@ -32,10 +32,11 @@ def test_s13_no_overlap_and_allocation():
     entries = _load_staged().S13_ENTRIES
     from src.data_loader import TICKERS
 
-    # §S13.3 적용 후 기준: 스테이징 50종이 그대로 TICKERS 꼬리가 됐다.
-    assert len(TICKERS) == 200
+    # §S13.3 적용 후 기준: 스테이징 50종이 TICKERS[150:200] 블록이 됐다
+    # (§S14에서 250으로 재확장 — S13 블록 위치는 불변).
+    assert len(TICKERS) == 250
     simple = {t.rsplit(" ", 2)[0] for t in entries}
-    assert simple == set(TICKERS[150:])
+    assert simple == set(TICKERS[150:200])
     assert not (simple & set(TICKERS[:150]))
     # 사전등록 배분 (MSCI World 2026-06-30 비중 비례)
     assert Counter(m["sector"] for m in entries.values()) == {

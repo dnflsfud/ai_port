@@ -53,6 +53,16 @@ def test_listing_mask_fields_default_on_for_valid_100_name_history():
         # S13.3 corporate-action continuity masks
         "WDC": "2025-02-24",
         "COF": "2025-05-19",
+        # S14 250-name expansion — IPO constant ghosts (§S14.2)
+        "TEAM": "2015-12-10",
+        "ZS": "2018-03-16",
+        "NET": "2019-09-13",
+        "SNOW": "2020-09-16",
+        "APP": "2021-04-15",
+        "RDDT": "2024-03-21",
+        # S14 moving-predecessor continuity masks (TKO=WWE, HWM=Arconic)
+        "TKO": "2023-09-12",
+        "HWM": "2020-04-01",
     }
 
 
@@ -73,6 +83,13 @@ def test_spain_market_suffix_maps_to_eur():
     from src.data_loader import MARKET_TO_CURRENCY, FX_QUOTE_SPECS
     assert MARKET_TO_CURRENCY["SM"] == "EUR"
     # EUR conversion spec must already exist — S11 adds no new FX pair.
+    assert "EUR" in FX_QUOTE_SPECS
+
+
+def test_milan_market_suffix_maps_to_eur():
+    from src.data_loader import MARKET_TO_CURRENCY, FX_QUOTE_SPECS
+    # §S14: new exchange code IM (Milan — UCG, ENEL), no new FX pair.
+    assert MARKET_TO_CURRENCY["IM"] == "EUR"
     assert "EUR" in FX_QUOTE_SPECS
 
 

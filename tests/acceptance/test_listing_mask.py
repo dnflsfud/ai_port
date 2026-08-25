@@ -80,6 +80,18 @@ SPEC_LISTING_DATES = {
     "KEYS": "2014-10-21",
     "WDC": "2025-02-24",
     "COF": "2025-05-19",
+    # S14 (decision log §S14.2): 250-name expansion — IPO constant ghosts
+    # (leading-constant class, audited §S14.1) plus two moving-predecessor
+    # continuity masks (TKO pre-2023-09 = WWE history, HWM pre-2020-04 =
+    # Arconic history; auto-infer cannot detect a moving predecessor).
+    "TEAM": "2015-12-10",
+    "ZS": "2018-03-16",
+    "NET": "2019-09-13",
+    "SNOW": "2020-09-16",
+    "APP": "2021-04-15",
+    "RDDT": "2024-03-21",
+    "TKO": "2023-09-12",
+    "HWM": "2020-04-01",
 }
 
 
