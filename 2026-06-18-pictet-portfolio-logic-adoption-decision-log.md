@@ -6619,3 +6619,99 @@ label_gain 평탄화 — booster 해시 P0 선행)는 상금 기대치 근거가
   있다. DTE Energy라면 Utilities가 맞다. 섹터 편차 제약이 이 맵을 쓰므로
   **오매핑이면 제약이 잘못 걸린다**. 포지션은 +0.36%p로 작아 영향은 제한적이나
   확인이 필요하다. 이번 라운드 범위 밖이라 **수정하지 않고 기록만** 한다.
+
+---
+
+## S14 (유니버스 200→250 확장 — 슬레이트 사전등록 + 워크북 편집 완료) — 2026-08-25
+
+**슬레이트 확정 경위**: Fable 원안 50종(MSCI 비례) → GPT 교차리뷰 3라운드(사용자
+중계) 반영 → **사용자 확정**. 반영 내역: 표기 정정 4(MMC→**MRSH** 2026-01-14 ·
+BK→**BNY** 2026-05-21 · RELX→**REL LN** · UBS→**UBSG SW**), 교체 2(HOOD→IBKR
+표본 2007~ · EOG→SLB 밸류체인 분산), 보류 6(CHTR[Cox 합병 08-20 종결 직후] ·
+Roper[ROP 충돌] · STM·MCHP[아날로그 중복, ON만 유지] · TDG[방산 중복, HWM·7011만] ·
+BATS[담배 PM+MO 2종 제한]), 충원 6(VRSN·GRMN·PH·MNST·ZTS·ENEL), GRMN 섹터
+Consumer Discretionary 정정(GICS), PH는 CTAS 교체안 대신 ‡ 유지(전액 현금 인수
+종결·SLB 동급 처리 일관성·Ind 서비스 쏠림 회피 — 사용자 승인).
+
+**슬레이트 50 (workbook 순서 = canonical)**: Tech 11(APP† SNOW NET ZS TEAM COHR†
+ON FICO HPE VRSN ASM[NA]) · Fin 8(MRSH APO† MSCI BNY IBKR UBSG[SW] UCG[IM]
+8316[JP]) · Ind 6(ADP HWM† WM PH‡ REL[LN] 7011[JP]) · HC 6(ROP†=로슈[SW] GILD
+PFE MDT† HCA ZTS‡) · CD 6(RMS[FP] 6758†[JP] CMG MAR GM GRMN) · Comm 3(RDDT†
+LYV TKO†) · St 3(MO CL MNST‡) · En 2(COP SLB‡) · Mat 2(APD 4063[JP]) ·
+Ut 2(NRG‡ ENEL[IM]) · RE 1(WELL). 통화 USD 39·EUR 4·JPY 4·CHF 2·GBP 1 →
+250종 전체 USD 191·EUR 27·JPY 14·CHF 7·GBP 8·KRW 2·DKK 1(JPY 5.6%로 소폭
+상승 수용). 최종 분포 Tech 71(28.4%)·Fin 40(16.0%)·Ind 29(11.6%)·HC 25(10.0%)·
+CD 23(9.2%).
+
+**웹 검증된 사실(2026-08-25, 판단 근거)**: ① Marsh McLennan NYSE 심볼
+MMC→MRSH 2026-01-14 발효. ② BNY BK→BNY 2026-05-21 발효 — 구 BK 회귀 금지.
+③ **로슈 Genussscheine(구 ROG SW) 2026-03-16 거래 종료, 참가증권 1:1 교환
+ROP로 03-17부터 거래** — §rog_to_san(07-24, "ROG stale price" High)의 원인
+사후 규명. ④ Charter–Cox $34.5B 08-20 종결(Liberty Broadband 동시) → CHTR 보류.
+⑤ Parker–Filtration Group $9.25B 2025-11-11 발표·2026-08-13 종결(전액 현금).
+⑥ MNST 2:1 분할 08-11 발효. iShares/공식 IR 출처는 세션 대화 기록.
+
+**로슈 재진입 특별 조항(† 중 최고 우선)**: 로슈는 §S11 슬레이트에 ROG SW로
+편입됐다가 §rog_to_san(07-24)에서 스테일로 SAN FP로 교체된 **재진입 종목**이다.
+리프레시 후 ⑴ Bloomberg `ROP SW Equity`·FactSet `ROP-CH^` 심볼 유효성,
+⑵ 2026-03-16 이전 이력의 새 심볼 백필 여부, ⑶ 1:1 가격 연속성(조정 계수)을
+확인해야 하며, **백필 부재 시 로슈 자동 보류**(249 진행 또는 대체는 사용자 결정).
+
+**게이트 상태**:
+1. **MSCI 편입 대조 — PENDING(하드 게이트, 사용자 확인 요망)**: iShares URTH
+   holdings CSV 자동 수집이 봇 차단으로 실패. 전원 S&P500/주요 대형지수 구성원
+   간접 근거만 확보(형식 대조 미수행). §S13.1은 오버라이드 선례이나 이번엔
+   GPT 리뷰 비준으로 하드 게이트 유지 — **universe_config 250 적용을 이 게이트
+   뒤에 묶는다**.
+2. **FX/거래소**: 신규 FX 페어 0. 신규 거래소 코드 **IM(밀라노, UCG·ENEL)** —
+   `MARKET_TO_CURRENCY "IM": "EUR"` · `FACTSET_MARKET_CODE "IM": "IT"` ·
+   ai_port `data_loader.MARKET_TO_CURRENCY "IM": "EUR"`(⑤ 시점) 스테이징 완료.
+3. **상장·기업행사 마스크/QA**:
+   - † PIT·연속성 정책 9건 — APP(2025 게임사업 매각 재편), COHR(정통 계보
+     IIVI: 2022 합병·리네임), APO(2022 Athene 합병), HWM(2020 Arconic 분할),
+     ROP(로슈 재진입, 위 조항), MDT(당뇨사업 분사 진행), 6758(2025-10 소니
+     금융 부분분사), RDDT(2024-03 상장 — 최단 이력), TKO(2023-09 설립 +
+     2025 Endeavor 자산 common-control 재작성).
+   - 상장일 명시 등록 — TEAM 2015-12-10, ZS 2018-03-16, NET 2019-09-13,
+     SNOW 2020-09-16, APP 2021-04-15, RDDT 2024-03-21, TKO 2023-09-12
+     (전부 리프레시 시 first-valid로 재검증).
+   - ‡ 기업행사 데이터 QA 5건 — PH(Filtration Group 08-13 종결 전후 재무·시총
+     단절 + CIRCOR 진행 모니터), SLB(2025-07 ChampionX 전량 주식교환, 구 주주
+     ~9%), NRG(2026-01 LS Power 발전용량 ~2배), MNST(08-11 2:1 분할 — 13시트
+     전체 per-share 필드 조정 일관성), ZTS(2024~25 비교 재무 재작성 빈티지).
+4. **생존편향 정책**: 2026-08-25 시점 고정 250종. 과거 구간 진단용, 신규 50종
+   정식 평가는 전향 구간.
+
+**워크북 편집(2026-08-25 완료, fresh 재오픈 검증 ALL PASS)**:
+- `Data/oppor.xlsx` tickers 202→**252** 셀(GU1..IR1, Bloomberg 형식). 여분
+  `442580 KS Equity`(유니버스 외 수집 잔존)는 §S13 선례대로 보존.
+- `re_study/Factset_re_study.xlsx` 종목 시트 **9종** 각 +50열(r2='TICKER-CC^'
+  US/NL/IT/CH/JP/GB/FR · r3=시트별 마지막 열 FDS 수식 문자열 그대로 복제):
+  201→251, FwdEPS만 185→235(초기 16종 블록이 원래 없는 축소 표본 — §S13의
+  "13시트"는 현 시트셋 기준 9시트로 구성 변화 기록). 검증: 셀 수·tail-50
+  일치·수식 균일·중복 0. **D_Factset_re_study.xlsx는 리프레시 산출물(값
+  워크북)이라 무편집**(§S13 선례 — 사용자 리프레시가 전파).
+- 백업: `oppor.backup_20260825_s14.xlsx`, `Factset_re_study.backup_20260825_s14.xlsx`.
+- 데이터 실재성: `Data/S&P500.xlsx` 29시트 헤더에 신규 50 전원 부재(예상대로) —
+  리프레시 시 신규 열 생성 확인이 하드 게이트(§S11.2 MMC 선례 — **MRSH는 당시
+  열 부재로 AON에 밀렸던 동일 회사라 최우선 확인**).
+
+**universe_config 스테이징**: `outputs/s14_universe_config_append.py`(적용 5단계
++ S14_ENTRIES 50) + 계약 테스트 `tests/test_s14_universe_config_append.py`
+red 2 FAIL → 구현 → **2 PASS**(전체 스위트 595+2 PASS). 적용은 게이트 ① 통과
++ 리프레시 준비 후.
+
+**오버레이 절충(사용자 비준, GPT 리뷰 반영)**: 파라미터 재탐색·재튜닝 불필요 ·
+production config 그대로 새 S0(250) ECOS 인증 · frozen overlay의 250종
+base-vs-overlay paired replay 필요 · 새 검증 영수증·production state 생성 ·
+250 전환일부터 forward monitoring clock 재시작. **"200종 인증을 250종 인증으로
+간주" 금지.**
+
+**잔여 단계**: ① 게이트 1 확인(사용자 — MSCI/URTH 구성 대조) → ② 데스크탑
+리프레시(Bloomberg: oppor·S&P500.xlsx 신규 50열 생성 / FactSet:
+Factset_re_study → D_Factset 251열 전파, FwdEPS 235) → ③ universe_config 250
+적용(스테이징 5단계) + run_data_pipeline [CHECK] 문구 갱신 → ④ 파이프라인
+재생성 + ai_signal_data 250 검증(Universe_Meta 250 Available · first-valid
+마스크 · †/‡ 체크리스트 · **ROP 백필 확인**) → ⑤ ai_port TICKERS 250 + IM 매핑
++ 새 S0(250) ECOS 재인증(**단독 arm** — 다른 변경과 동시 실행 금지) →
+**250 이전 수치(§S13.47 production IR 1.8320 포함)와 직접 비교 금지 선언.**
