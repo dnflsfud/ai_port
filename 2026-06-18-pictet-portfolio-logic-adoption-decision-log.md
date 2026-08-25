@@ -6715,3 +6715,48 @@ Factset_re_study → D_Factset 251열 전파, FwdEPS 235) → ③ universe_confi
 마스크 · †/‡ 체크리스트 · **ROP 백필 확인**) → ⑤ ai_port TICKERS 250 + IM 매핑
 + 새 S0(250) ECOS 재인증(**단독 arm** — 다른 변경과 동시 실행 금지) →
 **250 이전 수치(§S13.47 production IR 1.8320 포함)와 직접 비교 금지 선언.**
+
+## S14.1 (리프레시 검증 + universe_config 250 적용 + ai_signal_data 250 재생성) — 2026-08-25
+
+사용자가 양 소스를 250 기준으로 리프레시 완료 후 "확인 + 배치 업데이트" 지시.
+**게이트 1(MSCI 대조)은 사용자 진행 지시로 오버라이드**(§S13.1 선례와 동일,
+형식 대조 미수행으로 기록).
+
+- **리프레시 실측(전부 PASS)**: `S&P500.xlsx` 18:18 — 29시트 중 대부분 50/50
+  신규 열 생성(PX_LAST·CUR_MKT_CAP·BEST_EPS 등). 정당 결측: BEST_FCF/CAPEX/
+  GROSS_MARGIN의 BNY·UCG·8316(은행류 컨센 결측, §S11 계열), SHORT_INT 비US 9종·
+  PUT_CALL 비US 11종(§S13.35 정직-NaN 계열). `D_Factset` 19:09 — 9시트 전부
+  250/250(FwdEPS 234), tail NRG/ENEL/WELL. **MRSH 열 생성 확인**(§S11.2에서 MMC
+  열 부재로 탈락했던 동일 회사 — 신 티커로 해소).
+- **로슈(ROP) 재진입 특별 조항 판정 — PASS**: Bloomberg `ROP SW` first-valid
+  2014-01-02(전체 백필)·FactSet `ROP-CH^` 2013-01-01 n=4984. **3월 교환 경계
+  (03-09~03-24) 최대 |일수익률| 2.89% — 단절 없음, 1:1 연속성 확인.**
+- **유령값 감사(신규 50)**: 상장 전 상수 유령 6종(RDDT 34.0 등 — TEAM·ZS·NET·
+  SNOW·APP·RDDT, 자동 감지 가능 계열) / **무빙 전신 이력 2종: TKO(pre-2023-09
+  유니크 2,314 = WWE 이력)·HWM(pre-2020-04 유니크 785 = Arconic 이력) —
+  first-valid 추론 불가, ⑤ 단계 `listing_dates` 명시 등록 필수**(GPT 경고 실증).
+  UBSG pre-2014-11은 UBS AG 이력 — 동일 그룹 연속성 인정, 마스크 없음. COHR는
+  IIVI 계보 전체 유지(† 정책).
+- **universe_config 250 적용(TDD)**: 계약 테스트 핀 갱신 red **8 FAIL** → 스테이징
+  5단계 적용(EXPECTED 250·+50·IM→EUR/IT) + 스모크 핀 → **36 PASS**. bat [CHECK]
+  250 갱신. 커밋 pythonProject@codex1 `b2f88b4`.
+- **재생성 사건 2건과 해소**: ⑴ 1차 런(전 단계 정상, 250/250 매칭)이 **최종 저장
+  단계 MemoryError**로 실패 — §S13.35 ENOSPC 회피용 `in_memory` 모드가 250 규모
+  워크북 XML을 램에 유지하다 한계 초과. **기존 ai_signal_data.xlsx 파괴**(22바이트
+  잔해; §S13.35와 동일한 출력 직접 쓰기 구조 탓). 수정: in_memory 제거(기본
+  임시파일 모드) + **tmp 경로 저장 후 os.replace 원자 교체**(계약 테스트
+  `test_save_is_atomic_and_disk_backed` red→**37 PASS**, 커밋 `3bcc187`) — 이후
+  어떤 저장 실패도 기존 파일을 파괴할 수 없다. ⑵ 세션 내 background 스폰이
+  저장 단계에서 2회 연속 killed(§S13.38 기지 패턴) → **schtasks 일회성 태스크
+  (배터리 허용·StopOnIdleEnd=false)로 우회, 성공**. 원자 교체 덕에 중단 시
+  피해 0(0바이트 tmp만 정리).
+- **ai_signal_data 250 번들 검증(PASS)**: 342.3MB(20:47), 56시트.
+  Universe_Meta **250행·Status 전원 Available·순서 = universe_config §S14
+  (Bloomberg 티커 형식, tail-5 APD/4063/NRG/ENEL/WELL)·ROP SW 존재**. 핵심 시트
+  (PX_LAST·Daily_Returns·BEST_EPS·CUR_MKT_CAP·NEWS_SENT·EQY_REC·Factset 2종)
+  **250/250** 심플 티커 매칭. 감성 2시트 251열(date+250, 회사명 컬럼 규약).
+  sync_data 레거시 no-op(SKIP) 확인.
+- **잔여 = 단계 ⑤ 단독 arm**: ai_port TICKERS 250 + `data_loader.MARKET_TO_CURRENCY
+  "IM": "EUR"` + **`config.listing_dates` §S14 등록(† 9건 — 특히 TKO 2023-09-12·
+  HWM 2020-04-01 무빙 이력 필수)** + expected_universe_size 250 핀 + 새 S0(250)
+  ECOS 재인증 + frozen overlay paired replay. **250 이전 수치(1.8320) 비교 금지.**
