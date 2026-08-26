@@ -755,8 +755,9 @@ def main() -> None:
         production_gate_chip = ""
 
     st.title("Pictet Portfolio Monitor — USD")
+    universe_label = f"{universe_size}-name universe" if universe_size else "portfolio universe"
     st.markdown(
-        "<div class='note'>Operating dashboard for the 150-name universe, unhedged USD performance, FX attribution, risk and rebalance controls.</div>",
+        f"<div class='note'>Operating dashboard for the {universe_label}, unhedged USD performance, FX attribution, risk and rebalance controls.</div>",
         unsafe_allow_html=True,
     )
     st.markdown(
