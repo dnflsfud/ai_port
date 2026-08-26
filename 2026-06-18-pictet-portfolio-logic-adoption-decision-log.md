@@ -6854,3 +6854,31 @@ fallback 0**.
 - 인벤토리 불변(선택 이벤트 0). monitoring clock 2026-08-25 재시작 발효.
 - 로그·산출물: `outputs/s14_2_s0_250_run.log`, `outputs/s14_2_base_run.log`,
   `outputs/s14_2_runs.status`, `outputs/s14_overlay_base_250/metrics.json`.
+
+## S14.3 ‡ 기업행사 데이터 QA 5건 — 전부 PASS (읽기 전용 진단) — 2026-08-26
+
+사용자 지시로 §S14 게이트 ③의 ‡ 트랙 실행. 방법: implied_shares =
+CUR_MKT_CAP/PX_LAST 스텝 분석 + per-share 시트 경계 스텝비 + 이상치/NaN 스캔.
+**수정 0건 — 5건 전부 데이터 정상.**
+
+1. **MNST(2:1 분할, 효력 08-11) — PASS**: 전 시트 소급 조정 일관. PX 경계
+   레벨 46.86→47.30 연속(max|Δ1d| 4.09%는 08-18 일반 시장 변동),
+   BEST_EPS/TG_Price/PE 전부 무스텝(동일 post-split basis),
+   implied_shares max|Δ| 0.16%로 평활, **Daily_Returns 오염 없음**.
+2. **SLB(ChampionX 전량 주식교환) — PASS**: implied_shares **+10.34% 스텝
+   @ 2025-07-17** = 희석 기대치(~+9.9%) 정합, 가격 연속(스텝은 시총에만).
+   정당 이벤트의 정확 반영.
+3. **PH(Filtration Group $9.25B 전액현금, 08-13 종결) — PASS**: 주식수 변동
+   0.00%(현금 인수 정합), 가격 max 7.31%(08-06 실적일 변동), 컨센 소폭
+   갱신만. CIRCOR 진행 건은 계속 모니터.
+4. **NRG(LS Power) — PASS + 종결일 특정**: implied_shares **+12.30% 스텝
+   @ 2026-02-02** = 주식+현금 인수 신주(~+12%) 정합 → 종결일 2026-02-02로
+   실측 특정. 컨센 스텝(BEST_SALES +6.1% 01-27, BEST_EPS +4.5% 01-26)은
+   인수 반영 추정치 갱신으로 정당.
+5. **ZTS(비교 재무 재작성) — PASS**: 펀더멘털·컨센 시트 클린(2024-01~
+   2026-08 |Δ1d|>20% 0건·NaN 0%). 서프라이즈 시트의 대형 pct 점프는 0 근처
+   레벨의 분기 실적일 스텝 함수(레벨 전환 11회 = 분기 주기, 범위
+   [-5.8,+8.6]%, 대조군 PFE/GILD와 동질) — 재작성 아티팩트 아님.
+
+§S14 게이트 ③ ‡ 트랙 종결. 잔여 모니터 항목: PH-CIRCOR(진행 중),
+MDT 당뇨사업 분사(† 정책, 진행 시 재점검).
