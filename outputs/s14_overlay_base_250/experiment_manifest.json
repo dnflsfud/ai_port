@@ -82,9 +82,9 @@
     "fwd_opcf_rev_126d_feature_enabled": false,
     "fwd_opcf_rev_252d_feature_enabled": false,
     "fwd_opcf_rev_63d_feature_enabled": false,
-    "fwd_sales_slope_features_enabled": false,
+    "fwd_sales_slope_features_enabled": true,
     "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
-    "growth_tilt_enabled": true,
+    "growth_tilt_enabled": false,
     "growth_tilt_eps_skew": 0.5,
     "growth_tilt_fundamental_weight": 0.5,
     "growth_tilt_rev_eps_share": 0.5,
@@ -102,11 +102,11 @@
       "colsample_bytree": 0.8,
       "learning_rate": 0.02,
       "max_depth": 5,
-      "metric": "mse",
+      "metric": "ndcg",
       "min_child_samples": 60,
       "n_estimators": 800,
       "num_leaves": 31,
-      "objective": "regression",
+      "objective": "rank_xendcg",
       "random_state": 42,
       "reg_alpha": 0.3,
       "reg_lambda": 2.0,
@@ -174,7 +174,7 @@
     "max_sector_active_risk_share": 0.85,
     "max_single_turnover": 0.15,
     "max_tail_ffill_days": 10,
-    "max_te_annual": 0.045,
+    "max_te_annual": 0.035,
     "max_weight": 0.15,
     "mega_cap_bm_threshold": 0.04,
     "mega_cap_funding_k": 4,
@@ -183,7 +183,7 @@
     "mega_cap_protection_enabled": true,
     "mega_cap_wide_uw_cap": 0.1,
     "min_model_trees": 10,
-    "model_objective": "regression",
+    "model_objective": "cross_sectional_rank",
     "mu_vol_scaling_enabled": false,
     "multi_horizon_targets_enabled": false,
     "multi_horizon_weights": {},
@@ -193,7 +193,7 @@
     "nonlinear_confirmation_features_enabled": false,
     "one_way_tc": 0.001,
     "option_risk_features_enabled": false,
-    "option_vol_covariance_enabled": false,
+    "option_vol_covariance_enabled": true,
     "output_dir": "./outputs",
     "partial_rebalance_eta": 0.5,
     "pca_components": 5,
@@ -204,7 +204,7 @@
     "pca_regime_vol_col": "VIX",
     "pca_regime_vol_threshold": 1.0,
     "pca_vol_standardize": false,
-    "pead_boost_enabled": true,
+    "pead_boost_enabled": false,
     "pead_boost_weight": 0.3,
     "pead_decay_days": 7.0,
     "pead_max_days": 21,
@@ -214,8 +214,7 @@
     "projection_fallback_mode": "target",
     "putcall_features_enabled": false,
     "rank_eval_at": [
-      5,
-      10
+      20
     ],
     "rank_relevance_levels": 10,
     "rebalance_at_month_end": false,
@@ -288,7 +287,7 @@
     "turnover_penalty": 0.03,
     "use_score_based": false,
     "val_window": 126,
-    "value_trap_gate_enabled": true,
+    "value_trap_gate_enabled": false,
     "vix_ts_improve_window": 5,
     "vix_ts_risk_scale": 0.5,
     "vix_ts_risk_scaling_enabled": false,
@@ -307,12 +306,12 @@
     "winner_trim_quantile": 0.8
   },
   "extra": {
-    "description": "PRODUCTION. iter15_65tkr_reb21 + post-prediction value-trap gate. The value-trap gate zeroes score for (cheap PE z<-0.5) & (momentum_252d<-0.5) & (oper_margin_accel>+0.5). CS-DR-Alpha is OFF (2026-06-10): the original validation had two confounds (walk-forward fold-skip kept DR inactive for the first ~5y of the backtest; the 2-pass path skipped the prediction EMA, so passthrough regions traded the un-smoothed raw LGBM signal). After fixing both, the honest 2x2 ablation (outputs/dr_ablation_2x2, data vintage 2026-06-05) shows DR's marginal contribution is decisively negative: dIR -0.71 (no-EMA pair) / -0.58 (EMA pair) vs the matching baseline, in every sub-period including fully-trained P3. Lower turnover (-0.16~-0.23) does not compensate. See docs/RL_DR_ALPHA_RESULTS.md (2026-06-10 re-validation) before re-enabling.\n",
-    "manifest_path": "variants\\iter15_65tkr_reb21_vtg.yaml",
+    "description": "S14.2 frozen-overlay paired-replay BASE (decision log S14.2 preregistration). Identical to the production codex_causal_rank_65 config (same vintage, same signal path, same optimizer, same option-vol covariance) except the four post-prediction score overlays are OFF: pead_boost, growth_tilt, value_trap_gate, vol_quality_tilt. The receipt is the observed overlay-minus-base delta (IR/TE/turnover) at 250 names \u2014 a diagnostic record only; overlay removal or re-tuning is out of scope for S14.\n",
+    "manifest_path": "variants\\s14_overlay_base_250.yaml",
     "tuning_mode": "production",
-    "variant_label": "iter15_65tkr_reb21_vtg"
+    "variant_label": "s14_overlay_base_250"
   },
   "git_dirty": false,
-  "git_hash": "43f23ffd0a304c0142ec0a75b6b2e7695dd16805",
-  "timestamp_utc": "2026-08-26T02:49:15Z"
+  "git_hash": "468f0b807853ff07cebc7dbe10326d8a0abeec6a",
+  "timestamp_utc": "2026-08-26T01:34:54Z"
 }

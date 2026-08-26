@@ -60,7 +60,7 @@
     "ewma_permutation_repeats": 3,
     "ewma_stability_window": 4,
     "execution_signal_lag_days": 1,
-    "expected_universe_size": 200,
+    "expected_universe_size": 250,
     "factor_neutral_axes": [
       "value",
       "quality",
@@ -118,6 +118,7 @@
       "285A": "2024-12-18",
       "ABNB": "2020-12-10",
       "ANET": "2014-06-06",
+      "APP": "2021-04-15",
       "ARM": "2023-09-14",
       "BE": "2018-07-25",
       "BN": "2022-12-12",
@@ -129,21 +130,28 @@
       "DELL": "2018-12-28",
       "GE": "2024-04-02",
       "GEV": "2024-04-02",
+      "HWM": "2020-04-01",
       "KEYS": "2014-10-21",
       "LITE": "2015-07-27",
+      "NET": "2019-09-13",
       "PLTR": "2020-09-30",
       "PYPL": "2015-07-07",
       "RACE": "2015-10-21",
       "RBLX": "2021-03-10",
+      "RDDT": "2024-03-21",
       "SNDK": "2025-02-24",
+      "SNOW": "2020-09-16",
       "SPOT": "2018-04-03",
+      "TEAM": "2015-12-10",
+      "TKO": "2023-09-12",
       "TT": "2020-03-02",
       "TTD": "2016-09-21",
       "UBER": "2019-05-10",
       "UMG": "2021-09-21",
       "VRT": "2018-08-01",
       "VST": "2016-10-05",
-      "WDC": "2025-02-24"
+      "WDC": "2025-02-24",
+      "ZS": "2018-03-16"
     },
     "listing_flat_atol": 1e-12,
     "listing_flat_min_run": 5,
@@ -298,12 +306,12 @@
     "winner_trim_quantile": 0.8
   },
   "extra": {
-    "description": "Fixed-200 causal production portfolio. Uses date-grouped LightGBM rank_xendcg, purged/embargoed validation, and a one-trading-day execution signal lag. The legacy label/output path is retained for automation compatibility; the universe is the validated 200-name Universe_Meta set (decision log \u00a7S13.3). The adopted four-feature forward-sales-slope block is enabled per S13.25; benchmark, overlays, optimizer and transaction-cost assumptions remain pinned to the canonical iter15_65tkr_reb21_vtg portfolio design.\n",
+    "description": "Fixed-250 causal production portfolio. Uses date-grouped LightGBM rank_xendcg, purged/embargoed validation, and a one-trading-day execution signal lag. The legacy label/output path is retained for automation compatibility; the universe is the validated 250-name Universe_Meta set (decision log \u00a7S14.2). The adopted four-feature forward-sales-slope block is enabled per S13.25; benchmark, overlays, optimizer and transaction-cost assumptions remain pinned to the canonical iter15_65tkr_reb21_vtg portfolio design.\n",
     "manifest_path": "variants\\codex_causal_rank_65.yaml",
     "tuning_mode": "production",
     "variant_label": "codex_causal_rank_65"
   },
   "git_dirty": false,
-  "git_hash": "995a9f3845ace8841f2654fa6e1165c184fdecd0",
-  "timestamp_utc": "2026-08-25T03:04:47Z"
+  "git_hash": "43f23ffd0a304c0142ec0a75b6b2e7695dd16805",
+  "timestamp_utc": "2026-08-26T03:14:54Z"
 }
