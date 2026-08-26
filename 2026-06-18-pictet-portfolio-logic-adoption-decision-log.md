@@ -6810,3 +6810,47 @@ Factset_re_study → D_Factset 251열 전파, FwdEPS 235) → ③ universe_confi
 ⑹ paired replay 영수증 기록. **인벤토리 불변**(선택 이벤트 0 — 기준선
 재인증 + 진단 영수증, 채택/기각 판정 없음). **forward monitoring clock은
 250 전환일 2026-08-25부터 재시작**(200 시대 인증·모니터링 이력 이월 금지).
+
+## S14.2 결과 (단계 ⑤ 완료 — 새 S0(250) 인증 + paired replay 영수증) — 2026-08-26
+
+**구현(커밋 468f0b8, 598 PASS)**: 사전등록 범위 그대로 — TICKERS 250·IM=EUR·
+FALLBACK 비USD 11·listing_dates 8건·핀 250·paired base variant 신설. 상장일
+경계 감사 **ALL PASS**(IPO 6종 gap 0d — 등록일 = 첫 실관측일 정확 일치;
+TKO pre-2023-09 WWE 유니크 2,314·HWM pre-2020-04 Arconic 유니크 785 —
+명시 마스크가 실제 전신 이력을 차단함을 확인).
+
+**실행**: schtasks 일회성(ExecutionTimeLimit 8h 상향). run1 08-25 21:32 →
+08-26 10:08 exit 0(야간 절전 동결 포함 — 순수 연산은 run2 실측 기준 ~27분),
+run2 10:08 → 10:34 exit 0. 빈티지 쌍 런 전후 불변(ai_signal_data 08-25
+20:47:55 / Index.xlsx 16:37:36). 양 런 `--no-cache`·**ECOS 194/194 solve·
+fallback 0**.
+
+**새 S0(250) production 기준선** (`outputs/codex_causal_rank_65/metrics.json`):
+
+| 항목 | S0(250) production | overlay-free base | Δ(overlay−base) |
+|---|---:|---:|---:|
+| IR | **1.3811** | 1.1217 | **+0.259** |
+| TE | 3.63% | 3.71% | −0.08%p |
+| Active return | 5.01% | 4.16% | +0.85%p |
+| Turnover(two-way) | 71.0% | 68.6% | +2.4%p |
+| realized_beta | **1.049** | 1.052 | −0.003 |
+| avg_ic | 0.0196 | 0.0171 | +0.0025 |
+| MaxDD | −32.1% | −33.6% | +1.5%p 개선 |
+| Active Share(Pictet) | 19.77% | 20.18% | — |
+| 퇴화율 | 12/33=36.4% | 12/33(동일) | 0 |
+| 서브 IR | 1.440/0.944/1.753 | 1.046/0.664/1.576 | +0.394/+0.280/+0.177 |
+
+- **IR 1.3811이 250 시대 유일 기준선** — 이후 모든 250 arm의 단일 비교 기준.
+  250 이전 수치(1.8320 포함)와 비교 금지(사전등록 재확인).
+- **P2 베타 게이트**: realized_beta 1.049 ≈ 1.0 → §3 게이트대로 beta-neutral
+  shelve 유지.
+- **frozen overlay paired replay 판정**: 퇴화 통계 완전 동일(12/33)이 동일
+  harvest 페어링을 증빙. Δ(overlay−base) 서브기간 3/3 전부 양 + TE 오히려
+  하락 + MaxDD 개선 → **frozen 스택(pead·growth_tilt·vtg·vol_quality_tilt)은
+  250에서 do-no-harm 명백 통과(가산적)**. 재튜닝·제거 액션 없음(관측 기록).
+- 퇴화율 36.4%(12/33)는 관측 기록(fail_on OFF, report-only 트랙).
+- **합격 기준 ⑴~⑹ 전부 충족**: 598 PASS · 양 런 정상 종료+ECOS 전량 ·
+  TE 3.63% ≤ 4.5% · 유니버스 가드 250 통과 · 경계 감사 ALL PASS · 영수증 기록.
+- 인벤토리 불변(선택 이벤트 0). monitoring clock 2026-08-25 재시작 발효.
+- 로그·산출물: `outputs/s14_2_s0_250_run.log`, `outputs/s14_2_base_run.log`,
+  `outputs/s14_2_runs.status`, `outputs/s14_overlay_base_250/metrics.json`.
