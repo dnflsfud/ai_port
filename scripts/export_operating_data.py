@@ -67,7 +67,7 @@ DEFAULT_OPERATING_DIR = ROOT / "outputs" / "operating"
 
 # Code contract version for the operating bundle; bumped when the exported
 # meta/schema meaning changes materially.
-PORTFOLIO_VERSION = "universe200-usd-pit-sp500-v2"
+PORTFOLIO_VERSION = "universe250-usd-pit-sp500-v2"
 
 # (display_name, portfolio_role) defaults used when the variant yaml is silent
 # (e.g. the argument-free export path). Unknown labels stay challenger so an
