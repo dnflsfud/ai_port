@@ -70,6 +70,7 @@ def test_arm_variant_differs_from_production_by_exactly_the_flag():
         "vol_quality_tilt_enabled",
         "vol_quality_tilt_lambda",
         "option_vol_covariance_enabled",  # S13.41 promotion (2026-08-13)
+        "s15_fixpack_enabled",  # S15 promotion (2026-08-27)
     }
     assert not [
         key for key in prod

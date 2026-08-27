@@ -888,6 +888,16 @@ class PipelineConfig:
     s15_fixpack_enabled: bool = False
 
     # ------------------------------------------------------------------
+    # S15.1 (2026-08-27) — sign-stable monotone constraints on the margin
+    # axis (decision log §S15.1 preregistration). The map is FIXED to the
+    # §S15 precheck output (oper_margin_chg_63d/252d, op_leverage_63d,
+    # all +1); no sweeps. OFF (default) leaves lgbm params untouched —
+    # byte-identical training.
+    # ------------------------------------------------------------------
+    monotone_constraints_enabled: bool = False
+    monotone_constraints_map: Dict[str, int] = field(default_factory=dict)
+
+    # ------------------------------------------------------------------
     # S13.46 (2026-08-20) — implied correlation into the covariance
     # OFF-DIAGONAL as a per-rebalance scalar (decision log §S13.46
     # preregistration; precheck §S13.45-C PASS: NW t +8.43, OOS +11.6%).

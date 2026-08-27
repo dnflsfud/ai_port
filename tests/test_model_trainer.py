@@ -152,3 +152,68 @@ def test_walk_forward_train_annotated_as_4_tuple():
     assert len(args) == 4
     assert args[3] is EWMAFeatureTracker
     assert "ewma_tracker" in walk_forward_train.__doc__
+
+
+# ---------------------------------------------------------------------------
+# §S15.1 — monotone constraints (마진 축 3피처 arm 인프라)
+# ---------------------------------------------------------------------------
+
+def test_monotone_vector_none_when_disabled_or_empty():
+    from src.model_trainer import _monotone_constraints_vector
+    assert _monotone_constraints_vector(PipelineConfig(), ["a", "b"]) is None
+    cfg = PipelineConfig(monotone_constraints_enabled=True)
+    assert _monotone_constraints_vector(cfg, ["a", "b"]) is None  # 빈 맵
+
+
+def test_monotone_vector_aligns_to_feature_order():
+    from src.model_trainer import _monotone_constraints_vector
+    cfg = PipelineConfig(
+        monotone_constraints_enabled=True,
+        monotone_constraints_map={"b": 1, "d": -1},
+    )
+    assert _monotone_constraints_vector(cfg, ["a", "b", "c", "d"]) == [0, 1, 0, -1]
+
+
+def _monotone_train_setup(enabled):
+    from src.model_trainer import train_model
+    rng = np.random.default_rng(5)
+    dates = pd.bdate_range("2024-01-01", periods=60)
+    tickers = [f"T{i}" for i in range(10)]
+    features = ["f0", "f1"]
+    index = pd.MultiIndex.from_product([dates, tickers], names=["date", "ticker"])
+    panel = pd.DataFrame(
+        rng.normal(size=(len(index), 2)), index=index, columns=features
+    )
+    signal = panel["f0"].unstack("ticker")
+    targets = signal + 0.3 * pd.DataFrame(
+        rng.normal(size=signal.shape), index=signal.index, columns=signal.columns
+    )
+    cfg = PipelineConfig(
+        model_objective="cross_sectional_rank",
+        rank_relevance_levels=5,
+        early_stopping_rounds=10,
+        monotone_constraints_enabled=enabled,
+        monotone_constraints_map={"f0": 1},
+        lgbm_params={
+            "objective": "rank_xendcg", "metric": "ndcg", "n_estimators": 40,
+            "min_child_samples": 5, "num_leaves": 7, "learning_rate": 0.1,
+            "verbose": -1, "random_state": 0,
+        },
+    )
+    model = train_model(panel, targets, features, dates[:45], dates[45:], config=cfg)
+    return model
+
+
+def test_train_model_monotone_off_params_untouched():
+    model = _monotone_train_setup(enabled=False)
+    assert "monotone_constraints" not in model.get_params()
+
+
+def test_train_model_monotone_on_enforces_direction():
+    model = _monotone_train_setup(enabled=True)
+    assert model.get_params().get("monotone_constraints") == [1, 0]
+    grid = np.linspace(-3, 3, 41)
+    x_grid = np.zeros((41, 2))
+    x_grid[:, 0] = grid
+    preds = model.predict(x_grid)
+    assert np.all(np.diff(preds) >= -1e-12)

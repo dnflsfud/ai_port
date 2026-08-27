@@ -379,6 +379,22 @@ def build_walk_forward_split(
     }
 
 
+def _monotone_constraints_vector(
+    config: PipelineConfig, feature_names: List[str]
+) -> "Optional[List[int]]":
+    """§S15.1: 사전등록 맵을 active feature 순서의 제약 벡터로 변환.
+
+    OFF(default) 또는 빈 맵이면 None — 호출부가 params를 건드리지 않아
+    훈련이 바이트 동일하다. EWMA drop으로 active set이 변해도 이름 기반
+    매핑이라 정렬이 유지된다(맵 외 피처는 0 = 무제약)."""
+    if not getattr(config, "monotone_constraints_enabled", False):
+        return None
+    cmap = getattr(config, "monotone_constraints_map", None) or {}
+    if not cmap:
+        return None
+    return [int(cmap.get(f, 0)) for f in feature_names]
+
+
 def train_model(
     panel: pd.DataFrame,
     targets: pd.DataFrame,
@@ -391,6 +407,7 @@ def train_model(
     """단일 모델 훈련 (early stopping with validation)."""
     config = config or DEFAULT_CONFIG
     objective = getattr(config, "model_objective", "regression")
+    mono_vec = _monotone_constraints_vector(config, feature_names)
     if objective == "cross_sectional_rank":
         levels = int(getattr(config, "rank_relevance_levels", 10))
         X_train, y_train, train_groups = prepare_rank_data(
@@ -425,11 +442,19 @@ def train_model(
         params = dict(config.lgbm_params)
         params["objective"] = "rank_xendcg"
         params["metric"] = "ndcg"
+        if mono_vec is not None:
+            params["monotone_constraints"] = mono_vec
         model = lgb.LGBMRanker(**params)
     elif objective == "symmetric_rank":
         params = dict(config.lgbm_params)
         params["objective"] = getattr(config, "symmetric_rank_loss", "huber")
         params["metric"] = getattr(config, "symmetric_rank_metric", "l2")
+        if mono_vec is not None:
+            params["monotone_constraints"] = mono_vec
+        model = lgb.LGBMRegressor(**params)
+    elif mono_vec is not None:
+        params = dict(config.lgbm_params)
+        params["monotone_constraints"] = mono_vec
         model = lgb.LGBMRegressor(**params)
     else:
         # Keep the canonical construction unchanged on the default path.
