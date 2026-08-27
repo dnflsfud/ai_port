@@ -88,6 +88,8 @@ def test_rebalance_metadata_for_non_rebalance_and_rebalance_asof():
     assert non_rebalance["is_rebalance_data_as_of"] is False
     assert pd.Timestamp(non_rebalance["next_expected_rebalance_date"]).dayofweek < 5
 
+    assert non_rebalance["rebalance_overdue"] is False
+
     rebalance_asof = build_rebalance_metadata(
         [dates[0], dates[21]],
         dates[:22],
@@ -96,6 +98,24 @@ def test_rebalance_metadata_for_non_rebalance_and_rebalance_asof():
     assert rebalance_asof["is_rebalance_data_as_of"] is True
     assert rebalance_asof["rows_since_last_rebalance"] == 0
     assert rebalance_asof["rows_until_next_rebalance"] == 21
+    assert rebalance_asof["rebalance_overdue"] is False
+
+
+def test_rebalance_metadata_flags_overdue_after_skipped_rebalance():
+    from scripts.export_operating_data import build_rebalance_metadata
+
+    # Production legitimately skips a scheduled rebalance when fewer than 10
+    # predictions are valid, so rows_since in [freq, 2*freq) must flag, not die.
+    dates = pd.bdate_range("2026-01-02", periods=25)
+    meta = build_rebalance_metadata([dates[0]], dates, 21)
+    assert meta["rebalance_overdue"] is True
+    assert meta["rows_since_last_rebalance"] == 24
+    assert meta["rows_until_next_rebalance"] == 18  # 21 - (24 % 21)
+    assert meta["next_expected_rebalance_date"] == (
+        dates[-1] + pd.offsets.BDay(18)
+    ).strftime("%Y-%m-%d")
+    assert meta["next_rebalance_is_estimate"] is True
+    assert meta["is_rebalance_data_as_of"] is False
 
 
 def test_rebalance_metadata_rejects_weekend_calendar():
@@ -254,10 +274,94 @@ def test_latest_trade_plan_rejects_turnover_from_previous_targets():
         )
 
 
-def test_production_label_keeps_legacy_id_but_displays_200():
+def test_production_label_keeps_legacy_id_but_displays_250():
     from scripts.export_operating_data import _LABEL_DEFAULTS
 
-    assert _LABEL_DEFAULTS["codex_causal_rank_65"] == ("Causal Rank 200", "production")
+    assert _LABEL_DEFAULTS["codex_causal_rank_65"] == ("Causal Rank 250", "production")
+    assert _LABEL_DEFAULTS["iter15_65tkr_reb21_vtg"] == ("Legacy S0 (250)", "challenger")
+
+
+def test_production_risk_source_prefers_raw_unimputed_returns():
+    from scripts.export_operating_data import _production_risk_source
+
+    dates = pd.bdate_range("2026-01-02", periods=4)
+    dense = pd.DataFrame(0.01, index=dates, columns=["AAA", "BBB"])
+    raw = pd.DataFrame(0.02, index=dates[1:], columns=["BBB", "AAA", "CCC"])
+    raw.loc[dates[1], "AAA"] = np.nan
+    data = types.SimpleNamespace(returns=dense, raw_returns=raw)
+
+    out = _production_risk_source(data, ["AAA", "BBB"])
+    assert list(out.columns) == ["AAA", "BBB"]
+    assert list(out.index) == list(dense.index)
+    # NaN preservation is the point: the un-imputed panel keeps
+    # estimate_covariance on the production pairwise branch (a dense imputed
+    # panel silently switches it to LedoitWolf).
+    assert np.isnan(out.loc[dates[1], "AAA"])
+    assert out.loc[dates[0]].isna().all()
+
+    no_raw = types.SimpleNamespace(returns=dense, raw_returns=None)
+    pd.testing.assert_frame_equal(
+        _production_risk_source(no_raw, ["AAA", "BBB"]), dense[["AAA", "BBB"]]
+    )
+
+
+def test_optvol_scale_applies_production_diag_and_falls_back_unscaled():
+    from scripts.export_operating_data import _apply_optvol_scale
+
+    date = pd.Timestamp("2026-06-11")
+    cov = np.array([[1.0, 0.5], [0.5, 2.0]])
+    scale = pd.DataFrame({"AAA": [2.0]}, index=[date])
+
+    scaled, applied = _apply_optvol_scale(cov, scale, date, ["AAA", "BBB"])
+    assert applied is True
+    np.testing.assert_allclose(scaled, [[4.0, 1.0], [1.0, 2.0]])  # BBB -> 1.0
+
+    unscaled, applied = _apply_optvol_scale(
+        cov, scale, date + pd.offsets.BDay(1), ["AAA", "BBB"]
+    )
+    assert applied is False
+    np.testing.assert_array_equal(unscaled, cov)
+
+    unscaled, applied = _apply_optvol_scale(cov, None, date, ["AAA", "BBB"])
+    assert applied is False
+    np.testing.assert_array_equal(unscaled, cov)
+
+
+def test_load_optvol_scale_disabled_or_missing_sheet_returns_none():
+    from scripts.export_operating_data import _load_optvol_scale
+
+    off = types.SimpleNamespace(option_vol_covariance_enabled=False)
+    assert _load_optvol_scale(None, ["AAA"], off) is None
+
+    class _NoSheet:
+        def get_sheet(self, name):
+            raise KeyError(name)
+
+    on = types.SimpleNamespace(option_vol_covariance_enabled=True)
+    assert _load_optvol_scale(_NoSheet(), ["AAA"], on) is None
+
+
+def test_expected_rebalance_prev_book_reconstructs_pre_trade_on_rebalance_asof():
+    from scripts.export_operating_data import _expected_rebalance_prev_book
+
+    post_trade = pd.Series({"AAA": 0.7, "BBB": 0.3})
+    entering = pd.Series({"AAA": 0.5, "BBB": 0.5})
+    latest_returns = pd.Series({"AAA": 0.10, "BBB": 0.0})
+
+    non_rebalance = _expected_rebalance_prev_book(
+        post_trade, entering, latest_returns, False
+    )
+    pd.testing.assert_series_equal(non_rebalance, post_trade)
+
+    # On a rebalance as-of the daily snapshot is the POST-trade book; the
+    # entering book must be the previous day's book drifted by today's returns
+    # (build_latest_trade_plan recipe), not the snapshot.
+    pre_trade = _expected_rebalance_prev_book(
+        post_trade, entering, latest_returns, True
+    )
+    assert pre_trade["AAA"] == pytest.approx(0.55 / 1.05)
+    assert pre_trade["BBB"] == pytest.approx(0.50 / 1.05)
+    assert float(pre_trade.sum()) == pytest.approx(1.0)
 
 
 def _cached_result(tickers, as_of="2026-06-11"):

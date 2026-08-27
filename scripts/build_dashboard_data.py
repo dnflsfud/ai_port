@@ -1,5 +1,8 @@
 """Precompute lightweight dashboard data from a backtest_result.pkl.
 
+NOTE: legacy tooling — the production nightly bundles are exported by
+scripts/export_operating_data.py, not this script.
+
 Why: backtest_result.pkl is ~65MB (panel = 49MB, models = 4MB). The
 mobile dashboard only needs aggregate views, not the raw panel. By
 pre-baking IC tables, feature importance, group PnL, and per-rebalance
@@ -68,6 +71,16 @@ def feature_to_bucket(f: str) -> str:
         if f in feats:
             return name
     return "Other"
+
+
+def compute_benchmark_weights(cap: pd.DataFrame, dates, tickers) -> pd.DataFrame:
+    """Cap-weighted benchmark with the production guards: missing ticker
+    columns stay at zero weight (no KeyError) and non-finite/non-positive
+    caps are zeroed before normalizing."""
+    cap_a = cap.reindex(dates).ffill()
+    cap_sub = cap_a.reindex(columns=list(tickers))
+    cap_sub = cap_sub.where(np.isfinite(cap_sub) & (cap_sub > 0), 0.0)
+    return cap_sub.div(cap_sub.sum(axis=1), axis=0)
 
 
 def build(run_dir: Path, data_file: Path, out: Path) -> None:
@@ -176,10 +189,8 @@ def build(run_dir: Path, data_file: Path, out: Path) -> None:
     print("[build] benchmark weights ...")
     cap = pd.read_excel(data_file, sheet_name="CUR_MKT_CAP", index_col=0)
     cap.index = pd.to_datetime(cap.index)
-    cap_a = cap.reindex(W_daily.index).ffill()
     tickers = W_daily.columns.tolist()
-    cap_sub = cap_a[tickers]
-    bm_weights = cap_sub.div(cap_sub.sum(axis=1), axis=0)
+    bm_weights = compute_benchmark_weights(cap, W_daily.index, tickers)
 
     # ---- 6) Compose package -------------------------------------------
     metrics = r.compute_metrics()

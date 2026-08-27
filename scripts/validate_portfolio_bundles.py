@@ -423,7 +423,17 @@ def validate_bundle(bundle_dir: Path) -> dict:
     freq = int(meta["rebalance_freq_days"])
     rows_since = int(meta["rows_since_last_rebalance"])
     rows_until = int(meta["rows_until_next_rebalance"])
-    if freq <= 0 or rows_since < 0 or rows_until <= 0 or rows_since + rows_until != freq:
+    # §S15 FIX4: 스킵된 리밸 뒤에는 rows_since >= freq 인 overdue 상태가
+    # rebalance_overdue 플래그와 함께 정당하게 export된다 — 그 경우 카운터는
+    # 원 그리드 기준 (since + until) % freq == 0 이어야 한다.
+    counters_ok = rows_since + rows_until == freq
+    if bool(meta.get("rebalance_overdue", False)):
+        counters_ok = (
+            rows_since >= freq
+            and 0 < rows_until <= freq
+            and (rows_since + rows_until) % freq == 0
+        )
+    if freq <= 0 or rows_since < 0 or rows_until <= 0 or not counters_ok:
         raise ValueError(f"{bundle_dir}: inconsistent rebalance row counters")
     expected_is_rebalance = returns_as_of == meta["last_rebalance_date"]
     if bool(meta["is_rebalance_data_as_of"]) != expected_is_rebalance:

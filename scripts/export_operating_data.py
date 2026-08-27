@@ -73,8 +73,8 @@ PORTFOLIO_VERSION = "universe250-usd-pit-sp500-v2"
 # (e.g. the argument-free export path). Unknown labels stay challenger so an
 # unrecognized run can never seize the single production slot.
 _LABEL_DEFAULTS = {
-    "iter15_65tkr_reb21_vtg": ("Legacy S0 (200)", "challenger"),
-    "codex_causal_rank_65": ("Causal Rank 200", "production"),
+    "iter15_65tkr_reb21_vtg": ("Legacy S0 (250)", "challenger"),
+    "codex_causal_rank_65": ("Causal Rank 250", "production"),
 }
 
 
@@ -149,12 +149,17 @@ def build_rebalance_metadata(rebalance_dates, portfolio_dates, rebalance_freq: i
     if last_pos < 0:
         raise ValueError("latest rebalance is absent from portfolio calendar")
     rows_since = (len(dates) - 1) - last_pos
-    if rows_since < 0 or rows_since >= freq:
+    if rows_since < 0:
         raise ValueError(
             f"latest rebalance is inconsistent with calendar: rows_since={rows_since}, freq={freq}"
         )
-    rows_until = freq - rows_since
-    next_pos = last_pos + freq
+    # Production legitimately skips a scheduled rebalance when fewer than 10
+    # predictions are valid (res.portfolio_weights records realized rebalances
+    # only), so rows_since >= freq is a flagged overdue state, not fatal; the
+    # next expected date stays on the original scheduled grid.
+    rebalance_overdue = rows_since >= freq
+    rows_until = freq - (rows_since % freq)
+    next_pos = last_pos + freq * (rows_since // freq + 1)
     if next_pos < len(dates):
         next_expected = pd.Timestamp(dates[next_pos])
     else:
@@ -168,6 +173,7 @@ def build_rebalance_metadata(rebalance_dates, portfolio_dates, rebalance_freq: i
         "rebalance_calendar": "weekday_index",
         "rows_since_last_rebalance": int(rows_since),
         "rows_until_next_rebalance": int(rows_until),
+        "rebalance_overdue": bool(rebalance_overdue),
         "is_rebalance_data_as_of": bool(pd.Timestamp(dates[-1]) == last),
         "next_rebalance_is_estimate": bool(next_pos >= len(dates)),
     }
@@ -179,6 +185,75 @@ def _drift_weights(weights: np.ndarray, daily_ret: np.ndarray) -> np.ndarray:
     if not np.isfinite(total) or total <= 0:
         return np.asarray(weights, dtype=float)
     return vals / total
+
+
+def _production_risk_source(data, tickers) -> pd.DataFrame:
+    """Trailing-return panel that production feeds estimate_covariance.
+
+    Mirrors src/backtest.py: the raw (un-imputed, pre-listing-masked) returns
+    reindexed to the dense calendar/universe when available, else the dense
+    panel. Auditing with the imputed panel would silently switch
+    estimate_covariance from the production pairwise branch to Ledoit-Wolf.
+    """
+    raw = getattr(data, "raw_returns", None)
+    if isinstance(raw, pd.DataFrame):
+        return raw.reindex(index=data.returns.index, columns=list(tickers))
+    return data.returns[list(tickers)]
+
+
+def _load_optvol_scale(data, tickers, cfg) -> Optional[pd.DataFrame]:
+    """S13.41 option-IV diagonal scale panel; None when disabled or unavailable."""
+    if not getattr(cfg, "option_vol_covariance_enabled", False):
+        return None
+    from src.option_vol_cov import OPTION_VOL_SHEET, build_option_vol_scale
+    try:
+        iv_sheet = data.get_sheet(OPTION_VOL_SHEET)
+    except KeyError:
+        iv_sheet = None
+    if iv_sheet is None:
+        return None
+    return build_option_vol_scale(data.returns[list(tickers)], iv_sheet)
+
+
+def _apply_optvol_scale(cov: np.ndarray, optvol_scale, date, tickers):
+    """Production diag(s) @ cov @ diag(s) scaling when a scale row exists at date.
+
+    Returns (cov, applied). Missing panel/row -> unscaled cov and False, so
+    audits degrade to the unscaled estimate instead of crashing.
+    """
+    if optvol_scale is None or pd.Timestamp(date) not in optvol_scale.index:
+        return cov, False
+    s = (
+        optvol_scale.loc[pd.Timestamp(date)]
+        .reindex(list(tickers))
+        .fillna(1.0)
+        .to_numpy(dtype=float)
+    )
+    return np.diag(s) @ cov @ np.diag(s), True
+
+
+def _expected_rebalance_prev_book(
+    latest_book: pd.Series,
+    entering_book: pd.Series,
+    latest_returns: pd.Series,
+    is_rebalance_data_as_of: bool,
+) -> pd.Series:
+    """Drifted book entering the latest close (build_expected_rebalance contract).
+
+    On a rebalance as-of the daily snapshot is the POST-trade book (the loop
+    stores prev_weights=new_weights before the daily record), so the entering
+    book is reconstructed as the previous day's book drifted by the latest
+    day's returns — the same recipe as build_latest_trade_plan.
+    """
+    if not is_rebalance_data_as_of:
+        return latest_book
+    tickers = list(latest_book.index)
+    entering = pd.to_numeric(pd.Series(entering_book).reindex(tickers), errors="coerce")
+    rets = pd.to_numeric(pd.Series(latest_returns).reindex(tickers), errors="coerce")
+    return pd.Series(
+        _drift_weights(entering.to_numpy(dtype=float), rets.to_numpy(dtype=float)),
+        index=tickers,
+    )
 
 
 def _normalise_currency(value) -> Optional[str]:
@@ -1514,17 +1589,26 @@ def main(argv=None) -> int:
     json.dump(currency, open(out / "currency.json", "w", encoding="utf-8"), indent=2, default=str)
 
     # ---- risk.json (latest total/active risk contribution) ----------------
+    # Production risk inputs shared by risk.json, the TE-constraint audit and
+    # expected_rebalance.json: raw-return covariance source + S13.41 IV scale.
+    risk_source = _production_risk_source(data, tickers)
+    optvol_scale = _load_optvol_scale(data, tickers, cfg)
     te_limit = float(getattr(cfg, "max_te_annual", 0.045))
     risk = {
         "as_of": str(last)[:10],
-        "method": "Latest rebalance, Ledoit-Wolf covariance, annualized.",
+        "method": (
+            "Latest rebalance, production covariance (raw-return "
+            "estimate_covariance + option-IV diagonal scaling when enabled), "
+            "annualized."
+        ),
         "max_tracking_error_annual": _safe_float(te_limit, 6),
     }
     risk_guardrails = {}
     try:
         cov_lookback = int(getattr(cfg, "cov_lookback", 126))
-        hist_returns = data.returns[tickers].loc[data.returns.index < last].tail(cov_lookback)
+        hist_returns = risk_source.loc[risk_source.index < last].tail(cov_lookback)
         cov = np.asarray(estimate_covariance(hist_returns, bm_weights=bm_w.values, config=cfg), dtype=float)
+        cov, optvol_applied = _apply_optvol_scale(cov, optvol_scale, last, tickers)
         wv = w.values.astype(float)
         av = (w - bm_w).values.astype(float)
         port_var = float(wv @ cov @ wv)
@@ -1593,6 +1677,10 @@ def main(argv=None) -> int:
         }
         risk.update({
             "cov_lookback_days": cov_lookback,
+            "option_vol_cov_scaling_enabled": bool(
+                getattr(cfg, "option_vol_covariance_enabled", False)
+            ),
+            "option_vol_cov_scaling_applied": optvol_applied,
             "estimated_portfolio_vol": _safe_float(port_vol, 6),
             "estimated_tracking_error": _safe_float(active_te, 6),
             "guardrails": risk_guardrails,
@@ -1637,7 +1725,7 @@ def main(argv=None) -> int:
         date_pos = int(data.returns.index.get_indexer([date])[0])
         if date_pos < 0:
             continue
-        hist = data.returns[tickers].iloc[max(0, date_pos - cov_lookback):date_pos]
+        hist = risk_source.iloc[max(0, date_pos - cov_lookback):date_pos]
         if hist.empty:
             continue
         cov_d = np.asarray(
@@ -1648,6 +1736,7 @@ def main(argv=None) -> int:
             ),
             dtype=float,
         )
+        cov_d, optvol_applied_d = _apply_optvol_scale(cov_d, optvol_scale, date, tickers)
         weights_d = res.portfolio_weights[date].reindex(tickers).fillna(0.0).values
         benchmark_d = np.asarray(bm_fn(date, tickers, len(tickers)), dtype=float)
         active_d = weights_d - benchmark_d
@@ -1660,6 +1749,7 @@ def main(argv=None) -> int:
             "limit": _safe_float(te_limit, 6),
             "headroom": _safe_float(te_limit - estimated_te_d, 6),
             "breached": bool(estimated_te_d > te_limit + 1e-6),
+            "option_vol_cov_scaling_applied": optvol_applied_d,
         })
     te_breach_count = sum(bool(row["breached"]) for row in te_constraint_rows)
     max_rebalance_te = max(
@@ -1883,31 +1973,23 @@ def main(argv=None) -> int:
                 "latest daily weights do not match the latest data date "
                 f"({daily_keys[-1] if daily_keys else None} vs {latest_date.date()})"
             )
-        prev_book = pd.Series(res.daily_weights[daily_keys[-1]]).reindex(tickers)
+        prev_book = _expected_rebalance_prev_book(
+            pd.Series(res.daily_weights[daily_keys[-1]]).reindex(tickers),
+            w_enter.loc[latest_date],
+            raw_stock_rets.loc[latest_date],
+            rebalance_meta["is_rebalance_data_as_of"],
+        )
         bm_latest = pd.Series(
             np.asarray(bm_fn(latest_date, tickers, len(tickers)), dtype=float),
             index=tickers,
         )
-        risk_source = getattr(data, "raw_returns", None)
-        if isinstance(risk_source, pd.DataFrame):
-            risk_source = risk_source.reindex(index=data.returns.index, columns=tickers)
-        else:
-            risk_source = data.returns[tickers]
         pos = int(data.returns.index.get_indexer([latest_date])[0])
         cov_lb = int(getattr(cfg, "cov_lookback", 126))
         hist = risk_source.iloc[max(0, pos - cov_lb):pos]
 
         optvol_row = None
-        if getattr(cfg, "option_vol_covariance_enabled", False):
-            from src.option_vol_cov import OPTION_VOL_SHEET, build_option_vol_scale
-            try:
-                iv_sheet = data.get_sheet(OPTION_VOL_SHEET)
-            except KeyError:
-                iv_sheet = None
-            if iv_sheet is not None:
-                optvol_scale = build_option_vol_scale(data.returns[tickers], iv_sheet)
-                if latest_date in optvol_scale.index:
-                    optvol_row = optvol_scale.loc[latest_date]
+        if optvol_scale is not None and latest_date in optvol_scale.index:
+            optvol_row = optvol_scale.loc[latest_date]
 
         te_mult_val = None
         from src.carry_te_conditioning import build_te_cap_multipliers

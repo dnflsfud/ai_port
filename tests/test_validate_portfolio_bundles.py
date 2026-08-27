@@ -439,3 +439,29 @@ def test_production_gate_holds_when_single_check_missing(tmp_path):
     registry = build_registry([production, challenger])
     assert registry["production_gate"]["status"] == "HOLD"
     assert registry["production_gate"]["checks"]["stale_depth_ok"] is None
+
+
+def test_bundle_accepts_overdue_rebalance_counters(tmp_path):
+    # §S15 FIX4: 스킵된 리밸 뒤 rows_since >= freq 상태가 rebalance_overdue
+    # 플래그와 함께 export될 수 있다 — 검증기는 이를 유효 상태로 수용해야 한다.
+    bundle = _write_bundle(tmp_path, "prod", "production")
+    for fname in ("portfolio.json", "operations.json"):
+        path = bundle / fname
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["rows_since_last_rebalance"] = 25
+        payload["rows_until_next_rebalance"] = 17
+        payload["rebalance_overdue"] = True
+        path.write_text(json.dumps(payload), encoding="utf-8")
+    assert validate_bundle(bundle)["id"] == "prod"
+
+
+def test_bundle_still_rejects_inconsistent_counters_without_overdue(tmp_path):
+    bundle = _write_bundle(tmp_path, "prod", "production")
+    for fname in ("portfolio.json", "operations.json"):
+        path = bundle / fname
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["rows_since_last_rebalance"] = 5
+        payload["rows_until_next_rebalance"] = 5
+        path.write_text(json.dumps(payload), encoding="utf-8")
+    with pytest.raises(ValueError, match="inconsistent rebalance row counters"):
+        validate_bundle(bundle)

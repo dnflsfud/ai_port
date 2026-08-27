@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Audit the production benchmark as a 150-name USD cap-weighted index."""
+"""Audit the production benchmark as a 250-name USD cap-weighted index."""
 from __future__ import annotations
 
 import argparse
@@ -40,6 +40,18 @@ def _drift(weights: np.ndarray, returns: np.ndarray) -> np.ndarray:
 def _median_abs(series: pd.Series) -> float | None:
     values = pd.to_numeric(series, errors="coerce").replace([np.inf, -np.inf], np.nan).dropna()
     return float(values.abs().median()) if len(values) else None
+
+
+_CAP_SAMPLE_TICKERS = ("AAPL", "000660", "ASML", "NESN", "RR/", "NOVOB")
+
+
+def _cap_sample(latest_caps: pd.Series) -> dict:
+    """Spot-check caps for a fixed sample; slate changes must not crash the audit."""
+    return {
+        ticker: float(latest_caps[ticker])
+        for ticker in _CAP_SAMPLE_TICKERS
+        if ticker in latest_caps.index
+    }
 
 
 def audit(variant_path: Path, result_path: Path | None = None) -> dict:
@@ -147,10 +159,7 @@ def audit(variant_path: Path, result_path: Path | None = None) -> dict:
             ticker: float(weight)
             for ticker, weight in latest_weights.sort_values(ascending=False).head(10).items()
         },
-        "latest_cap_usd_millions_sample": {
-            ticker: float(latest_caps[ticker])
-            for ticker in ("AAPL", "000660", "ASML", "NESN", "RR/", "NOVOB")
-        },
+        "latest_cap_usd_millions_sample": _cap_sample(latest_caps),
     }
 
 
