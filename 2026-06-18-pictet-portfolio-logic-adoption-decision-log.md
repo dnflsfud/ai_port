@@ -7103,3 +7103,31 @@ recert 선례). **활성화는 §8대로 사용자 결정**: production variant�
   비교는 당분간 fix 전/후 혼재임을 유의(다음 flip 검토 시 정합).
 - 자연 E0 체크: 내일 11:30 배치가 동일 빈티지에서 production 경로를 재실행
   하므로 1.5466 비트 재현이 자동 확인된다(빈티지 리프레시 전제 시 재수립).
+
+## S15.1 사전등록 (비선형 arm: 마진 축 3피처 monotone 제약 — 측정 전 단독 커밋) — 2026-08-27
+
+사용자 지시("수익률 개선 후보 중에서 비선형 옵션을 테스트해줘")로 §S15
+사전점검 B의 잔존 후보 개봉. **측정 전 사전등록**.
+
+**Arm 정의(단일 사전약정, 스윕 금지)**:
+- 신규 default-OFF `monotone_constraints_enabled` + `monotone_constraints_map`.
+  ON 시 train_model에서 active feature 순서로 LightGBM `monotone_constraints`
+  벡터 전달(맵 외 피처 0, method 기본값 basic — 추가 파라미터 없음).
+- **맵 고정(§S15 사전점검 산출 그대로, outputs/s15_prechecks/s15b_monotone_map.json)**:
+  `oper_margin_chg_63d: +1` · `oper_margin_chg_252d: +1` · `op_leverage_63d: +1`
+  (48윈도우 IC t 6.89/5.18/6.38, 부호 일관 0.83/0.79/0.90). 부호/부분집합/
+  피처 수 변경 금지. EWMA drop으로 active set이 변해도 이름 기반 매핑.
+- 사전점검 유효성: 세 피처는 Accounting 축으로 fix-pack 8건(팩터 캘린더·
+  모멘텀·리비전 클리너·오버레이·Σ·IC 소비)과 **비접촉** — 구 패널 기반
+  IC 안정성 측정이 fix-pack ON 패널에서도 유효.
+- 메커니즘 검증(§S15 토이): LGBMRanker 4.6.0 monotone 학습 + 61점 그리드
+  단조 확인 완료. feature_scale 곱은 양수 clip[0.5,2.0]이라 단조 방향 보존.
+
+**측정 계획**: `variants/arm_s15_1_monotone_margin.yaml` = **새 production
+(fix-pack ON 포함) + monotone 2줄**. ECOS·`--no-cache`·schtasks 일회성·
+빈티지 쌍(08-25 20:47:55/16:37:36) 런 전후 확인. **비교 기준 = S0′ 1.5466.**
+
+**게이트**: E0 OFF 파리티(플래그 OFF 시 lgbm params 무변경, 단위테스트).
+E1 **ΔIR > +0.36 & P1/P2/P3 부호 일관**(P4_tail은 관측). 퇴화율·turnover 병기.
+E1 미달 시 불채택·OFF 유지(관측 기록만). 채택 후보가 되면 DSR/selection-bias
+해킷 선행(§2.7). **성능 arm이므로 실행 시 인벤토리 +1(467→468).**
