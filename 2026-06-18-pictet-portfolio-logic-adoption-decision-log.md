@@ -7088,3 +7088,18 @@ recert 선례). **활성화는 §8대로 사용자 결정**: production variant�
 `s15_fixpack_enabled: true` 1줄 추가 → 그 시점부터 **IR 1.5466이 새 S0′
 기준선**(1.3811 은퇴), 롤백 = 그 줄 삭제(바이트 동일 복원). 산출물:
 `outputs/s15_fixpack/metrics.json`, `outputs/s15_fixpack_runs.status`.
+
+## S15 Production flip — fix-pack 채택 (사용자 승인, 2026-08-27)
+
+사용자 승인("구조적 오류가 다 개선된거면 채택할게")에 따라
+`variants/codex_causal_rank_65.yaml`에 `s15_fixpack_enabled: true` 1줄 추가.
+- **새 production 기준선 S0′ = IR 1.5466 / TE 3.73% / beta 1.051 / 퇴화
+  14/33**(08-25 빈티지, ECOS 194/194·fallback 0). **1.3811은 은퇴** —
+  이후 arm 비교 금지(§S15 fix-pack 측정 절이 인증 런).
+- 근거 = 정확성(8건 전부 실측 확인 결함), ΔIR +0.166은 관측 기록.
+  선택 이벤트 아님 → 인벤토리 467 불변.
+- 롤백 = 해당 1줄 삭제(default-OFF 파리티 단위테스트로 바이트 동일 복원 보장).
+- challenger(iter15 Legacy)는 무변경 — §8 "한 번에 1개" 규율. 대시보드
+  비교는 당분간 fix 전/후 혼재임을 유의(다음 flip 검토 시 정합).
+- 자연 E0 체크: 내일 11:30 배치가 동일 빈티지에서 production 경로를 재실행
+  하므로 1.5466 비트 재현이 자동 확인된다(빈티지 리프레시 전제 시 재수립).

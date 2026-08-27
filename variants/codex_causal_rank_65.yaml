@@ -141,3 +141,12 @@ overrides:
   # S13.41 (2026-08-13): option-IV vol-forecast covariance diagonal.
   # User-approved promotion; decision log S13.41 Production flip.
   option_vol_covariance_enabled: true
+
+  # S15 (2026-08-27): structural-review correctness fix pack (8 verified
+  # defects behind one flag), adopted by user on correctness grounds —
+  # decision log S15 Production flip. Certified same-vintage measurement:
+  # IR 1.3811 -> 1.5466 (avg_ic unchanged - structural channel), TE 3.73%,
+  # ECOS 194/194. This makes IR 1.5466 the S0' baseline; pre-flip numbers
+  # (1.3811) are retired for arm comparisons. Rollback = delete this line
+  # (default-OFF, byte-identical restore certified by unit tests).
+  s15_fixpack_enabled: true
