@@ -6882,3 +6882,66 @@ CUR_MKT_CAP/PX_LAST 스텝 분석 + per-share 시트 경계 스텝비 + 이상�
 
 §S14 게이트 ③ ‡ 트랙 종결. 잔여 모니터 항목: PH-CIRCOR(진행 중),
 MDT 당뇨사업 분사(† 정책, 진행 시 재점검).
+
+## S15 사전등록 (구조 코드 리뷰 트랙 + 알파 개선 2후보: feature_contri·monotone) — 2026-08-27
+
+사용자 지시: ① src 구조 오류 코드 리뷰·수정, ② 선형/비선형 수익률 개선 후보
+발굴·테스트, ③ "좋은 피처 반영 비중 상승" 검토. **측정 전 사전등록**(§S13.50
+규율 — 이 섹션 단독 커밋 후 사전점검 착수).
+
+**트랙 1 — 구조 코드 리뷰**(결과는 별도 절 기록): 멀티에이전트 리뷰(8개 모듈군,
+src 전체 + production ops 스크립트) + 발견 건별 적대적 검증(refute-first).
+수정 정책: (a) 산출물 무변경(inert) 수정은 즉시 적용 + 전체 스위트 PASS 확인,
+(b) **산출물이 변하는 수정**(데이터 정확성 계층 포함)은 §9에 따라 이 로그 기록
+후 사용자 보고 — 채택 시 동일 빈티지 S0′ 재인증 선행, 이후 arm 비교 기준을
+S0′로 갱신. 참고: §S13.48 비액션 기록의 DTE 섹터 의문은 **오탐으로 해소**
+(FALLBACK_TICKER_CURRENCY "DTE": "EUR" — Deutsche Telekom이며 Communication
+Services가 정당. DTE Energy 아님).
+
+**트랙 2 — 후보 사전등록**
+
+측정 전 확정 사실:
+- production의 EWMA feature scaling(`get_feature_weights` sqrt(ewma/mean)
+  clip[0.5,2.0]을 X에 곱)은 §S12에서 **no-op 입증**(트리 분할의 단조변환
+  불변성). "중요 피처 증폭" 의도가 현재 실효 0.
+- LightGBM 4.6.0 toy 검증(스크래치, seed 42): `feature_contri`(split gain
+  승수)는 LGBMRanker에서 **실효 바인딩**(split count 140→18 / 141→261),
+  `monotone_constraints`도 ranker에서 작동 + 61점 그리드 단조 확인.
+- 사전점검 데이터원: `outputs/codex_causal_rank_65/backtest_result.pkl`
+  (S0(250) 08-26 산출물, 빈티지 08-25 20:47:55 / 16:37:36) — 유지 모델 33개
+  (`_active_features` 부착)·panel(820750×65)·targets. **백테스트 재실행 0으로
+  사전점검 수행**(읽기 전용 — §S13.7 선례로 인벤토리 비계수).
+
+**후보 A — EWMA importance → `feature_contri` 이관** ("좋은 피처 반영 비중
+상승"의 실효 구현; gain-공간 선형 재가중 = 선형 요소 대표)
+- Arm(단일 사전약정): 신규 default-OFF `ewma_contri_enabled`. ON 시 각 재훈련
+  에서 **기존 get_feature_weights와 동일한 벡터** w=clip(sqrt(ewma/mean),0.5,2.0)
+  를 active feature 순서로 LightGBM `feature_contri`에 전달. 새 추정기·자유
+  파라미터 0(생산 경로가 이미 계산하는 가중치의 적용 지점만 이동). 기존
+  X-스케일링 경로 무변경(입증된 no-op — 외과적 최소).
+- 사전점검 게이트(고정): **G1(지속성)** 연속 비퇴화 재훈련 간 split-importance
+  벡터 Spearman rank-autocorr **중앙값 ≥ 0.5**; **G2(전방 정합)** 재훈련 t의
+  EWMA(split) importance vs (t, t다음] 윈도우 피처별 |CS rank-IC|의 피처 횡단
+  Spearman — **윈도우 평균 > 0 & t-stat ≥ 2**(n≈32). 둘 다 통과 시에만 arm.
+  gain-importance는 참고 진단만(선택 축 아님 — 다중성 배제).
+**후보 B — 부호 안정 피처 monotone 제약** (비선형 정칙화 — 미개척 축)
+- Arm(단일 사전약정): 신규 default-OFF `monotone_constraints_enabled` + 사전
+  점검 산출 **고정 부호 맵**(맵 외 피처 0). ON 시 active feature 순서로
+  monotone_constraints 벡터 전달.
+- 사전점검 게이트(고정): 63BD 비중첩 윈도우별 피처 CS rank-IC(윈도우 내 일별
+  Spearman 평균). 자격 = **부호 일관성 ≥ 0.75 AND 윈도우 IC t-stat |t| ≥ 2.5**.
+  자격 피처 **≥ 5개**면 진행, 미만 SHELVE. 맵은 자격 전 피처(부호=IC 부호)로
+  고정 — 개수/부분집합/부호 스윕 금지.
+- 선택편향 주의: 맵이 전기간 IC로 정보화됨(과거 틸트류와 동일 지위) — 시간
+  안정성 요건(≥0.75)으로 완화하되 인벤토리 +1 및 DSR 해킷으로 회계.
+
+**공통 E-게이트**: E0 OFF 파리티(플래그 OFF 시 lgbm params 무변경 = 구조적
+바이트 동일, 단위테스트), E1 **ΔIR > +0.36 & 3분할 부호 일관**(비교 기준 =
+S0(250) 1.3811, 동일 빈티지 확인 의무), DSR/selection-bias 해킷 기록. 채택은
+§8 사용자 결정. 선형 축 신규 후보 없음 선언 근거: μ 균일 스케일링 no-op
+(§S13.34-B)·디리스킹 3종 소진(§S13.34)·틸트 잔차 IC 게이트(§S13.36)·수평
+블렌드(§S11.9)·섹터 z(§S13.7) — 문서화된 소진.
+
+**실행 규약**: 전 런 ECOS·`--no-cache`·schtasks 일회성(배터리 허용·
+StopOnIdleEnd=false·ExecutionTimeLimit 8h)·11:30 배치와 비중첩. 빈티지 쌍
+런 전후 mtime 확인. 인벤토리: 실행된 arm만 +1씩(사전점검·파리티 비계수).
