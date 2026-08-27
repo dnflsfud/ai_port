@@ -48,6 +48,11 @@ def build_index_revision_features(data: UniverseData) -> Dict[str, pd.DataFrame]
         return {}
     tickers = list(data.tickers)
     exchange = data.meta.loc[tickers, "exchange_code"]
+    missing = sorted(exchange.index[exchange.isna()])
+    if missing:
+        # NaN 코드(bare ticker)도 unknown과 동일 취급 — KeyError(nan) 방지
+        print(f"[IndexRev] missing exchange codes for {missing} — skipping")
+        return {}
     unknown = sorted(set(exchange.dropna()) - set(EXCHANGE_TO_REV))
     if unknown:
         # 무조건 빌드 경로이므로 crash 대신 명시적 skip (§9: 추정으로 메우지 않음)

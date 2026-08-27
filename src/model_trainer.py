@@ -596,7 +596,10 @@ def walk_forward_train(
     val_window: int = VAL_WINDOW,
     config: PipelineConfig = None,
     listing_dates: Optional[Dict[str, str]] = None,
-) -> Tuple[Dict[pd.Timestamp, lgb.LGBMRegressor], pd.DataFrame, pd.DataFrame]:
+) -> Tuple[
+    Dict[pd.Timestamp, lgb.LGBMRegressor], pd.DataFrame, pd.DataFrame,
+    EWMAFeatureTracker,
+]:
     """
     Walk-forward 방식으로 모델 학습 및 예측 생성.
 
@@ -604,6 +607,7 @@ def walk_forward_train(
         models: {재훈련 시점: 모델}
         predictions: DataFrame (date x ticker) EMA 블렌딩된 예측값
         raw_predictions: DataFrame (date x ticker) 블렌딩 전 순수 모델 예측값 (IC 계산용)
+        ewma_tracker: EWMAFeatureTracker (EWMA 피처 가중치 상태 + model_quality 진단)
     """
     config = config or DEFAULT_CONFIG
     if listing_dates is None and getattr(config, "listing_mask_enabled", False):

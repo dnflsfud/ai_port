@@ -47,12 +47,30 @@ def sub_ir(port: pd.Series, bm: pd.Series, start: str, end: str) -> float:
     return float(active.mean() / active.std(ddof=1) * np.sqrt(252))
 
 
-def sub_period_irs(port: pd.Series, bm: pd.Series) -> Dict[str, float]:
-    """Compute IR for each canonical sub-period (P1/P2/P3)."""
-    return {
+def sub_period_irs(port: pd.Series, bm: pd.Series) -> Dict[str, Any]:
+    """Compute IR for each canonical sub-period (P1/P2/P3).
+
+    P1-P3 boundaries stay frozen for comparability with every prior report.
+    When the return series extends past the P3 endpoint, two ADDITIVE keys
+    are emitted so gate readers can see the otherwise-uncovered span:
+    'P4_tail_ir' (IR over (P3_end, port_end]) and 'sub_period_coverage_end'
+    (last portfolio date, YYYY-MM-DD). Series ending on/before the P3
+    endpoint return the P1/P2/P3-only dict unchanged.
+    """
+    out: Dict[str, Any] = {
         f"{label}_ir": sub_ir(port, bm, start, end)
         for label, (start, end) in SUB_PERIODS.items()
     }
+    p3_end = pd.Timestamp(SUB_PERIODS["P3"][1])
+    if len(port) and port.index.max() > p3_end:
+        port_end = port.index.max()
+        out["P4_tail_ir"] = sub_ir(
+            port, bm,
+            (p3_end + pd.Timedelta(days=1)).strftime("%Y-%m-%d"),
+            port_end.strftime("%Y-%m-%d"),
+        )
+        out["sub_period_coverage_end"] = port_end.strftime("%Y-%m-%d")
+    return out
 
 
 def compute_alpha_attribution(result, n_dates: int = 8) -> dict:

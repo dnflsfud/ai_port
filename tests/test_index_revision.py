@@ -69,6 +69,13 @@ def test_build_skips_when_columns_missing():
     assert build_index_revision_features(data) == {}
 
 
+def test_build_skips_on_nan_exchange_code():
+    """NaN exchange_code는 unknown과 동일 취급 — KeyError(nan) crash 금지."""
+    data = _synthetic_data()
+    data.meta.loc["CCC", "exchange_code"] = float("nan")
+    assert build_index_revision_features(data) == {}
+
+
 def test_loader_whitelist_contains_revision_columns():
     for col in ("SPX_REV", "NDX_REV", "SX5E_REV", "DAX_REV", "CAC_REV", "JPN_REV"):
         assert col in ALL_FACTOR_COLUMNS

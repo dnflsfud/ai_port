@@ -138,3 +138,17 @@ def test_full_refresh_records_refresh_dates_and_trains_on_full_set():
     assert isinstance(refresh["reentry_events"], list)
     first_refresh = pd.Timestamp(refresh["refresh_dates"][0])
     assert list(models[first_refresh]._active_features) == features
+
+
+def test_walk_forward_train_annotated_as_4_tuple():
+    """실반환은 4-tuple(models, predictions, raw_predictions, ewma_tracker) —
+    annotation/docstring이 3-tuple로 드리프트하면 안 된다."""
+    import typing
+
+    from src.model_trainer import EWMAFeatureTracker
+
+    ret = typing.get_type_hints(walk_forward_train)["return"]
+    args = typing.get_args(ret)
+    assert len(args) == 4
+    assert args[3] is EWMAFeatureTracker
+    assert "ewma_tracker" in walk_forward_train.__doc__

@@ -104,3 +104,58 @@ def test_returns_masked_is_identity_when_mask_disabled():
         PipelineConfig(listing_mask_enabled=False, listing_dates={"NEW": "2020-09-30"})
     )
     assert data.returns_masked is data.returns
+
+
+# ---------------------------------------------------------------------------
+# resolve_listing_dates: listing_meta_columns 우선순위 (PIT 계약서 §1 —
+# Eligibility_Start_Date > Listing_Date > IPO_Date > First_Trade_Date)
+# ---------------------------------------------------------------------------
+def test_resolve_listing_dates_first_meta_column_wins():
+    from src.config import PipelineConfig
+    from src.data_loader import resolve_listing_dates
+
+    meta = pd.DataFrame(
+        {
+            "Eligibility_Start_Date": ["2021-03-01", None],
+            "IPO_Date": ["2019-06-15", "2020-01-02"],
+        },
+        index=pd.Index(["AAA", "BBB"], name="ticker"),
+    )
+    resolved, sources = resolve_listing_dates(meta, raw={}, config=PipelineConfig())
+    # AAA carries both columns -> first-listed (Eligibility) must win
+    assert resolved["AAA"] == "2021-03-01"
+    assert sources["AAA"] == "meta:Eligibility_Start_Date"
+    # BBB only has the lower-priority column -> it still fills the gap
+    assert resolved["BBB"] == "2020-01-02"
+    assert sources["BBB"] == "meta:IPO_Date"
+
+
+def test_resolve_listing_dates_config_override_beats_meta():
+    from src.config import PipelineConfig
+    from src.data_loader import resolve_listing_dates
+
+    meta = pd.DataFrame(
+        {"Eligibility_Start_Date": ["2021-03-01"]},
+        index=pd.Index(["AAA"], name="ticker"),
+    )
+    cfg = PipelineConfig(listing_dates={"AAA": "2022-01-05"})
+    resolved, sources = resolve_listing_dates(meta, raw={}, config=cfg)
+    assert resolved["AAA"] == "2022-01-05"
+    assert sources["AAA"] == "config_override"
+
+
+# ---------------------------------------------------------------------------
+# UniverseData currency 해석: 접미사도 fallback 사전 항목도 없는 티커가
+# 조용히 USD로 기장되면 안 된다 (Universe_Meta가 있을 때만 강제).
+# ---------------------------------------------------------------------------
+def test_universedata_rejects_silent_usd_for_unknown_bare_ticker(monkeypatch):
+    import src.data_loader as dl
+
+    meta = pd.DataFrame(
+        {"Ticker": ["005930", "ZZZQ"], "Name": ["Samsung", "Mystery"]}
+    )
+    monkeypatch.setattr(dl, "load_all_sheets", lambda path: {"Universe_Meta": meta})
+    # 005930 is bare but in FALLBACK_TICKER_CURRENCY -> passes; ZZZQ is bare
+    # with no fallback entry -> must fail loudly, naming the ticker.
+    with pytest.raises(ValueError, match="ZZZQ"):
+        dl.UniverseData("unused.xlsx")

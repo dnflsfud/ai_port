@@ -534,7 +534,10 @@ def resolve_listing_dates(
     meta_columns = {
         str(column).strip().casefold(): column for column in meta.columns
     }
-    for configured_name in getattr(config, "listing_meta_columns", []):
+    # First-listed column has highest priority (Eligibility_Start_Date >
+    # Listing_Date > IPO_Date > First_Trade_Date, PIT 계약서 §1): iterate
+    # reversed so higher-priority columns overwrite lower-priority ones.
+    for configured_name in reversed(getattr(config, "listing_meta_columns", [])):
         actual_column = meta_columns.get(str(configured_name).strip().casefold())
         if actual_column is None:
             continue
@@ -1055,6 +1058,13 @@ class UniverseData:
                 if exchange is not None and not pd.isna(exchange):
                     raise ValueError(
                         f"Unsupported Bloomberg exchange code {exchange!r} for {ticker}."
+                    )
+                if "Universe_Meta" in self.raw and ticker not in FALLBACK_TICKER_CURRENCY:
+                    # No exchange suffix AND no hand-maintained fallback entry:
+                    # a non-USD name would silently book local returns as USD.
+                    raise ValueError(
+                        f"No currency for {ticker}: Universe_Meta row has no "
+                        f"exchange suffix and FALLBACK_TICKER_CURRENCY has no entry."
                     )
                 currency = FALLBACK_TICKER_CURRENCY.get(ticker, "USD")
             self._full_currency_map[ticker] = str(currency).upper()
