@@ -1,0 +1,17 @@
+{
+  "candidate": "S15-A ewma_contri (feature_contri handoff)",
+  "n_model_entries": 33,
+  "n_unique_models": 21,
+  "G1_median_split_autocorr": 0.8703387377936891,
+  "G1_threshold": 0.5,
+  "G1_pass": true,
+  "G2_mean_spearman": 0.006740117550942592,
+  "G2_t": 0.1753218340874497,
+  "G2_n_windows": 21,
+  "G2_pass": false,
+  "gain_reference": {
+    "mean_spearman": 0.02872988246028371,
+    "t": 0.7771763632278905
+  },
+  "verdict": "SHELVE"
+}

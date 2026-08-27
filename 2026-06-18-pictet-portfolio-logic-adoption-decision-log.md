@@ -6945,3 +6945,38 @@ S0(250) 1.3811, 동일 빈티지 확인 의무), DSR/selection-bias 해킷 기�
 **실행 규약**: 전 런 ECOS·`--no-cache`·schtasks 일회성(배터리 허용·
 StopOnIdleEnd=false·ExecutionTimeLimit 8h)·11:30 배치와 비중첩. 빈티지 쌍
 런 전후 mtime 확인. 인벤토리: 실행된 arm만 +1씩(사전점검·파리티 비계수).
+
+## S15 사전점검 결과 — 후보 A·B 모두 SHELVE, arm 0건 (2026-08-27)
+
+실행: `scripts/precheck_s15a_feature_contri.py`·`scripts/precheck_s15b_monotone.py`
+(단위테스트 11 PASS 선행, TDD red→green). 데이터원 = S0(250) 08-26
+backtest_result.pkl(빈티지 08-25 쌍), 백테스트 재실행 0. IC 행렬(3011일×65피처,
+일별 CS Spearman) 캐시는 `outputs/s15_prechecks/ic_matrix.csv`(.gitignore, pkl에서
+재생성 가능).
+
+**후보 A (EWMA→feature_contri 이관) — SHELVE**
+(`outputs/s15_prechecks/s15a_summary.json`):
+- G1 지속성 **PASS**: 연속 유니크 재훈련(21개, 쌍 20) split-importance
+  rank-autocorr **중앙값 0.8703** ≥ 0.5 — importance 순위는 매우 안정.
+- G2 전방 정합 **FAIL**: EWMA(split) 상태 vs 다음 윈도우 피처별 |CS rank-IC|
+  피처 횡단 Spearman **평균 +0.0067, t=0.18**(n=21) ≪ 게이트(>0 & t≥2).
+  gain-EWMA 참고 진단도 +0.0287, t=0.78로 동일 결론(선택 축 아님).
+- 해석: 모델이 안정적으로 중요시하는 피처와 **다음 구간 단변량 예측력을 가진
+  피처가 무상관** — split-gain 증폭은 "안정적이지만 알파 방향성이 입증되지
+  않은" 가중치를 증폭한다. §S13.12 전달 상한과 정합적. arm 미실행.
+- 잔여 관측: importance는 다변량(상호작용) 사용률이므로 G2의 단변량 |IC|가
+  하한일 수 있음 — 단 이를 이유로 게이트를 사후 완화하지 않는다(등록 준수).
+
+**후보 B (부호 안정 monotone 제약) — SHELVE**
+(`outputs/s15_prechecks/s15b_summary.json`):
+- 63BD 비중첩 48윈도우. 자격(부호 일관성 ≥0.75 & |t|≥2.5) 피처 **3개 < 5**:
+  `oper_margin_chg_63d`(+1, t 6.89, cons 0.83) ·
+  `op_leverage_63d`(+1, t 6.38, cons 0.90) ·
+  `oper_margin_chg_252d`(+1, t 5.18, cons 0.79).
+- 전 자격 피처가 **영업마진 변화/영업레버리지 축 하나**로 수렴(사실상 1개
+  축) — 5피처 바 미달, SHELVE. 맵/바 사후 완화 금지(등록 준수).
+- 후속 후보(비액션 기록): "마진 축 3피처 monotone(+1)" 단독 arm은 **새
+  사전등록**이 있어야 개봉 가능(§S13.30 63d 선례와 동일 지위).
+
+**라운드 회계**: arm 실행 0건 → **인벤토리 467 불변**. production 무변경.
+사전점검은 읽기 전용(§S13.7 선례, 비계수).

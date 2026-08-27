@@ -1,0 +1,29 @@
+{
+  "candidate": "S15-B monotone constraints on sign-stable features",
+  "n_windows": 48,
+  "consistency_min": 0.75,
+  "t_min": 2.5,
+  "min_qualified": 5,
+  "n_qualified": 3,
+  "qualified_features": {
+    "oper_margin_chg_63d": {
+      "sign": 1,
+      "t": 6.889869788296843,
+      "consistency": 0.8333333333333334,
+      "mean_ic": 0.03994691196008999
+    },
+    "oper_margin_chg_252d": {
+      "sign": 1,
+      "t": 5.181621808835214,
+      "consistency": 0.7916666666666666,
+      "mean_ic": 0.035122492348004034
+    },
+    "op_leverage_63d": {
+      "sign": 1,
+      "t": 6.377335813192939,
+      "consistency": 0.8958333333333334,
+      "mean_ic": 0.036193853885954134
+    }
+  },
+  "verdict": "SHELVE"
+}

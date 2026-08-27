@@ -22,3 +22,5 @@ outputs/rog_to_san/
 Pictet_Quest*.pdf
 .tmp_spreadsheet_audit/
 output/
+# S15 precheck heavy cache (regenerable from backtest_result.pkl)
+outputs/s15_prechecks/ic_matrix.csv
