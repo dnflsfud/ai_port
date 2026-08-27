@@ -6980,3 +6980,75 @@ backtest_result.pkl(빈티지 08-25 쌍), 백테스트 재실행 0. IC 행렬(30
 
 **라운드 회계**: arm 실행 0건 → **인벤토리 467 불변**. production 무변경.
 사전점검은 읽기 전용(§S13.7 선례, 비계수).
+
+## S15 리뷰 트랙 결과 + fix-pack 사전등록 (측정 전 단독 커밋) — 2026-08-27
+
+**리뷰 실행**: 멀티에이전트 8모듈군 리뷰(src 전체 + production ops 스크립트,
+체크리스트 = quant-code-review) → 발견 건별 적대적 검증(refute-first, 44
+에이전트). **확정 34건 / 반박 2건**(mega_cap_wide_uw_cap inert 주장·metrics.json
+NaN 주장은 검증 단계에서 기각). 전체 상세 =
+`outputs/s15_prechecks/review_confirmed.json`.
+
+**분류와 처리(§S15 등록 규약 적용)**:
+
+**(A) production 수치 변경 8건 → 단일 default-OFF 플래그 `s15_fixpack_enabled`
+뒤에 구현**(OFF = 바이트 동일 구조 파리티, 단위테스트 선행):
+1. backtest.py:432 growth tilt NaN boost가 유효 예측을 NaN으로 파괴(신규 상장
+   252d 미만 이력 — pandas mask 대입의 RHS NaN 전파, pead의 fillna(0) 관용구
+   부재). ON 시 boost .fillna(0.0).
+2. features/factor.py:26 fac_* 전체가 유니버스 캘린더 119일(미 휴장+테일)에서
+   문자 그대로 0.0(z-스킵 그룹의 all-NaN 날짜 → median NaN → fillna 0) —
+   fac_yield_slope=0은 "평탄 커브" 허위 주장. ON 시 팩터 캘린더 계산 유지 +
+   data.dates reindex+ffill(regime.py 관용구).
+3. features/assembly.py:363 mom_accel_63_252의 mom252 min_periods=126 부분합 —
+   신규 상장명에 가짜 +2σ 가속(TKO 2024-03~06 z +1.79~+2.61 실측, 37개 마스크
+   진입 램프). ON 시 min_periods=252(momentum_252d와 일관).
+4. features/macro_cross.py:88 mc_* 5종 동일 119일 0.0 드롭아웃(티커-전용
+   mc_vol_x_mom63까지 팩터 캘린더에 제한). ON 시 data.dates 기반 + 매크로
+   스칼라 ffill.
+5. features/sellside.py:110 스파이크 클리너가 지속형 롤오버를 1일 지연만 시킴
+   (마스크가 원계열 diff 기반 — t+1에 스텝 전량 유입). ON 시 패턴-1 이벤트를
+   "|orig−ref|>threshold & |orig|<|ref|·reversion_ratio 지속 동안" 전방 연장
+   (기존 파라미터 재사용, 신규 자유도 0).
+6. portfolio_optimizer.py:134 pairwise 공분산 대각이 30-obs 최소를 우회(2-obs
+   분산 + 전종목 0 상관 진입 — 신규 상장명 가짜 분산 효과). ON 시 counts<30
+   대각을 fallback_var(횡단면 중위)로.
+7. backtest.py:614 PEAD decay가 계약(거래일) 대신 달력일 — 주말 교차마다 감쇠
+   ~40% 가속, 21일 창이 ~15거래일로 절단. ON 시 pred 그리드 위치차(거래일).
+8. backtest.py:1581 trailing-IC가 미성숙 IC 소비 가능(rebalance_freq <
+   forward_horizon 조건 — production 21/20에선 불변 입증, 미래 arm 보호).
+   ON 시 성숙(append_idx + horizon ≤ t_idx) 필터.
+
+**(B) 산출물 불변·ops 정확성 직접 수정 ~11건**(현재 데이터에서 바이트 동일
+또는 모니터링 번들만 변경): data_loader.py:537 listing_meta_columns 우선순위
+역전(첫 열 권위 복원 — PIT 계약서 §1 정합) · data_loader.py:1059 무접미사+
+fallback 부재 시 무성 USD 기본값 → 가드 · index_revision.py:58 NaN
+exchange_code KeyError 잠복 크래시 가드 · harness.py:26 SUB_PERIODS P3 종점
+2026-04-13 동결(96거래일 게이트 밖) → P1~P3 불변 + P4_tail/커버리지 필드 추가
+· backtest.py:906 annual_tc가 import-시점 ONE_WAY_TC 사용(오버라이드 무시,
+현값 동일=불변) → result.one_way_tc 부착 · export_operating_data.py:1526/1527
+risk.json·모니터링 TE 감사가 imputed returns 사용 + optvol-cov 스케일 누락
+(production과 불일치) → raw_returns + diag(s) 정합 · :1886 리밸일
+expected_rebalance가 사후 북을 prev로 사용 → 진입 북 재구성 · :152 스킵
+리밸 후 21일 하드 크래시 → overdue 플래그화 · :75 라벨 200 잔재 · 
+audit_usd_cap_benchmark.py:151 하드코딩 6종 샘플 → 동적화 · 
+build_dashboard_data.py:177 마스크 없는 원시 CUR_MKT_CAP 벤치마크(미사용
+스크립트) → production 경로 정합 또는 가드.
+
+**(C) 문서화만(수정 보류)**: dormant arm 전용/저가치 — target_engine.py:227
+regime-PCA×마스크 비호환, assembly.py:795 raw 피처 ±5 클립(현 whitelist
+비발현), run_variant.py:412 체크포인트 config 무검증(§S13.50 V4 기지 사항),
+backtest.py:1124 mask-OFF 경로 전표본 median, :654 캐시 퇴화율 과소계상,
+model_trainer.py:599 반환 주석 3↔4-tuple(경미 수정 포함), interactions.py:53·
+peer_earnings.py:107 유령 데이터(폐쇄 축), conditioning.py:172 미래 실적일
+내재(비채택 블록), portfolio_optimizer.py:178 score모드 NaN 동결(비사용),
+harness.py:140 오버라이드 무가드, attribution.py:163 스테일 config(진단 전용).
+
+**fix-pack 측정 계획(사전등록)**: `variants/s15_fixpack.yaml` = production
+전체 + `s15_fixpack_enabled: true` 1줄. ECOS·`--no-cache`·schtasks 일회성,
+빈티지 쌍(08-25 20:47:55 / 16:37:36) 런 전후 확인, 비교 기준 = S0(250)
+**1.3811**. **채택 기준 = 정확성**(인과 규율 flip 선례 — 8건 전부 실측 확인된
+결함의 수정이므로 ΔIR 부호와 무관하게 채택 후보; ΔIR·ΔTE·Δbeta·Δ퇴화율은
+관측 기록). **선택 이벤트 아님 → 인벤토리 비계수**(S13.46 PM recert 선례).
+사용자 채택 시 fix-pack ON 수치가 새 S0′ 기준선이 되고 플래그는 production
+variant override로 활성화(§8 한 줄 롤백 유지).
