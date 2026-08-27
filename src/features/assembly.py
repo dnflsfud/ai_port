@@ -333,6 +333,7 @@ def apply_core_filter(features: Dict[str, pd.DataFrame],
 def build_lean_momentum_composites(
     data: UniverseData,
     tickers: List[str],
+    config: PipelineConfig = None,
 ) -> Dict[str, pd.DataFrame]:
     """REDESIGN C: multi-horizon momentum composite + residual momentum.
 
@@ -360,7 +361,14 @@ def build_lean_momentum_composites(
     feats["mom_accel_21_63"] = cs_rank(mom21) - cs_rank(mom63)
 
     # Mid-long momentum spread (3m vs 12m): trend vs long-term value
-    mom252 = returns.rolling(252, min_periods=126).sum()
+    # §S15 fix pack: min_periods=126 부분합은 신규 상장명(마스크 진입)의
+    # 126~251일 구간에서 mom252 크기를 기계적으로 축소해 cs_rank 차가
+    # 가짜 +가속으로 뜬다(TKO 2024-03~06 z +1.79~+2.61 실측). ON 시
+    # momentum_252d(price.py)와 동일한 완전창을 요구한다.
+    mom252_min_periods = (
+        252 if bool(getattr(config, "s15_fixpack_enabled", False)) else 126
+    )
+    mom252 = returns.rolling(252, min_periods=mom252_min_periods).sum()
     feats["mom_accel_63_252"] = cs_rank(mom63) - cs_rank(mom252)
 
     # Price breakout: (price / 20-day high) − 1
@@ -595,7 +603,7 @@ def build_all_features(
     price = build_price_features(data)
     sellside = build_sellside_features(data, config=config)
     conditioning = build_conditioning_features(data, config=config)
-    factor = build_factor_features(data)
+    factor = build_factor_features(data, config=config)
     # S13.18: index forward-EPS block — merged into the Factor group so its
     # per-date-constant columns skip the CS z-score; built unconditionally
     # (S8 idiom), admission gated at the core-whitelist filter below.
@@ -655,7 +663,7 @@ def build_all_features(
         print(f"[FeatureEngine] feature_mode={feature_mode}, starting from {len(all_features)} features")
         apply_lean_filter(all_features, feature_groups)
 
-        mom_extras = build_lean_momentum_composites(data, tickers)
+        mom_extras = build_lean_momentum_composites(data, tickers, config=config)
         for name, df in mom_extras.items():
             all_features[name] = df
         feature_groups["Price"] = list(feature_groups.get("Price", [])) + list(mom_extras.keys())

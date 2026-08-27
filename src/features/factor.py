@@ -7,7 +7,7 @@ from typing import Dict
 from src.data_loader import UniverseData, TICKERS, FACTOR_CATEGORIES
 
 
-def build_factor_features(data: UniverseData) -> Dict[str, pd.DataFrame]:
+def build_factor_features(data: UniverseData, config=None) -> Dict[str, pd.DataFrame]:
     features: Dict[str, pd.DataFrame] = {}
 
     if not data.has_factor_data():
@@ -21,8 +21,16 @@ def build_factor_features(data: UniverseData) -> Dict[str, pd.DataFrame]:
     tickers = list(data.tickers)
     n = len(tickers)
     common_dates = data.dates.intersection(factor_ret.index)
+    # §S15 fix pack: 팩터 캘린더에 없는 유니버스 날짜(미 휴장·테일)는 기존
+    # 경로에서 all-NaN 행 → assembly의 fillna(0.0)로 문자 그대로 0이 된다
+    # (z-스킵 그룹이라 raw 0 = 허위 신호). ON 시 계산은 팩터 캘린더 그대로
+    # 두고 출력만 data.dates로 reindex+ffill(regime.py 관용구, 워밍업 NaN 보존).
+    fixpack = bool(getattr(config, "s15_fixpack_enabled", False))
 
     def bcast(series: pd.Series) -> pd.DataFrame:
+        if fixpack:
+            vals = series.reindex(data.dates).ffill().values.reshape(-1, 1)
+            return pd.DataFrame(np.tile(vals, (1, n)), index=data.dates, columns=tickers)
         vals = series.reindex(common_dates).values.reshape(-1, 1)
         return pd.DataFrame(np.tile(vals, (1, n)), index=common_dates, columns=tickers)
 

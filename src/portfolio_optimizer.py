@@ -86,7 +86,12 @@ def estimate_covariance(
         return np.eye(returns.shape[1]) * 0.04 / 252.0
 
     if recent.isna().any().any():
-        cov = _pairwise_covariance(recent)
+        cov = _pairwise_covariance(
+            recent,
+            enforce_diag_min_obs=bool(
+                getattr(config, "s15_fixpack_enabled", False)
+            ),
+        )
     else:
         lw = LedoitWolf()
         lw.fit(recent.values)
@@ -124,7 +129,9 @@ def estimate_covariance(
     return cov
 
 
-def _pairwise_covariance(recent: pd.DataFrame) -> np.ndarray:
+def _pairwise_covariance(
+    recent: pd.DataFrame, enforce_diag_min_obs: bool = False
+) -> np.ndarray:
     """Estimate a PSD covariance matrix without imputing missing returns."""
     n = recent.shape[1]
     default_var = 0.04 / 252.0
@@ -132,6 +139,12 @@ def _pairwise_covariance(recent: pd.DataFrame) -> np.ndarray:
     cov = cov_df.reindex(index=recent.columns, columns=recent.columns).to_numpy(copy=True)
 
     var = recent.var(axis=0, skipna=True).reindex(recent.columns).values
+    # §S15 fix pack: 비대각은 min_periods=30인데 대각은 2obs로도 계산돼
+    # 신규 상장명이 "0 상관 + 소표본 분산" 자산으로 들어간다. ON 시 대각도
+    # 동일한 30obs 최소를 요구하고 미달은 fallback(횡단면 중위 분산)으로.
+    if enforce_diag_min_obs:
+        counts = recent.count().reindex(recent.columns).to_numpy(dtype=float)
+        var = np.where(counts >= 30, var, np.nan)
     finite_var = var[np.isfinite(var) & (var > 0)]
     fallback_var = float(np.median(finite_var)) if len(finite_var) else default_var
     var = np.where(np.isfinite(var) & (var > 0), var, fallback_var)

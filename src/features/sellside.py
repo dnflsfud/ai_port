@@ -25,6 +25,7 @@ def clean_revision_spikes(
     mode: str = "down_only",
     extreme_threshold: float = 50.0,
     reversion_ratio: float = 0.5,
+    persistent_rollover_extension: bool = False,
 ) -> pd.DataFrame:
     """실적발표 전후 컨센서스 기간 전환으로 인한 급변 스무딩.
 
@@ -106,6 +107,34 @@ def clean_revision_spikes(
         gradual_mask = (cum_3d < -threshold) & (neg_streak >= 2) & earnings_bcast
 
     combined = spike_mask | spike_up_mask | gradual_mask
+
+    # §S15 fix pack: 패턴-1 이벤트를 "지속 붕괴" 동안 전방 연장. 기존 동작은
+    # 전환일 t만 마스킹해 ffill 복원하므로 지속형 롤오버(80→5로 재베이스)의
+    # 스텝이 t+1에 전량 유입된다(1일 지연일 뿐 제거가 아님). 연장 조건은
+    # 기존 파라미터 재사용: |orig − ref| > threshold AND
+    # |orig| < |ref| * reversion_ratio (ref = 이벤트 직전 정상값).
+    if persistent_rollover_extension:
+        base_mask = (spike_mask | spike_up_mask).to_numpy()
+        orig = rev.to_numpy(dtype=float)
+        ext = base_mask.copy()
+        n_rows, n_cols = orig.shape
+        ref = np.full(n_cols, np.nan)
+        active = np.zeros(n_cols, dtype=bool)
+        prev_row = np.full(n_cols, np.nan)
+        for t in range(n_rows):
+            row = orig[t]
+            newly = base_mask[t] & ~active
+            ref = np.where(newly, prev_row, ref)
+            with np.errstate(invalid="ignore"):
+                collapsed = (np.abs(row - ref) > threshold) & (
+                    np.abs(row) < np.abs(ref) * reversion_ratio
+                )
+            still = (active | base_mask[t]) & collapsed
+            ext[t] = base_mask[t] | still
+            active = still
+            prev_row = row
+        combined = combined | pd.DataFrame(ext, index=rev.index, columns=rev.columns)
+
     cleaned[combined] = np.nan
     cleaned = cleaned.ffill()
 
@@ -165,6 +194,9 @@ def get_cleaned_revision(
         mode=getattr(cfg, "revision_clean_mode", "down_only"),
         extreme_threshold=float(getattr(cfg, "revision_clean_extreme_threshold", 50.0)),
         reversion_ratio=float(getattr(cfg, "revision_clean_reversion_ratio", 0.5)),
+        persistent_rollover_extension=bool(
+            getattr(cfg, "s15_fixpack_enabled", False)
+        ),
     )
 
 

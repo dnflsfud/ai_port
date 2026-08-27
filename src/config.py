@@ -876,6 +876,18 @@ class PipelineConfig:
     option_vol_covariance_enabled: bool = False
 
     # ------------------------------------------------------------------
+    # S15 (2026-08-27) — structural-review correctness fix pack (decision
+    # log §S15). ONE flag gates all eight production-number-changing
+    # fixes so the certified baseline stays reproducible and rollback is
+    # a single line: growth-tilt NaN boost fill, factor/macro-cross
+    # universe-calendar ffill, mom_accel_63_252 full-window, revision
+    # cleaner persistent-rollover extension, pairwise-covariance diagonal
+    # min-obs, PEAD trading-day decay, trailing-IC maturity filter.
+    # OFF (default) keeps every touched code path byte-identical.
+    # ------------------------------------------------------------------
+    s15_fixpack_enabled: bool = False
+
+    # ------------------------------------------------------------------
     # S13.46 (2026-08-20) — implied correlation into the covariance
     # OFF-DIAGONAL as a per-rebalance scalar (decision log §S13.46
     # preregistration; precheck §S13.45-C PASS: NW t +8.43, OOS +11.6%).

@@ -86,11 +86,17 @@ def build_macro_cross_features(
     factor_px = data.factor_prices
     tickers = list(data.tickers)
     common_dates = data.dates.intersection(factor_px.index)
+    # §S15 fix pack: 기존 경로는 티커-전용 mc_vol_x_mom63까지 팩터 캘린더에
+    # 제한해 미 휴장·테일 날짜의 mc_* 전체가 하류 fillna(0.0)로 0 드롭아웃
+    # 된다. ON 시 전 패널을 data.dates 기반으로 만들고 매크로 스칼라만
+    # reindex+ffill 한다(팩터 자체 캘린더 계산은 불변, 워밍업 NaN 보존).
+    fixpack = bool(getattr(config, "s15_fixpack_enabled", False))
+    out_dates = data.dates if fixpack else common_dates
 
-    # ── Ticker-specific base signals (aligned to common_dates) ──
+    # ── Ticker-specific base signals (aligned to out_dates) ──
     # §S11.7: PIT 뷰(상장 전 NaN) — mom/vol 횡단면 z-score에서 유령 제외.
     returns = data.returns_masked.loc[:, tickers]
-    ret_aligned = returns.reindex(index=common_dates)
+    ret_aligned = returns.reindex(index=out_dates)
 
     mom63 = ret_aligned.rolling(63, min_periods=63).sum()
     mom252 = ret_aligned.rolling(252, min_periods=252).sum()
@@ -106,18 +112,22 @@ def build_macro_cross_features(
     )
     if eps_rev_cleaned is not None:
         eps_rev_aligned = eps_rev_cleaned.reindex(
-            index=common_dates, columns=tickers
+            index=out_dates, columns=tickers
         )
         eps_rev_cs = cross_sectional_zscore(eps_rev_aligned)
     else:
         eps_rev_cs = None
 
     # ── Macro scalars (z-scored) ──
+    def _macro_series(s: pd.Series) -> pd.Series:
+        # fixpack ON: 팩터 캘린더 결손일(미 휴장)에 직전 값 ffill.
+        return s.reindex(out_dates).ffill() if fixpack else s
+
     def _get_macro_z(col: str, window: int = 63) -> Optional[pd.DataFrame]:
         if col not in factor_px.columns:
             return None
         z = _rolling_zscore(factor_px[col], window=window)
-        return _bcast_scalar_to_panel(z, common_dates, tickers)
+        return _bcast_scalar_to_panel(_macro_series(z), out_dates, tickers)
 
     ust_10y_z = _get_macro_z("UST_10Y")
     vix_z = _get_macro_z("VIX")
@@ -126,7 +136,7 @@ def build_macro_cross_features(
     slope_panel = None
     if "UST_10Y" in factor_px.columns and "UST_2Y" in factor_px.columns:
         slope = factor_px["UST_10Y"] - factor_px["UST_2Y"]
-        slope_panel = _bcast_scalar_to_panel(slope, common_dates, tickers)
+        slope_panel = _bcast_scalar_to_panel(_macro_series(slope), out_dates, tickers)
 
     # ── Cross terms ──
 

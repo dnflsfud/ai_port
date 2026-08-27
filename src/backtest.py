@@ -429,6 +429,10 @@ def apply_growth_tilt(
     adjusted = predictions.copy()
     valid_mask = predictions.notna()
     boost_values = boost_w * tilt_centered
+    # §S15 fix pack: tilt 레그 NaN(신규 상장 252d 미만 등)이 mask 대입의
+    # RHS NaN 전파로 유효 예측까지 파괴한다 — pead의 fillna(0) 관용구 적용.
+    if getattr(config, "s15_fixpack_enabled", False):
+        boost_values = boost_values.fillna(0.0)
     adjusted[valid_mask] = predictions[valid_mask] + boost_values[valid_mask]
 
     n_boosted = (boost_values.abs() > 0.01).sum().sum()
@@ -598,24 +602,40 @@ def apply_pead_boost(
     )
 
     # Vectorized days_since per ticker via searchsorted on event dates
+    # §S15 fix pack: 계약(docstring)은 "trading days"인데 기존 구현은 달력일
+    # 차이 — 주말 교차마다 감쇠가 가속되고 21일 창이 ~15거래일로 절단된다.
+    # ON 시 pred 그리드 위치차(거래일)로 계산한다.
+    fixpack_trading_days = bool(getattr(config, "s15_fixpack_enabled", False))
     dates_ts = pred_idx.values.astype("datetime64[ns]")
+    row_pos = np.arange(len(pred_idx), dtype=float)
     days_since = pd.DataFrame(np.nan, index=pred_idx, columns=pred_cols)
     for col in pred_cols:
         if col not in earn_aligned.columns:
             continue
-        earn_dates_col = earn_aligned.index[earn_aligned[col] == 1]
-        if len(earn_dates_col) == 0:
+        event_mask = earn_aligned[col].to_numpy() == 1
+        if not event_mask.any():
             continue
-        earn_ts = earn_dates_col.values.astype("datetime64[ns]")
-        idx_arr = np.searchsorted(earn_ts, dates_ts, side="right") - 1
-        valid = idx_arr >= 0
-        deltas = np.where(
-            valid,
-            (dates_ts - earn_ts[np.clip(idx_arr, 0, len(earn_ts) - 1)])
-            .astype("timedelta64[D]")
-            .astype(float),
-            np.nan,
-        )
+        if fixpack_trading_days:
+            event_pos = row_pos[event_mask]
+            idx_arr = np.searchsorted(event_pos, row_pos, side="right") - 1
+            valid = idx_arr >= 0
+            deltas = np.where(
+                valid,
+                row_pos - event_pos[np.clip(idx_arr, 0, len(event_pos) - 1)],
+                np.nan,
+            )
+        else:
+            earn_dates_col = earn_aligned.index[event_mask]
+            earn_ts = earn_dates_col.values.astype("datetime64[ns]")
+            idx_arr = np.searchsorted(earn_ts, dates_ts, side="right") - 1
+            valid = idx_arr >= 0
+            deltas = np.where(
+                valid,
+                (dates_ts - earn_ts[np.clip(idx_arr, 0, len(earn_ts) - 1)])
+                .astype("timedelta64[D]")
+                .astype(float),
+                np.nan,
+            )
         days_since[col] = deltas
 
     # Decay only within window: NaN outside, zero after fillna
@@ -902,8 +922,11 @@ class BacktestResult:
             if as_series is not None and len(as_series) > 0 else 0.0
         )
 
-        # 연간 거래비용: two-way * one-way-tc 단가 (실제 지출 비용)
-        annual_tc = avg_turnover_two_way * ONE_WAY_TC
+        # 연간 거래비용: two-way * one-way-tc 단가 (실제 지출 비용).
+        # 시뮬레이션이 부착한 실효 단가 우선 (오버라이드 정합, §S15 리뷰).
+        annual_tc = avg_turnover_two_way * float(
+            getattr(self, "one_way_tc", ONE_WAY_TC)
+        )
 
         result = {
             "annual_return": base.get("annual_return", 0),
@@ -1342,6 +1365,21 @@ def apply_execution_signal_lag(
     return delayed, delayed_raw
 
 
+def _matured_trailing_ic_mean(ic_values, append_idxs, t_idx, horizon, window):
+    """§S15 fix pack: 라벨 실현이 끝난(성숙) IC만 신뢰도 스케일링에 사용.
+
+    기존 경로는 최근 IC를 무조건 소비하므로 rebalance_freq < forward_horizon
+    인 실험 구성에서 미실현 미래 수익이 포지션 사이징에 새어 들어간다.
+    production(21BD ≥ horizon 20)에서는 전 엔트리가 성숙 상태라 기존 결과와
+    동일하다. 성숙 엔트리 < 2 이면 기존 관례대로 0.0."""
+    matured = [
+        v for (_, v), a in zip(ic_values, append_idxs) if a + horizon <= t_idx
+    ]
+    if len(matured) < 2:
+        return 0.0
+    return float(np.nanmean(matured[-window:]))
+
+
 def simulate_portfolio(
     predictions: pd.DataFrame,
     returns: pd.DataFrame,
@@ -1406,6 +1444,9 @@ def simulate_portfolio(
     n_tickers = len(tickers)
     result = BacktestResult()
     result.benchmark_type = getattr(config, "benchmark_type", "cap_weighted")
+    # 실효 거래비용 단가를 결과에 부착 — compute_metrics의 annual_tc가
+    # import-시점 상수 대신 이 값을 쓴다 (오버라이드 정합).
+    result.one_way_tc = float(one_way_tc)
 
     # Default optimizer: standard MVO
     if optimizer_fn is None:
@@ -1445,6 +1486,7 @@ def simulate_portfolio(
     spx_rets = []
     turnovers = []
     ic_values = []
+    ic_append_idxs = []   # §S15: IC가 기록된 시점의 t_idx (성숙 필터용)
     active_shares = []
     weight_history = {}
     weight_history_daily = {}
@@ -1577,7 +1619,14 @@ def simulate_portfolio(
                 # Item 12: promoted to config so experiments can tune without
                 # editing backtest.py. Default 6 matches prior hardcoded value.
                 trailing_ic_window = int(getattr(config, "trailing_ic_window", 6))
-                if len(ic_values) >= 2:
+                if getattr(config, "s15_fixpack_enabled", False):
+                    # §S15 fix pack: 성숙(라벨 실현 완료) IC만 소비.
+                    # production(21BD ≥ horizon 20)에서는 기존과 동일.
+                    trailing_ic_mean = _matured_trailing_ic_mean(
+                        ic_values, ic_append_idxs, t_idx,
+                        effective_label_horizon(config), trailing_ic_window,
+                    )
+                elif len(ic_values) >= 2:
                     recent_ics = [v for _, v in ic_values[-trailing_ic_window:]]
                     trailing_ic_mean = float(np.nanmean(recent_ics))
                 else:
@@ -1700,6 +1749,7 @@ def simulate_portfolio(
                 ic = compute_ic(pred_row, realized)
                 if not np.isnan(ic):
                     ic_values.append((t_date, ic))
+                    ic_append_idxs.append(t_idx)
 
     # --- Assemble result ---
     result.portfolio_returns = pd.Series(
