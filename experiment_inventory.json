@@ -154,7 +154,7 @@
       "phase": "GPT-5.6 challenger (2026-07-10): rank_xendcg LightGBM objective (model_objective=cross_sectional_rank, metric=ndcg) + causal validation split + 1d execution signal lag. Reuses default-OFF causal infra. Single pre-registered config, no sweep. ECOS, --no-cache full re-run.",
       "param_space": "lgbm objective=rank_xendcg + causal_validation_enabled=true + execution_signal_lag_days=1 (single pre-registered challenger config)",
       "trials": 1,
-      "result": "IR 1.695 vs causal-discipline S0' 0.902 (dIR +0.79 > +0.36 1SE; subperiod P1 0.752/P2 0.772/P3 3.080, all-positive 3/3) -> §2-4 adoption bar met, comparison_gate PASS 7/7. Promotion package pending this DSR/selection-bias gate."
+      "result": "IR 1.695 vs causal-discipline S0' 0.902 (dIR +0.79 > +0.36 1SE; subperiod P1 0.752/P2 0.772/P3 3.080, all-positive 3/3) -> \u00a72-4 adoption bar met, comparison_gate PASS 7/7. Promotion package pending this DSR/selection-bias gate."
     },
     {
       "script": "run_variant.py --variant variants/arm_s10_minchild30.yaml",
@@ -330,9 +330,16 @@
       "param_space": "single frozen arm = production + rank_eval_at [20]; no sweeps ([10,20]/[5,10,20]/[50] all forbidden by preregistration).",
       "trials": 1,
       "result": "E1 FAIL by the preregistered bar despite a large positive full-period move: dIR +0.2028 (1.6292 -> 1.8320, 08-20 batch baseline, vintage pair verified before/after), splits +0.0013/-0.0125/+0.5637 (sign-inconsistent - the entire gain sits in 2024+). Degeneracy IMPROVED 13/33 -> 10/33 (S13.8 risk did not materialize). TE identical 3.457%, turnover +0.024, MaxDD slightly better, avg_ic -9.3% (IC down while IR up - transmission decoupling, consistent with the S13.45-D book-usage hypothesis). Not adopted; production rank_eval_at [5,10] unchanged. User-override consideration requires the DSR/selection-bias haircut first."
+    },
+    {
+      "script": "run_variant.py (arm_s15_1_monotone_margin)",
+      "phase": "S15.1 (2026-08-27): monotone(+1) constraints on the three sign-stable margin-axis features (oper_margin_chg_63d/252d, op_leverage_63d) from the S15-B precheck, on top of the adopted S15 fix-pack production config. Map frozen by preregistration, no sweeps.",
+      "param_space": "monotone_constraints_enabled + fixed 3-feature +1 map (single preregistered arm)",
+      "trials": 1,
+      "result": "E1 FAIL: dIR +0.0006 (1.5466 -> 1.5472, same 08-25 vintage), splits -0.075/+0.080/+0.017 sign-inconsistent. Degeneracy improved 14/33 -> 12/33 and turnover -0.8pp with avg_ic -7.9% - constraint acts as harmless capacity regularizer, no transmission. Not adopted; flag stays default-OFF. NOTE: the S15 fix-pack production flip itself is a correctness re-baseline (causal-discipline precedent), not counted."
     }
   ],
-  "n_trials_total": 467,
+  "n_trials_total": 468,
   "notes": [
     "396 is a conservative lower bound. Actual N is likely higher once",
     "ad-hoc config.py tweaks over the research period are counted.",
@@ -378,6 +385,7 @@
     "2026-08-13: S13.41 (+1) option-IV vol-forecast covariance-diagonal arm (walk-forward pooled OLS log-vol model, 63BD refit, t+21 embargo, scale clip [0.8,1.5], D@Sigma@D) vs the 08-12 vintage S0' 1.5383: dIR +0.124 all three sub-periods positive, TE 3.54->3.46pct, MaxDD -32.1->-31.8pct, one-way turnover +1.05pp, avg_ic/degeneracy bit-identical (alpha layer untouched - pure risk-model effect). E1 bar (+0.36) not met -> not adopted by default, flip referred to the user (S13.31 precedent). Read-only prechecks (P0 QLIKE, P1 binding, P2 direction) not counted per S13.7 precedent. n_trials_total 464 -> 465.",
     "2026-08-20: +1 S13.46 arm (implied-corr off-diagonal covariance scaling), pre-registered single arm, E1 FAIL (dIR -0.0094, splits +0.075/+0.011/-0.105 sign-inconsistent), not adopted (no flip). The S13.45 four-axis prechecks were read-only (not counted). N 465 -> 466.",
     "2026-08-20 PM: discovered Index.xlsx (FX source) is a second vintage axis - refreshes forked three same-day runs. New ops rule: effective vintage = (ai_signal_data.xlsx, Index.xlsx) mtime pair, checked before/after every comparison run. S13.46 re-adjudicated clean (verdict unchanged); reproduction-control rerun proved the pipeline bit-deterministic across processes. Recert/control runs not counted. N stays 466.",
-    "2026-08-20: +1 S13.47 arm (rank_eval_at [20]), pre-registered single arm, E1 FAIL (dIR +0.2028 < +0.36 bar, sign-inconsistent - gain concentrated in 2024+), not adopted (no flip). Degeneracy improved 13/33 -> 10/33. N 466 -> 467."
+    "2026-08-20: +1 S13.47 arm (rank_eval_at [20]), pre-registered single arm, E1 FAIL (dIR +0.2028 < +0.36 bar, sign-inconsistent - gain concentrated in 2024+), not adopted (no flip). Degeneracy improved 13/33 -> 10/33. N 466 -> 467.",
+    "2026-08-27: +1 S15.1 arm (monotone margin constraints), pre-registered single arm, E1 FAIL (dIR +0.0006, sign-inconsistent), not adopted. The S15 fix-pack measurement + production flip (IR 1.3811 -> 1.5466) is a correctness re-baseline, NOT counted (causal-discipline S0-recert precedent); S15 A/B prechecks were read-only (not counted). N 467 -> 468."
   ]
 }
