@@ -1,21 +1,23 @@
 {
   "as_of": "2026-08-18",
-  "method": "Latest rebalance, Ledoit-Wolf covariance, annualized.",
+  "method": "Latest rebalance, production covariance (raw-return estimate_covariance + option-IV diagonal scaling when enabled), annualized.",
   "max_tracking_error_annual": 0.035,
   "cov_lookback_days": 126,
-  "estimated_portfolio_vol": 0.16832,
-  "estimated_tracking_error": 0.031842,
+  "option_vol_cov_scaling_enabled": true,
+  "option_vol_cov_scaling_applied": true,
+  "estimated_portfolio_vol": 0.15118,
+  "estimated_tracking_error": 0.0285,
   "guardrails": {
     "max_tracking_error_annual": 0.035,
-    "estimated_te_headroom": 0.003158,
+    "estimated_te_headroom": 0.0065,
     "estimated_te_breached": false,
     "max_name_active_risk_share": 0.35,
     "top_name": "STX",
-    "top_name_active_risk_share": 0.418322,
+    "top_name_active_risk_share": 0.440421,
     "top_name_active_risk_breached": true,
     "max_sector_active_risk_share": 0.85,
     "top_sector": "Technology",
-    "top_sector_active_risk_share": 0.936764,
+    "top_sector_active_risk_share": 0.943755,
     "top_sector_active_risk_breached": true
   },
   "by_ticker": [
@@ -25,10 +27,10 @@
       "weight": 0.034676,
       "bm_weight": 0.002792,
       "active_weight": 0.031885,
-      "total_risk_pct": 0.083023,
-      "total_vol_contribution": 0.013975,
-      "active_risk_pct": 0.41833,
-      "active_te_contribution": 0.01332
+      "total_risk_pct": 0.083845,
+      "total_vol_contribution": 0.012676,
+      "active_risk_pct": 0.440429,
+      "active_te_contribution": 0.012552
     },
     {
       "ticker": "6857",
@@ -36,10 +38,10 @@
       "weight": 0.019892,
       "bm_weight": 0.002242,
       "active_weight": 0.01765,
-      "total_risk_pct": 0.039335,
-      "total_vol_contribution": 0.006621,
-      "active_risk_pct": 0.214832,
-      "active_te_contribution": 0.006841
+      "total_risk_pct": 0.038657,
+      "total_vol_contribution": 0.005844,
+      "active_risk_pct": 0.219339,
+      "active_te_contribution": 0.006251
     },
     {
       "ticker": "PLTR",
@@ -47,21 +49,10 @@
       "weight": 0.024882,
       "bm_weight": 0.005616,
       "active_weight": 0.019265,
-      "total_risk_pct": 0.033625,
-      "total_vol_contribution": 0.00566,
-      "active_risk_pct": 0.156033,
-      "active_te_contribution": 0.004968
-    },
-    {
-      "ticker": "APP",
-      "sector": "Technology",
-      "weight": 0.013294,
-      "bm_weight": 0.001402,
-      "active_weight": 0.011892,
-      "total_risk_pct": 0.020305,
-      "total_vol_contribution": 0.003418,
-      "active_risk_pct": 0.101906,
-      "active_te_contribution": 0.003245
+      "total_risk_pct": 0.030377,
+      "total_vol_contribution": 0.004592,
+      "active_risk_pct": 0.13234,
+      "active_te_contribution": 0.003772
     },
     {
       "ticker": "NVDA",
@@ -69,10 +60,10 @@
       "weight": 0.093502,
       "bm_weight": 0.072484,
       "active_weight": 0.021018,
-      "total_risk_pct": 0.151167,
-      "total_vol_contribution": 0.025445,
-      "active_risk_pct": 0.091011,
-      "active_te_contribution": 0.002898
+      "total_risk_pct": 0.157912,
+      "total_vol_contribution": 0.023873,
+      "active_risk_pct": 0.099177,
+      "active_te_contribution": 0.002827
     },
     {
       "ticker": "005930",
@@ -80,10 +71,10 @@
       "weight": 0.023403,
       "bm_weight": 0.014883,
       "active_weight": 0.00852,
-      "total_risk_pct": 0.043295,
-      "total_vol_contribution": 0.007287,
-      "active_risk_pct": 0.0776,
-      "active_te_contribution": 0.002471
+      "total_risk_pct": 0.046945,
+      "total_vol_contribution": 0.007097,
+      "active_risk_pct": 0.087972,
+      "active_te_contribution": 0.002507
     },
     {
       "ticker": "LRCX",
@@ -91,10 +82,21 @@
       "weight": 0.017192,
       "bm_weight": 0.005593,
       "active_weight": 0.011598,
-      "total_risk_pct": 0.048532,
-      "total_vol_contribution": 0.008169,
-      "active_risk_pct": 0.076223,
+      "total_risk_pct": 0.049847,
+      "total_vol_contribution": 0.007536,
+      "active_risk_pct": 0.085172,
       "active_te_contribution": 0.002427
+    },
+    {
+      "ticker": "APP",
+      "sector": "Technology",
+      "weight": 0.013294,
+      "bm_weight": 0.001402,
+      "active_weight": 0.011892,
+      "total_risk_pct": 0.017678,
+      "total_vol_contribution": 0.002673,
+      "active_risk_pct": 0.08409,
+      "active_te_contribution": 0.002397
     },
     {
       "ticker": "8035",
@@ -102,10 +104,10 @@
       "weight": 0.008501,
       "bm_weight": 0.002253,
       "active_weight": 0.006247,
-      "total_risk_pct": 0.01252,
-      "total_vol_contribution": 0.002107,
-      "active_risk_pct": 0.054196,
-      "active_te_contribution": 0.001726
+      "total_risk_pct": 0.012826,
+      "total_vol_contribution": 0.001939,
+      "active_risk_pct": 0.057293,
+      "active_te_contribution": 0.001633
     },
     {
       "ticker": "6146",
@@ -113,10 +115,10 @@
       "weight": 0.005492,
       "bm_weight": 0.000578,
       "active_weight": 0.004914,
-      "total_risk_pct": 0.007561,
-      "total_vol_contribution": 0.001273,
-      "active_risk_pct": 0.051559,
-      "active_te_contribution": 0.001642
+      "total_risk_pct": 0.007819,
+      "total_vol_contribution": 0.001182,
+      "active_risk_pct": 0.055205,
+      "active_te_contribution": 0.001573
     },
     {
       "ticker": "000660",
@@ -124,54 +126,10 @@
       "weight": 0.006692,
       "bm_weight": 0.01144,
       "active_weight": -0.004748,
-      "total_risk_pct": 0.01352,
-      "total_vol_contribution": 0.002276,
-      "active_risk_pct": -0.046584,
-      "active_te_contribution": -0.001483
-    },
-    {
-      "ticker": "TTD",
-      "sector": "Communication Services",
-      "weight": 0.00862,
-      "bm_weight": 8.6e-05,
-      "active_weight": 0.008535,
-      "total_risk_pct": 0.003745,
-      "total_vol_contribution": 0.00063,
-      "active_risk_pct": 0.033635,
-      "active_te_contribution": 0.001071
-    },
-    {
-      "ticker": "TSM",
-      "sector": "Technology",
-      "weight": 0.019315,
-      "bm_weight": 0.029226,
-      "active_weight": -0.009911,
-      "total_risk_pct": 0.036217,
-      "total_vol_contribution": 0.006096,
-      "active_risk_pct": -0.031153,
-      "active_te_contribution": -0.000992
-    },
-    {
-      "ticker": "WDC",
-      "sector": "Technology",
-      "weight": 4.7e-05,
-      "bm_weight": 0.002331,
-      "active_weight": -0.002284,
-      "total_risk_pct": 0.000138,
-      "total_vol_contribution": 2.3e-05,
-      "active_risk_pct": -0.029312,
-      "active_te_contribution": -0.000933
-    },
-    {
-      "ticker": "SNDK",
-      "sector": "Technology",
-      "weight": 0.001202,
-      "bm_weight": 0.003245,
-      "active_weight": -0.002043,
-      "total_risk_pct": 0.004307,
-      "total_vol_contribution": 0.000725,
-      "active_risk_pct": -0.029087,
-      "active_te_contribution": -0.000926
+      "total_risk_pct": 0.014452,
+      "total_vol_contribution": 0.002185,
+      "active_risk_pct": -0.051664,
+      "active_te_contribution": -0.001472
     },
     {
       "ticker": "DELL",
@@ -179,21 +137,43 @@
       "weight": 0.007414,
       "bm_weight": 0.004128,
       "active_weight": 0.003286,
-      "total_risk_pct": 0.013393,
-      "total_vol_contribution": 0.002254,
-      "active_risk_pct": 0.025284,
-      "active_te_contribution": 0.000805
+      "total_risk_pct": 0.017179,
+      "total_vol_contribution": 0.002597,
+      "active_risk_pct": 0.033485,
+      "active_te_contribution": 0.000954
     },
     {
-      "ticker": "RDDT",
+      "ticker": "TSM",
+      "sector": "Technology",
+      "weight": 0.019315,
+      "bm_weight": 0.029226,
+      "active_weight": -0.009911,
+      "total_risk_pct": 0.032421,
+      "total_vol_contribution": 0.004901,
+      "active_risk_pct": -0.03075,
+      "active_te_contribution": -0.000876
+    },
+    {
+      "ticker": "TTD",
       "sector": "Communication Services",
-      "weight": 0.003888,
-      "bm_weight": 0.000415,
-      "active_weight": 0.003473,
-      "total_risk_pct": 0.006377,
-      "total_vol_contribution": 0.001073,
-      "active_risk_pct": 0.025203,
-      "active_te_contribution": 0.000803
+      "weight": 0.00862,
+      "bm_weight": 8.6e-05,
+      "active_weight": 0.008535,
+      "total_risk_pct": 0.003456,
+      "total_vol_contribution": 0.000522,
+      "active_risk_pct": 0.029736,
+      "active_te_contribution": 0.000847
+    },
+    {
+      "ticker": "WDC",
+      "sector": "Technology",
+      "weight": 4.7e-05,
+      "bm_weight": 0.002331,
+      "active_weight": -0.002284,
+      "total_risk_pct": 0.000132,
+      "total_vol_contribution": 2e-05,
+      "active_risk_pct": -0.029424,
+      "active_te_contribution": -0.000839
     },
     {
       "ticker": "AMAT",
@@ -201,43 +181,21 @@
       "weight": 0.000673,
       "bm_weight": 0.005566,
       "active_weight": -0.004894,
-      "total_risk_pct": 0.001585,
-      "total_vol_contribution": 0.000267,
-      "active_risk_pct": -0.023386,
-      "active_te_contribution": -0.000745
+      "total_risk_pct": 0.001685,
+      "total_vol_contribution": 0.000255,
+      "active_risk_pct": -0.02752,
+      "active_te_contribution": -0.000784
     },
     {
-      "ticker": "INTC",
+      "ticker": "SNDK",
       "sector": "Technology",
-      "weight": 0.002039,
-      "bm_weight": 0.006965,
-      "active_weight": -0.004926,
-      "total_risk_pct": 0.005582,
-      "total_vol_contribution": 0.00094,
-      "active_risk_pct": -0.022885,
-      "active_te_contribution": -0.000729
-    },
-    {
-      "ticker": "BRK/B",
-      "sector": "Financials",
-      "weight": 0.005774,
-      "bm_weight": 0.014604,
-      "active_weight": -0.00883,
-      "total_risk_pct": 0.000104,
-      "total_vol_contribution": 1.8e-05,
-      "active_risk_pct": 0.022156,
-      "active_te_contribution": 0.000705
-    },
-    {
-      "ticker": "MU",
-      "sector": "Technology",
-      "weight": 0.011622,
-      "bm_weight": 0.014482,
-      "active_weight": -0.00286,
-      "total_risk_pct": 0.02634,
-      "total_vol_contribution": 0.004434,
-      "active_risk_pct": -0.021533,
-      "active_te_contribution": -0.000686
+      "weight": 0.001202,
+      "bm_weight": 0.003245,
+      "active_weight": -0.002043,
+      "total_risk_pct": 0.003872,
+      "total_vol_contribution": 0.000585,
+      "active_risk_pct": -0.02749,
+      "active_te_contribution": -0.000783
     },
     {
       "ticker": "ZS",
@@ -245,10 +203,21 @@
       "weight": 0.005384,
       "bm_weight": 0.000409,
       "active_weight": 0.004974,
-      "total_risk_pct": 0.003063,
-      "total_vol_contribution": 0.000515,
-      "active_risk_pct": 0.021004,
-      "active_te_contribution": 0.000669
+      "total_risk_pct": 0.003821,
+      "total_vol_contribution": 0.000578,
+      "active_risk_pct": 0.025947,
+      "active_te_contribution": 0.000739
+    },
+    {
+      "ticker": "INTC",
+      "sector": "Technology",
+      "weight": 0.002039,
+      "bm_weight": 0.006965,
+      "active_weight": -0.004926,
+      "total_risk_pct": 0.00561,
+      "total_vol_contribution": 0.000848,
+      "active_risk_pct": -0.025771,
+      "active_te_contribution": -0.000734
     },
     {
       "ticker": "WMT",
@@ -256,10 +225,43 @@
       "weight": 0.006706,
       "bm_weight": 0.012496,
       "active_weight": -0.00579,
-      "total_risk_pct": -0.001346,
-      "total_vol_contribution": -0.000227,
-      "active_risk_pct": 0.020215,
-      "active_te_contribution": 0.000644
+      "total_risk_pct": -0.001572,
+      "total_vol_contribution": -0.000238,
+      "active_risk_pct": 0.024912,
+      "active_te_contribution": 0.00071
+    },
+    {
+      "ticker": "BRK/B",
+      "sector": "Financials",
+      "weight": 0.005774,
+      "bm_weight": 0.014604,
+      "active_weight": -0.00883,
+      "total_risk_pct": 7.4e-05,
+      "total_vol_contribution": 1.1e-05,
+      "active_risk_pct": 0.02228,
+      "active_te_contribution": 0.000635
+    },
+    {
+      "ticker": "MU",
+      "sector": "Technology",
+      "weight": 0.011622,
+      "bm_weight": 0.014482,
+      "active_weight": -0.00286,
+      "total_risk_pct": 0.025782,
+      "total_vol_contribution": 0.003898,
+      "active_risk_pct": -0.022207,
+      "active_te_contribution": -0.000633
+    },
+    {
+      "ticker": "RDDT",
+      "sector": "Communication Services",
+      "weight": 0.003888,
+      "bm_weight": 0.000415,
+      "active_weight": 0.003473,
+      "total_risk_pct": 0.005569,
+      "total_vol_contribution": 0.000842,
+      "active_risk_pct": 0.021378,
+      "active_te_contribution": 0.000609
     },
     {
       "ticker": "AMD",
@@ -267,32 +269,10 @@
       "weight": 0.006078,
       "bm_weight": 0.010778,
       "active_weight": -0.0047,
-      "total_risk_pct": 0.013164,
-      "total_vol_contribution": 0.002216,
-      "active_risk_pct": -0.018927,
-      "active_te_contribution": -0.000603
-    },
-    {
-      "ticker": "ANET",
-      "sector": "Technology",
-      "weight": 0.000334,
-      "bm_weight": 0.003321,
-      "active_weight": -0.002987,
-      "total_risk_pct": 0.000572,
-      "total_vol_contribution": 9.6e-05,
-      "active_risk_pct": -0.017218,
-      "active_te_contribution": -0.000548
-    },
-    {
-      "ticker": "GLW",
-      "sector": "Technology",
-      "weight": 0.004573,
-      "bm_weight": 0.001877,
-      "active_weight": 0.002695,
-      "total_risk_pct": 0.012174,
-      "total_vol_contribution": 0.002049,
-      "active_risk_pct": 0.015635,
-      "active_te_contribution": 0.000498
+      "total_risk_pct": 0.013063,
+      "total_vol_contribution": 0.001975,
+      "active_risk_pct": -0.020803,
+      "active_te_contribution": -0.000593
     },
     {
       "ticker": "6981",
@@ -300,10 +280,21 @@
       "weight": 2.5e-05,
       "bm_weight": 0.001257,
       "active_weight": -0.001231,
-      "total_risk_pct": 5.5e-05,
-      "total_vol_contribution": 9e-06,
-      "active_risk_pct": -0.015316,
-      "active_te_contribution": -0.000488
+      "total_risk_pct": 6.8e-05,
+      "total_vol_contribution": 1e-05,
+      "active_risk_pct": -0.019539,
+      "active_te_contribution": -0.000557
+    },
+    {
+      "ticker": "GLW",
+      "sector": "Technology",
+      "weight": 0.004573,
+      "bm_weight": 0.001877,
+      "active_weight": 0.002695,
+      "total_risk_pct": 0.013113,
+      "total_vol_contribution": 0.001982,
+      "active_risk_pct": 0.018682,
+      "active_te_contribution": 0.000532
     },
     {
       "ticker": "ORCL",
@@ -311,21 +302,21 @@
       "weight": 0.003638,
       "bm_weight": 0.005606,
       "active_weight": -0.001968,
-      "total_risk_pct": 0.00679,
-      "total_vol_contribution": 0.001143,
-      "active_risk_pct": -0.014262,
-      "active_te_contribution": -0.000454
+      "total_risk_pct": 0.008375,
+      "total_vol_contribution": 0.001266,
+      "active_risk_pct": -0.017597,
+      "active_te_contribution": -0.000502
     },
     {
-      "ticker": "TSLA",
-      "sector": "Consumer Discretionary",
-      "weight": 0.013916,
-      "bm_weight": 0.018135,
-      "active_weight": -0.00422,
-      "total_risk_pct": 0.02278,
-      "total_vol_contribution": 0.003834,
-      "active_risk_pct": -0.012274,
-      "active_te_contribution": -0.000391
+      "ticker": "ANET",
+      "sector": "Technology",
+      "weight": 0.000334,
+      "bm_weight": 0.003321,
+      "active_weight": -0.002987,
+      "total_risk_pct": 0.000563,
+      "total_vol_contribution": 8.5e-05,
+      "active_risk_pct": -0.017587,
+      "active_te_contribution": -0.000501
     },
     {
       "ticker": "MPWR",
@@ -333,21 +324,10 @@
       "weight": 0.004022,
       "bm_weight": 0.000893,
       "active_weight": 0.003129,
-      "total_risk_pct": 0.008359,
-      "total_vol_contribution": 0.001407,
-      "active_risk_pct": 0.012097,
-      "active_te_contribution": 0.000385
-    },
-    {
-      "ticker": "MSFT",
-      "sector": "Technology",
-      "weight": 0.040932,
-      "bm_weight": 0.048748,
-      "active_weight": -0.007816,
-      "total_risk_pct": 0.036477,
-      "total_vol_contribution": 0.00614,
-      "active_risk_pct": -0.011949,
-      "active_te_contribution": -0.00038
+      "total_risk_pct": 0.008799,
+      "total_vol_contribution": 0.00133,
+      "active_risk_pct": 0.014278,
+      "active_te_contribution": 0.000407
     },
     {
       "ticker": "KLAC",
@@ -355,10 +335,10 @@
       "weight": 0.000975,
       "bm_weight": 0.003469,
       "active_weight": -0.002494,
-      "total_risk_pct": 0.002234,
-      "total_vol_contribution": 0.000376,
-      "active_risk_pct": -0.01112,
-      "active_te_contribution": -0.000354
+      "total_risk_pct": 0.002449,
+      "total_vol_contribution": 0.00037,
+      "active_risk_pct": -0.013545,
+      "active_te_contribution": -0.000386
     },
     {
       "ticker": "MRVL",
@@ -366,32 +346,32 @@
       "weight": 0.000838,
       "bm_weight": 0.002576,
       "active_weight": -0.001738,
-      "total_risk_pct": 0.002252,
-      "total_vol_contribution": 0.000379,
-      "active_risk_pct": -0.009986,
-      "active_te_contribution": -0.000318
+      "total_risk_pct": 0.002536,
+      "total_vol_contribution": 0.000383,
+      "active_risk_pct": -0.011937,
+      "active_te_contribution": -0.00034
     },
     {
-      "ticker": "ZTS",
-      "sector": "Healthcare",
-      "weight": 0.004855,
-      "bm_weight": 0.000417,
-      "active_weight": 0.004439,
-      "total_risk_pct": 0.000895,
-      "total_vol_contribution": 0.000151,
-      "active_risk_pct": -0.008932,
-      "active_te_contribution": -0.000284
+      "ticker": "TSLA",
+      "sector": "Consumer Discretionary",
+      "weight": 0.013916,
+      "bm_weight": 0.018135,
+      "active_weight": -0.00422,
+      "total_risk_pct": 0.020343,
+      "total_vol_contribution": 0.003075,
+      "active_risk_pct": -0.01143,
+      "active_te_contribution": -0.000326
     },
     {
-      "ticker": "AVGO",
+      "ticker": "MSFT",
       "sector": "Technology",
-      "weight": 0.022456,
-      "bm_weight": 0.024643,
-      "active_weight": -0.002186,
-      "total_risk_pct": 0.034,
-      "total_vol_contribution": 0.005723,
-      "active_risk_pct": -0.008359,
-      "active_te_contribution": -0.000266
+      "weight": 0.040932,
+      "bm_weight": 0.048748,
+      "active_weight": -0.007816,
+      "total_risk_pct": 0.035726,
+      "total_vol_contribution": 0.005401,
+      "active_risk_pct": -0.011196,
+      "active_te_contribution": -0.000319
     },
     {
       "ticker": "ASML",
@@ -399,65 +379,32 @@
       "weight": 0.005029,
       "bm_weight": 0.009443,
       "active_weight": -0.004414,
-      "total_risk_pct": 0.007778,
-      "total_vol_contribution": 0.001309,
-      "active_risk_pct": -0.00768,
-      "active_te_contribution": -0.000245
+      "total_risk_pct": 0.007801,
+      "total_vol_contribution": 0.001179,
+      "active_risk_pct": -0.00935,
+      "active_te_contribution": -0.000266
     },
     {
-      "ticker": "NET",
+      "ticker": "AVGO",
       "sector": "Technology",
-      "weight": 0.000232,
-      "bm_weight": 0.001464,
-      "active_weight": -0.001232,
-      "total_risk_pct": 0.000262,
-      "total_vol_contribution": 4.4e-05,
-      "active_risk_pct": -0.007536,
-      "active_te_contribution": -0.00024
+      "weight": 0.022456,
+      "bm_weight": 0.024643,
+      "active_weight": -0.002186,
+      "total_risk_pct": 0.037132,
+      "total_vol_contribution": 0.005614,
+      "active_risk_pct": -0.009265,
+      "active_te_contribution": -0.000264
     },
     {
-      "ticker": "DDOG",
-      "sector": "Technology",
-      "weight": 0.000136,
-      "bm_weight": 0.001207,
-      "active_weight": -0.001071,
-      "total_risk_pct": 0.000124,
-      "total_vol_contribution": 2.1e-05,
-      "active_risk_pct": -0.00714,
-      "active_te_contribution": -0.000227
-    },
-    {
-      "ticker": "COST",
-      "sector": "Consumer Staples",
-      "weight": 0.002985,
-      "bm_weight": 0.005811,
-      "active_weight": -0.002826,
-      "total_risk_pct": -0.000943,
-      "total_vol_contribution": -0.000159,
-      "active_risk_pct": 0.006933,
-      "active_te_contribution": 0.000221
-    },
-    {
-      "ticker": "LITE",
-      "sector": "Technology",
-      "weight": 0.000251,
-      "bm_weight": 0.001068,
-      "active_weight": -0.000817,
-      "total_risk_pct": 0.000644,
-      "total_vol_contribution": 0.000108,
-      "active_risk_pct": -0.006402,
-      "active_te_contribution": -0.000204
-    },
-    {
-      "ticker": "META",
-      "sector": "Technology",
-      "weight": 0.016521,
-      "bm_weight": 0.018878,
-      "active_weight": -0.002358,
-      "total_risk_pct": 0.019096,
-      "total_vol_contribution": 0.003214,
-      "active_risk_pct": -0.006116,
-      "active_te_contribution": -0.000195
+      "ticker": "ZTS",
+      "sector": "Healthcare",
+      "weight": 0.004855,
+      "bm_weight": 0.000417,
+      "active_weight": 0.004439,
+      "total_risk_pct": 0.000889,
+      "total_vol_contribution": 0.000134,
+      "active_risk_pct": -0.008735,
+      "active_te_contribution": -0.000249
     },
     {
       "ticker": "CRWD",
@@ -465,10 +412,65 @@
       "weight": 0.001106,
       "bm_weight": 0.002955,
       "active_weight": -0.001849,
-      "total_risk_pct": 0.001101,
-      "total_vol_contribution": 0.000185,
-      "active_risk_pct": -0.006036,
-      "active_te_contribution": -0.000192
+      "total_risk_pct": 0.001365,
+      "total_vol_contribution": 0.000206,
+      "active_risk_pct": -0.007282,
+      "active_te_contribution": -0.000208
+    },
+    {
+      "ticker": "COST",
+      "sector": "Consumer Staples",
+      "weight": 0.002985,
+      "bm_weight": 0.005811,
+      "active_weight": -0.002826,
+      "total_risk_pct": -0.000961,
+      "total_vol_contribution": -0.000145,
+      "active_risk_pct": 0.007241,
+      "active_te_contribution": 0.000206
+    },
+    {
+      "ticker": "NET",
+      "sector": "Technology",
+      "weight": 0.000232,
+      "bm_weight": 0.001464,
+      "active_weight": -0.001232,
+      "total_risk_pct": 0.000247,
+      "total_vol_contribution": 3.7e-05,
+      "active_risk_pct": -0.006952,
+      "active_te_contribution": -0.000198
+    },
+    {
+      "ticker": "DDOG",
+      "sector": "Technology",
+      "weight": 0.000136,
+      "bm_weight": 0.001207,
+      "active_weight": -0.001071,
+      "total_risk_pct": 0.000126,
+      "total_vol_contribution": 1.9e-05,
+      "active_risk_pct": -0.00691,
+      "active_te_contribution": -0.000197
+    },
+    {
+      "ticker": "META",
+      "sector": "Technology",
+      "weight": 0.016521,
+      "bm_weight": 0.018878,
+      "active_weight": -0.002358,
+      "total_risk_pct": 0.020463,
+      "total_vol_contribution": 0.003094,
+      "active_risk_pct": -0.006476,
+      "active_te_contribution": -0.000185
+    },
+    {
+      "ticker": "LITE",
+      "sector": "Technology",
+      "weight": 0.000251,
+      "bm_weight": 0.001068,
+      "active_weight": -0.000817,
+      "total_risk_pct": 0.000578,
+      "total_vol_contribution": 8.7e-05,
+      "active_risk_pct": -0.006217,
+      "active_te_contribution": -0.000177
     },
     {
       "ticker": "SNOW",
@@ -476,65 +478,10 @@
       "weight": 0.000227,
       "bm_weight": 0.001537,
       "active_weight": -0.00131,
-      "total_risk_pct": 0.000164,
-      "total_vol_contribution": 2.8e-05,
-      "active_risk_pct": -0.005809,
-      "active_te_contribution": -0.000185
-    },
-    {
-      "ticker": "GOOGL",
-      "sector": "Technology",
-      "weight": 0.051617,
-      "bm_weight": 0.057142,
-      "active_weight": -0.005525,
-      "total_risk_pct": 0.065144,
-      "total_vol_contribution": 0.010965,
-      "active_risk_pct": -0.005547,
+      "total_risk_pct": 0.000191,
+      "total_vol_contribution": 2.9e-05,
+      "active_risk_pct": -0.006212,
       "active_te_contribution": -0.000177
-    },
-    {
-      "ticker": "VRT",
-      "sector": "Industrials",
-      "weight": 0.000166,
-      "bm_weight": 0.00143,
-      "active_weight": -0.001264,
-      "total_risk_pct": 0.000349,
-      "total_vol_contribution": 5.9e-05,
-      "active_risk_pct": -0.005112,
-      "active_te_contribution": -0.000163
-    },
-    {
-      "ticker": "BE",
-      "sector": "Industrials",
-      "weight": 0.001279,
-      "bm_weight": 0.000839,
-      "active_weight": 0.00044,
-      "total_risk_pct": 0.004527,
-      "total_vol_contribution": 0.000762,
-      "active_risk_pct": 0.005037,
-      "active_te_contribution": 0.00016
-    },
-    {
-      "ticker": "MS",
-      "sector": "Financials",
-      "weight": 0.002293,
-      "bm_weight": 0.004657,
-      "active_weight": -0.002365,
-      "total_risk_pct": 0.002376,
-      "total_vol_contribution": 0.0004,
-      "active_risk_pct": -0.004887,
-      "active_te_contribution": -0.000156
-    },
-    {
-      "ticker": "COHR",
-      "sector": "Technology",
-      "weight": 0.00012,
-      "bm_weight": 0.000818,
-      "active_weight": -0.000698,
-      "total_risk_pct": 0.000339,
-      "total_vol_contribution": 5.7e-05,
-      "active_risk_pct": -0.004787,
-      "active_te_contribution": -0.000152
     },
     {
       "ticker": "PANW",
@@ -542,21 +489,21 @@
       "weight": 0.002725,
       "bm_weight": 0.004156,
       "active_weight": -0.001431,
-      "total_risk_pct": 0.002598,
-      "total_vol_contribution": 0.000437,
-      "active_risk_pct": -0.004563,
-      "active_te_contribution": -0.000145
+      "total_risk_pct": 0.00328,
+      "total_vol_contribution": 0.000496,
+      "active_risk_pct": -0.005688,
+      "active_te_contribution": -0.000162
     },
     {
-      "ticker": "GS",
-      "sector": "Financials",
-      "weight": 0.0026,
-      "bm_weight": 0.004293,
-      "active_weight": -0.001693,
-      "total_risk_pct": 0.003342,
-      "total_vol_contribution": 0.000562,
-      "active_risk_pct": -0.004471,
-      "active_te_contribution": -0.000142
+      "ticker": "GOOGL",
+      "sector": "Technology",
+      "weight": 0.051617,
+      "bm_weight": 0.057142,
+      "active_weight": -0.005525,
+      "total_risk_pct": 0.058699,
+      "total_vol_contribution": 0.008874,
+      "active_risk_pct": -0.005479,
+      "active_te_contribution": -0.000156
     },
     {
       "ticker": "CAT",
@@ -564,21 +511,43 @@
       "weight": 0.002611,
       "bm_weight": 0.005269,
       "active_weight": -0.002657,
-      "total_risk_pct": 0.003606,
-      "total_vol_contribution": 0.000607,
-      "active_risk_pct": -0.004435,
-      "active_te_contribution": -0.000141
+      "total_risk_pct": 0.003788,
+      "total_vol_contribution": 0.000573,
+      "active_risk_pct": -0.005473,
+      "active_te_contribution": -0.000156
     },
     {
-      "ticker": "ARM",
+      "ticker": "VRT",
+      "sector": "Industrials",
+      "weight": 0.000166,
+      "bm_weight": 0.00143,
+      "active_weight": -0.001264,
+      "total_risk_pct": 0.000331,
+      "total_vol_contribution": 5e-05,
+      "active_risk_pct": -0.005349,
+      "active_te_contribution": -0.000152
+    },
+    {
+      "ticker": "MS",
+      "sector": "Financials",
+      "weight": 0.002293,
+      "bm_weight": 0.004657,
+      "active_weight": -0.002365,
+      "total_risk_pct": 0.002384,
+      "total_vol_contribution": 0.00036,
+      "active_risk_pct": -0.005203,
+      "active_te_contribution": -0.000148
+    },
+    {
+      "ticker": "COHR",
       "sector": "Technology",
-      "weight": 0.003248,
-      "bm_weight": 0.003688,
-      "active_weight": -0.00044,
-      "total_risk_pct": 0.010893,
-      "total_vol_contribution": 0.001834,
-      "active_risk_pct": -0.004117,
-      "active_te_contribution": -0.000131
+      "weight": 0.00012,
+      "bm_weight": 0.000818,
+      "active_weight": -0.000698,
+      "total_risk_pct": 0.000321,
+      "total_vol_contribution": 4.9e-05,
+      "active_risk_pct": -0.004863,
+      "active_te_contribution": -0.000139
     },
     {
       "ticker": "TER",
@@ -586,10 +555,43 @@
       "weight": 0.00028,
       "bm_weight": 0.000862,
       "active_weight": -0.000582,
-      "total_risk_pct": 0.000835,
-      "total_vol_contribution": 0.00014,
-      "active_risk_pct": -0.004046,
-      "active_te_contribution": -0.000129
+      "total_risk_pct": 0.000899,
+      "total_vol_contribution": 0.000136,
+      "active_risk_pct": -0.004761,
+      "active_te_contribution": -0.000136
+    },
+    {
+      "ticker": "BE",
+      "sector": "Industrials",
+      "weight": 0.001279,
+      "bm_weight": 0.000839,
+      "active_weight": 0.00044,
+      "total_risk_pct": 0.004032,
+      "total_vol_contribution": 0.000609,
+      "active_risk_pct": 0.00474,
+      "active_te_contribution": 0.000135
+    },
+    {
+      "ticker": "GS",
+      "sector": "Financials",
+      "weight": 0.0026,
+      "bm_weight": 0.004293,
+      "active_weight": -0.001693,
+      "total_risk_pct": 0.003267,
+      "total_vol_contribution": 0.000494,
+      "active_risk_pct": -0.004666,
+      "active_te_contribution": -0.000133
+    },
+    {
+      "ticker": "ARM",
+      "sector": "Technology",
+      "weight": 0.003248,
+      "bm_weight": 0.003688,
+      "active_weight": -0.00044,
+      "total_risk_pct": 0.011527,
+      "total_vol_contribution": 0.001743,
+      "active_risk_pct": -0.004553,
+      "active_te_contribution": -0.00013
     },
     {
       "ticker": "V",
@@ -597,10 +599,10 @@
       "weight": 0.003661,
       "bm_weight": 0.00927,
       "active_weight": -0.005609,
-      "total_risk_pct": 0.0004,
-      "total_vol_contribution": 6.7e-05,
-      "active_risk_pct": 0.003948,
-      "active_te_contribution": 0.000126
+      "total_risk_pct": 0.000356,
+      "total_vol_contribution": 5.4e-05,
+      "active_risk_pct": 0.004294,
+      "active_te_contribution": 0.000122
     },
     {
       "ticker": "C",
@@ -608,10 +610,10 @@
       "weight": 0.001548,
       "bm_weight": 0.003147,
       "active_weight": -0.001599,
-      "total_risk_pct": 0.001542,
-      "total_vol_contribution": 0.00026,
-      "active_risk_pct": -0.003311,
-      "active_te_contribution": -0.000105
+      "total_risk_pct": 0.00143,
+      "total_vol_contribution": 0.000216,
+      "active_risk_pct": -0.003256,
+      "active_te_contribution": -9.3e-05
     },
     {
       "ticker": "HD",
@@ -619,21 +621,10 @@
       "weight": 0.002896,
       "bm_weight": 0.004587,
       "active_weight": -0.001691,
-      "total_risk_pct": 0.001554,
-      "total_vol_contribution": 0.000262,
-      "active_risk_pct": 0.003095,
-      "active_te_contribution": 9.9e-05
-    },
-    {
-      "ticker": "NOW",
-      "sector": "Technology",
-      "weight": 0.000636,
-      "bm_weight": 0.001684,
-      "active_weight": -0.001048,
-      "total_risk_pct": 0.000239,
-      "total_vol_contribution": 4e-05,
-      "active_risk_pct": -0.003065,
-      "active_te_contribution": -9.8e-05
+      "total_risk_pct": 0.00155,
+      "total_vol_contribution": 0.000234,
+      "active_risk_pct": 0.003159,
+      "active_te_contribution": 9e-05
     },
     {
       "ticker": "AAPL",
@@ -641,10 +632,10 @@
       "weight": 0.060001,
       "bm_weight": 0.061674,
       "active_weight": -0.001673,
-      "total_risk_pct": 0.030947,
-      "total_vol_contribution": 0.005209,
-      "active_risk_pct": 0.002839,
-      "active_te_contribution": 9e-05
+      "total_risk_pct": 0.031701,
+      "total_vol_contribution": 0.004793,
+      "active_risk_pct": 0.003081,
+      "active_te_contribution": 8.8e-05
     },
     {
       "ticker": "PWR",
@@ -652,21 +643,21 @@
       "weight": 0.000373,
       "bm_weight": 0.001427,
       "active_weight": -0.001053,
-      "total_risk_pct": 0.000493,
-      "total_vol_contribution": 8.3e-05,
-      "active_risk_pct": -0.002632,
-      "active_te_contribution": -8.4e-05
+      "total_risk_pct": 0.000516,
+      "total_vol_contribution": 7.8e-05,
+      "active_risk_pct": -0.003072,
+      "active_te_contribution": -8.8e-05
     },
     {
-      "ticker": "8306",
-      "sector": "Financials",
-      "weight": 0.001257,
-      "bm_weight": 0.003766,
-      "active_weight": -0.002509,
-      "total_risk_pct": 0.000105,
-      "total_vol_contribution": 1.8e-05,
-      "active_risk_pct": -0.00229,
-      "active_te_contribution": -7.3e-05
+      "ticker": "NOW",
+      "sector": "Technology",
+      "weight": 0.000636,
+      "bm_weight": 0.001684,
+      "active_weight": -0.001048,
+      "total_risk_pct": 0.000249,
+      "total_vol_contribution": 3.8e-05,
+      "active_risk_pct": -0.002767,
+      "active_te_contribution": -7.9e-05
     },
     {
       "ticker": "SIE",
@@ -674,87 +665,21 @@
       "weight": 0.001862,
       "bm_weight": 0.003405,
       "active_weight": -0.001543,
-      "total_risk_pct": 0.002696,
-      "total_vol_contribution": 0.000454,
-      "active_risk_pct": -0.002164,
-      "active_te_contribution": -6.9e-05
-    },
-    {
-      "ticker": "AXON",
-      "sector": "Industrials",
-      "weight": 0.000178,
-      "bm_weight": 0.000686,
-      "active_weight": -0.000509,
-      "total_risk_pct": 0.000205,
-      "total_vol_contribution": 3.5e-05,
-      "active_risk_pct": -0.002126,
+      "total_risk_pct": 0.00259,
+      "total_vol_contribution": 0.000392,
+      "active_risk_pct": -0.00237,
       "active_te_contribution": -6.8e-05
     },
     {
-      "ticker": "PG",
-      "sector": "Consumer Staples",
-      "weight": 0.003589,
-      "bm_weight": 0.004545,
-      "active_weight": -0.000956,
-      "total_risk_pct": 0.000209,
-      "total_vol_contribution": 3.5e-05,
-      "active_risk_pct": 0.00203,
-      "active_te_contribution": 6.5e-05
-    },
-    {
-      "ticker": "IBM",
-      "sector": "Technology",
-      "weight": 0.004445,
-      "bm_weight": 0.002988,
-      "active_weight": 0.001457,
-      "total_risk_pct": 0.001893,
-      "total_vol_contribution": 0.000319,
-      "active_risk_pct": 0.002012,
-      "active_te_contribution": 6.4e-05
-    },
-    {
-      "ticker": "8316",
+      "ticker": "8306",
       "sector": "Financials",
-      "weight": 0.000523,
-      "bm_weight": 0.002256,
-      "active_weight": -0.001734,
-      "total_risk_pct": 0.000127,
-      "total_vol_contribution": 2.1e-05,
-      "active_risk_pct": -0.001918,
-      "active_te_contribution": -6.1e-05
-    },
-    {
-      "ticker": "APH",
-      "sector": "Technology",
-      "weight": 0.002181,
-      "bm_weight": 0.002682,
-      "active_weight": -0.000501,
-      "total_risk_pct": 0.002971,
-      "total_vol_contribution": 0.0005,
-      "active_risk_pct": -0.001898,
-      "active_te_contribution": -6e-05
-    },
-    {
-      "ticker": "GEV",
-      "sector": "Industrials",
-      "weight": 0.003019,
-      "bm_weight": 0.003647,
-      "active_weight": -0.000628,
-      "total_risk_pct": 0.004779,
-      "total_vol_contribution": 0.000804,
-      "active_risk_pct": -0.001844,
-      "active_te_contribution": -5.9e-05
-    },
-    {
-      "ticker": "SYK",
-      "sector": "Healthcare",
-      "weight": 0.00225,
-      "bm_weight": 0.001733,
-      "active_weight": 0.000517,
-      "total_risk_pct": -0.000352,
-      "total_vol_contribution": -5.9e-05,
-      "active_risk_pct": -0.001841,
-      "active_te_contribution": -5.9e-05
+      "weight": 0.001257,
+      "bm_weight": 0.003766,
+      "active_weight": -0.002509,
+      "total_risk_pct": 9.5e-05,
+      "total_vol_contribution": 1.4e-05,
+      "active_risk_pct": -0.002402,
+      "active_te_contribution": -6.8e-05
     },
     {
       "ticker": "HSBA",
@@ -762,32 +687,65 @@
       "weight": 0.002558,
       "bm_weight": 0.004798,
       "active_weight": -0.00224,
-      "total_risk_pct": 0.002428,
-      "total_vol_contribution": 0.000409,
-      "active_risk_pct": -0.001768,
-      "active_te_contribution": -5.6e-05
+      "total_risk_pct": 0.002444,
+      "total_vol_contribution": 0.00037,
+      "active_risk_pct": -0.002237,
+      "active_te_contribution": -6.4e-05
     },
     {
-      "ticker": "IBKR",
+      "ticker": "GEV",
+      "sector": "Industrials",
+      "weight": 0.003019,
+      "bm_weight": 0.003647,
+      "active_weight": -0.000628,
+      "total_risk_pct": 0.00477,
+      "total_vol_contribution": 0.000721,
+      "active_risk_pct": -0.00204,
+      "active_te_contribution": -5.8e-05
+    },
+    {
+      "ticker": "PG",
+      "sector": "Consumer Staples",
+      "weight": 0.003589,
+      "bm_weight": 0.004545,
+      "active_weight": -0.000956,
+      "total_risk_pct": 0.000181,
+      "total_vol_contribution": 2.7e-05,
+      "active_risk_pct": 0.002044,
+      "active_te_contribution": 5.8e-05
+    },
+    {
+      "ticker": "8316",
       "sector": "Financials",
-      "weight": 0.001593,
-      "bm_weight": 0.002108,
-      "active_weight": -0.000515,
-      "total_risk_pct": 0.002258,
-      "total_vol_contribution": 0.00038,
-      "active_risk_pct": -0.001727,
-      "active_te_contribution": -5.5e-05
+      "weight": 0.000523,
+      "bm_weight": 0.002256,
+      "active_weight": -0.001734,
+      "total_risk_pct": 0.000114,
+      "total_vol_contribution": 1.7e-05,
+      "active_risk_pct": -0.002026,
+      "active_te_contribution": -5.8e-05
     },
     {
-      "ticker": "CSCO",
-      "sector": "Technology",
-      "weight": 0.005069,
-      "bm_weight": 0.005996,
-      "active_weight": -0.000927,
-      "total_risk_pct": 0.003728,
-      "total_vol_contribution": 0.000628,
-      "active_risk_pct": -0.001681,
-      "active_te_contribution": -5.4e-05
+      "ticker": "JPM",
+      "sector": "Financials",
+      "weight": 0.003625,
+      "bm_weight": 0.013162,
+      "active_weight": -0.009537,
+      "total_risk_pct": 0.002076,
+      "total_vol_contribution": 0.000314,
+      "active_risk_pct": -0.002014,
+      "active_te_contribution": -5.7e-05
+    },
+    {
+      "ticker": "SYK",
+      "sector": "Healthcare",
+      "weight": 0.00225,
+      "bm_weight": 0.001733,
+      "active_weight": 0.000517,
+      "total_risk_pct": -0.000381,
+      "total_vol_contribution": -5.8e-05,
+      "active_risk_pct": -0.001955,
+      "active_te_contribution": -5.6e-05
     },
     {
       "ticker": "QCOM",
@@ -795,21 +753,43 @@
       "weight": 0.002863,
       "bm_weight": 0.002293,
       "active_weight": 0.00057,
-      "total_risk_pct": 0.004452,
-      "total_vol_contribution": 0.000749,
-      "active_risk_pct": 0.001656,
-      "active_te_contribution": 5.3e-05
+      "total_risk_pct": 0.004624,
+      "total_vol_contribution": 0.000699,
+      "active_risk_pct": 0.001882,
+      "active_te_contribution": 5.4e-05
     },
     {
-      "ticker": "AXP",
-      "sector": "Financials",
-      "weight": 0.001514,
-      "bm_weight": 0.003116,
-      "active_weight": -0.001602,
-      "total_risk_pct": 0.001003,
-      "total_vol_contribution": 0.000169,
-      "active_risk_pct": -0.001667,
-      "active_te_contribution": -5.3e-05
+      "ticker": "AXON",
+      "sector": "Industrials",
+      "weight": 0.000178,
+      "bm_weight": 0.000686,
+      "active_weight": -0.000509,
+      "total_risk_pct": 0.000199,
+      "total_vol_contribution": 3e-05,
+      "active_risk_pct": -0.001889,
+      "active_te_contribution": -5.4e-05
+    },
+    {
+      "ticker": "CSCO",
+      "sector": "Technology",
+      "weight": 0.005069,
+      "bm_weight": 0.005996,
+      "active_weight": -0.000927,
+      "total_risk_pct": 0.003929,
+      "total_vol_contribution": 0.000594,
+      "active_risk_pct": -0.001817,
+      "active_te_contribution": -5.2e-05
+    },
+    {
+      "ticker": "APH",
+      "sector": "Technology",
+      "weight": 0.002181,
+      "bm_weight": 0.002682,
+      "active_weight": -0.000501,
+      "total_risk_pct": 0.002737,
+      "total_vol_contribution": 0.000414,
+      "active_risk_pct": -0.001825,
+      "active_te_contribution": -5.2e-05
     },
     {
       "ticker": "CVX",
@@ -817,10 +797,10 @@
       "weight": 0.003632,
       "bm_weight": 0.005541,
       "active_weight": -0.001909,
-      "total_risk_pct": -0.002585,
-      "total_vol_contribution": -0.000435,
-      "active_risk_pct": 0.001673,
-      "active_te_contribution": 5.3e-05
+      "total_risk_pct": -0.002732,
+      "total_vol_contribution": -0.000413,
+      "active_risk_pct": 0.001838,
+      "active_te_contribution": 5.2e-05
     },
     {
       "ticker": "FCX",
@@ -828,10 +808,21 @@
       "weight": 0.000705,
       "bm_weight": 0.001298,
       "active_weight": -0.000594,
-      "total_risk_pct": 0.001374,
-      "total_vol_contribution": 0.000231,
-      "active_risk_pct": -0.001638,
-      "active_te_contribution": -5.2e-05
+      "total_risk_pct": 0.001371,
+      "total_vol_contribution": 0.000207,
+      "active_risk_pct": -0.001784,
+      "active_te_contribution": -5.1e-05
+    },
+    {
+      "ticker": "IBM",
+      "sector": "Technology",
+      "weight": 0.004445,
+      "bm_weight": 0.002988,
+      "active_weight": 0.001457,
+      "total_risk_pct": 0.001886,
+      "total_vol_contribution": 0.000285,
+      "active_risk_pct": 0.001777,
+      "active_te_contribution": 5.1e-05
     },
     {
       "ticker": "SNPS",
@@ -839,32 +830,21 @@
       "weight": 0.000529,
       "bm_weight": 0.001056,
       "active_weight": -0.000526,
-      "total_risk_pct": 0.000587,
-      "total_vol_contribution": 9.9e-05,
-      "active_risk_pct": -0.001511,
-      "active_te_contribution": -4.8e-05
+      "total_risk_pct": 0.000677,
+      "total_vol_contribution": 0.000102,
+      "active_risk_pct": -0.0018,
+      "active_te_contribution": -5.1e-05
     },
     {
-      "ticker": "AMZN",
-      "sector": "Consumer Discretionary",
-      "weight": 0.026274,
-      "bm_weight": 0.038145,
-      "active_weight": -0.011872,
-      "total_risk_pct": 0.030899,
-      "total_vol_contribution": 0.005201,
-      "active_risk_pct": 0.001455,
-      "active_te_contribution": 4.6e-05
-    },
-    {
-      "ticker": "7974",
-      "sector": "Communication Services",
-      "weight": 0.003151,
-      "bm_weight": 0.000963,
-      "active_weight": 0.002188,
-      "total_risk_pct": -0.000705,
-      "total_vol_contribution": -0.000119,
-      "active_risk_pct": -0.001375,
-      "active_te_contribution": -4.4e-05
+      "ticker": "IBKR",
+      "sector": "Financials",
+      "weight": 0.001593,
+      "bm_weight": 0.002108,
+      "active_weight": -0.000515,
+      "total_risk_pct": 0.002151,
+      "total_vol_contribution": 0.000325,
+      "active_risk_pct": -0.001706,
+      "active_te_contribution": -4.9e-05
     },
     {
       "ticker": "ON",
@@ -872,21 +852,32 @@
       "weight": 0.000699,
       "bm_weight": 0.000421,
       "active_weight": 0.000278,
-      "total_risk_pct": 0.001532,
-      "total_vol_contribution": 0.000258,
-      "active_risk_pct": 0.001396,
-      "active_te_contribution": 4.4e-05
+      "total_risk_pct": 0.00158,
+      "total_vol_contribution": 0.000239,
+      "active_risk_pct": 0.001576,
+      "active_te_contribution": 4.5e-05
     },
     {
-      "ticker": "ADBE",
-      "sector": "Technology",
-      "weight": 0.006834,
-      "bm_weight": 0.001426,
-      "active_weight": 0.005409,
-      "total_risk_pct": -4.4e-05,
-      "total_vol_contribution": -7e-06,
-      "active_risk_pct": 0.001287,
-      "active_te_contribution": 4.1e-05
+      "ticker": "AXP",
+      "sector": "Financials",
+      "weight": 0.001514,
+      "bm_weight": 0.003116,
+      "active_weight": -0.001602,
+      "total_risk_pct": 0.000902,
+      "total_vol_contribution": 0.000136,
+      "active_risk_pct": -0.001526,
+      "active_te_contribution": -4.3e-05
+    },
+    {
+      "ticker": "7974",
+      "sector": "Communication Services",
+      "weight": 0.003151,
+      "bm_weight": 0.000963,
+      "active_weight": 0.002188,
+      "total_risk_pct": -0.00071,
+      "total_vol_contribution": -0.000107,
+      "active_risk_pct": -0.001411,
+      "active_te_contribution": -4e-05
     },
     {
       "ticker": "RTX",
@@ -894,65 +885,10 @@
       "weight": 0.002904,
       "bm_weight": 0.004142,
       "active_weight": -0.001239,
-      "total_risk_pct": 0.000393,
-      "total_vol_contribution": 6.6e-05,
-      "active_risk_pct": 0.001294,
-      "active_te_contribution": 4.1e-05
-    },
-    {
-      "ticker": "285A",
-      "sector": "Technology",
-      "weight": 0.002607,
-      "bm_weight": 0.002675,
-      "active_weight": -6.8e-05,
-      "total_risk_pct": 0.007703,
-      "total_vol_contribution": 0.001297,
-      "active_risk_pct": -0.000972,
-      "active_te_contribution": -3.1e-05
-    },
-    {
-      "ticker": "WDAY",
-      "sector": "Technology",
-      "weight": 0.001188,
-      "bm_weight": 0.000642,
-      "active_weight": 0.000546,
-      "total_risk_pct": -0.000214,
-      "total_vol_contribution": -3.6e-05,
-      "active_risk_pct": 0.000981,
-      "active_te_contribution": 3.1e-05
-    },
-    {
-      "ticker": "CRM",
-      "sector": "Technology",
-      "weight": 0.001724,
-      "bm_weight": 0.00219,
-      "active_weight": -0.000466,
-      "total_risk_pct": 4.5e-05,
-      "total_vol_contribution": 8e-06,
-      "active_risk_pct": -0.000928,
-      "active_te_contribution": -3e-05
-    },
-    {
-      "ticker": "BSX",
-      "sector": "Healthcare",
-      "weight": 0.001685,
-      "bm_weight": 0.000997,
-      "active_weight": 0.000688,
-      "total_risk_pct": 0.000172,
-      "total_vol_contribution": 2.9e-05,
-      "active_risk_pct": -0.000929,
-      "active_te_contribution": -3e-05
-    },
-    {
-      "ticker": "NKE",
-      "sector": "Consumer Discretionary",
-      "weight": 0.001799,
-      "bm_weight": 0.00081,
-      "active_weight": 0.000989,
-      "total_risk_pct": 0.000637,
-      "total_vol_contribution": 0.000107,
-      "active_risk_pct": -0.000923,
-      "active_te_contribution": -2.9e-05
+      "total_risk_pct": 0.000337,
+      "total_vol_contribution": 5.1e-05,
+      "active_risk_pct": 0.001167,
+      "active_te_contribution": 3.3e-05
     },
     {
       "ticker": "ASM",
@@ -960,10 +896,65 @@
       "weight": 0.000931,
       "bm_weight": 0.000656,
       "active_weight": 0.000275,
-      "total_risk_pct": 0.001747,
-      "total_vol_contribution": 0.000294,
-      "active_risk_pct": 0.000893,
-      "active_te_contribution": 2.8e-05
+      "total_risk_pct": 0.001857,
+      "total_vol_contribution": 0.000281,
+      "active_risk_pct": 0.001062,
+      "active_te_contribution": 3e-05
+    },
+    {
+      "ticker": "NKE",
+      "sector": "Consumer Discretionary",
+      "weight": 0.001799,
+      "bm_weight": 0.00081,
+      "active_weight": 0.000989,
+      "total_risk_pct": 0.000632,
+      "total_vol_contribution": 9.6e-05,
+      "active_risk_pct": -0.001033,
+      "active_te_contribution": -2.9e-05
+    },
+    {
+      "ticker": "CRM",
+      "sector": "Technology",
+      "weight": 0.001724,
+      "bm_weight": 0.00219,
+      "active_weight": -0.000466,
+      "total_risk_pct": 6e-05,
+      "total_vol_contribution": 9e-06,
+      "active_risk_pct": -0.000968,
+      "active_te_contribution": -2.8e-05
+    },
+    {
+      "ticker": "BSX",
+      "sector": "Healthcare",
+      "weight": 0.001685,
+      "bm_weight": 0.000997,
+      "active_weight": 0.000688,
+      "total_risk_pct": 0.000183,
+      "total_vol_contribution": 2.8e-05,
+      "active_risk_pct": -0.00098,
+      "active_te_contribution": -2.8e-05
+    },
+    {
+      "ticker": "285A",
+      "sector": "Technology",
+      "weight": 0.002607,
+      "bm_weight": 0.002675,
+      "active_weight": -6.8e-05,
+      "total_risk_pct": 0.006898,
+      "total_vol_contribution": 0.001043,
+      "active_risk_pct": -0.000907,
+      "active_te_contribution": -2.6e-05
+    },
+    {
+      "ticker": "BAC",
+      "sector": "Financials",
+      "weight": 0.003123,
+      "bm_weight": 0.006122,
+      "active_weight": -0.002999,
+      "total_risk_pct": 0.001307,
+      "total_vol_contribution": 0.000198,
+      "active_risk_pct": -0.000893,
+      "active_te_contribution": -2.5e-05
     },
     {
       "ticker": "VST",
@@ -971,10 +962,10 @@
       "weight": 0.000236,
       "bm_weight": 0.000643,
       "active_weight": -0.000406,
-      "total_risk_pct": 0.000238,
-      "total_vol_contribution": 4e-05,
-      "active_risk_pct": -0.000853,
-      "active_te_contribution": -2.7e-05
+      "total_risk_pct": 0.000212,
+      "total_vol_contribution": 3.2e-05,
+      "active_risk_pct": -0.000876,
+      "active_te_contribution": -2.5e-05
     },
     {
       "ticker": "CEG",
@@ -982,21 +973,43 @@
       "weight": 0.000501,
       "bm_weight": 0.001289,
       "active_weight": -0.000788,
-      "total_risk_pct": 0.000378,
-      "total_vol_contribution": 6.4e-05,
-      "active_risk_pct": -0.000777,
-      "active_te_contribution": -2.5e-05
+      "total_risk_pct": 0.000337,
+      "total_vol_contribution": 5.1e-05,
+      "active_risk_pct": -0.000855,
+      "active_te_contribution": -2.4e-05
     },
     {
-      "ticker": "REGN",
-      "sector": "Healthcare",
-      "weight": 0.001647,
-      "bm_weight": 0.001137,
-      "active_weight": 0.00051,
-      "total_risk_pct": 0.000667,
-      "total_vol_contribution": 0.000112,
-      "active_risk_pct": -0.00072,
-      "active_te_contribution": -2.3e-05
+      "ticker": "WDAY",
+      "sector": "Technology",
+      "weight": 0.001188,
+      "bm_weight": 0.000642,
+      "active_weight": 0.000546,
+      "total_risk_pct": -0.000236,
+      "total_vol_contribution": -3.6e-05,
+      "active_risk_pct": 0.000813,
+      "active_te_contribution": 2.3e-05
+    },
+    {
+      "ticker": "MPC",
+      "sector": "Energy",
+      "weight": 0.002329,
+      "bm_weight": 0.001402,
+      "active_weight": 0.000928,
+      "total_risk_pct": -0.001278,
+      "total_vol_contribution": -0.000193,
+      "active_risk_pct": 0.000786,
+      "active_te_contribution": 2.2e-05
+    },
+    {
+      "ticker": "IFX",
+      "sector": "Technology",
+      "weight": 0.001405,
+      "bm_weight": 0.001187,
+      "active_weight": 0.000218,
+      "total_risk_pct": 0.003674,
+      "total_vol_contribution": 0.000555,
+      "active_risk_pct": 0.000777,
+      "active_te_contribution": 2.2e-05
     },
     {
       "ticker": "ISRG",
@@ -1005,119 +1018,9 @@
       "bm_weight": 0.001884,
       "active_weight": 0.000406,
       "total_risk_pct": 0.001261,
-      "total_vol_contribution": 0.000212,
-      "active_risk_pct": -0.000676,
-      "active_te_contribution": -2.2e-05
-    },
-    {
-      "ticker": "LIN",
-      "sector": "Materials",
-      "weight": 0.002319,
-      "bm_weight": 0.003008,
-      "active_weight": -0.000689,
-      "total_risk_pct": -9.8e-05,
-      "total_vol_contribution": -1.7e-05,
-      "active_risk_pct": 0.000703,
-      "active_te_contribution": 2.2e-05
-    },
-    {
-      "ticker": "BAC",
-      "sector": "Financials",
-      "weight": 0.003123,
-      "bm_weight": 0.006122,
-      "active_weight": -0.002999,
-      "total_risk_pct": 0.001424,
-      "total_vol_contribution": 0.00024,
-      "active_risk_pct": -0.000692,
-      "active_te_contribution": -2.2e-05
-    },
-    {
-      "ticker": "CDNS",
-      "sector": "Technology",
-      "weight": 0.000987,
-      "bm_weight": 0.001188,
-      "active_weight": -0.000201,
-      "total_risk_pct": 0.001241,
-      "total_vol_contribution": 0.000209,
-      "active_risk_pct": -0.000696,
-      "active_te_contribution": -2.2e-05
-    },
-    {
-      "ticker": "MPC",
-      "sector": "Energy",
-      "weight": 0.002329,
-      "bm_weight": 0.001402,
-      "active_weight": 0.000928,
-      "total_risk_pct": -0.001042,
-      "total_vol_contribution": -0.000175,
-      "active_risk_pct": 0.000651,
-      "active_te_contribution": 2.1e-05
-    },
-    {
-      "ticker": "IFX",
-      "sector": "Technology",
-      "weight": 0.001405,
-      "bm_weight": 0.001187,
-      "active_weight": 0.000218,
-      "total_risk_pct": 0.00334,
-      "total_vol_contribution": 0.000562,
-      "active_risk_pct": 0.000617,
-      "active_te_contribution": 2e-05
-    },
-    {
-      "ticker": "RBLX",
-      "sector": "Communication Services",
-      "weight": 5.2e-05,
-      "bm_weight": 0.000368,
-      "active_weight": -0.000316,
-      "total_risk_pct": 4.6e-05,
-      "total_vol_contribution": 8e-06,
-      "active_risk_pct": -0.000626,
+      "total_vol_contribution": 0.000191,
+      "active_risk_pct": -0.000712,
       "active_te_contribution": -2e-05
-    },
-    {
-      "ticker": "JPM",
-      "sector": "Financials",
-      "weight": 0.003625,
-      "bm_weight": 0.013162,
-      "active_weight": -0.009537,
-      "total_risk_pct": 0.002269,
-      "total_vol_contribution": 0.000382,
-      "active_risk_pct": -0.000602,
-      "active_te_contribution": -1.9e-05
-    },
-    {
-      "ticker": "TEAM",
-      "sector": "Technology",
-      "weight": 0.000686,
-      "bm_weight": 0.000564,
-      "active_weight": 0.000121,
-      "total_risk_pct": 0.000353,
-      "total_vol_contribution": 5.9e-05,
-      "active_risk_pct": 0.000588,
-      "active_te_contribution": 1.9e-05
-    },
-    {
-      "ticker": "NXPI",
-      "sector": "Technology",
-      "weight": 0.001024,
-      "bm_weight": 0.000787,
-      "active_weight": 0.000237,
-      "total_risk_pct": 0.001405,
-      "total_vol_contribution": 0.000237,
-      "active_risk_pct": 0.000579,
-      "active_te_contribution": 1.8e-05
-    },
-    {
-      "ticker": "SAP",
-      "sector": "Technology",
-      "weight": 0.002158,
-      "bm_weight": 0.003526,
-      "active_weight": -0.001368,
-      "total_risk_pct": 0.000686,
-      "total_vol_contribution": 0.000115,
-      "active_risk_pct": -0.000529,
-      "active_te_contribution": -1.7e-05
     },
     {
       "ticker": "ADI",
@@ -1125,21 +1028,54 @@
       "weight": 0.002774,
       "bm_weight": 0.002501,
       "active_weight": 0.000273,
-      "total_risk_pct": 0.003638,
-      "total_vol_contribution": 0.000612,
-      "active_risk_pct": 0.000536,
-      "active_te_contribution": 1.7e-05
+      "total_risk_pct": 0.004297,
+      "total_vol_contribution": 0.00065,
+      "active_risk_pct": 0.000712,
+      "active_te_contribution": 2e-05
     },
     {
-      "ticker": "ROP",
+      "ticker": "LIN",
+      "sector": "Materials",
+      "weight": 0.002319,
+      "bm_weight": 0.003008,
+      "active_weight": -0.000689,
+      "total_risk_pct": -8.7e-05,
+      "total_vol_contribution": -1.3e-05,
+      "active_risk_pct": 0.000656,
+      "active_te_contribution": 1.9e-05
+    },
+    {
+      "ticker": "CDNS",
+      "sector": "Technology",
+      "weight": 0.000987,
+      "bm_weight": 0.001188,
+      "active_weight": -0.000201,
+      "total_risk_pct": 0.001171,
+      "total_vol_contribution": 0.000177,
+      "active_risk_pct": -0.000671,
+      "active_te_contribution": -1.9e-05
+    },
+    {
+      "ticker": "NXPI",
+      "sector": "Technology",
+      "weight": 0.001024,
+      "bm_weight": 0.000787,
+      "active_weight": 0.000237,
+      "total_risk_pct": 0.001467,
+      "total_vol_contribution": 0.000222,
+      "active_risk_pct": 0.000665,
+      "active_te_contribution": 1.9e-05
+    },
+    {
+      "ticker": "REGN",
       "sector": "Healthcare",
-      "weight": 0.004588,
-      "bm_weight": 0.004911,
-      "active_weight": -0.000323,
-      "total_risk_pct": 0.00039,
-      "total_vol_contribution": 6.6e-05,
-      "active_risk_pct": 0.000537,
-      "active_te_contribution": 1.7e-05
+      "weight": 0.001647,
+      "bm_weight": 0.001137,
+      "active_weight": 0.00051,
+      "total_risk_pct": 0.000583,
+      "total_vol_contribution": 8.8e-05,
+      "active_risk_pct": -0.000627,
+      "active_te_contribution": -1.8e-05
     },
     {
       "ticker": "MA",
@@ -1147,9 +1083,9 @@
       "weight": 0.004903,
       "bm_weight": 0.006859,
       "active_weight": -0.001956,
-      "total_risk_pct": 0.000556,
-      "total_vol_contribution": 9.4e-05,
-      "active_risk_pct": 0.000457,
+      "total_risk_pct": 0.000481,
+      "total_vol_contribution": 7.3e-05,
+      "active_risk_pct": 0.000528,
       "active_te_contribution": 1.5e-05
     },
     {
@@ -1158,9 +1094,9 @@
       "weight": 0.008748,
       "bm_weight": 0.008906,
       "active_weight": -0.000157,
-      "total_risk_pct": -0.002895,
-      "total_vol_contribution": -0.000487,
-      "active_risk_pct": 0.000479,
+      "total_risk_pct": -0.003168,
+      "total_vol_contribution": -0.000479,
+      "active_risk_pct": 0.000526,
       "active_te_contribution": 1.5e-05
     },
     {
@@ -1169,32 +1105,10 @@
       "weight": 0.001944,
       "bm_weight": 0.002249,
       "active_weight": -0.000305,
-      "total_risk_pct": 0.001879,
-      "total_vol_contribution": 0.000316,
-      "active_risk_pct": -0.000483,
+      "total_risk_pct": 0.00192,
+      "total_vol_contribution": 0.00029,
+      "active_risk_pct": -0.000542,
       "active_te_contribution": -1.5e-05
-    },
-    {
-      "ticker": "RMS",
-      "sector": "Consumer Discretionary",
-      "weight": 0.002827,
-      "bm_weight": 0.002599,
-      "active_weight": 0.000228,
-      "total_risk_pct": 0.002247,
-      "total_vol_contribution": 0.000378,
-      "active_risk_pct": -0.000433,
-      "active_te_contribution": -1.4e-05
-    },
-    {
-      "ticker": "4063",
-      "sector": "Materials",
-      "weight": 0.000971,
-      "bm_weight": 0.001058,
-      "active_weight": -8.8e-05,
-      "total_risk_pct": 0.000699,
-      "total_vol_contribution": 0.000118,
-      "active_risk_pct": -0.000435,
-      "active_te_contribution": -1.4e-05
     },
     {
       "ticker": "TXN",
@@ -1202,9 +1116,64 @@
       "weight": 0.003036,
       "bm_weight": 0.003389,
       "active_weight": -0.000353,
-      "total_risk_pct": 0.003691,
-      "total_vol_contribution": 0.000621,
-      "active_risk_pct": -0.000423,
+      "total_risk_pct": 0.003867,
+      "total_vol_contribution": 0.000585,
+      "active_risk_pct": -0.000534,
+      "active_te_contribution": -1.5e-05
+    },
+    {
+      "ticker": "RBLX",
+      "sector": "Communication Services",
+      "weight": 5.2e-05,
+      "bm_weight": 0.000368,
+      "active_weight": -0.000316,
+      "total_risk_pct": 4.1e-05,
+      "total_vol_contribution": 6e-06,
+      "active_risk_pct": -0.000524,
+      "active_te_contribution": -1.5e-05
+    },
+    {
+      "ticker": "ROP",
+      "sector": "Healthcare",
+      "weight": 0.004588,
+      "bm_weight": 0.004911,
+      "active_weight": -0.000323,
+      "total_risk_pct": 0.00037,
+      "total_vol_contribution": 5.6e-05,
+      "active_risk_pct": 0.000528,
+      "active_te_contribution": 1.5e-05
+    },
+    {
+      "ticker": "AMZN",
+      "sector": "Consumer Discretionary",
+      "weight": 0.026274,
+      "bm_weight": 0.038145,
+      "active_weight": -0.011872,
+      "total_risk_pct": 0.02953,
+      "total_vol_contribution": 0.004464,
+      "active_risk_pct": 0.000491,
+      "active_te_contribution": 1.4e-05
+    },
+    {
+      "ticker": "TEAM",
+      "sector": "Technology",
+      "weight": 0.000686,
+      "bm_weight": 0.000564,
+      "active_weight": 0.000121,
+      "total_risk_pct": 0.000332,
+      "total_vol_contribution": 5e-05,
+      "active_risk_pct": 0.0005,
+      "active_te_contribution": 1.4e-05
+    },
+    {
+      "ticker": "FICO",
+      "sector": "Technology",
+      "weight": 0.001297,
+      "bm_weight": 0.000317,
+      "active_weight": 0.00098,
+      "total_risk_pct": -0.000224,
+      "total_vol_contribution": -3.4e-05,
+      "active_risk_pct": -0.000448,
       "active_te_contribution": -1.3e-05
     },
     {
@@ -1213,76 +1182,21 @@
       "weight": 0.001651,
       "bm_weight": 0.001312,
       "active_weight": 0.00034,
-      "total_risk_pct": 0.001452,
-      "total_vol_contribution": 0.000244,
-      "active_risk_pct": 0.000419,
-      "active_te_contribution": 1.3e-05
-    },
-    {
-      "ticker": "INTU",
-      "sector": "Technology",
-      "weight": 0.001617,
-      "bm_weight": 0.001306,
-      "active_weight": 0.00031,
-      "total_risk_pct": -0.000312,
-      "total_vol_contribution": -5.3e-05,
-      "active_risk_pct": 0.000419,
-      "active_te_contribution": 1.3e-05
-    },
-    {
-      "ticker": "LLY",
-      "sector": "Healthcare",
-      "weight": 0.015557,
-      "bm_weight": 0.015728,
-      "active_weight": -0.000171,
-      "total_risk_pct": 0.001732,
-      "total_vol_contribution": 0.000291,
-      "active_risk_pct": 0.00039,
+      "total_risk_pct": 0.001411,
+      "total_vol_contribution": 0.000213,
+      "active_risk_pct": 0.000413,
       "active_te_contribution": 1.2e-05
     },
     {
-      "ticker": "FTNT",
-      "sector": "Technology",
-      "weight": 0.00149,
-      "bm_weight": 0.00158,
-      "active_weight": -9e-05,
-      "total_risk_pct": 0.000991,
-      "total_vol_contribution": 0.000167,
-      "active_risk_pct": -0.000368,
+      "ticker": "4063",
+      "sector": "Materials",
+      "weight": 0.000971,
+      "bm_weight": 0.001058,
+      "active_weight": -8.8e-05,
+      "total_risk_pct": 0.000662,
+      "total_vol_contribution": 0.0001,
+      "active_risk_pct": -0.000419,
       "active_te_contribution": -1.2e-05
-    },
-    {
-      "ticker": "KO",
-      "sector": "Consumer Staples",
-      "weight": 0.00509,
-      "bm_weight": 0.005209,
-      "active_weight": -0.000119,
-      "total_risk_pct": -0.001455,
-      "total_vol_contribution": -0.000245,
-      "active_risk_pct": 0.000347,
-      "active_te_contribution": 1.1e-05
-    },
-    {
-      "ticker": "ABBV",
-      "sector": "Healthcare",
-      "weight": 0.006108,
-      "bm_weight": 0.006237,
-      "active_weight": -0.000128,
-      "total_risk_pct": -0.001359,
-      "total_vol_contribution": -0.000229,
-      "active_risk_pct": 0.000312,
-      "active_te_contribution": 1e-05
-    },
-    {
-      "ticker": "7011",
-      "sector": "Industrials",
-      "weight": 0.001054,
-      "bm_weight": 0.001259,
-      "active_weight": -0.000205,
-      "total_risk_pct": 0.000341,
-      "total_vol_contribution": 5.7e-05,
-      "active_risk_pct": -0.000317,
-      "active_te_contribution": -1e-05
     },
     {
       "ticker": "WFC",
@@ -1290,10 +1204,120 @@
       "weight": 0.001776,
       "bm_weight": 0.003603,
       "active_weight": -0.001827,
-      "total_risk_pct": 0.000716,
-      "total_vol_contribution": 0.00012,
-      "active_risk_pct": -0.000283,
+      "total_risk_pct": 0.000653,
+      "total_vol_contribution": 9.9e-05,
+      "active_risk_pct": -0.000378,
+      "active_te_contribution": -1.1e-05
+    },
+    {
+      "ticker": "KO",
+      "sector": "Consumer Staples",
+      "weight": 0.00509,
+      "bm_weight": 0.005209,
+      "active_weight": -0.000119,
+      "total_risk_pct": -0.00155,
+      "total_vol_contribution": -0.000234,
+      "active_risk_pct": 0.000372,
+      "active_te_contribution": 1.1e-05
+    },
+    {
+      "ticker": "INTU",
+      "sector": "Technology",
+      "weight": 0.001617,
+      "bm_weight": 0.001306,
+      "active_weight": 0.00031,
+      "total_risk_pct": -0.000364,
+      "total_vol_contribution": -5.5e-05,
+      "active_risk_pct": 0.000371,
+      "active_te_contribution": 1.1e-05
+    },
+    {
+      "ticker": "FTNT",
+      "sector": "Technology",
+      "weight": 0.00149,
+      "bm_weight": 0.00158,
+      "active_weight": -9e-05,
+      "total_risk_pct": 0.001051,
+      "total_vol_contribution": 0.000159,
+      "active_risk_pct": -0.000384,
+      "active_te_contribution": -1.1e-05
+    },
+    {
+      "ticker": "RMS",
+      "sector": "Consumer Discretionary",
+      "weight": 0.002827,
+      "bm_weight": 0.002599,
+      "active_weight": 0.000228,
+      "total_risk_pct": 0.002231,
+      "total_vol_contribution": 0.000337,
+      "active_risk_pct": -0.000403,
+      "active_te_contribution": -1.1e-05
+    },
+    {
+      "ticker": "LLY",
+      "sector": "Healthcare",
+      "weight": 0.015557,
+      "bm_weight": 0.015728,
+      "active_weight": -0.000171,
+      "total_risk_pct": 0.00142,
+      "total_vol_contribution": 0.000215,
+      "active_risk_pct": 0.000368,
+      "active_te_contribution": 1e-05
+    },
+    {
+      "ticker": "SAP",
+      "sector": "Technology",
+      "weight": 0.002158,
+      "bm_weight": 0.003526,
+      "active_weight": -0.001368,
+      "total_risk_pct": 0.000692,
+      "total_vol_contribution": 0.000105,
+      "active_risk_pct": -0.000335,
+      "active_te_contribution": -1e-05
+    },
+    {
+      "ticker": "ABBV",
+      "sector": "Healthcare",
+      "weight": 0.006108,
+      "bm_weight": 0.006237,
+      "active_weight": -0.000128,
+      "total_risk_pct": -0.001337,
+      "total_vol_contribution": -0.000202,
+      "active_risk_pct": 0.000308,
+      "active_te_contribution": 9e-06
+    },
+    {
+      "ticker": "ADBE",
+      "sector": "Technology",
+      "weight": 0.006834,
+      "bm_weight": 0.001426,
+      "active_weight": 0.005409,
+      "total_risk_pct": -2.6e-05,
+      "total_vol_contribution": -4e-06,
+      "active_risk_pct": 0.0003,
+      "active_te_contribution": 9e-06
+    },
+    {
+      "ticker": "7011",
+      "sector": "Industrials",
+      "weight": 0.001054,
+      "bm_weight": 0.001259,
+      "active_weight": -0.000205,
+      "total_risk_pct": 0.000319,
+      "total_vol_contribution": 4.8e-05,
+      "active_risk_pct": -0.000327,
       "active_te_contribution": -9e-06
+    },
+    {
+      "ticker": "ETN",
+      "sector": "Industrials",
+      "weight": 0.002173,
+      "bm_weight": 0.002284,
+      "active_weight": -0.00011,
+      "total_risk_pct": 0.003205,
+      "total_vol_contribution": 0.000485,
+      "active_risk_pct": -0.000279,
+      "active_te_contribution": -8e-06
     },
     {
       "ticker": "NFLX",
@@ -1301,9 +1325,9 @@
       "weight": 0.004676,
       "bm_weight": 0.004414,
       "active_weight": 0.000262,
-      "total_risk_pct": 0.000383,
-      "total_vol_contribution": 6.4e-05,
-      "active_risk_pct": -0.000252,
+      "total_risk_pct": 0.00033,
+      "total_vol_contribution": 5e-05,
+      "active_risk_pct": -0.000288,
       "active_te_contribution": -8e-06
     },
     {
@@ -1312,9 +1336,9 @@
       "weight": 0.002731,
       "bm_weight": 0.002378,
       "active_weight": 0.000353,
-      "total_risk_pct": 0.002647,
-      "total_vol_contribution": 0.000446,
-      "active_risk_pct": 0.000263,
+      "total_risk_pct": 0.002589,
+      "total_vol_contribution": 0.000391,
+      "active_risk_pct": 0.000265,
       "active_te_contribution": 8e-06
     },
     {
@@ -1323,31 +1347,31 @@
       "weight": 0.003876,
       "bm_weight": 0.003986,
       "active_weight": -0.00011,
-      "total_risk_pct": -0.000785,
-      "total_vol_contribution": -0.000132,
-      "active_risk_pct": 0.00026,
+      "total_risk_pct": -0.000808,
+      "total_vol_contribution": -0.000122,
+      "active_risk_pct": 0.000276,
       "active_te_contribution": 8e-06
     },
     {
-      "ticker": "PGR",
-      "sector": "Financials",
-      "weight": 0.001556,
+      "ticker": "ACN",
+      "sector": "Technology",
+      "weight": 0.001845,
+      "bm_weight": 0.001443,
+      "active_weight": 0.000401,
+      "total_risk_pct": -0.000741,
+      "total_vol_contribution": -0.000112,
+      "active_risk_pct": -0.000289,
+      "active_te_contribution": -8e-06
+    },
+    {
+      "ticker": "LOW",
+      "sector": "Consumer Discretionary",
+      "weight": 0.001566,
       "bm_weight": 0.001648,
-      "active_weight": -9.2e-05,
-      "total_risk_pct": -0.000942,
-      "total_vol_contribution": -0.000159,
-      "active_risk_pct": 0.000236,
-      "active_te_contribution": 8e-06
-    },
-    {
-      "ticker": "DTE",
-      "sector": "Communication Services",
-      "weight": 0.002111,
-      "bm_weight": 0.002207,
-      "active_weight": -9.6e-05,
-      "total_risk_pct": 5.5e-05,
-      "total_vol_contribution": 9e-06,
-      "active_risk_pct": 0.000236,
+      "active_weight": -8.2e-05,
+      "total_risk_pct": 0.00075,
+      "total_vol_contribution": 0.000113,
+      "active_risk_pct": 0.000269,
       "active_te_contribution": 8e-06
     },
     {
@@ -1356,53 +1380,42 @@
       "weight": 0.001393,
       "bm_weight": 0.001484,
       "active_weight": -9.1e-05,
-      "total_risk_pct": -0.000842,
-      "total_vol_contribution": -0.000142,
-      "active_risk_pct": 0.00025,
+      "total_risk_pct": -0.000931,
+      "total_vol_contribution": -0.000141,
+      "active_risk_pct": 0.000286,
       "active_te_contribution": 8e-06
     },
     {
-      "ticker": "WELL",
-      "sector": "Real Estate",
-      "weight": 0.002177,
-      "bm_weight": 0.002313,
-      "active_weight": -0.000136,
-      "total_risk_pct": -0.000308,
-      "total_vol_contribution": -5.2e-05,
-      "active_risk_pct": 0.000242,
-      "active_te_contribution": 8e-06
-    },
-    {
-      "ticker": "ETN",
-      "sector": "Industrials",
-      "weight": 0.002173,
-      "bm_weight": 0.002284,
-      "active_weight": -0.00011,
-      "total_risk_pct": 0.003114,
-      "total_vol_contribution": 0.000524,
-      "active_risk_pct": -0.000235,
-      "active_te_contribution": -7e-06
-    },
-    {
-      "ticker": "LOW",
-      "sector": "Consumer Discretionary",
-      "weight": 0.001566,
+      "ticker": "PGR",
+      "sector": "Financials",
+      "weight": 0.001556,
       "bm_weight": 0.001648,
-      "active_weight": -8.2e-05,
-      "total_risk_pct": 0.000626,
-      "total_vol_contribution": 0.000105,
-      "active_risk_pct": 0.000217,
+      "active_weight": -9.2e-05,
+      "total_risk_pct": -0.00097,
+      "total_vol_contribution": -0.000147,
+      "active_risk_pct": 0.000255,
       "active_te_contribution": 7e-06
     },
     {
-      "ticker": "MRK",
-      "sector": "Healthcare",
-      "weight": 0.004436,
-      "bm_weight": 0.004546,
-      "active_weight": -0.000109,
-      "total_risk_pct": -3e-06,
-      "total_vol_contribution": -1e-06,
-      "active_risk_pct": 0.000204,
+      "ticker": "DTE",
+      "sector": "Communication Services",
+      "weight": 0.002111,
+      "bm_weight": 0.002207,
+      "active_weight": -9.6e-05,
+      "total_risk_pct": 5.7e-05,
+      "total_vol_contribution": 9e-06,
+      "active_risk_pct": 0.000238,
+      "active_te_contribution": 7e-06
+    },
+    {
+      "ticker": "TJX",
+      "sector": "Consumer Discretionary",
+      "weight": 0.002182,
+      "bm_weight": 0.002271,
+      "active_weight": -9e-05,
+      "total_risk_pct": 6.1e-05,
+      "total_vol_contribution": 9e-06,
+      "active_risk_pct": 0.000236,
       "active_te_contribution": 7e-06
     },
     {
@@ -1411,42 +1424,31 @@
       "weight": 0.003025,
       "bm_weight": 0.003134,
       "active_weight": -0.000109,
-      "total_risk_pct": 0.00057,
-      "total_vol_contribution": 9.6e-05,
-      "active_risk_pct": 0.000231,
+      "total_risk_pct": 0.000615,
+      "total_vol_contribution": 9.3e-05,
+      "active_risk_pct": 0.000249,
       "active_te_contribution": 7e-06
     },
     {
-      "ticker": "DASH",
-      "sector": "Consumer Discretionary",
-      "weight": 0.001196,
-      "bm_weight": 0.001278,
-      "active_weight": -8.2e-05,
-      "total_risk_pct": 0.001186,
-      "total_vol_contribution": 0.0002,
-      "active_risk_pct": -0.000212,
-      "active_te_contribution": -7e-06
+      "ticker": "NOVN",
+      "sector": "Healthcare",
+      "weight": 0.004175,
+      "bm_weight": 0.004287,
+      "active_weight": -0.000112,
+      "total_risk_pct": 0.000444,
+      "total_vol_contribution": 6.7e-05,
+      "active_risk_pct": 0.000257,
+      "active_te_contribution": 7e-06
     },
     {
-      "ticker": "FICO",
+      "ticker": "HPE",
       "sector": "Technology",
-      "weight": 0.001297,
-      "bm_weight": 0.000317,
-      "active_weight": 0.00098,
-      "total_risk_pct": -0.000218,
-      "total_vol_contribution": -3.7e-05,
-      "active_risk_pct": -0.000219,
-      "active_te_contribution": -7e-06
-    },
-    {
-      "ticker": "WM",
-      "sector": "Industrials",
-      "weight": 0.001135,
-      "bm_weight": 0.001218,
-      "active_weight": -8.3e-05,
-      "total_risk_pct": -0.000628,
-      "total_vol_contribution": -0.000106,
-      "active_risk_pct": 0.000207,
+      "weight": 0.001045,
+      "bm_weight": 0.001005,
+      "active_weight": 4e-05,
+      "total_risk_pct": 0.00207,
+      "total_vol_contribution": 0.000313,
+      "active_risk_pct": 0.000259,
       "active_te_contribution": 7e-06
     },
     {
@@ -1455,9 +1457,9 @@
       "weight": 0.00207,
       "bm_weight": 0.002166,
       "active_weight": -9.6e-05,
-      "total_risk_pct": 0.000759,
-      "total_vol_contribution": 0.000128,
-      "active_risk_pct": 0.00018,
+      "total_risk_pct": 0.000996,
+      "total_vol_contribution": 0.000151,
+      "active_risk_pct": 0.000219,
       "active_te_contribution": 6e-06
     },
     {
@@ -1466,9 +1468,9 @@
       "weight": 0.002596,
       "bm_weight": 0.002672,
       "active_weight": -7.6e-05,
-      "total_risk_pct": -0.00108,
-      "total_vol_contribution": -0.000182,
-      "active_risk_pct": 0.000191,
+      "total_risk_pct": -0.001138,
+      "total_vol_contribution": -0.000172,
+      "active_risk_pct": 0.000207,
       "active_te_contribution": 6e-06
     },
     {
@@ -1477,9 +1479,9 @@
       "weight": 0.000266,
       "bm_weight": 0.000236,
       "active_weight": 3e-05,
-      "total_risk_pct": 0.00061,
-      "total_vol_contribution": 0.000103,
-      "active_risk_pct": 0.000193,
+      "total_risk_pct": 0.000608,
+      "total_vol_contribution": 9.2e-05,
+      "active_risk_pct": 0.000201,
       "active_te_contribution": 6e-06
     },
     {
@@ -1488,65 +1490,10 @@
       "weight": 0.002594,
       "bm_weight": 0.002694,
       "active_weight": -0.0001,
-      "total_risk_pct": 0.004045,
-      "total_vol_contribution": 0.000681,
-      "active_risk_pct": -0.000176,
+      "total_risk_pct": 0.004062,
+      "total_vol_contribution": 0.000614,
+      "active_risk_pct": -0.000208,
       "active_te_contribution": -6e-06
-    },
-    {
-      "ticker": "NESN",
-      "sector": "Consumer Staples",
-      "weight": 0.003319,
-      "bm_weight": 0.003424,
-      "active_weight": -0.000106,
-      "total_risk_pct": 0.000177,
-      "total_vol_contribution": 3e-05,
-      "active_risk_pct": 0.000181,
-      "active_te_contribution": 6e-06
-    },
-    {
-      "ticker": "VZ",
-      "sector": "Communication Services",
-      "weight": 0.002662,
-      "bm_weight": 0.002749,
-      "active_weight": -8.7e-05,
-      "total_risk_pct": -0.000961,
-      "total_vol_contribution": -0.000162,
-      "active_risk_pct": 0.000174,
-      "active_te_contribution": 6e-06
-    },
-    {
-      "ticker": "TTWO",
-      "sector": "Communication Services",
-      "weight": 0.00022,
-      "bm_weight": 0.000618,
-      "active_weight": -0.000398,
-      "total_risk_pct": 7.9e-05,
-      "total_vol_contribution": 1.3e-05,
-      "active_risk_pct": -0.000187,
-      "active_te_contribution": -6e-06
-    },
-    {
-      "ticker": "TJX",
-      "sector": "Consumer Discretionary",
-      "weight": 0.002182,
-      "bm_weight": 0.002271,
-      "active_weight": -9e-05,
-      "total_risk_pct": 5.2e-05,
-      "total_vol_contribution": 9e-06,
-      "active_risk_pct": 0.00019,
-      "active_te_contribution": 6e-06
-    },
-    {
-      "ticker": "VRTX",
-      "sector": "Healthcare",
-      "weight": 0.001734,
-      "bm_weight": 0.001825,
-      "active_weight": -9.1e-05,
-      "total_risk_pct": 0.000466,
-      "total_vol_contribution": 7.8e-05,
-      "active_risk_pct": 0.000177,
-      "active_te_contribution": 6e-06
     },
     {
       "ticker": "ABBN",
@@ -1554,42 +1501,20 @@
       "weight": 0.002366,
       "bm_weight": 0.002465,
       "active_weight": -9.8e-05,
-      "total_risk_pct": 0.002879,
-      "total_vol_contribution": 0.000485,
-      "active_risk_pct": -0.000174,
+      "total_risk_pct": 0.003093,
+      "total_vol_contribution": 0.000468,
+      "active_risk_pct": -0.000213,
       "active_te_contribution": -6e-06
     },
     {
-      "ticker": "ULVR",
-      "sector": "Consumer Staples",
-      "weight": 0.001741,
-      "bm_weight": 0.001819,
-      "active_weight": -7.8e-05,
-      "total_risk_pct": -0.000243,
-      "total_vol_contribution": -4.1e-05,
-      "active_risk_pct": 0.000185,
-      "active_te_contribution": 6e-06
-    },
-    {
-      "ticker": "MCK",
+      "ticker": "MRK",
       "sector": "Healthcare",
-      "weight": 0.001297,
-      "bm_weight": 0.001381,
-      "active_weight": -8.4e-05,
-      "total_risk_pct": -0.000568,
-      "total_vol_contribution": -9.6e-05,
-      "active_risk_pct": 0.000177,
-      "active_te_contribution": 6e-06
-    },
-    {
-      "ticker": "NOVN",
-      "sector": "Healthcare",
-      "weight": 0.004175,
-      "bm_weight": 0.004287,
-      "active_weight": -0.000112,
-      "total_risk_pct": 0.000353,
-      "total_vol_contribution": 5.9e-05,
-      "active_risk_pct": 0.000202,
+      "weight": 0.004436,
+      "bm_weight": 0.004546,
+      "active_weight": -0.000109,
+      "total_risk_pct": -8e-06,
+      "total_vol_contribution": -1e-06,
+      "active_risk_pct": 0.000197,
       "active_te_contribution": 6e-06
     },
     {
@@ -1598,31 +1523,31 @@
       "weight": 0.002508,
       "bm_weight": 0.002607,
       "active_weight": -9.9e-05,
-      "total_risk_pct": -0.000475,
-      "total_vol_contribution": -8e-05,
-      "active_risk_pct": 0.000187,
+      "total_risk_pct": -0.000494,
+      "total_vol_contribution": -7.5e-05,
+      "active_risk_pct": 0.000198,
       "active_te_contribution": 6e-06
     },
     {
-      "ticker": "HPE",
-      "sector": "Technology",
-      "weight": 0.001045,
-      "bm_weight": 0.001005,
-      "active_weight": 4e-05,
-      "total_risk_pct": 0.001605,
-      "total_vol_contribution": 0.00027,
-      "active_risk_pct": 0.000192,
+      "ticker": "WM",
+      "sector": "Industrials",
+      "weight": 0.001135,
+      "bm_weight": 0.001218,
+      "active_weight": -8.3e-05,
+      "total_risk_pct": -0.000633,
+      "total_vol_contribution": -9.6e-05,
+      "active_risk_pct": 0.000216,
       "active_te_contribution": 6e-06
     },
     {
-      "ticker": "GILD",
-      "sector": "Healthcare",
-      "weight": 0.002329,
-      "bm_weight": 0.002424,
-      "active_weight": -9.5e-05,
-      "total_risk_pct": 0.000443,
-      "total_vol_contribution": 7.5e-05,
-      "active_risk_pct": 0.000173,
+      "ticker": "WELL",
+      "sector": "Real Estate",
+      "weight": 0.002177,
+      "bm_weight": 0.002313,
+      "active_weight": -0.000136,
+      "total_risk_pct": -0.000295,
+      "total_vol_contribution": -4.5e-05,
+      "active_risk_pct": 0.000223,
       "active_te_contribution": 6e-06
     },
     {
@@ -1631,20 +1556,9 @@
       "weight": 0.002486,
       "bm_weight": 0.002575,
       "active_weight": -8.9e-05,
-      "total_risk_pct": -0.000161,
-      "total_vol_contribution": -2.7e-05,
-      "active_risk_pct": 0.00017,
-      "active_te_contribution": 5e-06
-    },
-    {
-      "ticker": "NEE",
-      "sector": "Utilities",
-      "weight": 0.002353,
-      "bm_weight": 0.002452,
-      "active_weight": -9.9e-05,
-      "total_risk_pct": -0.000111,
-      "total_vol_contribution": -1.9e-05,
-      "active_risk_pct": 0.000168,
+      "total_risk_pct": -0.000183,
+      "total_vol_contribution": -2.8e-05,
+      "active_risk_pct": 0.000191,
       "active_te_contribution": 5e-06
     },
     {
@@ -1653,32 +1567,21 @@
       "weight": 0.001007,
       "bm_weight": 0.001095,
       "active_weight": -8.8e-05,
-      "total_risk_pct": -0.000218,
-      "total_vol_contribution": -3.7e-05,
-      "active_risk_pct": 0.000159,
+      "total_risk_pct": -0.000234,
+      "total_vol_contribution": -3.5e-05,
+      "active_risk_pct": 0.000174,
       "active_te_contribution": 5e-06
     },
     {
-      "ticker": "PLD",
-      "sector": "Real Estate",
-      "weight": 0.00173,
-      "bm_weight": 0.001845,
-      "active_weight": -0.000115,
-      "total_risk_pct": 0.000423,
-      "total_vol_contribution": 7.1e-05,
-      "active_risk_pct": 0.000168,
+      "ticker": "NESN",
+      "sector": "Consumer Staples",
+      "weight": 0.003319,
+      "bm_weight": 0.003424,
+      "active_weight": -0.000106,
+      "total_risk_pct": 0.000168,
+      "total_vol_contribution": 2.5e-05,
+      "active_risk_pct": 0.000185,
       "active_te_contribution": 5e-06
-    },
-    {
-      "ticker": "ACN",
-      "sector": "Technology",
-      "weight": 0.001845,
-      "bm_weight": 0.001443,
-      "active_weight": 0.000401,
-      "total_risk_pct": -0.000662,
-      "total_vol_contribution": -0.000111,
-      "active_risk_pct": -0.00016,
-      "active_te_contribution": -5e-06
     },
     {
       "ticker": "CMCSA",
@@ -1686,9 +1589,42 @@
       "weight": 0.001186,
       "bm_weight": 0.001267,
       "active_weight": -8.1e-05,
-      "total_risk_pct": -0.000113,
-      "total_vol_contribution": -1.9e-05,
-      "active_risk_pct": 0.000152,
+      "total_risk_pct": -0.000129,
+      "total_vol_contribution": -2e-05,
+      "active_risk_pct": 0.000175,
+      "active_te_contribution": 5e-06
+    },
+    {
+      "ticker": "VZ",
+      "sector": "Communication Services",
+      "weight": 0.002662,
+      "bm_weight": 0.002749,
+      "active_weight": -8.7e-05,
+      "total_risk_pct": -0.001007,
+      "total_vol_contribution": -0.000152,
+      "active_risk_pct": 0.000188,
+      "active_te_contribution": 5e-06
+    },
+    {
+      "ticker": "VRTX",
+      "sector": "Healthcare",
+      "weight": 0.001734,
+      "bm_weight": 0.001825,
+      "active_weight": -9.1e-05,
+      "total_risk_pct": 0.000439,
+      "total_vol_contribution": 6.6e-05,
+      "active_risk_pct": 0.000168,
+      "active_te_contribution": 5e-06
+    },
+    {
+      "ticker": "ULVR",
+      "sector": "Consumer Staples",
+      "weight": 0.001741,
+      "bm_weight": 0.001819,
+      "active_weight": -7.8e-05,
+      "total_risk_pct": -0.000255,
+      "total_vol_contribution": -3.8e-05,
+      "active_risk_pct": 0.000189,
       "active_te_contribution": 5e-06
     },
     {
@@ -1697,9 +1633,9 @@
       "weight": 0.000986,
       "bm_weight": 0.00107,
       "active_weight": -8.3e-05,
-      "total_risk_pct": 0.000283,
-      "total_vol_contribution": 4.8e-05,
-      "active_risk_pct": 0.000167,
+      "total_risk_pct": 0.000281,
+      "total_vol_contribution": 4.2e-05,
+      "active_risk_pct": 0.000169,
       "active_te_contribution": 5e-06
     },
     {
@@ -1708,10 +1644,32 @@
       "weight": 0.001732,
       "bm_weight": 0.001816,
       "active_weight": -8.4e-05,
-      "total_risk_pct": -0.000681,
-      "total_vol_contribution": -0.000115,
-      "active_risk_pct": 0.000168,
+      "total_risk_pct": -0.00073,
+      "total_vol_contribution": -0.00011,
+      "active_risk_pct": 0.000187,
       "active_te_contribution": 5e-06
+    },
+    {
+      "ticker": "MCK",
+      "sector": "Healthcare",
+      "weight": 0.001297,
+      "bm_weight": 0.001381,
+      "active_weight": -8.4e-05,
+      "total_risk_pct": -0.000569,
+      "total_vol_contribution": -8.6e-05,
+      "active_risk_pct": 0.000186,
+      "active_te_contribution": 5e-06
+    },
+    {
+      "ticker": "DASH",
+      "sector": "Consumer Discretionary",
+      "weight": 0.001196,
+      "bm_weight": 0.001278,
+      "active_weight": -8.2e-05,
+      "total_risk_pct": 0.001067,
+      "total_vol_contribution": 0.000161,
+      "active_risk_pct": -0.000183,
+      "active_te_contribution": -5e-06
     },
     {
       "ticker": "9432",
@@ -1719,9 +1677,9 @@
       "weight": 0.001151,
       "bm_weight": 0.00124,
       "active_weight": -8.9e-05,
-      "total_risk_pct": -5.6e-05,
-      "total_vol_contribution": -9e-06,
-      "active_risk_pct": 0.000154,
+      "total_risk_pct": -6.5e-05,
+      "total_vol_contribution": -1e-05,
+      "active_risk_pct": 0.000171,
       "active_te_contribution": 5e-06
     },
     {
@@ -1730,9 +1688,9 @@
       "weight": 0.00089,
       "bm_weight": 0.000977,
       "active_weight": -8.7e-05,
-      "total_risk_pct": -0.000132,
-      "total_vol_contribution": -2.2e-05,
-      "active_risk_pct": 0.000157,
+      "total_risk_pct": -0.000156,
+      "total_vol_contribution": -2.4e-05,
+      "active_risk_pct": 0.000193,
       "active_te_contribution": 5e-06
     },
     {
@@ -1741,9 +1699,9 @@
       "weight": 0.001008,
       "bm_weight": 0.00109,
       "active_weight": -8.2e-05,
-      "total_risk_pct": -0.000301,
-      "total_vol_contribution": -5.1e-05,
-      "active_risk_pct": 0.000165,
+      "total_risk_pct": -0.00029,
+      "total_vol_contribution": -4.4e-05,
+      "active_risk_pct": 0.000162,
       "active_te_contribution": 5e-06
     },
     {
@@ -1752,9 +1710,9 @@
       "weight": 0.003045,
       "bm_weight": 0.003155,
       "active_weight": -0.00011,
-      "total_risk_pct": 0.001135,
-      "total_vol_contribution": 0.000191,
-      "active_risk_pct": 0.000164,
+      "total_risk_pct": 0.00113,
+      "total_vol_contribution": 0.000171,
+      "active_risk_pct": 0.000159,
       "active_te_contribution": 5e-06
     },
     {
@@ -1763,21 +1721,21 @@
       "weight": 0.001072,
       "bm_weight": 0.001142,
       "active_weight": -7e-05,
-      "total_risk_pct": 0.000622,
-      "total_vol_contribution": 0.000105,
+      "total_risk_pct": 0.000624,
+      "total_vol_contribution": 9.4e-05,
       "active_risk_pct": 0.00017,
       "active_te_contribution": 5e-06
     },
     {
-      "ticker": "CMG",
-      "sector": "Consumer Discretionary",
-      "weight": 0.000925,
-      "bm_weight": 0.000575,
-      "active_weight": 0.00035,
-      "total_risk_pct": 0.000319,
-      "total_vol_contribution": 5.4e-05,
-      "active_risk_pct": -0.00016,
-      "active_te_contribution": -5e-06
+      "ticker": "GILD",
+      "sector": "Healthcare",
+      "weight": 0.002329,
+      "bm_weight": 0.002424,
+      "active_weight": -9.5e-05,
+      "total_risk_pct": 0.000415,
+      "total_vol_contribution": 6.3e-05,
+      "active_risk_pct": 0.000171,
+      "active_te_contribution": 5e-06
     },
     {
       "ticker": "CL",
@@ -1785,20 +1743,31 @@
       "weight": 0.00091,
       "bm_weight": 0.000994,
       "active_weight": -8.3e-05,
-      "total_risk_pct": -1.6e-05,
+      "total_risk_pct": -2.2e-05,
       "total_vol_contribution": -3e-06,
-      "active_risk_pct": 0.00016,
+      "active_risk_pct": 0.000173,
       "active_te_contribution": 5e-06
     },
     {
-      "ticker": "MC",
-      "sector": "Consumer Discretionary",
-      "weight": 0.003397,
-      "bm_weight": 0.003494,
-      "active_weight": -9.8e-05,
-      "total_risk_pct": 0.002138,
-      "total_vol_contribution": 0.00036,
-      "active_risk_pct": 0.000134,
+      "ticker": "NEE",
+      "sector": "Utilities",
+      "weight": 0.002353,
+      "bm_weight": 0.002452,
+      "active_weight": -9.9e-05,
+      "total_risk_pct": -0.000106,
+      "total_vol_contribution": -1.6e-05,
+      "active_risk_pct": 0.000149,
+      "active_te_contribution": 4e-06
+    },
+    {
+      "ticker": "PLD",
+      "sector": "Real Estate",
+      "weight": 0.00173,
+      "bm_weight": 0.001845,
+      "active_weight": -0.000115,
+      "total_risk_pct": 0.0004,
+      "total_vol_contribution": 6.1e-05,
+      "active_risk_pct": 0.000155,
       "active_te_contribution": 4e-06
     },
     {
@@ -1807,9 +1776,9 @@
       "weight": 0.003294,
       "bm_weight": 0.003378,
       "active_weight": -8.3e-05,
-      "total_risk_pct": -5.1e-05,
-      "total_vol_contribution": -9e-06,
-      "active_risk_pct": 0.000119,
+      "total_risk_pct": -6.9e-05,
+      "total_vol_contribution": -1e-05,
+      "active_risk_pct": 0.000142,
       "active_te_contribution": 4e-06
     },
     {
@@ -1818,43 +1787,21 @@
       "weight": 0.000914,
       "bm_weight": 0.000992,
       "active_weight": -7.8e-05,
-      "total_risk_pct": -0.000308,
-      "total_vol_contribution": -5.2e-05,
-      "active_risk_pct": 0.000125,
+      "total_risk_pct": -0.000306,
+      "total_vol_contribution": -4.6e-05,
+      "active_risk_pct": 0.000135,
       "active_te_contribution": 4e-06
     },
     {
-      "ticker": "SAN",
-      "sector": "Healthcare",
-      "weight": 0.001397,
-      "bm_weight": 0.00148,
-      "active_weight": -8.3e-05,
-      "total_risk_pct": -2.7e-05,
-      "total_vol_contribution": -5e-06,
-      "active_risk_pct": 0.000115,
-      "active_te_contribution": 4e-06
-    },
-    {
-      "ticker": "ORLY",
-      "sector": "Consumer Discretionary",
-      "weight": 0.000938,
-      "bm_weight": 0.001001,
-      "active_weight": -6.3e-05,
-      "total_risk_pct": -5.3e-05,
-      "total_vol_contribution": -9e-06,
-      "active_risk_pct": 0.000113,
-      "active_te_contribution": 4e-06
-    },
-    {
-      "ticker": "TTE",
-      "sector": "Energy",
-      "weight": 0.002668,
-      "bm_weight": 0.002769,
-      "active_weight": -0.000101,
-      "total_risk_pct": -0.000939,
-      "total_vol_contribution": -0.000158,
-      "active_risk_pct": 0.000114,
-      "active_te_contribution": 4e-06
+      "ticker": "TTWO",
+      "sector": "Communication Services",
+      "weight": 0.00022,
+      "bm_weight": 0.000618,
+      "active_weight": -0.000398,
+      "total_risk_pct": 8.5e-05,
+      "total_vol_contribution": 1.3e-05,
+      "active_risk_pct": -0.000157,
+      "active_te_contribution": -4e-06
     },
     {
       "ticker": "SO",
@@ -1862,9 +1809,9 @@
       "weight": 0.001337,
       "bm_weight": 0.001416,
       "active_weight": -7.9e-05,
-      "total_risk_pct": -0.000292,
-      "total_vol_contribution": -4.9e-05,
-      "active_risk_pct": 0.00014,
+      "total_risk_pct": -0.000294,
+      "total_vol_contribution": -4.4e-05,
+      "active_risk_pct": 0.000142,
       "active_te_contribution": 4e-06
     },
     {
@@ -1873,9 +1820,9 @@
       "weight": 0.001142,
       "bm_weight": 0.001212,
       "active_weight": -7e-05,
-      "total_risk_pct": -0.00047,
-      "total_vol_contribution": -7.9e-05,
-      "active_risk_pct": 0.000126,
+      "total_risk_pct": -0.000436,
+      "total_vol_contribution": -6.6e-05,
+      "active_risk_pct": 0.000124,
       "active_te_contribution": 4e-06
     },
     {
@@ -1884,10 +1831,32 @@
       "weight": 0.002271,
       "bm_weight": 0.002369,
       "active_weight": -9.8e-05,
-      "total_risk_pct": 0.002013,
-      "total_vol_contribution": 0.000339,
-      "active_risk_pct": -0.000139,
+      "total_risk_pct": 0.001948,
+      "total_vol_contribution": 0.000294,
+      "active_risk_pct": -0.000147,
       "active_te_contribution": -4e-06
+    },
+    {
+      "ticker": "CMG",
+      "sector": "Consumer Discretionary",
+      "weight": 0.000925,
+      "bm_weight": 0.000575,
+      "active_weight": 0.00035,
+      "total_risk_pct": 0.0003,
+      "total_vol_contribution": 4.5e-05,
+      "active_risk_pct": -0.000142,
+      "active_te_contribution": -4e-06
+    },
+    {
+      "ticker": "NRG",
+      "sector": "Utilities",
+      "weight": 0.000534,
+      "bm_weight": 0.000331,
+      "active_weight": 0.000203,
+      "total_risk_pct": 0.000488,
+      "total_vol_contribution": 7.4e-05,
+      "active_risk_pct": 0.000156,
+      "active_te_contribution": 4e-06
     },
     {
       "ticker": "UNP",
@@ -1895,9 +1864,9 @@
       "weight": 0.00232,
       "bm_weight": 0.002419,
       "active_weight": -9.9e-05,
-      "total_risk_pct": 7.2e-05,
-      "total_vol_contribution": 1.2e-05,
-      "active_risk_pct": 9.7e-05,
+      "total_risk_pct": 6.9e-05,
+      "total_vol_contribution": 1e-05,
+      "active_risk_pct": 9.1e-05,
       "active_te_contribution": 3e-06
     },
     {
@@ -1906,20 +1875,20 @@
       "weight": 0.009262,
       "bm_weight": 0.009353,
       "active_weight": -9.1e-05,
-      "total_risk_pct": -0.008362,
-      "total_vol_contribution": -0.001408,
-      "active_risk_pct": 9.5e-05,
+      "total_risk_pct": -0.008949,
+      "total_vol_contribution": -0.001353,
+      "active_risk_pct": 0.000106,
       "active_te_contribution": 3e-06
     },
     {
-      "ticker": "RACE",
+      "ticker": "MC",
       "sector": "Consumer Discretionary",
-      "weight": 0.000905,
-      "bm_weight": 0.000989,
-      "active_weight": -8.4e-05,
-      "total_risk_pct": 0.000782,
-      "total_vol_contribution": 0.000132,
-      "active_risk_pct": 9e-05,
+      "weight": 0.003397,
+      "bm_weight": 0.003494,
+      "active_weight": -9.8e-05,
+      "total_risk_pct": 0.001994,
+      "total_vol_contribution": 0.000301,
+      "active_risk_pct": 0.000122,
       "active_te_contribution": 3e-06
     },
     {
@@ -1928,9 +1897,9 @@
       "weight": 0.001251,
       "bm_weight": 0.001331,
       "active_weight": -7.9e-05,
-      "total_risk_pct": -0.000486,
+      "total_risk_pct": -0.000541,
       "total_vol_contribution": -8.2e-05,
-      "active_risk_pct": 8.5e-05,
+      "active_risk_pct": 0.0001,
       "active_te_contribution": 3e-06
     },
     {
@@ -1939,9 +1908,9 @@
       "weight": 0.002362,
       "bm_weight": 0.002447,
       "active_weight": -8.4e-05,
-      "total_risk_pct": 0.001018,
-      "total_vol_contribution": 0.000171,
-      "active_risk_pct": 0.000102,
+      "total_risk_pct": 0.000986,
+      "total_vol_contribution": 0.000149,
+      "active_risk_pct": 9.8e-05,
       "active_te_contribution": 3e-06
     },
     {
@@ -1950,9 +1919,20 @@
       "weight": 0.002261,
       "bm_weight": 0.002326,
       "active_weight": -6.5e-05,
-      "total_risk_pct": -0.000971,
-      "total_vol_contribution": -0.000163,
-      "active_risk_pct": 0.000108,
+      "total_risk_pct": -0.001021,
+      "total_vol_contribution": -0.000154,
+      "active_risk_pct": 0.000118,
+      "active_te_contribution": 3e-06
+    },
+    {
+      "ticker": "SAN",
+      "sector": "Healthcare",
+      "weight": 0.001397,
+      "bm_weight": 0.00148,
+      "active_weight": -8.3e-05,
+      "total_risk_pct": -3e-05,
+      "total_vol_contribution": -5e-06,
+      "active_risk_pct": 0.000104,
       "active_te_contribution": 3e-06
     },
     {
@@ -1961,21 +1941,21 @@
       "weight": 0.001306,
       "bm_weight": 0.00139,
       "active_weight": -8.4e-05,
-      "total_risk_pct": 0.00123,
-      "total_vol_contribution": 0.000207,
-      "active_risk_pct": -0.000106,
+      "total_risk_pct": 0.001227,
+      "total_vol_contribution": 0.000186,
+      "active_risk_pct": -0.000121,
       "active_te_contribution": -3e-06
     },
     {
-      "ticker": "MSI",
-      "sector": "Technology",
-      "weight": 0.000975,
-      "bm_weight": 0.001059,
-      "active_weight": -8.4e-05,
-      "total_risk_pct": 9.2e-05,
-      "total_vol_contribution": 1.5e-05,
-      "active_risk_pct": 9.8e-05,
-      "active_te_contribution": 3e-06
+      "ticker": "BNP",
+      "sector": "Financials",
+      "weight": 0.001808,
+      "bm_weight": 0.001902,
+      "active_weight": -9.4e-05,
+      "total_risk_pct": 0.001751,
+      "total_vol_contribution": 0.000265,
+      "active_risk_pct": -8.8e-05,
+      "active_te_contribution": -3e-06
     },
     {
       "ticker": "MUV2",
@@ -1983,9 +1963,31 @@
       "weight": 0.000956,
       "bm_weight": 0.001044,
       "active_weight": -8.7e-05,
-      "total_risk_pct": 0.000245,
-      "total_vol_contribution": 4.1e-05,
-      "active_risk_pct": 9.6e-05,
+      "total_risk_pct": 0.000239,
+      "total_vol_contribution": 3.6e-05,
+      "active_risk_pct": 9e-05,
+      "active_te_contribution": 3e-06
+    },
+    {
+      "ticker": "ORLY",
+      "sector": "Consumer Discretionary",
+      "weight": 0.000938,
+      "bm_weight": 0.001001,
+      "active_weight": -6.3e-05,
+      "total_risk_pct": -5.8e-05,
+      "total_vol_contribution": -9e-06,
+      "active_risk_pct": 0.000118,
+      "active_te_contribution": 3e-06
+    },
+    {
+      "ticker": "TTE",
+      "sector": "Energy",
+      "weight": 0.002668,
+      "bm_weight": 0.002769,
+      "active_weight": -0.000101,
+      "total_risk_pct": -0.000941,
+      "total_vol_contribution": -0.000142,
+      "active_risk_pct": 0.000109,
       "active_te_contribution": 3e-06
     },
     {
@@ -1994,9 +1996,9 @@
       "weight": 0.000261,
       "bm_weight": 0.000341,
       "active_weight": -7.9e-05,
-      "total_risk_pct": -5.1e-05,
-      "total_vol_contribution": -9e-06,
-      "active_risk_pct": 0.000101,
+      "total_risk_pct": -5e-05,
+      "total_vol_contribution": -8e-06,
+      "active_risk_pct": 0.000105,
       "active_te_contribution": 3e-06
     },
     {
@@ -2005,21 +2007,10 @@
       "weight": 0.001431,
       "bm_weight": 0.001516,
       "active_weight": -8.5e-05,
-      "total_risk_pct": 0.00076,
-      "total_vol_contribution": 0.000128,
-      "active_risk_pct": -8.8e-05,
+      "total_risk_pct": 0.000711,
+      "total_vol_contribution": 0.000107,
+      "active_risk_pct": -9e-05,
       "active_te_contribution": -3e-06
-    },
-    {
-      "ticker": "PH",
-      "sector": "Industrials",
-      "weight": 0.001697,
-      "bm_weight": 0.001791,
-      "active_weight": -9.3e-05,
-      "total_risk_pct": 0.00103,
-      "total_vol_contribution": 0.000173,
-      "active_risk_pct": 0.000102,
-      "active_te_contribution": 3e-06
     },
     {
       "ticker": "TKO",
@@ -2028,30 +2019,8 @@
       "bm_weight": 0.000496,
       "active_weight": -7.8e-05,
       "total_risk_pct": 0.00013,
-      "total_vol_contribution": 2.2e-05,
-      "active_risk_pct": 9.8e-05,
-      "active_te_contribution": 3e-06
-    },
-    {
-      "ticker": "SLB",
-      "sector": "Energy",
-      "weight": 0.000997,
-      "bm_weight": 0.001076,
-      "active_weight": -8e-05,
-      "total_risk_pct": 0.000388,
-      "total_vol_contribution": 6.5e-05,
-      "active_risk_pct": 8.7e-05,
-      "active_te_contribution": 3e-06
-    },
-    {
-      "ticker": "NRG",
-      "sector": "Utilities",
-      "weight": 0.000534,
-      "bm_weight": 0.000331,
-      "active_weight": 0.000203,
-      "total_risk_pct": 0.000507,
-      "total_vol_contribution": 8.5e-05,
-      "active_risk_pct": 9.1e-05,
+      "total_vol_contribution": 2e-05,
+      "active_risk_pct": 0.0001,
       "active_te_contribution": 3e-06
     },
     {
@@ -2060,20 +2029,20 @@
       "weight": 0.001814,
       "bm_weight": 0.00191,
       "active_weight": -9.6e-05,
-      "total_risk_pct": -0.00017,
-      "total_vol_contribution": -2.9e-05,
-      "active_risk_pct": 7.8e-05,
+      "total_risk_pct": -0.000168,
+      "total_vol_contribution": -2.5e-05,
+      "active_risk_pct": 7.9e-05,
       "active_te_contribution": 2e-06
     },
     {
-      "ticker": "RHM",
-      "sector": "Industrials",
-      "weight": 0.001346,
-      "bm_weight": 0.000895,
-      "active_weight": 0.000451,
-      "total_risk_pct": 0.000844,
-      "total_vol_contribution": 0.000142,
-      "active_risk_pct": 4.8e-05,
+      "ticker": "RACE",
+      "sector": "Consumer Discretionary",
+      "weight": 0.000905,
+      "bm_weight": 0.000989,
+      "active_weight": -8.4e-05,
+      "total_risk_pct": 0.000689,
+      "total_vol_contribution": 0.000104,
+      "active_risk_pct": 8e-05,
       "active_te_contribution": 2e-06
     },
     {
@@ -2082,9 +2051,9 @@
       "weight": 0.003406,
       "bm_weight": 0.003471,
       "active_weight": -6.5e-05,
-      "total_risk_pct": -0.001344,
-      "total_vol_contribution": -0.000226,
-      "active_risk_pct": 6.2e-05,
+      "total_risk_pct": -0.001316,
+      "total_vol_contribution": -0.000199,
+      "active_risk_pct": 5.9e-05,
       "active_te_contribution": 2e-06
     },
     {
@@ -2093,9 +2062,9 @@
       "weight": 0.002727,
       "bm_weight": 0.002793,
       "active_weight": -6.6e-05,
-      "total_risk_pct": 0.000872,
-      "total_vol_contribution": 0.000147,
-      "active_risk_pct": 5.7e-05,
+      "total_risk_pct": 0.000739,
+      "total_vol_contribution": 0.000112,
+      "active_risk_pct": 5.5e-05,
       "active_te_contribution": 2e-06
     },
     {
@@ -2104,9 +2073,9 @@
       "weight": 0.001317,
       "bm_weight": 0.001409,
       "active_weight": -9.2e-05,
-      "total_risk_pct": 0.001301,
-      "total_vol_contribution": 0.000219,
-      "active_risk_pct": -5.8e-05,
+      "total_risk_pct": 0.00117,
+      "total_vol_contribution": 0.000177,
+      "active_risk_pct": -5.4e-05,
       "active_te_contribution": -2e-06
     },
     {
@@ -2115,9 +2084,9 @@
       "weight": 0.000686,
       "bm_weight": 0.000763,
       "active_weight": -7.7e-05,
-      "total_risk_pct": -1.2e-05,
+      "total_risk_pct": -1.5e-05,
       "total_vol_contribution": -2e-06,
-      "active_risk_pct": 4.9e-05,
+      "active_risk_pct": 5.7e-05,
       "active_te_contribution": 2e-06
     },
     {
@@ -2126,9 +2095,9 @@
       "weight": 0.001414,
       "bm_weight": 0.001496,
       "active_weight": -8.1e-05,
-      "total_risk_pct": 0.001194,
-      "total_vol_contribution": 0.000201,
-      "active_risk_pct": -6.9e-05,
+      "total_risk_pct": 0.0011,
+      "total_vol_contribution": 0.000166,
+      "active_risk_pct": -5.9e-05,
       "active_te_contribution": -2e-06
     },
     {
@@ -2137,9 +2106,9 @@
       "weight": 0.003599,
       "bm_weight": 0.003767,
       "active_weight": -0.000167,
-      "total_risk_pct": 0.000259,
-      "total_vol_contribution": 4.4e-05,
-      "active_risk_pct": -6.7e-05,
+      "total_risk_pct": 0.000222,
+      "total_vol_contribution": 3.4e-05,
+      "active_risk_pct": -6.6e-05,
       "active_te_contribution": -2e-06
     },
     {
@@ -2148,9 +2117,9 @@
       "weight": 0.002705,
       "bm_weight": 0.002806,
       "active_weight": -0.000101,
-      "total_risk_pct": 0.00151,
-      "total_vol_contribution": 0.000254,
-      "active_risk_pct": 7e-05,
+      "total_risk_pct": 0.001732,
+      "total_vol_contribution": 0.000262,
+      "active_risk_pct": 7.1e-05,
       "active_te_contribution": 2e-06
     },
     {
@@ -2159,31 +2128,20 @@
       "weight": 0.001831,
       "bm_weight": 0.001912,
       "active_weight": -8.1e-05,
-      "total_risk_pct": 0.000266,
-      "total_vol_contribution": 4.5e-05,
-      "active_risk_pct": 7.6e-05,
+      "total_risk_pct": 0.000261,
+      "total_vol_contribution": 3.9e-05,
+      "active_risk_pct": 8e-05,
       "active_te_contribution": 2e-06
     },
     {
-      "ticker": "AI",
-      "sector": "Materials",
-      "weight": 0.00159,
-      "bm_weight": 0.001682,
-      "active_weight": -9.2e-05,
-      "total_risk_pct": 0.000307,
-      "total_vol_contribution": 5.2e-05,
-      "active_risk_pct": 5.3e-05,
-      "active_te_contribution": 2e-06
-    },
-    {
-      "ticker": "IBE",
-      "sector": "Utilities",
-      "weight": 0.002002,
-      "bm_weight": 0.002129,
-      "active_weight": -0.000127,
-      "total_risk_pct": 0.000457,
-      "total_vol_contribution": 7.7e-05,
-      "active_risk_pct": 6.2e-05,
+      "ticker": "MSI",
+      "sector": "Technology",
+      "weight": 0.000975,
+      "bm_weight": 0.001059,
+      "active_weight": -8.4e-05,
+      "total_risk_pct": 8.1e-05,
+      "total_vol_contribution": 1.2e-05,
+      "active_risk_pct": 8.8e-05,
       "active_te_contribution": 2e-06
     },
     {
@@ -2192,32 +2150,21 @@
       "weight": 0.001791,
       "bm_weight": 0.001852,
       "active_weight": -6.1e-05,
-      "total_risk_pct": 0.001649,
-      "total_vol_contribution": 0.000277,
-      "active_risk_pct": -7.3e-05,
+      "total_risk_pct": 0.001476,
+      "total_vol_contribution": 0.000223,
+      "active_risk_pct": -6.7e-05,
       "active_te_contribution": -2e-06
     },
     {
-      "ticker": "BNP",
+      "ticker": "UCG",
       "sector": "Financials",
-      "weight": 0.001808,
-      "bm_weight": 0.001902,
-      "active_weight": -9.4e-05,
-      "total_risk_pct": 0.001784,
-      "total_vol_contribution": 0.0003,
-      "active_risk_pct": -6.9e-05,
+      "weight": 0.001881,
+      "bm_weight": 0.001984,
+      "active_weight": -0.000102,
+      "total_risk_pct": 0.002112,
+      "total_vol_contribution": 0.000319,
+      "active_risk_pct": -5.7e-05,
       "active_te_contribution": -2e-06
-    },
-    {
-      "ticker": "CFR",
-      "sector": "Consumer Discretionary",
-      "weight": 0.001762,
-      "bm_weight": 0.001856,
-      "active_weight": -9.4e-05,
-      "total_risk_pct": 0.001572,
-      "total_vol_contribution": 0.000265,
-      "active_risk_pct": 4.9e-05,
-      "active_te_contribution": 2e-06
     },
     {
       "ticker": "HWM",
@@ -2225,10 +2172,21 @@
       "weight": 0.001505,
       "bm_weight": 0.001591,
       "active_weight": -8.6e-05,
-      "total_risk_pct": 0.001342,
-      "total_vol_contribution": 0.000226,
-      "active_risk_pct": -5.1e-05,
+      "total_risk_pct": 0.001223,
+      "total_vol_contribution": 0.000185,
+      "active_risk_pct": -6e-05,
       "active_te_contribution": -2e-06
+    },
+    {
+      "ticker": "PH",
+      "sector": "Industrials",
+      "weight": 0.001697,
+      "bm_weight": 0.001791,
+      "active_weight": -9.3e-05,
+      "total_risk_pct": 0.001,
+      "total_vol_contribution": 0.000151,
+      "active_risk_pct": 7.6e-05,
+      "active_te_contribution": 2e-06
     },
     {
       "ticker": "PFE",
@@ -2236,31 +2194,9 @@
       "weight": 0.002058,
       "bm_weight": 0.002117,
       "active_weight": -5.9e-05,
-      "total_risk_pct": 0.000208,
-      "total_vol_contribution": 3.5e-05,
-      "active_risk_pct": 6.6e-05,
-      "active_te_contribution": 2e-06
-    },
-    {
-      "ticker": "6758",
-      "sector": "Consumer Discretionary",
-      "weight": 0.0018,
-      "bm_weight": 0.001894,
-      "active_weight": -9.4e-05,
-      "total_risk_pct": 2.5e-05,
-      "total_vol_contribution": 4e-06,
-      "active_risk_pct": 5.6e-05,
-      "active_te_contribution": 2e-06
-    },
-    {
-      "ticker": "LYV",
-      "sector": "Communication Services",
-      "weight": 0.000493,
-      "bm_weight": 0.000578,
-      "active_weight": -8.4e-05,
-      "total_risk_pct": 0.000246,
-      "total_vol_contribution": 4.1e-05,
-      "active_risk_pct": 5.1e-05,
+      "total_risk_pct": 0.000181,
+      "total_vol_contribution": 2.7e-05,
+      "active_risk_pct": 6.1e-05,
       "active_te_contribution": 2e-06
     },
     {
@@ -2269,9 +2205,9 @@
       "weight": 0.001174,
       "bm_weight": 0.001265,
       "active_weight": -9.1e-05,
-      "total_risk_pct": 0.000408,
-      "total_vol_contribution": 6.9e-05,
-      "active_risk_pct": 6.7e-05,
+      "total_risk_pct": 0.000405,
+      "total_vol_contribution": 6.1e-05,
+      "active_risk_pct": 5.9e-05,
       "active_te_contribution": 2e-06
     },
     {
@@ -2280,21 +2216,21 @@
       "weight": 0.002073,
       "bm_weight": 0.002124,
       "active_weight": -5.1e-05,
-      "total_risk_pct": -0.001782,
-      "total_vol_contribution": -0.0003,
-      "active_risk_pct": 6e-05,
+      "total_risk_pct": -0.001742,
+      "total_vol_contribution": -0.000263,
+      "active_risk_pct": 6.1e-05,
       "active_te_contribution": 2e-06
     },
     {
-      "ticker": "SPGI",
-      "sector": "Financials",
-      "weight": 0.001628,
-      "bm_weight": 0.001721,
-      "active_weight": -9.3e-05,
-      "total_risk_pct": 0.000267,
-      "total_vol_contribution": 4.5e-05,
-      "active_risk_pct": -2.7e-05,
-      "active_te_contribution": -1e-06
+      "ticker": "SLB",
+      "sector": "Energy",
+      "weight": 0.000997,
+      "bm_weight": 0.001076,
+      "active_weight": -8e-05,
+      "total_risk_pct": 0.000365,
+      "total_vol_contribution": 5.5e-05,
+      "active_risk_pct": 7e-05,
+      "active_te_contribution": 2e-06
     },
     {
       "ticker": "LNG",
@@ -2302,8 +2238,8 @@
       "weight": 0.000698,
       "bm_weight": 0.000771,
       "active_weight": -7.3e-05,
-      "total_risk_pct": -0.000524,
-      "total_vol_contribution": -8.8e-05,
+      "total_risk_pct": -0.000523,
+      "total_vol_contribution": -7.9e-05,
       "active_risk_pct": 3.5e-05,
       "active_te_contribution": 1e-06
     },
@@ -2313,9 +2249,9 @@
       "weight": 0.001368,
       "bm_weight": 0.001459,
       "active_weight": -9.1e-05,
-      "total_risk_pct": 0.000498,
-      "total_vol_contribution": 8.4e-05,
-      "active_risk_pct": -4.2e-05,
+      "total_risk_pct": 0.000487,
+      "total_vol_contribution": 7.4e-05,
+      "active_risk_pct": -4.8e-05,
       "active_te_contribution": -1e-06
     },
     {
@@ -2324,21 +2260,21 @@
       "weight": 0.001163,
       "bm_weight": 0.001252,
       "active_weight": -8.9e-05,
-      "total_risk_pct": -9.7e-05,
+      "total_risk_pct": -0.000105,
       "total_vol_contribution": -1.6e-05,
-      "active_risk_pct": 4.7e-05,
+      "active_risk_pct": 4.6e-05,
       "active_te_contribution": 1e-06
     },
     {
-      "ticker": "ALV",
-      "sector": "Financials",
-      "weight": 0.002552,
-      "bm_weight": 0.002651,
-      "active_weight": -0.0001,
-      "total_risk_pct": 0.001419,
-      "total_vol_contribution": 0.000239,
-      "active_risk_pct": 2.7e-05,
-      "active_te_contribution": 1e-06
+      "ticker": "RR/",
+      "sector": "Industrials",
+      "weight": 0.002279,
+      "bm_weight": 0.002362,
+      "active_weight": -8.3e-05,
+      "total_risk_pct": 0.003164,
+      "total_vol_contribution": 0.000478,
+      "active_risk_pct": -2.2e-05,
+      "active_te_contribution": -1e-06
     },
     {
       "ticker": "ZURN",
@@ -2346,9 +2282,9 @@
       "weight": 0.001415,
       "bm_weight": 0.001506,
       "active_weight": -9.1e-05,
-      "total_risk_pct": 0.000443,
-      "total_vol_contribution": 7.5e-05,
-      "active_risk_pct": 4.1e-05,
+      "total_risk_pct": 0.000433,
+      "total_vol_contribution": 6.5e-05,
+      "active_risk_pct": 3.4e-05,
       "active_te_contribution": 1e-06
     },
     {
@@ -2357,9 +2293,9 @@
       "weight": 0.001379,
       "bm_weight": 0.00147,
       "active_weight": -9.1e-05,
-      "total_risk_pct": 0.000544,
-      "total_vol_contribution": 9.1e-05,
-      "active_risk_pct": 4e-05,
+      "total_risk_pct": 0.000585,
+      "total_vol_contribution": 8.8e-05,
+      "active_risk_pct": 3.5e-05,
       "active_te_contribution": 1e-06
     },
     {
@@ -2368,9 +2304,9 @@
       "weight": 0.000327,
       "bm_weight": 0.000409,
       "active_weight": -8.3e-05,
-      "total_risk_pct": 0.000116,
-      "total_vol_contribution": 1.9e-05,
-      "active_risk_pct": -3.5e-05,
+      "total_risk_pct": 0.000107,
+      "total_vol_contribution": 1.6e-05,
+      "active_risk_pct": -3.2e-05,
       "active_te_contribution": -1e-06
     },
     {
@@ -2379,9 +2315,9 @@
       "weight": 0.000347,
       "bm_weight": 0.00043,
       "active_weight": -8.3e-05,
-      "total_risk_pct": 6.2e-05,
+      "total_risk_pct": 6.4e-05,
       "total_vol_contribution": 1e-05,
-      "active_risk_pct": -2.7e-05,
+      "active_risk_pct": -2e-05,
       "active_te_contribution": -1e-06
     },
     {
@@ -2390,20 +2326,31 @@
       "weight": 0.005185,
       "bm_weight": 0.005305,
       "active_weight": -0.00012,
-      "total_risk_pct": 0.005464,
-      "total_vol_contribution": 0.00092,
-      "active_risk_pct": -3.7e-05,
+      "total_risk_pct": 0.004934,
+      "total_vol_contribution": 0.000746,
+      "active_risk_pct": -5e-05,
       "active_te_contribution": -1e-06
     },
     {
-      "ticker": "ADSK",
-      "sector": "Technology",
-      "weight": 0.000862,
-      "bm_weight": 0.00071,
-      "active_weight": 0.000153,
-      "total_risk_pct": -1.5e-05,
-      "total_vol_contribution": -3e-06,
-      "active_risk_pct": 2.2e-05,
+      "ticker": "AI",
+      "sector": "Materials",
+      "weight": 0.00159,
+      "bm_weight": 0.001682,
+      "active_weight": -9.2e-05,
+      "total_risk_pct": 0.000283,
+      "total_vol_contribution": 4.3e-05,
+      "active_risk_pct": 4.6e-05,
+      "active_te_contribution": 1e-06
+    },
+    {
+      "ticker": "IBE",
+      "sector": "Utilities",
+      "weight": 0.002002,
+      "bm_weight": 0.002129,
+      "active_weight": -0.000127,
+      "total_risk_pct": 0.00046,
+      "total_vol_contribution": 7e-05,
+      "active_risk_pct": 5.2e-05,
       "active_te_contribution": 1e-06
     },
     {
@@ -2412,9 +2359,9 @@
       "weight": 0.001115,
       "bm_weight": 0.001195,
       "active_weight": -8e-05,
-      "total_risk_pct": -3e-06,
+      "total_risk_pct": -9e-06,
       "total_vol_contribution": -1e-06,
-      "active_risk_pct": 4e-05,
+      "active_risk_pct": 5.1e-05,
       "active_te_contribution": 1e-06
     },
     {
@@ -2423,9 +2370,9 @@
       "weight": 0.000642,
       "bm_weight": 0.000705,
       "active_weight": -6.3e-05,
-      "total_risk_pct": 0.000264,
-      "total_vol_contribution": 4.4e-05,
-      "active_risk_pct": 1.9e-05,
+      "total_risk_pct": 0.000232,
+      "total_vol_contribution": 3.5e-05,
+      "active_risk_pct": 2.3e-05,
       "active_te_contribution": 1e-06
     },
     {
@@ -2434,10 +2381,21 @@
       "weight": 0.00112,
       "bm_weight": 0.0012,
       "active_weight": -8e-05,
-      "total_risk_pct": 0.001264,
-      "total_vol_contribution": 0.000213,
-      "active_risk_pct": -3.6e-05,
+      "total_risk_pct": 0.001233,
+      "total_vol_contribution": 0.000186,
+      "active_risk_pct": -5e-05,
       "active_te_contribution": -1e-06
+    },
+    {
+      "ticker": "CFR",
+      "sector": "Consumer Discretionary",
+      "weight": 0.001762,
+      "bm_weight": 0.001856,
+      "active_weight": -9.4e-05,
+      "total_risk_pct": 0.001453,
+      "total_vol_contribution": 0.00022,
+      "active_risk_pct": 3.8e-05,
+      "active_te_contribution": 1e-06
     },
     {
       "ticker": "MSCI",
@@ -2445,21 +2403,21 @@
       "weight": 0.000479,
       "bm_weight": 0.000558,
       "active_weight": -7.9e-05,
-      "total_risk_pct": 5.2e-05,
-      "total_vol_contribution": 9e-06,
-      "active_risk_pct": 2.5e-05,
+      "total_risk_pct": 5e-05,
+      "total_vol_contribution": 8e-06,
+      "active_risk_pct": 3.6e-05,
       "active_te_contribution": 1e-06
     },
     {
-      "ticker": "UCG",
-      "sector": "Financials",
-      "weight": 0.001881,
-      "bm_weight": 0.001984,
-      "active_weight": -0.000102,
-      "total_risk_pct": 0.002237,
-      "total_vol_contribution": 0.000377,
-      "active_risk_pct": -4.1e-05,
-      "active_te_contribution": -1e-06
+      "ticker": "6758",
+      "sector": "Consumer Discretionary",
+      "weight": 0.0018,
+      "bm_weight": 0.001894,
+      "active_weight": -9.4e-05,
+      "total_risk_pct": 2.8e-05,
+      "total_vol_contribution": 4e-06,
+      "active_risk_pct": 4.4e-05,
+      "active_te_contribution": 1e-06
     },
     {
       "ticker": "GM",
@@ -2467,10 +2425,21 @@
       "weight": 0.000941,
       "bm_weight": 0.001001,
       "active_weight": -6e-05,
-      "total_risk_pct": 0.000854,
-      "total_vol_contribution": 0.000144,
+      "total_risk_pct": 0.000798,
+      "total_vol_contribution": 0.000121,
       "active_risk_pct": -4.1e-05,
       "active_te_contribution": -1e-06
+    },
+    {
+      "ticker": "LYV",
+      "sector": "Communication Services",
+      "weight": 0.000493,
+      "bm_weight": 0.000578,
+      "active_weight": -8.4e-05,
+      "total_risk_pct": 0.000219,
+      "total_vol_contribution": 3.3e-05,
+      "active_risk_pct": 3.9e-05,
+      "active_te_contribution": 1e-06
     },
     {
       "ticker": "APD",
@@ -2479,8 +2448,8 @@
       "bm_weight": 0.00092,
       "active_weight": -8.7e-05,
       "total_risk_pct": 1.5e-05,
-      "total_vol_contribution": 3e-06,
-      "active_risk_pct": 3.5e-05,
+      "total_vol_contribution": 2e-06,
+      "active_risk_pct": 2.9e-05,
       "active_te_contribution": 1e-06
     },
     {
@@ -2489,9 +2458,9 @@
       "weight": 0.00143,
       "bm_weight": 0.001521,
       "active_weight": -9.1e-05,
-      "total_risk_pct": 0.000556,
-      "total_vol_contribution": 9.4e-05,
-      "active_risk_pct": 4.4e-05,
+      "total_risk_pct": 0.000546,
+      "total_vol_contribution": 8.3e-05,
+      "active_risk_pct": 3.5e-05,
       "active_te_contribution": 1e-06
     },
     {
@@ -2500,9 +2469,9 @@
       "weight": 0.00476,
       "bm_weight": 0.00482,
       "active_weight": -6e-05,
-      "total_risk_pct": 0.001045,
-      "total_vol_contribution": 0.000176,
-      "active_risk_pct": 7e-06,
+      "total_risk_pct": 0.000983,
+      "total_vol_contribution": 0.000149,
+      "active_risk_pct": 6e-06,
       "active_te_contribution": 0.0
     },
     {
@@ -2511,10 +2480,21 @@
       "weight": 0.002474,
       "bm_weight": 0.002568,
       "active_weight": -9.3e-05,
-      "total_risk_pct": 0.002134,
-      "total_vol_contribution": 0.000359,
-      "active_risk_pct": 4e-06,
-      "active_te_contribution": 0.0
+      "total_risk_pct": 0.00198,
+      "total_vol_contribution": 0.000299,
+      "active_risk_pct": -5e-06,
+      "active_te_contribution": -0.0
+    },
+    {
+      "ticker": "SPGI",
+      "sector": "Financials",
+      "weight": 0.001628,
+      "bm_weight": 0.001721,
+      "active_weight": -9.3e-05,
+      "total_risk_pct": 0.000259,
+      "total_vol_contribution": 3.9e-05,
+      "active_risk_pct": -1.4e-05,
+      "active_te_contribution": -0.0
     },
     {
       "ticker": "HON",
@@ -2522,10 +2502,10 @@
       "weight": 0.0009,
       "bm_weight": 0.000984,
       "active_weight": -8.4e-05,
-      "total_risk_pct": 0.000574,
-      "total_vol_contribution": 9.7e-05,
-      "active_risk_pct": 1e-06,
-      "active_te_contribution": 0.0
+      "total_risk_pct": 0.000638,
+      "total_vol_contribution": 9.6e-05,
+      "active_risk_pct": -6e-06,
+      "active_te_contribution": -0.0
     },
     {
       "ticker": "TMO",
@@ -2533,9 +2513,9 @@
       "weight": 0.002881,
       "bm_weight": 0.002969,
       "active_weight": -8.7e-05,
-      "total_risk_pct": 0.000938,
-      "total_vol_contribution": 0.000158,
-      "active_risk_pct": -4e-06,
+      "total_risk_pct": 0.000872,
+      "total_vol_contribution": 0.000132,
+      "active_risk_pct": -3e-06,
       "active_te_contribution": -0.0
     },
     {
@@ -2544,8 +2524,8 @@
       "weight": 0.002133,
       "bm_weight": 0.002133,
       "active_weight": -0.0,
-      "total_risk_pct": 0.001111,
-      "total_vol_contribution": 0.000187,
+      "total_risk_pct": 0.001115,
+      "total_vol_contribution": 0.000169,
       "active_risk_pct": -0.0,
       "active_te_contribution": -0.0
     },
@@ -2555,9 +2535,9 @@
       "weight": 0.000915,
       "bm_weight": 0.001003,
       "active_weight": -8.7e-05,
-      "total_risk_pct": 0.00048,
-      "total_vol_contribution": 8.1e-05,
-      "active_risk_pct": -3e-06,
+      "total_risk_pct": 0.000434,
+      "total_vol_contribution": 6.6e-05,
+      "active_risk_pct": -8e-06,
       "active_te_contribution": -0.0
     },
     {
@@ -2566,21 +2546,32 @@
       "weight": 0.001358,
       "bm_weight": 0.001448,
       "active_weight": -9.1e-05,
-      "total_risk_pct": 0.000113,
-      "total_vol_contribution": 1.9e-05,
-      "active_risk_pct": -3e-06,
+      "total_risk_pct": 9.1e-05,
+      "total_vol_contribution": 1.4e-05,
+      "active_risk_pct": 1e-05,
+      "active_te_contribution": 0.0
+    },
+    {
+      "ticker": "RHM",
+      "sector": "Industrials",
+      "weight": 0.001346,
+      "bm_weight": 0.000895,
+      "active_weight": 0.000451,
+      "total_risk_pct": 0.000732,
+      "total_vol_contribution": 0.000111,
+      "active_risk_pct": -0.0,
       "active_te_contribution": -0.0
     },
     {
-      "ticker": "RR/",
-      "sector": "Industrials",
-      "weight": 0.002279,
-      "bm_weight": 0.002362,
-      "active_weight": -8.3e-05,
-      "total_risk_pct": 0.00331,
-      "total_vol_contribution": 0.000557,
-      "active_risk_pct": -6e-06,
-      "active_te_contribution": -0.0
+      "ticker": "ALV",
+      "sector": "Financials",
+      "weight": 0.002552,
+      "bm_weight": 0.002651,
+      "active_weight": -0.0001,
+      "total_risk_pct": 0.001379,
+      "total_vol_contribution": 0.000209,
+      "active_risk_pct": 1.7e-05,
+      "active_te_contribution": 0.0
     },
     {
       "ticker": "SCHW",
@@ -2588,8 +2579,8 @@
       "weight": 0.002555,
       "bm_weight": 0.002633,
       "active_weight": -7.7e-05,
-      "total_risk_pct": 0.000338,
-      "total_vol_contribution": 5.7e-05,
+      "total_risk_pct": 0.00029,
+      "total_vol_contribution": 4.4e-05,
       "active_risk_pct": -2e-06,
       "active_te_contribution": -0.0
     },
@@ -2599,9 +2590,9 @@
       "weight": 0.001564,
       "bm_weight": 0.001647,
       "active_weight": -8.3e-05,
-      "total_risk_pct": 0.00054,
-      "total_vol_contribution": 9.1e-05,
-      "active_risk_pct": -5e-06,
+      "total_risk_pct": 0.000496,
+      "total_vol_contribution": 7.5e-05,
+      "active_risk_pct": -4e-06,
       "active_te_contribution": -0.0
     },
     {
@@ -2610,8 +2601,8 @@
       "weight": 0.002658,
       "bm_weight": 0.002658,
       "active_weight": -0.0,
-      "total_risk_pct": -0.00037,
-      "total_vol_contribution": -6.2e-05,
+      "total_risk_pct": -0.000397,
+      "total_vol_contribution": -6e-05,
       "active_risk_pct": 0.0,
       "active_te_contribution": 0.0
     },
@@ -2621,9 +2612,20 @@
       "weight": 0.000792,
       "bm_weight": 0.000792,
       "active_weight": -0.0,
-      "total_risk_pct": 0.001138,
-      "total_vol_contribution": 0.000192,
+      "total_risk_pct": 0.001394,
+      "total_vol_contribution": 0.000211,
       "active_risk_pct": -0.0,
+      "active_te_contribution": -0.0
+    },
+    {
+      "ticker": "ADSK",
+      "sector": "Technology",
+      "weight": 0.000862,
+      "bm_weight": 0.00071,
+      "active_weight": 0.000153,
+      "total_risk_pct": -2.6e-05,
+      "total_vol_contribution": -4e-06,
+      "active_risk_pct": -1.7e-05,
       "active_te_contribution": -0.0
     },
     {
@@ -2632,8 +2634,8 @@
       "weight": 0.000464,
       "bm_weight": 0.000464,
       "active_weight": -0.0,
-      "total_risk_pct": 0.000119,
-      "total_vol_contribution": 2e-05,
+      "total_risk_pct": 0.000118,
+      "total_vol_contribution": 1.8e-05,
       "active_risk_pct": -0.0,
       "active_te_contribution": -0.0
     },
@@ -2643,9 +2645,9 @@
       "weight": 0.001071,
       "bm_weight": 0.001147,
       "active_weight": -7.6e-05,
-      "total_risk_pct": 0.000315,
-      "total_vol_contribution": 5.3e-05,
-      "active_risk_pct": -1e-05,
+      "total_risk_pct": 0.000301,
+      "total_vol_contribution": 4.5e-05,
+      "active_risk_pct": -3e-06,
       "active_te_contribution": -0.0
     },
     {
@@ -2654,9 +2656,9 @@
       "weight": 0.001976,
       "bm_weight": 0.002079,
       "active_weight": -0.000102,
-      "total_risk_pct": 0.001233,
-      "total_vol_contribution": 0.000208,
-      "active_risk_pct": -1.3e-05,
+      "total_risk_pct": 0.001144,
+      "total_vol_contribution": 0.000173,
+      "active_risk_pct": -8e-06,
       "active_te_contribution": -0.0
     },
     {
@@ -2665,10 +2667,10 @@
       "weight": 0.002523,
       "bm_weight": 0.002623,
       "active_weight": -0.0001,
-      "total_risk_pct": 0.002272,
-      "total_vol_contribution": 0.000382,
-      "active_risk_pct": 8e-06,
-      "active_te_contribution": 0.0
+      "total_risk_pct": 0.002084,
+      "total_vol_contribution": 0.000315,
+      "active_risk_pct": -4e-06,
+      "active_te_contribution": -0.0
     },
     {
       "ticker": "SAF",
@@ -2676,10 +2678,10 @@
       "weight": 0.002233,
       "bm_weight": 0.002331,
       "active_weight": -9.7e-05,
-      "total_risk_pct": 0.002642,
-      "total_vol_contribution": 0.000445,
-      "active_risk_pct": 1.2e-05,
-      "active_te_contribution": 0.0
+      "total_risk_pct": 0.002503,
+      "total_vol_contribution": 0.000378,
+      "active_risk_pct": -5e-06,
+      "active_te_contribution": -0.0
     },
     {
       "ticker": "NEM",
@@ -2687,8 +2689,8 @@
       "weight": 0.001666,
       "bm_weight": 0.001666,
       "active_weight": -0.0,
-      "total_risk_pct": 0.002433,
-      "total_vol_contribution": 0.00041,
+      "total_risk_pct": 0.002307,
+      "total_vol_contribution": 0.000349,
       "active_risk_pct": -0.0,
       "active_te_contribution": -0.0
     },
@@ -2698,8 +2700,8 @@
       "weight": 0.001077,
       "bm_weight": 0.001077,
       "active_weight": -0.0,
-      "total_risk_pct": 0.000837,
-      "total_vol_contribution": 0.000141,
+      "total_risk_pct": 0.000819,
+      "total_vol_contribution": 0.000124,
       "active_risk_pct": -0.0,
       "active_te_contribution": -0.0
     },
@@ -2709,9 +2711,9 @@
       "weight": 0.001377,
       "bm_weight": 0.001458,
       "active_weight": -8.2e-05,
-      "total_risk_pct": -0.000385,
-      "total_vol_contribution": -6.5e-05,
-      "active_risk_pct": 1e-06,
+      "total_risk_pct": -0.000403,
+      "total_vol_contribution": -6.1e-05,
+      "active_risk_pct": 1.5e-05,
       "active_te_contribution": 0.0
     },
     {
@@ -2720,8 +2722,8 @@
       "weight": 0.000819,
       "bm_weight": 0.000819,
       "active_weight": -0.0,
-      "total_risk_pct": -8e-06,
-      "total_vol_contribution": -1e-06,
+      "total_risk_pct": -1.4e-05,
+      "total_vol_contribution": -2e-06,
       "active_risk_pct": -0.0,
       "active_te_contribution": -0.0
     },
@@ -2731,8 +2733,8 @@
       "weight": 0.001607,
       "bm_weight": 0.001607,
       "active_weight": -0.0,
-      "total_risk_pct": 3.1e-05,
-      "total_vol_contribution": 5e-06,
+      "total_risk_pct": 2.5e-05,
+      "total_vol_contribution": 4e-06,
       "active_risk_pct": 0.0,
       "active_te_contribution": 0.0
     },
@@ -2742,8 +2744,8 @@
       "weight": 0.001215,
       "bm_weight": 0.001215,
       "active_weight": -0.0,
-      "total_risk_pct": 8e-05,
-      "total_vol_contribution": 1.3e-05,
+      "total_risk_pct": 7.1e-05,
+      "total_vol_contribution": 1.1e-05,
       "active_risk_pct": 0.0,
       "active_te_contribution": 0.0
     },
@@ -2753,9 +2755,9 @@
       "weight": 0.001195,
       "bm_weight": 0.00127,
       "active_weight": -7.5e-05,
-      "total_risk_pct": 0.000592,
-      "total_vol_contribution": 0.0001,
-      "active_risk_pct": 1.5e-05,
+      "total_risk_pct": 0.000573,
+      "total_vol_contribution": 8.7e-05,
+      "active_risk_pct": 1.1e-05,
       "active_te_contribution": 0.0
     },
     {
@@ -2764,67 +2766,67 @@
       "weight": 0.000696,
       "bm_weight": 0.000782,
       "active_weight": -8.5e-05,
-      "total_risk_pct": 0.000337,
-      "total_vol_contribution": 5.7e-05,
-      "active_risk_pct": 8e-06,
+      "total_risk_pct": 0.000315,
+      "total_vol_contribution": 4.8e-05,
+      "active_risk_pct": 1e-06,
       "active_te_contribution": 0.0
     }
   ],
   "by_sector": [
     {
       "sector": "Technology",
-      "total_vol_contribution": 0.141692,
-      "active_te_contribution": 0.029828
+      "total_vol_contribution": 0.129037,
+      "active_te_contribution": 0.026897
     },
     {
       "sector": "Communication Services",
-      "total_vol_contribution": 0.001403,
-      "active_te_contribution": 0.00184
+      "total_vol_contribution": 0.001045,
+      "active_te_contribution": 0.00143
     },
     {
       "sector": "Consumer Staples",
-      "total_vol_contribution": -0.000755,
-      "active_te_contribution": 0.000992
+      "total_vol_contribution": -0.000756,
+      "active_te_contribution": 0.001034
     },
     {
       "sector": "Industrials",
-      "total_vol_contribution": 0.008126,
-      "active_te_contribution": -0.000396
+      "total_vol_contribution": 0.007101,
+      "active_te_contribution": -0.000426
     },
     {
       "sector": "Healthcare",
-      "total_vol_contribution": 0.0008,
-      "active_te_contribution": -0.000312
+      "total_vol_contribution": 0.000574,
+      "active_te_contribution": -0.000274
     },
     {
       "sector": "Consumer Discretionary",
-      "total_vol_contribution": 0.011953,
-      "active_te_contribution": -0.000271
-    },
-    {
-      "sector": "Financials",
-      "total_vol_contribution": 0.006134,
-      "active_te_contribution": 0.000136
+      "total_vol_contribution": 0.010088,
+      "active_te_contribution": -0.000244
     },
     {
       "sector": "Energy",
-      "total_vol_contribution": -0.002741,
-      "active_te_contribution": 9e-05
+      "total_vol_contribution": -0.002603,
+      "active_te_contribution": 8.8e-05
+    },
+    {
+      "sector": "Financials",
+      "total_vol_contribution": 0.005208,
+      "active_te_contribution": 6e-05
     },
     {
       "sector": "Materials",
-      "total_vol_contribution": 0.001266,
-      "active_te_contribution": -4.6e-05
+      "total_vol_contribution": 0.001114,
+      "active_te_contribution": -4.7e-05
     },
     {
       "sector": "Utilities",
-      "total_vol_contribution": 0.000292,
-      "active_te_contribution": -3.7e-05
+      "total_vol_contribution": 0.00025,
+      "active_te_contribution": -3.5e-05
     },
     {
       "sector": "Real Estate",
-      "total_vol_contribution": 0.000147,
-      "active_te_contribution": 1.7e-05
+      "total_vol_contribution": 0.000121,
+      "active_te_contribution": 1.4e-05
     }
   ]
 }

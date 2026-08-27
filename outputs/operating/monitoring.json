@@ -1368,682 +1368,779 @@
   "tracking_error_constraint": [
     {
       "date": "2018-11-26",
-      "estimated_te": 0.003989,
+      "estimated_te": 0.004073,
       "limit": 0.045,
-      "headroom": 0.041011,
-      "breached": false
+      "headroom": 0.040927,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2018-12-25",
-      "estimated_te": 0.009143,
+      "estimated_te": 0.009411,
       "limit": 0.045,
-      "headroom": 0.035857,
-      "breached": false
+      "headroom": 0.035589,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2019-01-23",
-      "estimated_te": 0.013444,
+      "estimated_te": 0.013659,
       "limit": 0.045,
-      "headroom": 0.031556,
-      "breached": false
+      "headroom": 0.031341,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2019-02-21",
-      "estimated_te": 0.021743,
+      "estimated_te": 0.022155,
       "limit": 0.045,
-      "headroom": 0.023257,
-      "breached": false
+      "headroom": 0.022845,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2019-03-22",
-      "estimated_te": 0.024275,
+      "estimated_te": 0.024635,
       "limit": 0.045,
-      "headroom": 0.020725,
-      "breached": false
+      "headroom": 0.020365,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2019-04-22",
-      "estimated_te": 0.025403,
+      "estimated_te": 0.025922,
       "limit": 0.045,
-      "headroom": 0.019597,
-      "breached": false
+      "headroom": 0.019078,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2019-05-21",
-      "estimated_te": 0.026608,
+      "estimated_te": 0.027337,
       "limit": 0.045,
-      "headroom": 0.018392,
-      "breached": false
+      "headroom": 0.017663,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2019-06-19",
-      "estimated_te": 0.027789,
+      "estimated_te": 0.028802,
       "limit": 0.045,
-      "headroom": 0.017211,
-      "breached": false
+      "headroom": 0.016198,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2019-07-18",
-      "estimated_te": 0.028529,
+      "estimated_te": 0.03001,
       "limit": 0.045,
-      "headroom": 0.016471,
-      "breached": false
+      "headroom": 0.01499,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2019-08-16",
       "estimated_te": 0.0,
       "limit": 0.045,
       "headroom": 0.045,
-      "breached": false
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2019-09-16",
-      "estimated_te": 0.0143,
+      "estimated_te": 0.01497,
       "limit": 0.045,
-      "headroom": 0.0307,
-      "breached": false
+      "headroom": 0.03003,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2019-10-15",
-      "estimated_te": 0.023021,
+      "estimated_te": 0.024003,
       "limit": 0.045,
-      "headroom": 0.021979,
-      "breached": false
+      "headroom": 0.020997,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2019-11-13",
-      "estimated_te": 0.038549,
+      "estimated_te": 0.04077,
       "limit": 0.045,
-      "headroom": 0.006451,
-      "breached": false
+      "headroom": 0.00423,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2019-12-12",
-      "estimated_te": 0.040205,
+      "estimated_te": 0.0428,
       "limit": 0.045,
-      "headroom": 0.004795,
-      "breached": false
+      "headroom": 0.0022,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2020-01-10",
-      "estimated_te": 0.042328,
+      "estimated_te": 0.045,
       "limit": 0.045,
-      "headroom": 0.002672,
-      "breached": false
+      "headroom": -0.0,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2020-02-10",
-      "estimated_te": 0.037869,
+      "estimated_te": 0.04035,
       "limit": 0.045,
-      "headroom": 0.007131,
-      "breached": false
+      "headroom": 0.00465,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2020-03-10",
-      "estimated_te": 0.041733,
+      "estimated_te": 0.045,
       "limit": 0.045,
-      "headroom": 0.003267,
-      "breached": false
+      "headroom": 0.0,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2020-04-08",
-      "estimated_te": 0.043864,
+      "estimated_te": 0.045,
       "limit": 0.045,
-      "headroom": 0.001136,
-      "breached": false
+      "headroom": -0.0,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2020-05-07",
-      "estimated_te": 0.044479,
+      "estimated_te": 0.045,
       "limit": 0.045,
-      "headroom": 0.000521,
-      "breached": false
+      "headroom": 0.0,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2020-06-05",
-      "estimated_te": 0.044612,
+      "estimated_te": 0.045,
       "limit": 0.045,
-      "headroom": 0.000388,
-      "breached": false
+      "headroom": -0.0,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2020-07-06",
-      "estimated_te": 0.044813,
+      "estimated_te": 0.045,
       "limit": 0.045,
-      "headroom": 0.000187,
-      "breached": false
+      "headroom": -0.0,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2020-08-04",
-      "estimated_te": 0.044795,
+      "estimated_te": 0.045,
       "limit": 0.045,
-      "headroom": 0.000205,
-      "breached": false
+      "headroom": -0.0,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2020-09-02",
-      "estimated_te": 0.043213,
+      "estimated_te": 0.043701,
       "limit": 0.045,
-      "headroom": 0.001787,
-      "breached": false
+      "headroom": 0.001299,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2020-10-01",
-      "estimated_te": 0.041994,
+      "estimated_te": 0.043301,
       "limit": 0.045,
-      "headroom": 0.003006,
-      "breached": false
+      "headroom": 0.001699,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2020-10-30",
       "estimated_te": 0.0,
       "limit": 0.045,
       "headroom": 0.045,
-      "breached": false
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2020-11-30",
-      "estimated_te": 0.018604,
+      "estimated_te": 0.019689,
       "limit": 0.045,
-      "headroom": 0.026396,
-      "breached": false
+      "headroom": 0.025311,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2020-12-29",
-      "estimated_te": 0.023299,
+      "estimated_te": 0.024811,
       "limit": 0.045,
-      "headroom": 0.021701,
-      "breached": false
+      "headroom": 0.020189,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2021-01-27",
-      "estimated_te": 0.027523,
+      "estimated_te": 0.029857,
       "limit": 0.045,
-      "headroom": 0.017477,
-      "breached": false
+      "headroom": 0.015143,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2021-02-25",
-      "estimated_te": 0.026076,
+      "estimated_te": 0.028022,
       "limit": 0.045,
-      "headroom": 0.018924,
-      "breached": false
+      "headroom": 0.016978,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2021-03-26",
-      "estimated_te": 0.029261,
+      "estimated_te": 0.031422,
       "limit": 0.045,
-      "headroom": 0.015739,
-      "breached": false
+      "headroom": 0.013578,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2021-04-26",
-      "estimated_te": 0.010501,
+      "estimated_te": 0.010744,
       "limit": 0.045,
-      "headroom": 0.034499,
-      "breached": false
+      "headroom": 0.034256,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2021-05-25",
-      "estimated_te": 0.012321,
+      "estimated_te": 0.012555,
       "limit": 0.045,
-      "headroom": 0.032679,
-      "breached": false
+      "headroom": 0.032445,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2021-06-23",
-      "estimated_te": 0.016564,
+      "estimated_te": 0.017031,
       "limit": 0.045,
-      "headroom": 0.028436,
-      "breached": false
+      "headroom": 0.027969,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2021-07-22",
-      "estimated_te": 0.018703,
+      "estimated_te": 0.019285,
       "limit": 0.045,
-      "headroom": 0.026297,
-      "breached": false
+      "headroom": 0.025715,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2021-08-20",
-      "estimated_te": 0.019261,
+      "estimated_te": 0.019942,
       "limit": 0.045,
-      "headroom": 0.025739,
-      "breached": false
+      "headroom": 0.025058,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2021-09-20",
-      "estimated_te": 0.019707,
+      "estimated_te": 0.020605,
       "limit": 0.045,
-      "headroom": 0.025293,
-      "breached": false
+      "headroom": 0.024395,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2021-10-19",
-      "estimated_te": 0.022404,
+      "estimated_te": 0.023179,
       "limit": 0.045,
-      "headroom": 0.022596,
-      "breached": false
+      "headroom": 0.021821,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2021-11-17",
-      "estimated_te": 0.028021,
+      "estimated_te": 0.0298,
       "limit": 0.045,
-      "headroom": 0.016979,
-      "breached": false
+      "headroom": 0.0152,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2021-12-16",
-      "estimated_te": 0.026809,
+      "estimated_te": 0.027585,
       "limit": 0.045,
-      "headroom": 0.018191,
-      "breached": false
+      "headroom": 0.017415,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2022-01-14",
-      "estimated_te": 0.02678,
+      "estimated_te": 0.027404,
       "limit": 0.045,
-      "headroom": 0.01822,
-      "breached": false
+      "headroom": 0.017596,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2022-02-14",
-      "estimated_te": 0.030165,
+      "estimated_te": 0.030564,
       "limit": 0.045,
-      "headroom": 0.014835,
-      "breached": false
+      "headroom": 0.014436,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2022-03-15",
-      "estimated_te": 0.032626,
+      "estimated_te": 0.03298,
       "limit": 0.045,
-      "headroom": 0.012374,
-      "breached": false
+      "headroom": 0.01202,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2022-04-13",
-      "estimated_te": 0.028395,
+      "estimated_te": 0.028389,
       "limit": 0.045,
-      "headroom": 0.016605,
-      "breached": false
+      "headroom": 0.016611,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2022-05-12",
-      "estimated_te": 0.028794,
+      "estimated_te": 0.028739,
       "limit": 0.045,
-      "headroom": 0.016206,
-      "breached": false
+      "headroom": 0.016261,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2022-06-10",
-      "estimated_te": 0.032113,
+      "estimated_te": 0.032194,
       "limit": 0.045,
-      "headroom": 0.012887,
-      "breached": false
+      "headroom": 0.012806,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2022-07-11",
-      "estimated_te": 0.033778,
+      "estimated_te": 0.034047,
       "limit": 0.045,
-      "headroom": 0.011222,
-      "breached": false
+      "headroom": 0.010953,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2022-08-09",
       "estimated_te": 0.0,
       "limit": 0.045,
       "headroom": 0.045,
-      "breached": false
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2022-09-07",
-      "estimated_te": 0.009369,
+      "estimated_te": 0.009286,
       "limit": 0.045,
-      "headroom": 0.035631,
-      "breached": false
+      "headroom": 0.035714,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2022-10-06",
-      "estimated_te": 0.016625,
+      "estimated_te": 0.016714,
       "limit": 0.045,
-      "headroom": 0.028375,
-      "breached": false
+      "headroom": 0.028286,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2022-11-04",
-      "estimated_te": 0.019609,
+      "estimated_te": 0.019744,
       "limit": 0.045,
-      "headroom": 0.025391,
-      "breached": false
+      "headroom": 0.025256,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2022-12-05",
-      "estimated_te": 0.021874,
+      "estimated_te": 0.022071,
       "limit": 0.045,
-      "headroom": 0.023126,
-      "breached": false
+      "headroom": 0.022929,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2023-01-03",
-      "estimated_te": 0.02052,
+      "estimated_te": 0.020624,
       "limit": 0.045,
-      "headroom": 0.02448,
-      "breached": false
+      "headroom": 0.024376,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2023-02-01",
-      "estimated_te": 0.022444,
+      "estimated_te": 0.022525,
       "limit": 0.045,
-      "headroom": 0.022556,
-      "breached": false
+      "headroom": 0.022475,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2023-03-02",
-      "estimated_te": 0.029396,
+      "estimated_te": 0.029785,
       "limit": 0.045,
-      "headroom": 0.015604,
-      "breached": false
+      "headroom": 0.015215,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2023-03-31",
-      "estimated_te": 0.024734,
+      "estimated_te": 0.025069,
       "limit": 0.045,
-      "headroom": 0.020266,
-      "breached": false
+      "headroom": 0.019931,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2023-05-01",
-      "estimated_te": 0.02263,
+      "estimated_te": 0.022888,
       "limit": 0.045,
-      "headroom": 0.02237,
-      "breached": false
+      "headroom": 0.022112,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2023-05-30",
-      "estimated_te": 0.02467,
+      "estimated_te": 0.025192,
       "limit": 0.045,
-      "headroom": 0.02033,
-      "breached": false
+      "headroom": 0.019808,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2023-06-28",
-      "estimated_te": 0.031537,
+      "estimated_te": 0.032559,
       "limit": 0.045,
-      "headroom": 0.013463,
-      "breached": false
+      "headroom": 0.012441,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2023-07-27",
-      "estimated_te": 0.037208,
+      "estimated_te": 0.038837,
       "limit": 0.045,
-      "headroom": 0.007792,
-      "breached": false
+      "headroom": 0.006163,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2023-08-25",
-      "estimated_te": 0.036349,
+      "estimated_te": 0.038125,
       "limit": 0.045,
-      "headroom": 0.008651,
-      "breached": false
+      "headroom": 0.006875,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2023-09-25",
-      "estimated_te": 0.038693,
+      "estimated_te": 0.041165,
       "limit": 0.045,
-      "headroom": 0.006307,
-      "breached": false
+      "headroom": 0.003835,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2023-10-24",
-      "estimated_te": 0.04249,
+      "estimated_te": 0.044923,
       "limit": 0.045,
-      "headroom": 0.00251,
-      "breached": false
+      "headroom": 7.7e-05,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2023-11-22",
-      "estimated_te": 0.042834,
+      "estimated_te": 0.045,
       "limit": 0.045,
-      "headroom": 0.002166,
-      "breached": false
+      "headroom": 0.0,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2023-12-21",
-      "estimated_te": 0.040731,
+      "estimated_te": 0.042781,
       "limit": 0.045,
-      "headroom": 0.004269,
-      "breached": false
+      "headroom": 0.002219,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2024-01-19",
-      "estimated_te": 0.039197,
+      "estimated_te": 0.04123,
       "limit": 0.045,
-      "headroom": 0.005803,
-      "breached": false
+      "headroom": 0.00377,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2024-02-19",
-      "estimated_te": 0.042373,
+      "estimated_te": 0.045,
       "limit": 0.045,
-      "headroom": 0.002627,
-      "breached": false
+      "headroom": -0.0,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2024-03-19",
-      "estimated_te": 0.042286,
+      "estimated_te": 0.045,
       "limit": 0.045,
-      "headroom": 0.002714,
-      "breached": false
+      "headroom": 0.0,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2024-04-17",
-      "estimated_te": 0.038951,
+      "estimated_te": 0.04168,
       "limit": 0.045,
-      "headroom": 0.006049,
-      "breached": false
+      "headroom": 0.00332,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2024-05-16",
       "estimated_te": 0.0,
       "limit": 0.045,
       "headroom": 0.045,
-      "breached": false
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2024-06-14",
-      "estimated_te": 0.012892,
+      "estimated_te": 0.013836,
       "limit": 0.045,
-      "headroom": 0.032108,
-      "breached": false
+      "headroom": 0.031164,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2024-07-15",
-      "estimated_te": 0.020029,
+      "estimated_te": 0.021789,
       "limit": 0.045,
-      "headroom": 0.024971,
-      "breached": false
+      "headroom": 0.023211,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2024-08-13",
-      "estimated_te": 0.020193,
+      "estimated_te": 0.021305,
       "limit": 0.045,
-      "headroom": 0.024807,
-      "breached": false
+      "headroom": 0.023695,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2024-09-11",
-      "estimated_te": 0.01467,
+      "estimated_te": 0.01519,
       "limit": 0.045,
-      "headroom": 0.03033,
-      "breached": false
+      "headroom": 0.02981,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2024-10-10",
-      "estimated_te": 0.013724,
+      "estimated_te": 0.01418,
       "limit": 0.045,
-      "headroom": 0.031276,
-      "breached": false
+      "headroom": 0.03082,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2024-11-08",
-      "estimated_te": 0.017284,
+      "estimated_te": 0.018104,
       "limit": 0.045,
-      "headroom": 0.027716,
-      "breached": false
+      "headroom": 0.026896,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2024-12-09",
-      "estimated_te": 0.032641,
+      "estimated_te": 0.035272,
       "limit": 0.045,
-      "headroom": 0.012359,
-      "breached": false
+      "headroom": 0.009728,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2025-01-07",
-      "estimated_te": 0.02962,
+      "estimated_te": 0.031769,
       "limit": 0.045,
-      "headroom": 0.01538,
-      "breached": false
+      "headroom": 0.013231,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2025-02-05",
-      "estimated_te": 0.027828,
+      "estimated_te": 0.031115,
       "limit": 0.045,
-      "headroom": 0.017172,
-      "breached": false
+      "headroom": 0.013885,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2025-03-06",
-      "estimated_te": 0.028336,
+      "estimated_te": 0.031743,
       "limit": 0.045,
-      "headroom": 0.016664,
-      "breached": false
+      "headroom": 0.013257,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2025-04-04",
-      "estimated_te": 0.017318,
+      "estimated_te": 0.018304,
       "limit": 0.045,
-      "headroom": 0.027682,
-      "breached": false
+      "headroom": 0.026696,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2025-05-05",
-      "estimated_te": 0.016039,
+      "estimated_te": 0.016397,
       "limit": 0.045,
-      "headroom": 0.028961,
-      "breached": false
+      "headroom": 0.028603,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2025-06-03",
-      "estimated_te": 0.01799,
+      "estimated_te": 0.018374,
       "limit": 0.045,
-      "headroom": 0.02701,
-      "breached": false
+      "headroom": 0.026626,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2025-07-02",
-      "estimated_te": 0.022024,
+      "estimated_te": 0.022922,
       "limit": 0.045,
-      "headroom": 0.022976,
-      "breached": false
+      "headroom": 0.022078,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2025-07-31",
-      "estimated_te": 0.022861,
+      "estimated_te": 0.024255,
       "limit": 0.045,
-      "headroom": 0.022139,
-      "breached": false
+      "headroom": 0.020745,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2025-08-29",
-      "estimated_te": 0.032983,
+      "estimated_te": 0.035508,
       "limit": 0.045,
-      "headroom": 0.012017,
-      "breached": false
+      "headroom": 0.009492,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2025-09-29",
-      "estimated_te": 0.033325,
+      "estimated_te": 0.03677,
       "limit": 0.045,
-      "headroom": 0.011675,
-      "breached": false
+      "headroom": 0.00823,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2025-10-28",
-      "estimated_te": 0.03912,
+      "estimated_te": 0.043546,
       "limit": 0.045,
-      "headroom": 0.00588,
-      "breached": false
+      "headroom": 0.001454,
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2025-11-26",
       "estimated_te": 0.045,
       "limit": 0.045,
       "headroom": 0.0,
-      "breached": false
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2025-12-25",
       "estimated_te": 0.045,
       "limit": 0.045,
       "headroom": 0.0,
-      "breached": false
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2026-01-23",
       "estimated_te": 0.045,
       "limit": 0.045,
       "headroom": -0.0,
-      "breached": false
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2026-02-23",
       "estimated_te": 0.045,
       "limit": 0.045,
       "headroom": -0.0,
-      "breached": false
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2026-03-24",
       "estimated_te": 0.045,
       "limit": 0.045,
       "headroom": -0.0,
-      "breached": false
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2026-04-22",
       "estimated_te": 0.045,
       "limit": 0.045,
       "headroom": 0.0,
-      "breached": false
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2026-05-21",
       "estimated_te": 0.043704,
       "limit": 0.045,
       "headroom": 0.001296,
-      "breached": false
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2026-06-19",
       "estimated_te": 0.040175,
       "limit": 0.045,
       "headroom": 0.004825,
-      "breached": false
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2026-07-20",
       "estimated_te": 0.034522,
       "limit": 0.045,
       "headroom": 0.010478,
-      "breached": false
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     },
     {
       "date": "2026-08-18",
       "estimated_te": 0.042625,
       "limit": 0.045,
       "headroom": 0.002375,
-      "breached": false
+      "breached": false,
+      "option_vol_cov_scaling_applied": false
     }
   ],
   "rolling": [

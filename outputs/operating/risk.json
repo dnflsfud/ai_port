@@ -1,8 +1,10 @@
 {
   "as_of": "2026-08-18",
-  "method": "Latest rebalance, Ledoit-Wolf covariance, annualized.",
+  "method": "Latest rebalance, production covariance (raw-return estimate_covariance + option-IV diagonal scaling when enabled), annualized.",
   "max_tracking_error_annual": 0.045,
   "cov_lookback_days": 126,
+  "option_vol_cov_scaling_enabled": false,
+  "option_vol_cov_scaling_applied": false,
   "estimated_portfolio_vol": 0.178702,
   "estimated_tracking_error": 0.042625,
   "guardrails": {

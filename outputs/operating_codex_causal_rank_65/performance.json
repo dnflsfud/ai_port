@@ -15,7 +15,9 @@
   "sub_period_ir": {
     "P1_ir": 1.4403173195858587,
     "P2_ir": 0.9438461941015374,
-    "P3_ir": 1.753305043256433
+    "P3_ir": 1.753305043256433,
+    "P4_tail_ir": 0.7517801407735176,
+    "sub_period_coverage_end": "2026-08-25"
   },
   "sp500": {
     "annual_return": 0.14827359910453985,
@@ -29,7 +31,9 @@
     "sub_period_ir": {
       "P1_ir": NaN,
       "P2_ir": NaN,
-      "P3_ir": NaN
+      "P3_ir": NaN,
+      "P4_tail_ir": NaN,
+      "sub_period_coverage_end": "2026-08-25"
     }
   },
   "by_year_returns": {

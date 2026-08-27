@@ -268,6 +268,7 @@
     "revision_clean_reversion_ratio": 0.5,
     "revision_clean_threshold": 15.0,
     "risk_aversion": 1.0,
+    "s15_fixpack_enabled": false,
     "sales_surprise_feature_enabled": false,
     "satellite_budget": 0.225,
     "satellite_max_per_stock": 0.04,
@@ -312,6 +313,6 @@
     "variant_label": "codex_causal_rank_65"
   },
   "git_dirty": false,
-  "git_hash": "43f23ffd0a304c0142ec0a75b6b2e7695dd16805",
-  "timestamp_utc": "2026-08-26T03:14:54Z"
+  "git_hash": "9d26857d87f4924004fa0712b36fe425761cee8d",
+  "timestamp_utc": "2026-08-27T03:14:26Z"
 }
