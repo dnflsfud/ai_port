@@ -204,6 +204,46 @@ SENT_TREND_SHEETS = {
 # targets/predictions cell masks in run_backtest.
 LISTING_REMASK_EXEMPT_SHEETS = {"Daily_Returns"}
 
+# Sheets that must NOT define the production trading calendar (structural
+# review 2026-08-27; gated by config.calendar_exempt_sheets_enabled).
+#
+# align_dates() intersects every preprocessed sheet's date index, so a research
+# sheet with a short history silently truncates the whole backtest. Membership
+# rule: a sheet belongs here iff NO feature admitted under the production
+# variant consumes it. Each entry names the arm that owns it.
+#
+# Deliberately NOT exempt (production consumes them today):
+#   Fwd_Sales_Slope_1FY2FY  -> fwd_sales_slope_features_enabled: true (§S13.25)
+#   iv30_z                  -> option_vol_covariance_enabled: true  (§S13.41)
+# Both are pinned by tests/test_data_loader.py.
+CALENDAR_EXEMPT_SHEETS = frozenset({
+    # §S13.34 IV surface arm (implied_vol_features_enabled, default-OFF)
+    "30DAY_IMPVOL_100.0%MNY_DF",
+    "30DAY_IMPVOL_90.0%MNY_DF",
+    "30DAY_IMPVOL_110.0%MNY_DF",
+    "3MTH_IMPVOL_100.0%MNY_DF",
+    "VOLATILITY_30D",
+    # §S13.35 volume / options-positioning arms (volume_/putcall_, default-OFF)
+    "PX_VOLUME",
+    "PUT_CALL_OPEN_INTEREST_RATIO",
+    # §S13.38 option-risk arm (option_risk_features_enabled, default-OFF).
+    # iv30_z is excluded above — it feeds the LIVE §S13.41 covariance channel.
+    "downside_skew_z",
+    "downside_skew_chg_5d",
+    "iv_term_structure_z",
+    "days_to_earnings",
+    # §S13.46 implied-correlation arm (implied_corr_covariance_enabled, OFF).
+    # Consumed from data.raw, never from data.sheets.
+    "iv30",
+    # §S13.4/§S13.5 surprise / fwd-OpCF arms (all default-OFF)
+    "Factset_EPS_Surprise",
+    "Factset_Sales_Surprise",
+    "Factset_Fwd_OpCashflow",
+    # iter16d short-interest block — si_* features are not in
+    # CORE_FEATURE_WHITELIST, so nothing admitted consumes this sheet.
+    "SHORT_INT_RATIO",
+})
+
 # 날짜 인덱스가 아닌 메타/요약 시트 (전처리에서 제외)
 SKIP_SHEETS = {"Universe_Meta", "Summary_Stats", "BusinessDays", "Factor_Meta", "Earnings_Timeline"}
 
@@ -640,8 +680,29 @@ def align_dates(
     diagnostics = diagnostics if diagnostics is not None else {}
 
     # 1) 교집합 산출 (기존 방식 — 안전한 코어 날짜)
+    # 구조 리뷰 2026-08-27: 기본 경로는 모든 시트를 교집합에 넣는다. 그래서
+    # 플래그-OFF 연구 시트가 production 캘린더를 자른다(실측 3,282 / 4,984행).
+    # ON이면 CALENDAR_EXEMPT_SHEETS를 교집합에서만 빼고, reindex 대상에는
+    # 그대로 남긴다(면제 시트의 OFF 피처는 영향 없음). 전 시트가 면제되는
+    # 합성 워크북은 기존 동작으로 되돌아간다.
+    calendar_names = list(processed)
+    if getattr(config, "calendar_exempt_sheets_enabled", False):
+        kept = [n for n in calendar_names if n not in CALENDAR_EXEMPT_SHEETS]
+        if kept:
+            exempted = sorted(set(calendar_names) - set(kept))
+            calendar_names = kept
+            diagnostics["calendar_exempt_sheets_applied"] = exempted
+            diagnostics["calendar_source_sheet_count"] = int(len(kept))
+            if exempted:
+                logger.warning(
+                    "[DataLoader] calendar intersection excludes %d arm-only "
+                    "sheet(s): %s",
+                    len(exempted), exempted,
+                )
+
     common_idx = None
-    for df in processed.values():
+    for name in calendar_names:
+        df = processed[name]
         if common_idx is None:
             common_idx = df.index
         else:
@@ -1442,6 +1503,42 @@ class UniverseData:
         df = _filter_tickers(df, tickers=self.full_universe)
         df = df.apply(pd.to_numeric, errors="coerce")
         return df
+
+    def raw_sheet_observed_mask(self, name: str) -> Optional[pd.DataFrame]:
+        """Pre-imputation observed mask for a per-ticker sheet (dates × tickers).
+
+        ``preprocess_sheets`` runs ``_fill_missing`` (ffill → per-date
+        cross-sectional median) and ``align_dates`` fills again, so
+        ``get_sheet(name)`` carries no NaN and a consumer cannot tell an
+        observed cell from an imputed one. Any consumer whose contract is
+        "missing input ⇒ stay inert" is therefore silently defeated
+        (§S13.41 covariance scaling; structural review 2026-08-27).
+
+        This mirrors exactly the standardisation that PRECEDES the fill — the
+        same idiom as ``_extract_raw_returns`` — and applies the level-sheet
+        listing mask so pre-listing backfill is not reported as observed.
+        Returns None when the sheet is absent from the workbook.
+        """
+        if name not in self.raw:
+            return None
+        df = self.raw[name].copy()
+        df = _standardize_columns(df)
+        if name in SENT_TREND_SHEETS:
+            df = _rename_sent_trend_columns(
+                df,
+                tickers=self.full_universe,
+                company_to_ticker=self.company_to_ticker,
+            )
+        if name in BLOOMBERG_EQUITY_SHEETS:
+            df = _rename_bloomberg_equity_columns(df)
+        df = _standardize_index(df)
+        df = _filter_tickers(df, tickers=self.full_universe)
+        df = df.apply(pd.to_numeric, errors="coerce")
+        if self.config.listing_mask_enabled and self.listing_dates:
+            df = mask_pre_listing(df, self.listing_dates, inclusive=False)
+        return df.notna().reindex(
+            index=self.dates, columns=self.tickers, fill_value=False
+        )
 
     def _load_earnings_timeline(self) -> Optional[pd.DataFrame]:
         """Earnings_Timeline 시트 로드 (date × ticker, 발표일=1).

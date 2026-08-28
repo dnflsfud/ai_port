@@ -20,11 +20,30 @@ Behaviour
      - "oos_verify": enforce_oos_holdout forced OFF; this is the single
                      "peek" allowed per candidate and is logged in the
                      manifest so selection-bias accounting sees it.
-4. Reuse Phase 1/2/4 checkpoints if available and --no-cache is not set.
+4. Run the FULL pipeline. See "Checkpoint reuse is inert" below.
 5. Run backtest via src.backtest.run_backtest under the composed config.
 6. Dump artifacts to <out_dir>/ (default outputs/<label>/):
      - metrics.json, backtest_result.pkl, experiment_manifest.json
 7. Print a concise summary with baseline-comparison deltas.
+
+Checkpoint reuse is inert (structural review 2026-08-27)
+--------------------------------------------------------
+NOTHING in this repository writes a Phase 1/2/4 checkpoint — ``save_checkpoint``
+is called for ``"phase3"`` only, and only from inside the (therefore
+unreachable) reuse branch below. ``load_checkpoint("phase1")`` consequently
+always returns None, so ``run()`` ALWAYS takes the full-pipeline branch and the
+Phase 3 targets cache never serves a hit either.
+
+Kept rather than deleted because the surface is pinned by tests:
+``tests/acceptance/test_phase3_checkpoint.py`` pins the three Phase 3 symbols,
+and three acceptance tests assert on the ``SAFE_FOR_CACHE_REUSE`` literal in
+``run()``'s source. ``--no-cache`` is likewise retained: every .bat and every
+decision-log run command passes it. It is currently a no-op.
+
+``tests/test_run_variant.py::test_no_phase124_checkpoint_writer_exists`` pins
+this state. If you add a writer, that test fails ON PURPOSE — reuse would then
+serve a panel/models built by whatever variant ran last, with no config
+validation (decision log §S15 review finding #12). Address that first.
 
 Compatibility
 -------------

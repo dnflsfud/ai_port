@@ -56,9 +56,25 @@ def _predict_scale_block(coef_a, coef_b, trail_block: pd.DataFrame,
 
 
 def build_option_vol_scale(returns: pd.DataFrame,
-                           iv_z: pd.DataFrame) -> pd.DataFrame:
-    """워크포워드 대각 스케일 패널 (dates×tickers). 커버리지 밖은 1.0."""
+                           iv_z: pd.DataFrame,
+                           observed_mask: pd.DataFrame = None) -> pd.DataFrame:
+    """워크포워드 대각 스케일 패널 (dates×tickers). 커버리지 밖은 1.0.
+
+    ``observed_mask`` (구조 리뷰 2026-08-27, config.option_vol_scale_fix_enabled)
+    는 로더 임퓨트 **이전**의 iv30_z 관측 마스크다. 로더의 _fill_missing이
+    결측 z를 날짜별 횡단면 median으로 메워 버리기 때문에, 이 인자 없이는
+    위 "커버리지 밖은 1.0" 계약이 **열이 통째로 없을 때만** 성립한다(실측
+    non-inert 86.1%). 마스크를 주면 미관측 셀이 다시 NaN이 되어 학습 표본
+    (sub.dropna())과 예측 블록 양쪽에서 빠지고 s=1.0으로 수렴한다.
+    None(기본)이면 기존 경로와 바이트 동일하다."""
     iv_z = iv_z.reindex(index=returns.index, columns=returns.columns)
+    if observed_mask is not None:
+        mask = (
+            observed_mask.reindex(index=returns.index, columns=returns.columns)
+            .fillna(False)
+            .astype(bool)
+        )
+        iv_z = iv_z.where(mask)
     trail = returns.rolling(TRAIL, min_periods=60).std() * _ANN
     fwd = (returns.rolling(FWD).std() * _ANN).shift(-FWD)
     lt_panel = np.log(trail.where(trail > 0))

@@ -180,6 +180,40 @@ class PipelineConfig:
     # hold fewer LISTED names — this guards membership, not per-date counts.
     expected_universe_size: Optional[int] = None
 
+    # ------------------------------------------------------------------
+    # Calendar source sheets (structural review 2026-08-27, default-OFF)
+    # ------------------------------------------------------------------
+    # align_dates() intersects the date index of EVERY preprocessed sheet, so a
+    # research-arm data sheet whose features are flag-OFF can truncate the
+    # production backtest calendar with no flag anywhere naming it.
+    #
+    # MEASURED ON THE 2026-08-25 WORKBOOK: this flag recovers ZERO rows.
+    # 49 sheets, 16 exempt. All-sheet intersection and non-exempt intersection
+    # are both 2014-01-24..2026-08-24 (3,282 rows). The binding sheet is
+    # OPER_MARGIN (starts 2014-01-24), a core production fundamental — not an
+    # arm sheet. The loader's "66% of longest sheet (4,984)" line is therefore
+    # core-data availability, NOT recoverable slack. Do not cite it as an
+    # expected gain.
+    #
+    # ON: the intersection is computed over the non-exempt sheets only
+    # (data_loader.CALENDAR_EXEMPT_SHEETS lists the arm-only data layers).
+    # OFF (default) keeps the all-sheet intersection byte-identical.
+    #
+    # This is a FORWARD GUARD, not a fix with a payoff today: it only bites
+    # once someone adds an arm-only sheet that starts later than OPER_MARGIN.
+    # Re-run the check before assuming it is still inert. Flipping it ON while
+    # it is non-inert EXTENDS data.dates backwards and re-baselines everything
+    # (targets, panel, training windows, S0') — a §8 production decision.
+    #
+    # CAVEAT — do not combine with an arm whose sheet is exempt. Exempt sheets
+    # are still reindexed onto the (now longer) calendar, so their pre-history
+    # goes through align_dates' per-date median fill and then fillna(0.0): the
+    # literal-zero contamination class of §S15 finding #1. That is harmless
+    # while the arm's flag is OFF (the core whitelist drops those features),
+    # but enabling BOTH this flag and such an arm feeds the model 0.0 for the
+    # extended span. Move the sheet out of CALENDAR_EXEMPT_SHEETS first.
+    calendar_exempt_sheets_enabled: bool = False
+
     # Sector active-risk soft penalty (§S11.5 candidate, default-OFF).
     # Convex proxy for the report-only guardrail (top-sector share of the
     # Euler-decomposed active TE, which is a non-DCP ratio): penalise
@@ -874,6 +908,28 @@ class PipelineConfig:
     # byte-identical to production.
     # ------------------------------------------------------------------
     option_vol_covariance_enabled: bool = False
+
+    # ------------------------------------------------------------------
+    # S13.41 정확성 수정 (구조 리뷰 2026-08-27, default-OFF)
+    # ------------------------------------------------------------------
+    # 위 §S13.41 채널은 production LIVE인데 두 가지가 계약과 어긋난다:
+    #
+    # (a) 리스크 원천 불일치 — build_option_vol_scale에 넘기는 패널이
+    #     data.returns(임퓨트된 dense P&L)인데, 이 스케일이 곱해지는 공분산은
+    #     raw_returns(마스킹 원본)로 추정된다. 상장 직후 126일 이내 종목은
+    #     trail vol이 유령 median 수익률로 계산되고, 풀드 OLS 학습 표본에도
+    #     유령 행이 섞인다.
+    # (b) 커버리지 가드 무력 — 모듈 계약은 "커버리지 밖은 1.0(inert)"이고
+    #     구현 가드는 iv30_z가 NaN일 때만 발동한다. 그런데 로더의
+    #     _fill_missing(ffill -> 날짜별 횡단면 median)이 그 NaN을 전부 메워서,
+    #     옵션 데이터가 없는 종목도 "그 날 median z"로 대각 스케일을 받는다.
+    #     실측: production 로그 non-inert cells 86.1%.
+    #
+    # ON이면 (a) risk_returns를 원천으로 쓰고 (b) 로더 임퓨트 이전 관측
+    # 마스크로 미관측 셀을 s=1.0으로 되돌린다. OFF(기본)는 두 경로 모두
+    # 바이트 동일. production 수치를 바꾸므로 §8 사용자 결정 대상이다
+    # (§S15 fix-pack과 동일한 "정확성 근거 채택" 트랙).
+    option_vol_scale_fix_enabled: bool = False
 
     # ------------------------------------------------------------------
     # S15 (2026-08-27) — structural-review correctness fix pack (decision

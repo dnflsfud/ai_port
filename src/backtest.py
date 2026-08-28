@@ -2085,7 +2085,35 @@ def run_backtest(
                 "[S13.41] option_vol_covariance_enabled but %r sheet is "
                 "missing — diagonal scaling stays inert.", OPTION_VOL_SHEET)
         if _iv_sheet is not None:
-            _optvol_scale = build_option_vol_scale(returns[tickers], _iv_sheet)
+            # Structural review 2026-08-27 (config.option_vol_scale_fix_enabled):
+            # OFF keeps the historical call byte-identical. ON (a) estimates the
+            # scale from the SAME risk panel the covariance uses (raw_returns,
+            # listing-masked) instead of the imputed dense P&L panel, and (b)
+            # restores the pre-imputation coverage mask so names without option
+            # data stay inert (s=1.0) as the module contract promises.
+            _optvol_src = returns[tickers]
+            _optvol_mask = None
+            if getattr(config, "option_vol_scale_fix_enabled", False):
+                if risk_returns is not None:
+                    _optvol_src = risk_returns
+                else:
+                    logger.warning(
+                        "[S13.41] option_vol_scale_fix_enabled but raw_returns "
+                        "is unavailable — keeping the imputed risk source.")
+                _mask_fn = getattr(data, "raw_sheet_observed_mask", None)
+                if callable(_mask_fn):
+                    _optvol_mask = _mask_fn(OPTION_VOL_SHEET)
+                if _optvol_mask is None:
+                    logger.warning(
+                        "[S13.41] option_vol_scale_fix_enabled but the %r "
+                        "observed mask is unavailable — coverage guard stays "
+                        "off.", OPTION_VOL_SHEET)
+                else:
+                    print(f"[Backtest] S13.41 fix: iv30_z observed coverage "
+                          f"{float(_optvol_mask.values.mean()):.1%} "
+                          f"(imputed cells forced inert)")
+            _optvol_scale = build_option_vol_scale(
+                _optvol_src, _iv_sheet, observed_mask=_optvol_mask)
             _nontrivial = float((_optvol_scale.values != 1.0).mean())
             print(f"[Backtest] S13.41 option-vol cov scaling ON: "
                   f"non-inert cells {_nontrivial:.1%}")

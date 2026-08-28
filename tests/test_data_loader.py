@@ -159,3 +159,182 @@ def test_universedata_rejects_silent_usd_for_unknown_bare_ticker(monkeypatch):
     # with no fallback entry -> must fail loudly, naming the ticker.
     with pytest.raises(ValueError, match="ZZZQ"):
         dl.UniverseData("unused.xlsx")
+
+
+# ---------------------------------------------------------------------------
+# 캘린더 소스 시트 제한 (구조 리뷰 2026-08-27, default-OFF).
+#
+# align_dates가 모든 시트를 교집합에 넣기 때문에, 플래그-OFF 연구 시트 하나가
+# production 백테스트 캘린더를 자른다(실측: 교집합 3,282행 vs 최장 시트 4,984행).
+# ON이면 CALENDAR_EXEMPT_SHEETS만 교집합에서 빠지고, reindex 대상에는 남는다.
+# ---------------------------------------------------------------------------
+def test_calendar_exempt_flag_default_off():
+    from src.config import PipelineConfig
+
+    assert PipelineConfig().calendar_exempt_sheets_enabled is False
+
+
+def test_live_sheets_are_not_calendar_exempt():
+    """production variant가 실제로 소비하는 시트는 절대 면제되면 안 된다.
+    Fwd_Sales_Slope_1FY2FY = §S13.25 (fwd_sales_slope_features_enabled: true),
+    iv30_z = §S13.41 공분산 대각 (option_vol_covariance_enabled: true)."""
+    from src.data_loader import CALENDAR_EXEMPT_SHEETS
+
+    assert "Fwd_Sales_Slope_1FY2FY" not in CALENDAR_EXEMPT_SHEETS
+    assert "iv30_z" not in CALENDAR_EXEMPT_SHEETS
+    # essential 시트(유니버스 멤버십 정의)도 면제 대상이 아니다.
+    for essential in ("PX_LAST", "Daily_Returns", "CUR_MKT_CAP", "BEST_EPS"):
+        assert essential not in CALENDAR_EXEMPT_SHEETS
+
+
+def _calendar_processed():
+    """core 시트는 10영업일, arm 전용 시트(PX_VOLUME)는 뒤쪽 4일만 보유."""
+    core_dates = pd.bdate_range("2026-06-01", periods=10)
+    arm_dates = core_dates[-4:]
+    return {
+        "PX_LAST": pd.DataFrame({"AAA": range(10)}, index=core_dates),
+        "Daily_Returns": pd.DataFrame({"AAA": range(10)}, index=core_dates),
+        "PX_VOLUME": pd.DataFrame({"AAA": range(4)}, index=arm_dates),
+    }, core_dates
+
+
+def test_calendar_exempt_off_keeps_all_sheet_intersection():
+    """OFF 파리티: 짧은 arm 시트가 여전히 교집합을 자른다(기존 동작)."""
+    from src.config import PipelineConfig
+    from src.data_loader import align_dates
+
+    processed, _ = _calendar_processed()
+    diagnostics = {}
+    aligned = align_dates(
+        processed, config=PipelineConfig(), diagnostics=diagnostics
+    )
+    assert len(aligned["PX_LAST"].index) == 4
+    assert diagnostics["intersection_dates"] == 4
+    # OFF 경로는 진단 키를 추가하지 않는다 (metrics.json 스키마 파리티)
+    assert "calendar_exempt_sheets_applied" not in diagnostics
+    assert "calendar_source_sheet_count" not in diagnostics
+
+
+def test_calendar_exempt_on_excludes_arm_sheet_from_intersection():
+    """ON: PX_VOLUME이 교집합에서 빠져 캘린더가 10일 전부 살아난다.
+    면제 시트 자체는 새 캘린더로 reindex되어 계속 존재한다."""
+    from src.config import PipelineConfig
+    from src.data_loader import align_dates
+
+    processed, core_dates = _calendar_processed()
+    diagnostics = {}
+    aligned = align_dates(
+        processed,
+        config=PipelineConfig(calendar_exempt_sheets_enabled=True),
+        diagnostics=diagnostics,
+    )
+    assert list(aligned["PX_LAST"].index) == list(core_dates)
+    assert diagnostics["intersection_dates"] == 10
+    assert diagnostics["calendar_exempt_sheets_applied"] == ["PX_VOLUME"]
+    assert diagnostics["calendar_source_sheet_count"] == 2
+    # 면제 시트는 사라지지 않고 같은 캘린더로 정렬된다
+    assert list(aligned["PX_VOLUME"].index) == list(core_dates)
+
+
+def test_calendar_exempt_on_falls_back_when_every_sheet_is_exempt():
+    """전 시트가 면제인 합성 워크북에서는 기존(전 시트 교집합) 동작 유지."""
+    from src.config import PipelineConfig
+    from src.data_loader import align_dates
+
+    dates_a = pd.bdate_range("2026-06-01", periods=6)
+    processed = {
+        "PX_VOLUME": pd.DataFrame({"AAA": range(6)}, index=dates_a),
+        "SHORT_INT_RATIO": pd.DataFrame({"AAA": range(4)}, index=dates_a[:4]),
+    }
+    diagnostics = {}
+    aligned = align_dates(
+        processed,
+        config=PipelineConfig(calendar_exempt_sheets_enabled=True),
+        diagnostics=diagnostics,
+    )
+    assert diagnostics["intersection_dates"] == 4
+    assert "calendar_exempt_sheets_applied" not in diagnostics
+    assert len(aligned["PX_VOLUME"].index) >= 4
+
+
+# ---------------------------------------------------------------------------
+# raw_sheet_observed_mask — 로더 임퓨트 이전 관측 마스크 (구조 리뷰 2026-08-27).
+#
+# preprocess_sheets의 _fill_missing(ffill -> 날짜별 횡단면 median)과 align_dates의
+# 2차 fill이 결측을 전부 메우므로, 소비자는 관측 셀과 임퓨트 셀을 구별할 수 없다.
+# "결측 입력 -> inert" 계약을 가진 소비자(§S13.41 공분산 스케일)가 조용히 무력화된다.
+# ---------------------------------------------------------------------------
+_OBS_ESSENTIAL = {
+    "PX_LAST", "Daily_Returns", "CUR_MKT_CAP", "BEST_EPS", "BEST_SALES",
+    "BEST_PE_RATIO", "OPER_MARGIN", "BEST_ROE", "NEWS_SENTIMENT_DAILY_AVG",
+    "EQY_REC_CONS", "Factset_EPS_Revision", "Factset_Sales_Revision",
+    "Factset_TG_Price",
+}
+
+
+def _observed_mask_workbook(n_dates=12):
+    """AAA/BBB 2종목. iv30_z는 Bloomberg 열 이름 + BBB 앞 절반이 미관측."""
+    dates = pd.bdate_range("2021-01-04", periods=n_dates)
+    prices = pd.DataFrame(
+        {"AAA": np.linspace(100.0, 111.0, n_dates),
+         "BBB": np.linspace(50.0, 61.0, n_dates)},
+        index=dates,
+    )
+    meta = pd.DataFrame(
+        {"Ticker": ["AAA", "BBB"], "Name": ["Alpha", "Beta"],
+         "Sector": ["Test", "Test"]},
+        index=["AAA US Equity", "BBB US Equity"],
+    )
+    iv30_z = pd.DataFrame(
+        {"AAA US Equity": np.linspace(0.5, 1.6, n_dates),
+         "BBB US Equity": [np.nan] * (n_dates // 2)
+                          + list(np.linspace(-0.4, 0.4, n_dates - n_dates // 2))},
+        index=dates,
+    )
+    raw = {
+        "Universe_Meta": meta,
+        "PX_LAST": prices,
+        "Daily_Returns": prices.pct_change(fill_method=None).fillna(0.0),
+        "iv30_z": iv30_z,
+    }
+    for sheet in _OBS_ESSENTIAL - {"PX_LAST", "Daily_Returns"}:
+        raw[sheet] = pd.DataFrame(1.0, index=dates, columns=["AAA", "BBB"])
+    return raw, dates, n_dates // 2
+
+
+def _observed_mask_data(monkeypatch):
+    from src.config import PipelineConfig
+    from src.data_loader import UniverseData
+
+    raw, dates, split = _observed_mask_workbook()
+    monkeypatch.setattr(
+        "src.data_loader.load_all_sheets",
+        lambda _path: {k: v.copy() for k, v in raw.items()},
+    )
+    cfg = PipelineConfig(fx_source_path="missing.xlsx")
+    return UniverseData("unused.xlsx", config=cfg), dates, split
+
+
+def test_loader_fill_hides_missing_cells_from_consumers(monkeypatch):
+    """회귀 고정: get_sheet만으로는 미관측을 알 수 없다 (가드 무력화의 원인)."""
+    data, _dates, split = _observed_mask_data(monkeypatch)
+    sheet = data.get_sheet("iv30_z")
+    assert not sheet["BBB"].isna().any()          # 결측이 메워져 사라졌다
+    assert sheet["BBB"].iloc[:split].notna().all()
+
+
+def test_raw_sheet_observed_mask_marks_unobserved_cells(monkeypatch):
+    data, dates, split = _observed_mask_data(monkeypatch)
+    mask = data.raw_sheet_observed_mask("iv30_z")
+
+    assert mask is not None
+    assert list(mask.columns) == list(data.tickers)   # Bloomberg 열 이름 정규화됨
+    assert list(mask.index) == list(data.dates)
+    assert mask["AAA"].all()                          # 전 구간 관측
+    assert not mask["BBB"].iloc[:split].any()         # 앞 절반 미관측
+    assert mask["BBB"].iloc[split:].all()             # 뒷 절반 관측
+
+
+def test_raw_sheet_observed_mask_absent_sheet_is_none(monkeypatch):
+    data, _dates, _split = _observed_mask_data(monkeypatch)
+    assert data.raw_sheet_observed_mask("NO_SUCH_SHEET") is None
