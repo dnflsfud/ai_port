@@ -132,12 +132,15 @@ def test_backtest_wires_both_fix_legs_behind_the_flag():
     assert "_optvol_src = returns[tickers]" in src_text
 
 
-def test_production_variant_does_not_enable_the_fix_yet():
-    """§8: production flip은 사용자 결정 사항. 측정 전에는 OFF여야 한다."""
+def test_production_variant_pins_s15_2_flip_state():
+    """§8/S15.2: 사용자 승인 flip(2026-08-28) 이후의 production 상태 핀.
+
+    option_vol_scale_fix_enabled는 ON(새 S0' 1.5356), calendar_exempt는
+    실측 +0행 전방 가드라 여전히 OFF(부재)여야 한다."""
     import yaml
 
     with open("variants/codex_causal_rank_65.yaml", encoding="utf-8") as fh:
         manifest = yaml.safe_load(fh)
     overrides = manifest.get("overrides") or {}
-    assert overrides.get("option_vol_scale_fix_enabled") in (None, False)
+    assert overrides.get("option_vol_scale_fix_enabled") is True
     assert overrides.get("calendar_exempt_sheets_enabled") in (None, False)

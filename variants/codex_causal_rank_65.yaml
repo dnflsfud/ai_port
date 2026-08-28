@@ -150,3 +150,14 @@ overrides:
   # (1.3811) are retired for arm comparisons. Rollback = delete this line
   # (default-OFF, byte-identical restore certified by unit tests).
   s15_fixpack_enabled: true
+
+  # S15.2 (2026-08-28): S13.41 option-scale correctness fix, adopted by
+  # user on correctness grounds — decision log S15.2 Production flip.
+  # Restores the preregistered S13.41 contract: (a) scale model trained on
+  # raw risk returns, (b) loader-imputed iv30_z cells (3.77%) forced inert.
+  # Certified same-vintage paired measurement: IR 1.5466 -> 1.5356
+  # (avg_ic bit-identical, degenerate 14/33 identical, ECOS 194/194).
+  # This makes IR 1.5356 the S0' baseline; 1.5466 is retired for arm
+  # comparisons. Rollback = delete this line (default-OFF, byte-identical
+  # restore certified by unit tests).
+  option_vol_scale_fix_enabled: true

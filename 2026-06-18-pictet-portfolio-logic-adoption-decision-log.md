@@ -7244,3 +7244,18 @@ S0′ 1.5466 페어드 비교 유효. 런 로그에 가드 발동 확인:
 
 **회계**: 정확성 트랙 — 인벤토리 비계상(468 유지). 산출물:
 `outputs/s15_2_optvol_scale_fix/metrics.json`(이 절이 기록 정본).
+
+## S15.2 Production flip — optvol scale fix 채택 (사용자 승인, 2026-08-28)
+
+사용자 승인("수정사항을 flip하고")으로 `codex_causal_rank_65.yaml`에
+`option_vol_scale_fix_enabled: true` 1줄 추가. §8 준수:
+- 후보 1개 단독 flip. 롤백 = 해당 1줄 삭제(default-OFF·바이트 동일 복원,
+  단위테스트 인증).
+- S0 재검증: flip된 production yaml과 측정 variant의 **resolved
+  PipelineConfig 필드 전수 비교 diff 0** — 측정 런
+  `outputs/s15_2_optvol_scale_fix`가 곧 새 production 기준선 런(재실행 불요).
+- production 상태 핀 테스트 갱신(test_production_variant_pins_s15_2_flip_state).
+
+**새 S0′ = IR 1.5356 / TE 3.73% / beta 1.052 / 퇴화 14/33 / avg_ic
+0.019378(불변) / ECOS 194·fallback 0** (빈티지 08-25 20:47:55/16:37:36).
+**1.5466은 은퇴 — 이후 arm 비교에 혼용 금지.** 인벤토리 468 불변.
