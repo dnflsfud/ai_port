@@ -7162,3 +7162,46 @@ E1 미달 시 불채택·OFF 유지(관측 기록만). 채택 후보가 되면 D
 아님으로 생략(§2.7은 활성화 전 요건). 산출물:
 `outputs/arm_s15_1_monotone_margin/metrics.json`(arm_* 규칙상 비커밋,
 이 절이 기록 정본).
+
+## S15.2 사전등록 (구조 리뷰 #3: S13.41 옵션 스케일 정확성 수정 — 측정 전 단독 커밋) — 2026-08-28
+
+사용자 지시("켜서 결과를 보여줘")로 구조 리뷰 2026-08-27 지적 #3의 측정 승인.
+**측정 전 사전등록.** 성격은 **정확성 수정**(성능 arm 아님) — §S13.33·§S15
+fix-pack 전례를 따르며 **인벤토리 비계상(468 유지)**.
+
+**후보 정의(단일 플래그, 신규 파라미터 0개 — 스윕 여지 없음)**:
+- 신규 default-OFF `option_vol_scale_fix_enabled`. ON 시 두 레그:
+  (a) `build_option_vol_scale` 리스크 원천을 임퓨트된 dense `returns`에서
+  `raw_returns` 기반 `risk_returns`로 교체 — 스케일이 곱해지는 공분산과
+  동일 원천으로 정합화. (b) 로더 임퓨트 **이전**의 iv30_z 관측 마스크
+  (`raw_sheet_observed_mask`)로 미관측 셀을 inert(s=1.0)로 강제 —
+  §S13.41 사전등록 문서의 "커버리지 밖은 1.0" 계약 복원. §S13.41의
+  사전등록 상수(FWD 21·TRAIL 126·EST 63·clip[0.8,1.5] 등)는 일절 불변.
+- 동반 신설 `calendar_exempt_sheets_enabled`(구조 리뷰 #2)는 **측정 비대상**:
+  현 워크북 실측 결과 면제 적용 시 캘린더 +0행(구속 시트가 arm이 아니라
+  코어 OPER_MARGIN 2014-01-24)이라 전방 가드로만 유지, OFF 고정.
+
+**사전점검 실측(backtest 재실행 0, production 워크북 250종·3,283일)**:
+임퓨트 은닉 셀 **3.77%**(get_sheet NaN 7.35% vs 실관측 88.88%);
+관측률 0% 종목 **0개** → 기존 열 단위 가드(`where(isfinite,1.0)`) 미발동
+실증; 관측률 <50% **20종**, 최저 285A 0%·6146 8%·COF 10%·SNDK 12%·
+WDC 12%·6981 16%·GEV/GE/RDDT 19%·ARM 23% — 신규상장·기업행사 코호트가
+"그 날 시장 median z"라는 가짜 신호로 Σ 대각 스케일을 받아 온 상태.
+
+**측정 계획**: `variants/s15_2_optvol_scale_fix.yaml` = **새 production
+(fix-pack ON) + option_vol_scale_fix_enabled 1줄**. ECOS·`--no-cache`·
+schtasks 일회성·빈티지 쌍(08-25 20:47:55/16:37:36) 런 전후 확인.
+**비교 기준 = S0′ 1.5466(outputs/s15_fixpack, 동일 빈티지 페어드).**
+
+**게이트(정확성 트랙 — ΔIR +0.36 바 미적용, IR 델타는 관측)**:
+- E0 OFF 파리티: 단위테스트로 기고정(test_observed_mask_none_is_byte_identical
+  등, 666 PASS). production yaml 두 플래그 부재 테스트 포함.
+- **E1 구조 불변식: avg_ic 비트 동일(0.019378) + 퇴화 14/33 동일** —
+  수정은 Σ 대각만 건드리므로 알파·모델 경로 비접촉이 구조 증빙
+  (§S13.41 채택 때와 동일 논리). 어긋나면 즉시 중단·원인 조사.
+- E2 do-no-harm: ΔIR이 서브기간(P1/P2/P3) 일관 음이 아닐 것 +
+  캐릭터 보존(TE≤4.5%·active share·turnover·ECOS/fallback 0 유지).
+- **ΔIR이 서브기간 일관 음이면**: 불채택에 그치지 않고 §S13.41 채택 근거
+  (+0.124)가 버그 포함 측정이었다는 신호로 간주, **채널(option_vol_
+  covariance_enabled) 자체 재심 안건으로 격상**해 사용자 보고.
+- flip은 측정 후 §8 사용자 결정(이 사전등록은 flip 승인이 아님).
