@@ -202,7 +202,14 @@ def _production_risk_source(data, tickers) -> pd.DataFrame:
 
 
 def _load_optvol_scale(data, tickers, cfg) -> Optional[pd.DataFrame]:
-    """S13.41 option-IV diagonal scale panel; None when disabled or unavailable."""
+    """S13.41 option-IV diagonal scale panel; None when disabled or unavailable.
+
+    Mirrors the src/backtest.py branch (config.option_vol_scale_fix_enabled,
+    S15.2 flip): ON estimates the scale from the SAME risk panel production
+    feeds estimate_covariance and restores the pre-imputation iv30_z coverage
+    mask so names without option data stay inert (s=1.0). OFF keeps the
+    historical call byte-identical.
+    """
     if not getattr(cfg, "option_vol_covariance_enabled", False):
         return None
     from src.option_vol_cov import OPTION_VOL_SHEET, build_option_vol_scale
@@ -212,7 +219,16 @@ def _load_optvol_scale(data, tickers, cfg) -> Optional[pd.DataFrame]:
         iv_sheet = None
     if iv_sheet is None:
         return None
-    return build_option_vol_scale(data.returns[list(tickers)], iv_sheet)
+    if not getattr(cfg, "option_vol_scale_fix_enabled", False):
+        return build_option_vol_scale(data.returns[list(tickers)], iv_sheet)
+    mask_fn = getattr(data, "raw_sheet_observed_mask", None)
+    mask = mask_fn(OPTION_VOL_SHEET) if callable(mask_fn) else None
+    if mask is None:
+        print(f"[export] WARNING: option_vol_scale_fix_enabled but the "
+              f"{OPTION_VOL_SHEET!r} observed mask is unavailable — "
+              f"coverage guard stays off")
+    return build_option_vol_scale(
+        _production_risk_source(data, tickers), iv_sheet, observed_mask=mask)
 
 
 def _apply_optvol_scale(cov: np.ndarray, optvol_scale, date, tickers):
@@ -254,6 +270,32 @@ def _expected_rebalance_prev_book(
         _drift_weights(entering.to_numpy(dtype=float), rets.to_numpy(dtype=float)),
         index=tickers,
     )
+
+
+E0_SELFCHECK_TOLERANCE = 1e-8
+
+
+def _expected_rebalance_selfcheck(expected_target: pd.Series, realized_weights) -> dict:
+    """E0: on a rebalance as-of, the what-if target must reproduce the run.
+
+    §S13.50 established this reproduction offline (median L1 1.1e-09); the
+    export re-checks it whenever the latest data date IS a realized rebalance,
+    which is the only day the two are comparable. Report-only: a mismatch is
+    published and printed, it never aborts the nightly export.
+    """
+    if realized_weights is None:
+        return {"applicable": False, "l1_diff": None,
+                "tolerance": E0_SELFCHECK_TOLERANCE, "ok": None}
+    tickers = list(expected_target.index)
+    realized = pd.to_numeric(
+        pd.Series(realized_weights).reindex(tickers), errors="coerce"
+    ).fillna(0.0)
+    l1 = float(np.abs(
+        expected_target.to_numpy(dtype=float) - realized.to_numpy(dtype=float)
+    ).sum())
+    return {"applicable": True, "l1_diff": l1,
+            "tolerance": E0_SELFCHECK_TOLERANCE,
+            "ok": bool(l1 <= E0_SELFCHECK_TOLERANCE)}
 
 
 def _normalise_currency(value) -> Optional[str]:
@@ -2031,6 +2073,16 @@ def main(argv=None) -> int:
         expected_target = pd.Series(
             {row["ticker"]: float(row["target"]) for row in expected["by_ticker"]}
         ).reindex(tickers).fillna(0.0)
+        expected["e0_selfcheck"] = _expected_rebalance_selfcheck(
+            expected_target,
+            res.portfolio_weights.get(latest_date)
+            if rebalance_meta["is_rebalance_data_as_of"] else None,
+        )
+        if expected["e0_selfcheck"]["ok"] is False:
+            print(f"[export] ERROR: expected_rebalance does not reproduce the "
+                  f"{latest_date.date()} rebalance: L1 "
+                  f"{expected['e0_selfcheck']['l1_diff']:.3e} > "
+                  f"{E0_SELFCHECK_TOLERANCE:.0e}")
         expected["feature_attribution"] = build_feature_attribution(SimpleNamespace(
             models=res.models,
             panel=res.panel,

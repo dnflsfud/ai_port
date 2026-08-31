@@ -237,6 +237,44 @@ def test_bundle_rejects_incomplete_currency_mapping(tmp_path):
         validate_bundle(bundle)
 
 
+def test_bundle_reports_run_config_drift_without_raising(tmp_path):
+    # §S16 O4: a bundle exported from a pre-flip run must be flagged, not
+    # rejected — production legitimately runs on the previous full backtest
+    # until the next one lands.
+    bundle = _write_bundle(tmp_path, "prod", "production")
+    variant = tmp_path / "variant.yaml"
+    variant.write_text(
+        "label: prod\n"
+        "overrides:\n"
+        "  model_objective: cross_sectional_rank\n"
+        "  rank_eval_at: [20]\n"
+        "  train_window: 1260\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "run_prod" / "experiment_manifest.json").write_text(
+        json.dumps({"config": {
+            "model_objective": "regression",
+            "rank_eval_at": [5, 10],
+            "train_window": 1260,
+        }}),
+        encoding="utf-8",
+    )
+    meta_path = bundle / "portfolio.json"
+    meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    meta["variant_path"] = str(variant)
+    meta_path.write_text(json.dumps(meta), encoding="utf-8")
+
+    record = validate_bundle(bundle)
+    drift = record["_run_config_drift"]
+    assert drift["mismatched_keys"] == ["model_objective", "rank_eval_at"]
+    assert drift["variant_path"] == str(variant.resolve())
+
+
+def test_bundle_run_config_drift_is_none_without_manifest(tmp_path):
+    bundle = _write_bundle(tmp_path, "prod", "production")
+    assert validate_bundle(bundle)["_run_config_drift"] is None
+
+
 def test_bundle_rejects_currency_reconciliation_error(tmp_path):
     bundle = _write_bundle(tmp_path, "prod", "production")
     currency_path = bundle / "currency.json"

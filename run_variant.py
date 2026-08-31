@@ -83,7 +83,12 @@ except ImportError:
     )
     sys.exit(1)
 
-from src.config import DEFAULT_CONFIG, PipelineConfig, dump_experiment_manifest
+from src.config import (
+    DEFAULT_CONFIG,
+    PipelineConfig,
+    data_vintage_fingerprint,
+    dump_experiment_manifest,
+)
 from src.harness import build_override_config, inject_config
 from src.logging_config import setup_logging
 
@@ -568,6 +573,9 @@ def run(manifest_path: Path, no_cache: bool = False) -> int:
                     result, "optimizer_solver_fallback_rate", None
                 ),
                 "elapsed_sec": round(time.time() - t0, 1),
+                # Source-data vintage (§S13.47): two runs are only comparable
+                # when this (workbook, Index.xlsx) mtime pair matches.
+                "data_vintage": data_vintage_fingerprint(cfg),
             },
             fh,
             indent=2,

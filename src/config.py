@@ -17,7 +17,7 @@ from __future__ import annotations
 import json
 import subprocess
 from dataclasses import asdict, dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -1375,6 +1375,37 @@ def _git_dirty(repo: Optional[Path] = None) -> Optional[bool]:
         return None
 
 
+def _file_vintage(path: str) -> tuple:
+    try:
+        stat = Path(path).stat()
+    except Exception:
+        return None, None
+    stamp = datetime.fromtimestamp(stat.st_mtime, timezone.utc)
+    return stamp.strftime("%Y-%m-%dT%H:%M:%SZ"), int(stat.st_size)
+
+
+def data_vintage_fingerprint(config: PipelineConfig = DEFAULT_CONFIG) -> Dict:
+    """Fingerprint the source-data vintage of a run.
+
+    The effective vintage is the (ai_signal_data.xlsx, Index.xlsx) mtime pair —
+    arms are only comparable within one pair (decision log §S13.47), so the
+    fingerprint has to travel with the artefacts. No sha256: the workbook is
+    ~358MB and Index.xlsx ~86MB, and this project's vintage idiom is the mtime
+    pair, not a content hash. A missing/unreadable file yields None mtime+size
+    rather than an exception — a fingerprint must never break a run.
+    """
+    data_mtime, data_size = _file_vintage(config.data_path)
+    fx_mtime, fx_size = _file_vintage(config.fx_source_path)
+    return {
+        "data_path": str(config.data_path),
+        "data_mtime_utc": data_mtime,
+        "data_size_bytes": data_size,
+        "fx_source_path": str(config.fx_source_path),
+        "fx_mtime_utc": fx_mtime,
+        "fx_size_bytes": fx_size,
+    }
+
+
 def dump_experiment_manifest(
     config: PipelineConfig = DEFAULT_CONFIG,
     output_dir: Optional[str] = None,
@@ -1386,6 +1417,7 @@ def dump_experiment_manifest(
       - timestamp (UTC)
       - git HEAD hash (if available) and whether working tree was dirty
       - full PipelineConfig as a dict
+      - source-data vintage fingerprint (see data_vintage_fingerprint)
       - optional `extra` dict for run-specific metadata (e.g. run label,
         dataset version)
 
@@ -1400,6 +1432,7 @@ def dump_experiment_manifest(
         "git_hash": _git_hash(),
         "git_dirty": _git_dirty(),
         "config": asdict(config),
+        "data_vintage": data_vintage_fingerprint(config),
     }
     if extra:
         manifest["extra"] = extra

@@ -526,3 +526,86 @@ def test_expected_rebalance_rejects_unsupported_optimizer_paths():
     inputs["cfg"] = PipelineConfig(use_score_based=True)
     with pytest.raises(ValueError, match="use_score_based"):
         build_expected_rebalance(**inputs)
+
+
+def _optvol_stub_inputs():
+    """Panels big enough for build_option_vol_scale to fit (FIRST_EST_POS 252,
+    MIN_TRAIN_ROWS 500) plus an iv30_z column that the mask hides entirely."""
+    rng = np.random.default_rng(7)
+    n, width = 400, 20
+    dates = pd.bdate_range("2022-01-03", periods=n)
+    tickers = [f"T{i:02d}" for i in range(width)]
+    vol = pd.DataFrame(0.01 * np.exp(rng.normal(0, 0.4, size=(n, width))),
+                       index=dates, columns=tickers)
+    raw_returns = pd.DataFrame(rng.normal(size=(n, width)) * vol.values,
+                               index=dates, columns=tickers)
+    raw_returns.iloc[:30, 1] = np.nan          # pre-listing gap, imputed away below
+    iv = pd.DataFrame(rng.normal(size=(n, width)), index=dates,
+                      columns=tickers) + np.log(vol.values / 0.01)
+    mask = pd.DataFrame(True, index=dates, columns=tickers)
+    mask[tickers[0]] = False                   # no observed option data
+    return raw_returns.fillna(0.0), raw_returns, iv, mask, tickers
+
+
+class _OptvolCfg:
+    def __init__(self, fix_enabled):
+        self.option_vol_covariance_enabled = True
+        self.option_vol_scale_fix_enabled = fix_enabled
+
+
+class _OptvolData:
+    def __init__(self, returns, raw_returns, iv, mask):
+        self.returns = returns
+        self.raw_returns = raw_returns
+        self._iv = iv
+        self._mask = mask
+
+    def get_sheet(self, name):
+        return self._iv
+
+    def raw_sheet_observed_mask(self, name):
+        return self._mask
+
+
+def test_load_optvol_scale_matches_production_scale_fix_branch():
+    from scripts.export_operating_data import _load_optvol_scale
+    from src.option_vol_cov import build_option_vol_scale
+
+    returns, raw_returns, iv, mask, tickers = _optvol_stub_inputs()
+    data = _OptvolData(returns, raw_returns, iv, mask)
+
+    off = _load_optvol_scale(data, tickers, _OptvolCfg(False))
+    on = _load_optvol_scale(data, tickers, _OptvolCfg(True))
+
+    # OFF: byte-identical to the pre-S15.2 call (imputed panel, no mask).
+    pd.testing.assert_frame_equal(off, build_option_vol_scale(returns[tickers], iv))
+    # ON: same recipe as src/backtest.py — raw risk panel + observed mask.
+    pd.testing.assert_frame_equal(
+        on,
+        build_option_vol_scale(
+            raw_returns.reindex(index=returns.index, columns=tickers),
+            iv, observed_mask=mask,
+        ),
+    )
+    # The two branches are genuinely different: the unobserved name is inert
+    # (s=1.0) only once the mask is honoured.
+    assert not np.allclose(off.to_numpy(), on.to_numpy())
+    assert (on[tickers[0]].to_numpy() == 1.0).all()
+    assert (off[tickers[0]].to_numpy() != 1.0).any()
+
+
+def test_load_optvol_scale_without_observed_mask_still_returns_panel():
+    from scripts.export_operating_data import _load_optvol_scale
+
+    returns, _raw, iv, _mask, tickers = _optvol_stub_inputs()
+
+    class _NoMaskData:
+        def __init__(self):
+            self.returns = returns
+
+        def get_sheet(self, name):
+            return iv
+
+    panel = _load_optvol_scale(_NoMaskData(), tickers, _OptvolCfg(True))
+    assert isinstance(panel, pd.DataFrame)
+    assert panel.shape == (len(returns.index), len(tickers))

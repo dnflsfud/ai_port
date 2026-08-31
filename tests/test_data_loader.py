@@ -338,3 +338,44 @@ def test_raw_sheet_observed_mask_marks_unobserved_cells(monkeypatch):
 def test_raw_sheet_observed_mask_absent_sheet_is_none(monkeypatch):
     data, _dates, _split = _observed_mask_data(monkeypatch)
     assert data.raw_sheet_observed_mask("NO_SUCH_SHEET") is None
+
+
+# ---------------------------------------------------------------------------
+# 필수 시트 부재 fail-fast (구조 리뷰 2026-08-31, O8).
+#
+# 유니버스 교집합은 "워크북에 존재하는" 필수 시트로만 계산되므로, 시트 하나가
+# 통째로 빠지면 티커 수는 그대로라 가드가 통과하고 손실은 피처층의 "whitelist
+# misses" 한 줄로만 드러난다 (예: Factset_TG_Price 누락 -> tg_mom_63d/tg_upside
+# 없이 학습된 결과가 실패 없이 metrics.json으로 나감).
+# ---------------------------------------------------------------------------
+def _data_without_sheet(monkeypatch, sheet, expected_universe_size):
+    from src.config import PipelineConfig
+    from src.data_loader import UniverseData
+
+    raw, _dates, _split = _observed_mask_workbook()
+    raw.pop(sheet)
+    monkeypatch.setattr(
+        "src.data_loader.load_all_sheets",
+        lambda _path: {k: v.copy() for k, v in raw.items()},
+    )
+    cfg = PipelineConfig(
+        fx_source_path="missing.xlsx",
+        expected_universe_size=expected_universe_size,
+    )
+    return UniverseData("unused.xlsx", config=cfg)
+
+
+def test_missing_essential_sheet_fails_fast_for_sized_universe(monkeypatch):
+    with pytest.raises(ValueError, match="Factset_TG_Price"):
+        _data_without_sheet(monkeypatch, "Factset_TG_Price", expected_universe_size=2)
+
+
+def test_missing_essential_sheet_is_diagnostic_only_without_expected_size(monkeypatch):
+    """합성 픽스처(expected_universe_size=None)는 계속 통과하되 진단은 남는다."""
+    data = _data_without_sheet(
+        monkeypatch, "Factset_TG_Price", expected_universe_size=None
+    )
+    assert data.data_quality["universe"]["missing_essential_sheets"] == [
+        "Factset_TG_Price"
+    ]
+    assert list(data.tickers) == ["AAA", "BBB"]

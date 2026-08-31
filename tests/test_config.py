@@ -6,12 +6,20 @@ pytest-tdd PreToolUse guard (which name-matches test_<module>.py) permits
 editing src/config.py.
 """
 
+import json
 import shutil
 import subprocess
+from datetime import datetime, timezone
 
 import pytest
 
-from src.config import PipelineConfig, _git_dirty, _git_hash
+from src.config import (
+    PipelineConfig,
+    _git_dirty,
+    _git_hash,
+    data_vintage_fingerprint,
+    dump_experiment_manifest,
+)
 
 
 def test_listing_mask_fields_default_on_for_valid_100_name_history():
@@ -134,3 +142,46 @@ def test_git_hash_returns_40_char_hex(tmp_path):
     assert h is not None
     assert len(h) == 40
     int(h, 16)  # parses as hex
+
+
+# ---------------------------------------------------------------------------
+# 데이터 빈티지 지문 (구조 리뷰 2026-08-31, O7). 유효 빈티지 =
+# (ai_signal_data.xlsx, Index.xlsx) mtime 쌍(§S13.47) — 산출물만 보고 두 런이
+# 같은 빈티지인지 검증할 수 있어야 한다.
+# ---------------------------------------------------------------------------
+def _stamp(path):
+    return datetime.fromtimestamp(
+        path.stat().st_mtime, timezone.utc
+    ).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def test_data_vintage_fingerprint_records_mtime_and_tolerates_absent_file(tmp_path):
+    workbook = tmp_path / "ai_signal_data.xlsx"
+    workbook.write_bytes(b"x" * 17)
+    absent = tmp_path / "Index.xlsx"  # never created
+    fp = data_vintage_fingerprint(
+        PipelineConfig(data_path=str(workbook), fx_source_path=str(absent))
+    )
+
+    assert fp["data_path"] == str(workbook)
+    assert fp["data_size_bytes"] == 17
+    assert fp["data_mtime_utc"] == _stamp(workbook)
+    # 없는 파일은 예외가 아니라 None (지문이 런을 깨뜨리면 안 된다)
+    assert fp["fx_source_path"] == str(absent)
+    assert fp["fx_mtime_utc"] is None
+    assert fp["fx_size_bytes"] is None
+
+
+def test_manifest_adds_data_vintage_and_keeps_existing_keys(tmp_path):
+    workbook = tmp_path / "wb.xlsx"
+    workbook.write_bytes(b"y" * 5)
+    cfg = PipelineConfig(
+        data_path=str(workbook), fx_source_path=str(tmp_path / "none.xlsx")
+    )
+    path = dump_experiment_manifest(config=cfg, output_dir=str(tmp_path / "out"))
+    manifest = json.loads(path.read_text(encoding="utf-8"))
+
+    for key in ("timestamp_utc", "git_hash", "git_dirty", "config"):
+        assert key in manifest
+    assert manifest["config"]["data_path"] == str(workbook)
+    assert manifest["data_vintage"] == data_vintage_fingerprint(cfg)

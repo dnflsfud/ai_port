@@ -1302,11 +1302,28 @@ class UniverseData:
             ),
         }
 
+        expected = getattr(self.config, "expected_universe_size", None)
+
+        # Essential-sheet presence guard (structure review 2026-08-31, O8).
+        # The intersection above only spans essential sheets that EXIST, so a
+        # sheet missing from the workbook entirely (e.g. a re-generation cut
+        # short by ENOSPC) leaves the universe count intact and the loss only
+        # surfaces as a "whitelist misses" print in the feature layer.
+        missing_essential = sorted(ESSENTIAL_SHEETS - set(self.sheets))
+        self.data_quality["universe"]["missing_essential_sheets"] = missing_essential
+        # Only fail production/arm runs: expected_universe_size is None for the
+        # small synthetic fixtures that build UniverseData with a few sheets.
+        if expected is not None and missing_essential:
+            raise ValueError(
+                f"essential sheet(s) absent from the workbook: {missing_essential} — "
+                "features fed by them would be silently dropped; verify the "
+                "workbook re-generation completed before running"
+            )
+
         # Point-in-time universe guard (§S11.4): membership must match the
         # configured size exactly — a silently shrunken universe (missing
         # workbook column, dropped essential-sheet ticker) fails fast here
         # instead of backtesting/publishing 149 names.
-        expected = getattr(self.config, "expected_universe_size", None)
         if expected is not None:
             meta_count = self.data_quality["universe"]["meta_count"]
             if (meta_count is not None and meta_count != expected) or (

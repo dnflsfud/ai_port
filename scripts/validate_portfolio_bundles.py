@@ -342,6 +342,47 @@ def _validate_operations_payload(
                 raise ValueError(f"{bundle_dir}: sector_active binding logic mismatch")
 
 
+def run_config_drift(meta: dict, run_dir: Path):
+    """Report-only §S16 O4 check: was this run produced by today's variant?
+
+    The bundle names the run_dir it was exported from; that run's
+    experiment_manifest carries the resolved config. Comparing it with the
+    variant yaml's overrides surfaces a bundle published from a pre-flip run
+    (e.g. a dashboard still showing a retired baseline). Report-only by
+    design: a flip adopted after the last full backtest is a legitimate,
+    temporary drift and must not break operational validation.
+    Returns None when either side is unavailable.
+    """
+    import yaml
+
+    variant_rel = meta.get("variant_path")
+    manifest_path = run_dir / "experiment_manifest.json"
+    if not variant_rel or not manifest_path.exists():
+        return None
+    variant_path = _rooted(Path(variant_rel)).resolve()
+    if not variant_path.exists():
+        return None
+    config = _read_json(manifest_path).get("config") or {}
+    variant = yaml.safe_load(variant_path.read_text(encoding="utf-8")) or {}
+    overrides = variant.get("overrides") or {}
+    # Canonical-JSON normalisation: yaml and the manifest's JSON round-trip
+    # differ in dict key ORDER and in int/float typing, not in meaning. Plain
+    # str() reports every dict-valued override (lgbm_params) as drifted, which
+    # would make the warning noise and get it ignored.
+    def _canon(value):
+        return json.dumps(value, sort_keys=True, default=str)
+
+    mismatched = sorted(
+        str(key) for key, value in overrides.items()
+        if _canon(config.get(key)) != _canon(value)
+    )
+    return {
+        "mismatched_keys": mismatched,
+        "manifest_path": str(manifest_path),
+        "variant_path": str(variant_path),
+    }
+
+
 def validate_bundle(bundle_dir: Path) -> dict:
     """Validate one bundle and return registry-ready metadata."""
     bundle_dir = _rooted(bundle_dir).resolve()
@@ -488,6 +529,17 @@ def validate_bundle(bundle_dir: Path) -> dict:
         raise ValueError(f"{bundle_dir}: bundle predates its source metrics")
 
     try:
+        config_drift = run_config_drift(meta, run_dir)
+    except Exception:
+        config_drift = None
+    if config_drift and config_drift["mismatched_keys"]:
+        print(
+            f"[bundle-validator] WARN: {bundle_dir}: run config drift vs "
+            f"{meta.get('variant_path')}: {config_drift['mismatched_keys']}",
+            file=sys.stderr,
+        )
+
+    try:
         expected_operating = str(bundle_dir.relative_to(ROOT)).replace("\\", "/")
     except ValueError:
         expected_operating = str(bundle_dir).replace("\\", "/")
@@ -514,6 +566,7 @@ def validate_bundle(bundle_dir: Path) -> dict:
         "performance": perf,
         "_risk_guardrails": risk_guardrails,
         "_model_quality": model_quality,
+        "_run_config_drift": config_drift,
     }
 
 
