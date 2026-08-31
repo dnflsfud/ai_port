@@ -6,7 +6,7 @@ Includes revision spike cleaning and bounded revision feature builders.
 import logging
 import pandas as pd
 import numpy as np
-from typing import Dict
+from typing import Dict, Optional
 
 from src.data_loader import UniverseData
 from src.features.utils import cross_sectional_zscore, safe_pct_change, cs_rank
@@ -26,6 +26,7 @@ def clean_revision_spikes(
     extreme_threshold: float = 50.0,
     reversion_ratio: float = 0.5,
     persistent_rollover_extension: bool = False,
+    extension_max_days: Optional[int] = None,
 ) -> pd.DataFrame:
     """실적발표 전후 컨센서스 기간 전환으로 인한 급변 스무딩.
 
@@ -53,6 +54,11 @@ def clean_revision_spikes(
     sentiment) that is directional by nature.
 
     처리: 스파이크/급변 구간을 NaN 마킹 후 ffill로 직전 정상값 복원.
+
+    ``extension_max_days`` (§S16.2): ``persistent_rollover_extension``의 연장
+    길이 상한(거래일). ``None``/0 이하면 상한 없음 = 기존 경로와 동일. 정수면
+    이벤트 하나당 연장분이 그 길이에 도달한 뒤 강제 해제되어 실제 값이 다시
+    흐른다(이벤트 당일 마스킹은 상한과 무관하게 유지).
     """
     if mode not in ("down_only", "symmetric", "reversion_gated"):
         raise ValueError(
@@ -113,6 +119,11 @@ def clean_revision_spikes(
     # 스텝이 t+1에 전량 유입된다(1일 지연일 뿐 제거가 아님). 연장 조건은
     # 기존 파라미터 재사용: |orig − ref| > threshold AND
     # |orig| < |ref| * reversion_ratio (ref = 이벤트 직전 정상값).
+    # §S16.2: 연장에는 길이 상한이 없어 "진짜" 컨센서스 붕괴가 밴드 안에
+    # 머물면 붕괴 이전 값이 무기한 복원된다. extension_max_days가 정수면
+    # 이벤트 단위로 연장분을 세어 상한 도달 시 강제 해제한다.
+    n_ext_cells = 0
+    n_ext_capped = 0
     if persistent_rollover_extension:
         base_mask = (spike_mask | spike_up_mask).to_numpy()
         orig = rev.to_numpy(dtype=float)
@@ -121,6 +132,9 @@ def clean_revision_spikes(
         ref = np.full(n_cols, np.nan)
         active = np.zeros(n_cols, dtype=bool)
         prev_row = np.full(n_cols, np.nan)
+        cap = int(extension_max_days) if extension_max_days is not None else 0
+        cap_on = cap > 0
+        run_len = np.zeros(n_cols, dtype=int)
         for t in range(n_rows):
             row = orig[t]
             newly = base_mask[t] & ~active
@@ -130,10 +144,21 @@ def clean_revision_spikes(
                     np.abs(row) < np.abs(ref) * reversion_ratio
                 )
             still = (active | base_mask[t]) & collapsed
+            if cap_on:
+                # base 이벤트 행은 항상 마스킹되고 카운터를 리셋한다 —
+                # 상한은 연장분(base가 아닌 행)의 연속 길이에만 적용.
+                run_len = np.where(
+                    base_mask[t], 0, np.where(still, run_len + 1, 0)
+                )
+                forced = still & ~base_mask[t] & (run_len > cap)
+                still = still & ~forced
+                run_len = np.where(forced, 0, run_len)
+                n_ext_capped += int(forced.sum())
             ext[t] = base_mask[t] | still
             active = still
             prev_row = row
         combined = combined | pd.DataFrame(ext, index=rev.index, columns=rev.columns)
+        n_ext_cells = int((ext & ~base_mask).sum())
 
     cleaned[combined] = np.nan
     cleaned = cleaned.ffill()
@@ -143,7 +168,8 @@ def clean_revision_spikes(
     n_grad = int((gradual_mask & ~(spike_mask | spike_up_mask)).sum().sum())
     print(
         f"[RevisionClean] mode={mode} threshold={threshold} "
-        f"down-spikes={n_down} up-spikes={n_up} gradual-down={n_grad}"
+        f"down-spikes={n_down} up-spikes={n_up} gradual-down={n_grad} "
+        f"extension-cells={n_ext_cells} extension-capped={n_ext_capped}"
     )
     return cleaned
 
@@ -197,6 +223,7 @@ def get_cleaned_revision(
         persistent_rollover_extension=bool(
             getattr(cfg, "s15_fixpack_enabled", False)
         ),
+        extension_max_days=getattr(cfg, "revision_extension_max_days", None),
     )
 
 
