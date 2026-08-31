@@ -28,8 +28,6 @@
     "cov_lookback": 126,
     "cov_megacap_vol_shrink_enabled": true,
     "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
-    "degenerate_fallback_mode": "reuse_prev",
-    "degenerate_fresh_trees": 67,
     "dr_alpha_apply_ema": true,
     "dr_alpha_arch": "linear",
     "dr_alpha_embargo": 20,
@@ -273,10 +271,8 @@
     "revision_clean_mode": "reversion_gated",
     "revision_clean_reversion_ratio": 0.5,
     "revision_clean_threshold": 15.0,
-    "revision_extension_max_days": null,
     "risk_aversion": 1.0,
     "s15_fixpack_enabled": true,
-    "s16_unit_fixpack_enabled": false,
     "sales_surprise_feature_enabled": false,
     "satellite_budget": 0.225,
     "satellite_max_per_stock": 0.04,
@@ -314,21 +310,13 @@
     "winner_trim_protection_enabled": false,
     "winner_trim_quantile": 0.8
   },
-  "data_vintage": {
-    "data_mtime_utc": "2026-08-25T11:47:55Z",
-    "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
-    "data_size_bytes": 358972673,
-    "fx_mtime_utc": "2026-08-25T07:37:36Z",
-    "fx_size_bytes": 86308161,
-    "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx"
-  },
   "extra": {
-    "description": "Fixed-250 causal production portfolio. Uses date-grouped LightGBM rank_xendcg, purged/embargoed validation, and a one-trading-day execution signal lag. The legacy label/output path is retained for automation compatibility; the universe is the validated 250-name Universe_Meta set (decision log \u00a7S14.2). The adopted four-feature forward-sales-slope block is enabled per S13.25; benchmark, overlays, optimizer and transaction-cost assumptions remain pinned to the canonical iter15_65tkr_reb21_vtg portfolio design.\n",
-    "manifest_path": "variants\\codex_causal_rank_65.yaml",
+    "description": "New production baseline (codex_causal_rank_65 + s15_fixpack_enabled, S0' IR 1.5466, vintage 2026-08-25 20:47:55 / 16:37:36) plus the single S15.2 correctness flag option_vol_scale_fix_enabled (decision log S15.2 preregistration, 2026-08-28). Restores the preregistered S13.41 contract: (a) scale model trained on raw risk returns instead of the imputed dense panel, (b) loader-imputed iv30_z cells (3.77% of the panel) forced inert via the pre-impute observed mask. Alpha path untouched \u2014 avg_ic is expected bit-identical. Adoption criterion is correctness (S13.33 / S15 fix-pack precedent): the IR delta is an observation, not a selection gate. Not counted in the DSR inventory.\n",
+    "manifest_path": "variants\\s15_2_optvol_scale_fix.yaml",
     "tuning_mode": "production",
-    "variant_label": "codex_causal_rank_65"
+    "variant_label": "s15_2_optvol_scale_fix"
   },
   "git_dirty": false,
-  "git_hash": "2bdea4df6ab47741937e63e3b99e0439c7c3ea65",
-  "timestamp_utc": "2026-08-31T03:21:10Z"
+  "git_hash": "ab906fbafbbc100d9af86797142ef85e2df67cdb",
+  "timestamp_utc": "2026-08-28T01:32:42Z"
 }
