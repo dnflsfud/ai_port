@@ -66,10 +66,9 @@ def build_accounting_features(
                 # z spread of 0.001. Self-normalising per ticker first asks
                 # "how far is this name from its own norm" instead.
                 # Side effect: rolling_tsz(min_periods=252) leaves each ticker's
-                # first 251 observations NaN — 62,750 cells per feature (7.65%
-                # of the 3283x250 production panel; 212 always-listed names at
-                # the panel start plus 251 post-IPO days for 38 late listers).
-                # Those cells do NOT reach LightGBM as native missing: the panel
+                # first 251 observations NaN (panel start for long-listed names,
+                # post-IPO for late entrants). Those cells do NOT reach LightGBM
+                # as native missing, contrary to the first S16.1 draft: the panel
                 # builder fills them with the per-date cross-sectional median
                 # (assembly.py, "per_date_median"), and apply_absent_fundamental_nan
                 # deliberately re-NaNs only whole-column absence. Membership in

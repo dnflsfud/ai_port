@@ -7356,9 +7356,9 @@ ES_SYSTEM_REQUIRED 슬립 억제 + 빈티지 전후 기록).
 - **E2 (do-no-harm)**: TE ≤ 4.5% · Pictet active share 19.9% ± 3%p · ECOS fallback 0 ·
   turnover ≤ 1.25× · 퇴화율 report-only 병기.
 - **관측(사전 예측 포함)**:
-  - P2의 `rolling_tsz(min_periods=252)`는 각 티커의 첫 251 관측을 NaN으로 만든다 —
-    **피처당 62,750셀 = 3283×250 패널의 7.65%**(패널 시작 시점에 이미 상장된 212종 +
-    후발 상장 38종의 상장 후 251일). **정정(구현 중 실측)**: 이 셀들은 LightGBM 네이티브
+  - P2의 `rolling_tsz(min_periods=252)`는 각 티커의 첫 251 **유효** 관측을 NaN으로
+    만든다 — 산술적으로 **피처당 251×250 = 62,750셀 = 3283×250 패널의 7.65%**(장기
+    상장명은 패널 시작 구간, 후발 상장명은 상장 직후 구간). **정정**: 이 셀들은 LightGBM 네이티브
     결측으로 가지 **않는다**. 패널 빌더가 날짜별 횡단면 중위값으로 채우며
     (`assembly.py` per_date_median), `apply_absent_fundamental_nan`은 열 전체 부재만
     다시 NaN으로 만든다. 즉 `NAN_TOLERANT_FEATURES` 소속이 이 워밍업을 덮지 않는다.
