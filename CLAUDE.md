@@ -170,6 +170,13 @@ S0는 다음을 실행하고 결정 로그에 기록해야 비로소 "확정"된
 
 한 번에 후보 1개씩 flip → S0 대비 동일 솔버 재검증 → 롤백(플래그 한 줄 revert = 바이트동일 복원) 확인. 후보별 독립 커밋.
 
+**flip 체크리스트(필수, 2026-08-31 §S16 O2 — 누락 재발 방지)**: production variant에 플래그를 추가하는 커밋은 아래를 **같은 커밋 안에서** 함께 처리한다.
+1. `variants/codex_causal_rank_65.yaml`에 플래그 1줄 + 근거 주석(결정 로그 절 번호·새 S0′ 수치·롤백 방법).
+2. **핀 테스트 갱신** — `tests/acceptance/test_s13_*.py`의 `post_arm_production_flags` allowlist에 새 플래그 추가(역사적 arm variant는 수정 금지). 누락 시 `pytest tests/acceptance`가 즉시 red가 된다.
+3. `tests/test_*.py`의 production 상태 핀 테스트(예: `test_production_variant_pins_*`) 갱신.
+4. `PYTHONPATH=. <PY> -m pytest tests -q` 전체 통과 확인 후 커밋.
+5. 결정 로그에 flip 절 기록(새 기준선 수치·은퇴 수치 명시).
+
 ---
 
 ## 9. 현실이 문서와 어긋나면
