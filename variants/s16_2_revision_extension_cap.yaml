@@ -1,0 +1,147 @@
+label: s16_2_revision_extension_cap
+display_name: S16.2 Revision Extension Cap (250)
+portfolio_role: diagnostic
+description: >
+  Baseline for this arm is the S16.1 run (outputs/s16_1_unit_fixpack) =
+  production codex_causal_rank_65 + s16_unit_fixpack_enabled. The ONLY delta
+  here is revision_extension_max_days: 21. The S15 fix-pack #5 persistent
+  rollover extension (src/features/sellside.py) holds the pre-event revision
+  value for as long as the series stays inside the collapse band, with no
+  length limit and no artifact test — a GENUINE consensus collapse that
+  plateaus in the mid band is frozen for its entire duration (200BD
+  reproduced synthetically at production parameters 15 / 50 / 0.5). The stale
+  value propagates to eps_rev / sales_rev core features, the mc_*_x_eps_rev
+  crosses, conditioning.py, and the PEAD rev_quality + growth tilt overlays,
+  so a name whose revisions just collapsed can still receive a PEAD boost.
+  Rationale for 21BD: identical to the production pead_max_days: 21, so an
+  extension can never outlast one full PEAD overlay cycle; it is also one
+  third of the 63BD quarterly estimate-rollover period. Single preregistered
+  value — NO sweep (CLAUDE.md S2.4). Adoption criterion is correctness, but
+  because this introduces a new parameter (unlike S16.1) it is preregistered
+  separately. Rollback = delete the revision_extension_max_days line
+  (default None = byte-identical uncapped behaviour, certified by
+  tests/test_s16_revision_extension_cap.py).
+out_dir: outputs/s16_2_revision_extension_cap
+tuning_mode: production
+overrides:
+  # Causal ranking model. These are the only intentional signal-path changes.
+  model_objective: cross_sectional_rank
+  causal_validation_enabled: true
+  execution_signal_lag_days: 1
+  rank_relevance_levels: 10
+  rank_eval_at: [20]
+
+  # Model/data pins copied from the production S0 variant.
+  train_window: 1260
+  retrain_freq: 63
+  val_window: 126
+  prediction_ema_alpha: 0.5
+  early_stopping_rounds: 100
+  lgbm_params:
+    objective: rank_xendcg
+    metric: ndcg
+    learning_rate: 0.02
+    num_leaves: 31
+    max_depth: 5
+    min_child_samples: 60
+    subsample: 0.8
+    colsample_bytree: 0.8
+    reg_alpha: 0.3
+    reg_lambda: 2.0
+    n_estimators: 800
+    verbose: -1
+    random_state: 42
+  ewma_enabled: true
+  ewma_alpha: 0.3
+  ewma_min_retrains: 2
+  ewma_drop_pct: 0.05
+  ewma_min_features: 60
+  feature_mode: core
+  min_model_trees: 10
+  max_degenerate_model_rate: 0.25
+  fail_on_degenerate_model_rate: false
+  max_tail_ffill_days: 10
+  fail_on_stale_tail_ffill: false
+
+  # Benchmark / optimizer / execution pins.
+  benchmark_type: cap_weighted
+  risk_aversion: 1.0
+  turnover_penalty: 0.03
+  max_te_annual: 0.035
+  max_single_turnover: 0.15
+  sector_deviation: 0.10
+  cov_lookback: 126
+  bm_weight_floor: 0.02
+  max_active_share: 0.45
+  max_active_share_ceiling: null
+  max_weight: 0.15
+  max_active_per_stock: 0.04
+  use_score_based: false
+  portfolio_style: core_satellite
+  satellite_budget: 0.225
+  satellite_max_per_stock: 0.04
+  enforce_score_gated_ow: true
+  score_threshold_for_ow: 0.0
+  no_trade_band: 0.003
+  partial_rebalance_eta: 0.50
+  trailing_ic_window: 6
+  one_way_tc: 0.0010
+  rebalance_freq: 21
+
+  # Mega-cap / proportional-cap controls.
+  mega_cap_protection_enabled: true
+  mega_cap_bm_threshold: 0.04
+  mega_cap_wide_uw_cap: 0.10
+  mega_cap_funding_mode: true
+  mega_cap_funding_k: 4
+  mega_cap_funding_score_max: 0.0
+  bm_proportional_cap_enabled: false
+  bm_proportional_cap_bm_scale_at_top: 1.5
+  bm_proportional_cap_vol_scale_floor: 0.5
+  bm_proportional_cap_vol_lookback: 63
+
+  # Post-prediction overlays.
+  pead_boost_enabled: true
+  pead_boost_weight: 0.30
+  pead_decay_days: 7.0
+  pead_max_days: 21
+  growth_tilt_enabled: true
+  growth_tilt_weight: 0.25
+  growth_tilt_rev_weight: 0.50
+  growth_tilt_fundamental_weight: 0.50
+  growth_tilt_eps_skew: 0.50
+  growth_tilt_rev_eps_share: 0.50
+  growth_tilt_rev_sales_share: 0.50
+  growth_tilt_rev_tg_share: 0.00
+  signal_stability_lambda: 0.0
+  value_trap_gate_enabled: true
+  vtg_pe_z_threshold: -0.5
+  vtg_momentum_threshold: -0.5
+  vtg_accel_threshold: 0.5
+  vtg_scale: 0.0
+
+  # Operating guardrails / solver protocol.
+  allow_scs_on_ecos_exception: false
+  max_name_active_risk_share: 0.35
+  max_sector_active_risk_share: 0.85
+  expected_universe_size: 250
+  dr_alpha_enabled: false
+
+  # Adopted production feature/tilt/covariance flips.
+  fwd_sales_slope_features_enabled: true
+  vol_quality_tilt_enabled: true
+  vol_quality_tilt_lambda: 0.25
+  option_vol_covariance_enabled: true
+
+  # S15 / S15.2: part of the current production baseline.
+  s15_fixpack_enabled: true
+  option_vol_scale_fix_enabled: true
+
+  # S16.1 unit-correctness pack — included in THIS arm's comparison
+  # baseline (outputs/s16_1_unit_fixpack), not a delta.
+  s16_unit_fixpack_enabled: true
+
+  # S16.2 (2026-08-31): the ONLY delta vs the S16.1 baseline — cap the
+  # persistent rollover extension at 21BD (= pead_max_days). Rollback =
+  # delete this line.
+  revision_extension_max_days: 21
