@@ -7848,3 +7848,19 @@ turnover 0.703 / 퇴화 14/33** (`outputs/s16_2_revision_extension_cap`, 08-25 �
 
 **S16 시퀀스 종결 상태**: S16.1 flip ✓ · S16.2 flip ✓ · S16.3 불채택(축 종결) ·
 S16.4 SHELVE · S16.5 착수 보류(새 사전점검 필요). 이후 모든 arm 비교 기준은 **1.7149**.
+
+### S16.1 flip 부록 — 사용자 요청 P1~P4 코드 감사 (2026-08-31, 비액션)
+
+flip 후 사용자 요청("P1~P4까지 모두 수정됐는지 파악")으로 소스·산출물 이중 확인.
+
+| # | 코드 확인 | 산출물 확인 (새 기준선 런) |
+|---|---|---|
+| P1 | `data_loader.py:1363-1365` 호출 순서 정합(`_apply_price_unit_scale` → `_apply_usd_conversion` → 비율 가드). LN×0.01, 플래그 게이트 | `data_quality.currency.price_unit_scaled` = **정확히 8종**(RR/·AZN·SHEL·HSBA·RIO·LSEG·ULVR·REL)×0.01. 상시 가드 `tg_px_ratio_median` 250종 전수 보고, **[0.2,5] 밖 0건** |
+| P2 | `accounting.py:60-80` `CURRENCY_LEVEL_SHEETS`={FCF,CAPEX}만 `cs_z(rolling_tsz(756,252))` — VALUATION_SHEETS 관용구 동일 | E1-2: ex-KR/JP std 0.0008 → 0.9678 |
+| P3 | `accounting.py:149-166` shares=USD mktcap/USD price(정확한 주식수, 통화 상쇄), 상수 배율은 CS z에서 inert. P1 의존 동일 플래그 | E1-3: 상위 6종이 주식수 순서 탈피 |
+| P4 | `assembly.py:795-796` MacroCross를 skip_zscore에 추가(±5 클립은 유지), `macro_cross.py:140-147` slope만 63d rolling z(신규 자유도 0) | E1-4(재설계): 날짜별 std 변동폭 0.081→0.701, 클립 저촉 0.78%(사전 추정 일치) |
+
+플래그는 새 기준선 런 overrides에 ON 확인(`s16_unit_fixpack_enabled: true`,
+`revision_extension_max_days: 21`) — production variant config와 동일. 단위테스트 14건
+(9+5) 포함 전체 709 PASS. **P1~P4 전부 구현·발동 확인, 수정 필요 0.** 사용자가 알파 상승
+기전 검토 후 flip 수용 확정.
