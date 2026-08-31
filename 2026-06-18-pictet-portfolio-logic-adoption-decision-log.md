@@ -7891,3 +7891,47 @@ backtest 전체. default-OFF arm 모듈은 플래그 게이트 확인 수준.
 채택/EWMA 갱신 흐름, P1~P4(§S16.1 flip 부록), FX 변환 PIT·가격-수익률 정합 보고,
 실행 타이밍(당일 PnL은 진입 가중치), IC 성숙 필터, cap-weighted BM PIT 마스킹,
 PCA eligibility. 인벤토리 불변(469).
+
+---
+
+## S16.7 — 종목당 액티브 리스크 몫 상한 35% 강제 arm (사전등록, 2026-08-31, 측정 전)
+
+**동기(사용자 지시)**: 08-18 production 북에서 STX 1종이 ex-ante 액티브 리스크의
+**54.3%**(TE 기여 1.46%p / ex-ante TE 2.69%) — report-only 가드레일
+`max_name_active_risk_share=0.35`는 flip 전 북에서도 0.42로 breach 상태였고 S16.2 북에서
+0.54로 심화. 사용자가 "종목당 리스크 상한을 35%로 상한하는 테스트"를 지시.
+
+**arm 정의(단일 사전등록)**: `variants/s16_7_name_risk_cap.yaml` = production config +
+`name_risk_share_cap_enabled: true` **한 줄**. 캡 값은 기존 가드레일 상수 0.35 재사용
+(신규 자유도 0). Euler 몫 `a_i(Σa)_i/(aᵀΣa)`는 이차식 비율(비볼록)이므로 **순차 볼록
+재해**로 강제: breach 종목의 대칭 액티브 바운드를 `min(√(cap/share), 0.95)`배로 축소하며
+동일 문제를 재해(최대 12회, tol 0.01, 바운드 플로어 0.005 — 전부 variant 미노출 구현
+상수, 스윕 금지). **MVO 타깃과 실행 후 projection 양쪽**에 적용(max_te_annual 패턴 —
+부분 리밸이 우회 불가). 재해 실패·stall 시 마지막 유효 iterate 유지(bm 폴백 절대 금지 —
+불변식 5 보호). 내부 재해는 solver 카운트에 비계상(ECOS 194 비교 가능성 유지).
+
+**공개된 실패 모드(사전 고지)**: 단일 리스크 테이커 북에서는 몫이 스케일 불변이라 캡
+도달이 구조적으로 불가할 수 있음(축소해도 분모가 같이 줄어듦) — 이 경우 stall 감지로
+중단하고 converged=False. G1이 이를 실측한다.
+
+**인프라(default-OFF, 커밋 선행)**: config `name_risk_share_cap_enabled=False` 기본,
+`portfolio_optimizer._enforce_name_risk_share_cap` + 양 경로 hook. OFF 경로 신규 코드
+실행 0(구조 parity), slack-cap ON은 0회 반복으로 **바이트 동일**(단위테스트 검증).
+신규 테스트 5건 포함 전체 714 PASS.
+
+**게이트(측정 전 고정)** — 비교 기준 S0′ = IR 1.7149(`outputs/s16_2_revision_extension_cap`,
+08-25 빈티지; data_vintage 쌍 일치 필수):
+- **G0 (알파 경로 불변 sanity)**: avg_ic가 S0′와 **비트 동일**(0.018181) — 옵티마이저-전용
+  변경 증빙(§S13.41 선례). 불일치 시 측정 중단·원인 규명.
+- **G1 (기전/바인딩)**: 실행 북의 리밸일별 Euler name share를 공식 방법론(raw-return cov
+  + optvol 대각, export_operating_data와 동일)으로 오프라인 재계산 —
+  max name share ≤ 0.36(=cap+tol) **준수율 ≥ 90% + 마지막 리밸일(라이브 북) 준수**.
+  baseline 북의 breach율 병기. 미달 시 기전 실패로 불채택(성능 무관).
+- **G2 (캐릭터/무손상)**: TE ≤ 4.5%, Pictet active share ~20%±3%p, turnover 배율 ≤ 1.2×,
+  ECOS-only·fallback 0 유지, 퇴화율 불변(14/33 — 모델 경로 비접촉이므로 동일해야 함).
+- **E1 (성능, 표준 바)**: full ΔIR vs 1.7149, |ΔIR| < 0.36은 노이즈. **채택 프레임은
+  리스크 규율 후보**(§8 beta-neutral 유사): G1 바인딩 작동 + G2 무손상 + ΔIR > −0.36
+  (노이즈 밴드 내 손실까지 수용)일 때만 flip 후보로 사용자 상신. ΔIR ≤ −0.36 부호 일관
+  음이면 §S13.27-B(vol cap −0.62) 전례로 불채택 권고.
+
+**다중성**: 이 축 arm 1건(cap 0.35 단일). 인벤토리 469→470 등록(결과 pending).

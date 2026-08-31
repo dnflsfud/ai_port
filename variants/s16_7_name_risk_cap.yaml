@@ -1,0 +1,140 @@
+label: s16_7_name_risk_cap
+display_name: S16.7 Name Active-Risk Share Cap 35% (250)
+portfolio_role: diagnostic
+description: >
+  Comparison baseline is the S0' run (outputs/s16_2_revision_extension_cap =
+  current production config); the ONLY delta here is
+  name_risk_share_cap_enabled: true (decision log S16.7 preregistration,
+  2026-08-31). Enforces the existing report-only guardrail
+  max_name_active_risk_share=0.35 INSIDE the optimiser: sequential convex
+  re-solves with shrinking symmetric per-name active bounds until every
+  name's Euler active-risk share a_i*(cov@a)_i/(a@cov@a) is <= 0.35 (+0.01
+  tol), applied at BOTH the MVO target and the post-execution projection.
+  Motivation: the 2026-08-18 production book carries 54.3% of ex-ante active
+  risk in STX alone (guardrail breached at 0.42 pre-flip, 0.54 post-S16.2).
+  0.35 is a single preregistered value (= the existing guardrail constant);
+  iteration constants (max_iter 12, tol 0.01, min shrink 0.95, bound floor
+  0.005) are deliberately NOT exposed as overrides - sweeping them is a
+  CLAUDE.md 2.4 violation.
+out_dir: outputs/s16_7_name_risk_cap
+tuning_mode: production
+overrides:
+  # Causal ranking model. These are the only intentional signal-path changes.
+  model_objective: cross_sectional_rank
+  causal_validation_enabled: true
+  execution_signal_lag_days: 1
+  rank_relevance_levels: 10
+  rank_eval_at: [20]
+
+  # Model/data pins copied from the production S0 variant.
+  train_window: 1260
+  retrain_freq: 63
+  val_window: 126
+  prediction_ema_alpha: 0.5
+  early_stopping_rounds: 100
+  lgbm_params:
+    objective: rank_xendcg
+    metric: ndcg
+    learning_rate: 0.02
+    num_leaves: 31
+    max_depth: 5
+    min_child_samples: 60
+    subsample: 0.8
+    colsample_bytree: 0.8
+    reg_alpha: 0.3
+    reg_lambda: 2.0
+    n_estimators: 800
+    verbose: -1
+    random_state: 42
+  ewma_enabled: true
+  ewma_alpha: 0.3
+  ewma_min_retrains: 2
+  ewma_drop_pct: 0.05
+  ewma_min_features: 60
+  feature_mode: core
+  min_model_trees: 10
+  max_degenerate_model_rate: 0.25
+  fail_on_degenerate_model_rate: false
+  max_tail_ffill_days: 10
+  fail_on_stale_tail_ffill: false
+
+  # Benchmark / optimizer / execution pins.
+  benchmark_type: cap_weighted
+  risk_aversion: 1.0
+  turnover_penalty: 0.03
+  max_te_annual: 0.035
+  max_single_turnover: 0.15
+  sector_deviation: 0.10
+  cov_lookback: 126
+  bm_weight_floor: 0.02
+  max_active_share: 0.45
+  max_active_share_ceiling: null
+  max_weight: 0.15
+  max_active_per_stock: 0.04
+  use_score_based: false
+  portfolio_style: core_satellite
+  satellite_budget: 0.225
+  satellite_max_per_stock: 0.04
+  enforce_score_gated_ow: true
+  score_threshold_for_ow: 0.0
+  no_trade_band: 0.003
+  partial_rebalance_eta: 0.50
+  trailing_ic_window: 6
+  one_way_tc: 0.0010
+  rebalance_freq: 21
+
+  # Mega-cap / proportional-cap controls.
+  mega_cap_protection_enabled: true
+  mega_cap_bm_threshold: 0.04
+  mega_cap_wide_uw_cap: 0.10
+  mega_cap_funding_mode: true
+  mega_cap_funding_k: 4
+  mega_cap_funding_score_max: 0.0
+  bm_proportional_cap_enabled: false
+  bm_proportional_cap_bm_scale_at_top: 1.5
+  bm_proportional_cap_vol_scale_floor: 0.5
+  bm_proportional_cap_vol_lookback: 63
+
+  # Post-prediction overlays.
+  pead_boost_enabled: true
+  pead_boost_weight: 0.30
+  pead_decay_days: 7.0
+  pead_max_days: 21
+  growth_tilt_enabled: true
+  growth_tilt_weight: 0.25
+  growth_tilt_rev_weight: 0.50
+  growth_tilt_fundamental_weight: 0.50
+  growth_tilt_eps_skew: 0.50
+  growth_tilt_rev_eps_share: 0.50
+  growth_tilt_rev_sales_share: 0.50
+  growth_tilt_rev_tg_share: 0.00
+  signal_stability_lambda: 0.0
+  value_trap_gate_enabled: true
+  vtg_pe_z_threshold: -0.5
+  vtg_momentum_threshold: -0.5
+  vtg_accel_threshold: 0.5
+  vtg_scale: 0.0
+
+  # Operating guardrails / solver protocol.
+  allow_scs_on_ecos_exception: false
+  max_name_active_risk_share: 0.35
+  max_sector_active_risk_share: 0.85
+  expected_universe_size: 250
+  dr_alpha_enabled: false
+
+  # Adopted production feature/tilt/covariance flips.
+  fwd_sales_slope_features_enabled: true
+  vol_quality_tilt_enabled: true
+  vol_quality_tilt_lambda: 0.25
+  option_vol_covariance_enabled: true
+
+  # S15 / S15.2 / S16.1 / S16.2: part of the current production baseline.
+  s15_fixpack_enabled: true
+  option_vol_scale_fix_enabled: true
+  s16_unit_fixpack_enabled: true
+  revision_extension_max_days: 21
+
+  # S16.7 (2026-08-31): the ONLY delta vs the S0' baseline run. Enforces the
+  # 0.35 per-name Euler active-risk share guardrail inside optimize_portfolio
+  # AND project_portfolio_weights. Rollback = delete this line.
+  name_risk_share_cap_enabled: true

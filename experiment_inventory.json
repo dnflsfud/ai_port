@@ -1,399 +1,407 @@
 {
-  "description": "Conservative inventory of distinct strategy configurations that were backtested during the research phase of ai_signal_cc2_harness. Used by run_selection_bias.py --auto to pass a realistic N_trials into the Deflated Sharpe Ratio / Haircut calculation. Update this file whenever you run a new comparison / grid / experiment.",
-  "references": "Bailey & Lopez de Prado (2014) The Deflated Sharpe Ratio. N should count every distinct strategy configuration whose backtest was inspected, not just the single final choice.",
-  "scripts": [
-    {
-      "script": "grid_search.py",
-      "phase": "coarse",
-      "param_space": "risk_aversion(7) * turnover_penalty(5) * max_te_annual(1) * max_single_turnover(2) * sector_deviation(2)",
-      "trials": 140
-    },
-    {
-      "script": "grid_search.py",
-      "phase": "fine",
-      "param_space": "ra(5) * tp(5) * mst(3) * sd(3) centered on Phase 1 best (minus ~5 overlaps with coarse)",
-      "trials": 220
-    },
-    {
-      "script": "compare_improvements.py",
-      "phase": "pca x sector_interactions",
-      "param_space": "{A_Baseline, B_PartialPCA, C_SectorIX, D_Combined}",
-      "trials": 4
-    },
-    {
-      "script": "compare_pca.py",
-      "phase": "pca_n_remove sweep",
-      "param_space": "{5, 3, 2}",
-      "trials": 3
-    },
-    {
-      "script": "compare_max_weight.py",
-      "phase": "max_weight sweep",
-      "param_space": "[0.20, 0.25, 0.30, 0.35]",
-      "trials": 4
-    },
-    {
-      "script": "experiment_te_sensitivity.py",
-      "phase": "TE sensitivity",
-      "param_space": "te_values=[0.125, 0.15, 0.175, 0.20] iterated across multiple sub-experiments",
-      "trials": 8
-    },
-    {
-      "script": "experiment_monthly_rebal.py",
-      "phase": "monthly vs 10d rebalance",
-      "param_space": "{monthly, current}",
-      "trials": 2
-    },
-    {
-      "script": "manual_config_tuning",
-      "phase": "LightGBM hyperparameter tuning (lr, leaves, depth, child_samples, subsample, colsample, alpha, lambda, n_est)",
-      "param_space": "estimated from git log / memory - conservative lower bound",
-      "trials": 15
-    },
-    {
-      "script": "redesign_2026_04_ACDE",
-      "phase": "structural redesign: cap-weighted BM (A), lean feature set 239 (C), LightGBM stabilisation (D), optimiser re-tuning (E)",
-      "param_space": "single coordinated change set, not a grid",
-      "trials": 1
-    },
-    {
-      "script": "redesign_2026_04_11_growth_balance",
-      "phase": "C+ follow-up: restore multi-horizon EPS/Sales/FCF growth + add 17 growth composite features (new 'Growth' group) to balance Quality vs Growth style representation",
-      "param_space": "single coordinated change set, not a grid",
-      "trials": 1,
-      "result": "FAILED: IR 0.62 -> 0.23, rolled back to A+C+D+E"
-    },
-    {
-      "script": "redesign_2026_04_11_PM_core_satellite",
-      "phase": "F: reduce to 81 hand-picked core features + enable core-satellite portfolio style (max_active_share 0.40 L1, max_active_per_stock 0.06)",
-      "param_space": "single coordinated change set, not a grid",
-      "trials": 1
-    },
-    {
-      "script": "redesign_2026_04_11_PM_score_gated_ow",
-      "phase": "G: block OW on stocks with z-score < 0 (prevent MVO diversification quirk from overweighting negative signals)",
-      "param_space": "single coordinated change set, not a grid",
-      "trials": 1
-    },
-    {
-      "script": "redesign_2026_04_12_core_v2",
-      "phase": "H: further pruned core features 81 -> 46 based on feature_importance ranking from previous run",
-      "param_space": "single coordinated change set, not a grid",
-      "trials": 1
-    },
-    {
-      "script": "redesign_2026_04_12_financials_universe",
-      "phase": "I: restore JPM/GS by switching from all-sheet intersection to essential-sheet intersection. Optional sheets (FCF/CAPEX/EV_EBITDA) have NaN for banks, filled by per-date median. Universe 48 -> 50.",
-      "param_space": "single coordinated change set, not a grid",
-      "trials": 1
-    },
-    {
-      "script": "rl_hybrid_v1",
-      "phase": "ai_signal_cc2_rl Meta-Controller(4) + Signal Overlay(7 feature groups) PPO. Pretrain cutoff 2024-12-31, walk-forward fine-tune every ~63d (2 episodes). Base config = iter15_65tkr_reb21_vtg.",
-      "param_space": "single coordinated RL configuration (rl_enabled=true, rl_mode=hybrid, rl_overlay_clip=0.30)",
-      "trials": 1
-    },
-    {
-      "script": "exp_S7_A1_mu_vol_scaling",
-      "phase": "S7 AI-logic arm (2026-07-06): Grinold variance-scaling mu_i = z_i * sigma_i / median_CS(sigma). Single pre-registered parameter-free transform, no sweep.",
-      "param_space": "mu_vol_scaling_enabled=true (single pre-registered form)",
-      "trials": 1,
-      "result": "IR 1.552503 (dIR +0.0711 < +0.36 SE, subperiod sign inconsistent: P1/P2 down, P3 up) -> gate not met, OFF-default, no flip"
-    },
-    {
-      "script": "exp_S7_A2_confidence_spread_recal",
-      "phase": "S7 AI-logic arm (2026-07-06): confidence spread_scale recalibrated from default 0.20 to D0 raw_spread median. Single pre-registered value, no sweep.",
-      "param_space": "confidence_spread_scale=3.57587 (single pre-registered value)",
-      "trials": 1,
-      "result": "IR 1.483625 (dIR +0.0022, subperiod P2 sign inconsistent -0.112) -> gate not met, OFF-default, no flip"
-    },
-    {
-      "script": "exp_S7_A3_adaptive_ema",
-      "phase": "S7 AI-logic arm (2026-07-06): trailing-IC adaptive prediction EMA, alpha_t=clip(0.5+(tIC-m)/(2*IQR),0.25,0.75) with m/IQR anchored to D0 trailing_ic_dist. Single pre-registered functional form, no sweep. 2-pass injection, src/ untouched.",
-      "param_space": "adaptive-EMA single pre-registered functional form (D0-anchored constants, zero free params)",
-      "trials": 1,
-      "result": "IR 1.484346 (dIR +0.0029, subperiod P2 -0.432 sign inconsistent) -> gate not met, OFF-default, no flip"
-    },
-    {
-      "script": "exp_S7_A4_seed_ensemble",
-      "phase": "S7 AI-logic arm (2026-07-06): LGBM seed ensemble k=5, seeds {42,43,44,45,46}, finite-mean of pre-EMA z-panels + per-date CS restandardize + EMA(0.5). Single pre-registered config, no k sweep. 2-pass injection, src/ untouched.",
-      "param_space": "seed ensemble k=5 (single pre-registered config, no k sweep)",
-      "trials": 1,
-      "result": "IR 1.317520 (dIR -0.1639) -> gate not met, OFF-default, no flip. NOTE: seed 43-46 full harvests = per-seed diagnostics 4 runs (non-selection input to A4, NOT counted as trials); per-seed IR 42=1.481/43=1.184/44=1.057/45=1.110/46=1.406 quantifies seed-luck variance."
-    },
-    {
-      "script": "exp_S8_news_trend_feature",
-      "phase": "S8 sentiment feature arm (2026-07-07): single pre-registered feature `news_trend` (NEWS_SENTIMENT_DAILY_AVG 5d-21d rolling-mean spread) conditionally added to the core whitelist via the news_trend_feature_enabled flag. default-OFF, no sweep. Feature-panel change forces a full pipeline re-run (not cache-safe); ECOS solver, src feature code untouched.",
-      "param_space": "news_trend_feature_enabled=true (single pre-registered feature)",
-      "trials": 1,
-      "result": "IR 1.272249 (dIR -0.2092, subperiod P1/P2/P3 dIR all negative -0.053/-0.309/-0.180) -> gate not met, OFF-default, no flip. Feature injection confirmed (model features 61->62, exactly +news_trend). TE 0.030094 (<=0.045, character preserved), ECOS 188 / fallback 0.0%."
-    },
-    {
-      "script": "iter15_65tkr_reb21_vtg_causal_recert",
-      "phase": "Causal-discipline S0' re-certification (2026-07-10, user-directed): production variant iter15 with causal_validation_enabled=true + execution_signal_lag_days=1 (both correctness fixes flipped simultaneously). New reference baseline under causal discipline. Distinct config (IR changed, NOT a byte-identical OFF-parity recheck like exp_s0_recheck_d2), counted per redesign-precedent (adopted structural baseline change = 1 trial). ECOS, --no-cache.",
-      "param_space": "causal_validation_enabled=true + execution_signal_lag_days=1 on iter15_65tkr_reb21_vtg (coordinated correctness flip, no sweep)",
-      "trials": 1,
-      "result": "IR 0.902 (vs pre-causal 1.481, -0.579; active 2.59%, TE 2.87%, turnover 106.8%, realized_beta 0.993, MDD -29.5%; P1 0.14/P2 0.22/P3 2.09). pre-causal 1.481 retired as comparison base (val-label leakage + t-close-fill optimism). Becomes the S0' reference all challengers are measured against."
-    },
-    {
-      "script": "exp_causal_val_only",
-      "phase": "Causal contribution decomposition arm A (2026-07-10): causal_validation_enabled=true only (exec_lag=0) on iter15 base, isolating the val-label leakage (early-stopping) fix. Single-flag diagnostic arm, ECOS, --no-cache.",
-      "param_space": "causal_validation_enabled=true, execution_signal_lag_days=0 (single decomposition arm)",
-      "trials": 1,
-      "result": "IR 0.920 (dIR -0.561 vs pre-causal 1.481; P1 0.26/P2 0.30/P3 2.05). Attributes ~all of the S0 IR drop to val-label leakage repair; P1 collapse 1.59->0.26. Diagnostic decomposition, not a production candidate."
-    },
-    {
-      "script": "exp_exec_lag_only",
-      "phase": "Causal contribution decomposition arm B (2026-07-10): execution_signal_lag_days=1 only (causal_val off) on iter15 base, isolating the t-close-signal/t-close-fill optimism fix. Single-flag diagnostic arm, ECOS, --no-cache.",
-      "param_space": "causal_validation_enabled=false, execution_signal_lag_days=1 (single decomposition arm)",
-      "trials": 1,
-      "result": "IR 1.486 (dIR +0.005 vs pre-causal 1.481; P1 1.38/P2 0.64/P3 2.10). 1d execution lag alone is noise-band (|dIR|<1SE). Diagnostic decomposition, not a production candidate."
-    },
-    {
-      "script": "codex_causal_rank_65",
-      "phase": "GPT-5.6 challenger (2026-07-10): rank_xendcg LightGBM objective (model_objective=cross_sectional_rank, metric=ndcg) + causal validation split + 1d execution signal lag. Reuses default-OFF causal infra. Single pre-registered config, no sweep. ECOS, --no-cache full re-run.",
-      "param_space": "lgbm objective=rank_xendcg + causal_validation_enabled=true + execution_signal_lag_days=1 (single pre-registered challenger config)",
-      "trials": 1,
-      "result": "IR 1.695 vs causal-discipline S0' 0.902 (dIR +0.79 > +0.36 1SE; subperiod P1 0.752/P2 0.772/P3 3.080, all-positive 3/3) -> \u00a72-4 adoption bar met, comparison_gate PASS 7/7. Promotion package pending this DSR/selection-bias gate."
-    },
-    {
-      "script": "run_variant.py --variant variants/arm_s10_minchild30.yaml",
-      "phase": "S10.2 degeneracy arm (2026-07-18, pre-registered in decision log S10.2 before execution)",
-      "param_space": "lgbm_params.min_child_samples 60 -> 30 (single pre-registered parameter)",
-      "trials": 1,
-      "result": "E1 FAIL: degenerate_rate 65.6% (21/32) vs baseline 53.1% - hypothesis refuted, degeneracy worsened. dIR -0.137 (noise band), sub dIR -0.429/-0.239/+0.339. Not adopted; production unchanged; HOLD stays on degenerate check."
-    },
-    {
-      "script": "universe_scale_rebaselines_S9_S11_S13",
-      "phase": "Adopted structural re-baselines (2026-07-16..07-26): 100-ticker unhedged-USD (S9), 150-ticker + PIT double-masking (S11.4), 200-ticker + SAN (S13.3). 1 trial each per redesign precedent.",
-      "param_space": "universe/accounting coordinated change sets",
-      "trials": 3,
-      "result": "All three adopted as new S0 baselines (S9 1.599-era -> S9.1 1.570; S11.4 1.371; S13.3 1.5529)."
-    },
-    {
-      "script": "exp_S11_5_arms",
-      "phase": "S11.5 (2026-07-20): sector_active_risk_penalty lambda=5; val_window 252. Two single pre-registered arms.",
-      "param_space": "2 single-flag arms",
-      "trials": 2,
-      "result": "Both E1 FAIL, not adopted. mu is z-scale so lambda*~26k would be needed (penalty inert at 5)."
-    },
-    {
-      "script": "exp_S11_9_mh_blend",
-      "phase": "S11.9 (2026-07-21): multi-horizon target blend arm.",
-      "param_space": "multi_horizon_targets_enabled (single pre-registered blend)",
-      "trials": 1,
-      "result": "E1/E2 FAIL: term-structure collapse, turnover unchanged. Not adopted."
-    },
-    {
-      "script": "exp_S11_10_lr",
-      "phase": "S11.10 (2026-07-21): lgbm learning_rate 0.03 degeneracy arm.",
-      "param_space": "lr=0.03 (single pre-registered value)",
-      "trials": 1,
-      "result": "E1 FAIL: degenerate rate unchanged 56.25% (n_trees moved 8~9 only). Degeneracy candidate axis exhausted."
-    },
-    {
-      "script": "exp_S12_arms",
-      "phase": "S12 (2026-07-22): GPT-review follow-ups - stale-depth gate <=7 + 4 performance arms (objective hypothesis, mu scaling, refresh re-entry, PCA standardization).",
-      "param_space": "5 single pre-registered configs",
-      "trials": 5,
-      "result": "stale-depth gate ADOPTED (first PRODUCTION flip of the S-series). 4 performance arms all rejected (hypothesis 40.6% disproven / scaling no-op / re-entry 0 / PCA worse all sub-periods)."
-    },
-    {
-      "script": "exp_S13_4_surprise_opcf",
-      "phase": "S13.4 (2026-07-26): EPS surprise / sales surprise / Fwd_OpCashflow level - three feature-admission arms on the 200 universe.",
-      "param_space": "3 single-flag feature arms",
-      "trials": 3,
-      "result": "All E1 FAIL, dIR all negative, P2 consistently down. Not adopted."
-    },
-    {
-      "script": "exp_S13_5_fwd_opcf_rev",
-      "phase": "S13.5 (2026-07-26): Fwd_OpCashflow revision windows 63/126/252.",
-      "param_space": "3 single-flag feature arms",
-      "trials": 3,
-      "result": "All E1 FAIL -> Fwd_OpCashflow axis exhausted."
-    },
-    {
-      "script": "exp_S13_6_absent_nan",
-      "phase": "S13.6 (2026-07-27): honest-NaN for absent fundamentals (banks) instead of median fill.",
-      "param_space": "absent_fundamental_nan_enabled (single flag)",
-      "trials": 1,
-      "result": "E1 FAIL dIR -0.388. Effect follows the MASK not the sector (fin +0.017 vs TSM -0.185) - median fill vindicated post-hoc."
-    },
-    {
-      "script": "exp_S13_8_single_eval_metric",
-      "phase": "S13.8 (2026-07-27): rank_eval_at [5,10]->[10] after root-causing degeneracy to best_iteration=min(argmax ndcg@5, argmax ndcg@10) (14/14 empirical).",
-      "param_space": "rank_eval_at=[10] (single pre-registered change)",
-      "trials": 1,
-      "result": "E2 confirmed (degenerate 18/32->11/32, trees 42.4->81.0) but E1 non-action dIR -0.0829. Not adopted; ndcg@5 discovered to act as implicit capacity regularizer."
-    },
-    {
-      "script": "exp_S13_9_earnings_calendar",
-      "phase": "S13.9 (2026-07-27): admit the 8 existing earnings-calendar conditioning features (model previously saw timing only via PEAD overlay).",
-      "param_space": "earnings_calendar_feature_enabled (single 8-feature block)",
-      "trials": 1,
-      "result": "E1 FAIL dIR -0.1932 despite IC +92% (0.0162->0.0311) and both counter-evidence checks passing (first in 19 arms). Damage localized: 21d prediction persistence 0.850->0.615."
-    },
-    {
-      "script": "exp_S13_10_peer_earnings",
-      "phase": "S13.10 (2026-07-27): relational peer-earnings cascade (3 features, first non-single-stock block).",
-      "param_space": "peer_earnings_cascade_feature_enabled (single 3-feature block)",
-      "trials": 1,
-      "result": "E1 FAIL dIR -0.0752, IC flat; peer_earn_lead_lag #1 split (6.88%) with 54% between-ticker variance = name-identity leak (design defect, not axis refutation). Spawned the >30% between-ticker pre-check rule."
-    },
-    {
-      "script": "exp_S13_11_eta_2x2",
-      "phase": "S13.11 (2026-07-27): 2x2 factorial eta {0.5,1.0} x features {S0, S13.9} to isolate execution-signal-speed interaction.",
-      "param_space": "partial_rebalance_eta=1.00 on both feature sets (2 cells)",
-      "trials": 2,
-      "result": "Interaction +0.2418 (direction supported; iter17 rollback vindicated) but only ~11% of S13.9 loss recovered; eta recovery paid entirely in TE (IR +0.02). No cell beats S0. Not adopted."
-    },
-    {
-      "script": "exp_S13_13_interaction_block",
-      "phase": "S13.13 (2026-07-27): 5-feature nonlinear block - 4 products of core-parent CS z-scores + mom_consistency_252. Pre-checked structurally (persistence/btv/redundancy), IC untouched. NOTE: an initial 4-feature launch was killed UNOBSERVED before the user widened the block (not a trial).",
-      "param_space": "interaction_features_enabled (single 5-feature block)",
-      "trials": 1,
-      "result": "E1 FAIL dIR -0.0809 BUT first arm ever to improve book spec capture (+0.11%/yr) and degeneracy (0.500->0.375); entire loss is carry gap -0.42%/yr. Established carry-loss ~ 3%/yr per unit book divergence."
-    },
-    {
-      "script": "exp_S13_14_ix_winner_protect",
-      "phase": "S13.14 (2026-07-28): combined arm - interaction block + winner-trim hinge penalty lambda=1.0 on trailing-252d top-quintile (carrier diagnosis: PLTR/NVDA/TSLA composition, not factor exposures).",
-      "param_space": "interaction_features_enabled + winner_trim_protection_enabled (pre-registered combination, lambda/quantile fixed)",
-      "trials": 1,
-      "result": "E1 FAIL dIR -0.1157. Hinge could not move the book (divergence 0.129->0.128): mega-winner underweight is a FORMATION problem (positions never built), not liquidation - meanwhile rotation freeze erased the spec gain (3.41->3.21). Interaction axis closed."
-    },
-    {
-      "script": "exp_S13_15_nonlinear_confirmation",
-      "phase": "S13.15 (2026-07-28): nonlinear-confirmation feature block. One accidental 5-feature result was observed before a wiring/order defect was detected; the formal rerun contained all 6 preregistered features.",
-      "param_space": "observed accidental 5-feature implementation state + formal nonlinear_confirmation_features_enabled 6-feature arm",
-      "trials": 2,
-      "result": "Accidental 5-feature IR was observed but is invalid for adoption and counted conservatively. Formal 6-feature E1 FAIL: dIR -0.2726; P1/P2/P3 all worse. OFF."
-    },
-    {
-      "script": "exp_S13_16_residual_nonlinear_sleeve",
-      "phase": "S13.16 (2026-07-28): fixed 10% ex-ante variance-reserved explicit OOF nonlinear residual sleeve with A/B/C attribution.",
-      "param_space": "A existing production (not recounted); B fixed sqrt(0.90) reserve-only diagnostic; C fixed sqrt(0.90) base + sqrt(0.10) covariance-orthogonal residual sleeve; no performance sweep",
-      "trials": 2,
-      "result": "REJECT. B-A dIR +0.0291 (reserve/de-risking helped), C-B dIR -0.0454 and C-A dIR -0.0163. P1 improved but P2/P3 worsened; residual score IC -0.0030. Structural risk-allocation gate also failed: residual-direction MVO infeasible on 63/84 active rebalances, so median realised residual variance share was 1.60% rather than 10%. Default remains OFF; no sign flip or post-hoc budget/model retune."
-    },
-    {
-      "script": "exp_S13_24_relative_revision_nonlinear_ai",
-      "phase": "S13.24 (2026-07-30..08-01): one preregistered relative-revision nonlinear interaction arm with home-index-bucket neutralization and name-level confidence active caps.",
-      "param_space": "single frozen arm; four relative-revision interaction features plus fixed 80th-percentile confidence cap rule; no sweep or sign flip",
-      "trials": 1,
-      "result": "REJECT. IR 1.1390 vs strict baseline 1.3881 (delta -0.2491); P1/P2/P3 delta IR all negative. Relative block IC overall was negative and concentration gates also failed. Production unchanged."
-    },
-    {
-      "script": "run_orthogonal_signal_arm.py",
-      "phase": "S13.28 (2026-08-04): characteristic-orthogonality diagnostic. Re-MVO of the saved production harvest with the model score split into a characteristic-fitted part and its orthogonal residual.",
-      "param_space": "two preregistered diagnostic arms (R1 residual, R2 style) on a frozen 7-characteristic basis (SMB/VALUE/MOM/QUALITY/LOWVOL/BAB/GROWTH); no sweep, no parameter tuning. The R0 identity arm is a round-trip check, not a trial.",
-      "trials": 2,
-      "result": "DIAGNOSTIC, no flip. R0 reproduced production to 1.2e-6 IR (gate G0 pass). R1 residual IR 0.9248 (active +2.36%, TE 2.55%, turnover 0.977); R2 style IR 1.0816 (active +4.09%, turnover 0.645) vs production 1.5734. Orthogonal signal is real but weak and faster-turning; style tilt carries 72% of the active return. Production unchanged."
-    },
-    {
-      "script": "run_variant.py (arm_s13_27a_bmprop / arm_s13_27b_volcap)",
-      "phase": "S13.27 (2026-08-04): two preregistered optimizer-layer defensive arms against the SHAP-identified high-vol OW concentration. A: enable existing BM-proportional active cap infra (flag only). B: new portfolio-level vol exposure cap vols@w <= 1.05 * vols@bm (new default-OFF infra).",
-      "param_space": "two frozen arms, single flag delta each vs production; no sweep, no retuning (A keeps existing defaults top 1.5x / vol floor 0.5 / lookback 63; B excess fixed at 0.05 = half the measured +9.55% production vol-exposure overshoot)",
-      "trials": 2,
-      "result": "REJECT both, production unchanged, flags stay OFF. A: no defensive effect (07-21 vol ratio 1.0936 vs 1.0955; tail metrics 0/4 improved) at dIR -0.0998 -- the cap binds on MU but active weight redistributes to other high-vol OWs. B: defense real (vol ratio 1.0387; MaxDD/activeMaxDD/downside-capture all improved) but dIR -0.6236 with top-12 OW overlap 3/12 and beta 0.989 -- the cap dismantles the alpha-carrying high-vol growth tilt (converges with the S13.28 orthogonality diagnostic). Verified by independent re-run of the judgment script."
-    },
-    {
-      "script": "run_variant.py (arm_s13_29_pca_volstd)",
-      "phase": "S13.29 (2026-08-05): pca_vol_standardize retest on the current 200-name slope-ON baseline, prompted by the S13.28 vol-preference mechanism Q&A; primary deliverable was the latest-rebalance OW roster of the standardized version.",
-      "param_space": "single preregistered flag (pca_vol_standardize: true) on the frozen production config; no sweep",
-      "trials": 1,
-      "result": "E1 FAIL, not adopted. IR 1.0747 vs production 1.5734 (dIR -0.4986), all three sub-periods worse. Surprise finding: the vol tilt was NOT removed (mean active vol_z +0.365 vs +0.33, 96/96 positive; standardized-label top decile vol_z +0.552 vs raw +0.497) - fat tails survive sigma scaling, so standardization degrades selection quality without changing the style character. Confirms the S12.5 rejection on the current baseline."
-    },
-    {
-      "script": "run_s13_31_quality_tilt_arm.py",
-      "phase": "S13.31 (2026-08-05): 63d-horizon quality tilt inside the top idio-vol tercile, re-MVO of the saved production harvest (score' = score + 0.25*sd*z_q within tercile). Gated by the S13.30 preflight (quality defence inside high-vol exists only at 63d; preflight itself was read-only, not counted).",
-      "param_space": "single preregistered arm, lam=0.25 frozen, quality=best_roe_level_z frozen; no sweep. Q0 identity arm is a round-trip check, not a trial.",
-      "trials": 1,
-      "result": "ZERO-COST TILT, referred to user (no auto-flip). Q0 reproduced production exactly (IR diff 0.0). Q1 IR 1.6196 vs 1.5734 (dIR +0.0463, inside the 0.36 noise band - not adoptable on IR grounds). Quality exposure moved -0.029 -> +0.049 (D1a pass) with vol exposure preserved (0.385 -> 0.374, character intact, E2 pass). Tail defence NOT delivered: MaxDD/activeMaxDD/downside-capture flat-to-slightly-worse, only worst-subperiod IR improved (1.285 -> 1.312). D1b technically 1/4. Production unchanged."
-    },
-    {
-      "script": "run_variant.py (arm_s13_32_volqual_tilt)",
-      "phase": "S13.32 (2026-08-05): pipeline formalization of the S13.31 quality tilt - new default-OFF PipelineConfig flags (vol_quality_tilt_enabled / vol_quality_tilt_lambda 0.25) wired at the pre-overlay checkpoint, full pipeline rerun (cache disabled, walk-forward retrain).",
-      "param_space": "single frozen arm = production + 2 flags; lambda 0.25 carried from the S13.31 commitment, no sweep. OFF parity structural (guard returns the input object) + unit tests prove cell-level equality with the S13.31 diagnostic transform.",
-      "trials": 1,
-      "result": "E0 PASS at floating-point precision: full-pipeline IR 1.619622 = S13.31 Q1 (active 5.884%, TE 3.633%, beta 1.0530, turnover 0.7090, MaxDD -32.85% all identical). Degenerate-retrain rate 15/32 identical to production (model layer untouched, cross-check pass). ECOS-only, fallback 0. dIR vs production +0.0463 (noise band). Referred to user for the S8 flip decision; flags stay default-OFF."
-    },
-    {
-      "script": "run_variant.py (s13_46_icorr_cov)",
-      "phase": "S13.46 (2026-08-20): implied-correlation off-diagonal covariance scaling arm - preregistered single config after the S13.45-C precheck PASS (NW t +8.43, OOS RMSE +11.6%). New default-OFF flag implied_corr_covariance_enabled; per-rebalance scalar s_t = clip(ICorr/rho_trail, 0.5, 2.0) applied to the covariance off-diagonal only (diagonal untouched, eigenvalue floor 1e-8).",
-      "param_space": "single frozen arm = production + 1 flag; clip/coverage/floor constants preregistered in decision log S13.46, no sweep. OFF parity structural (flag off builds no IV panel; s==1.0 returns the input object) + 7 unit tests.",
-      "trials": 1,
-      "result": "E1 FAIL: dIR -0.0094 (1.6287 -> 1.6193, 08-19 vintage), splits +0.0748/+0.0110/-0.1048 (sign inconsistent). avg_ic bit-identical (alpha channel untouched, proven). TE 3.457% -> 3.359%, turnover 0.752 -> 0.734, beta/MaxDD unchanged, ECOS fallback 0. s_t: 97 rebalances 100% non-inert, median 0.918, clip_lo 8 / clip_hi 2. Not adopted; flag stays default-OFF. [2026-08-20 PM correction: the original pair was contaminated by an Index.xlsx FX refresh between the two runs (second vintage axis, see decision log S13.46 postmortem). Clean same-vintage re-adjudication (rerun 14:02 vs the 08-20 batch production 1.6292): dIR -0.0093, splits +0.0748/+0.0110/-0.1046 - verdict unchanged, E1 FAIL, not adopted. Rerun is a vintage recert, not counted.]"
-    },
-    {
-      "script": "run_variant.py (s13_47_ndcg20)",
-      "phase": "S13.47 (2026-08-20): rank_eval_at [5, 10] -> [20] single replacement arm - preregistered after the S13.45-D usage audit PASS (69.3% of gross OW outside mu-top-5, rank 6-50 contribution +0.304). Variant-only change (existing config key), no src edits. Early stopping becomes argmax@20 (S13.8 capacity-regulator replacement risk preregistered - degeneracy reported alongside E1).",
-      "param_space": "single frozen arm = production + rank_eval_at [20]; no sweeps ([10,20]/[5,10,20]/[50] all forbidden by preregistration).",
-      "trials": 1,
-      "result": "E1 FAIL by the preregistered bar despite a large positive full-period move: dIR +0.2028 (1.6292 -> 1.8320, 08-20 batch baseline, vintage pair verified before/after), splits +0.0013/-0.0125/+0.5637 (sign-inconsistent - the entire gain sits in 2024+). Degeneracy IMPROVED 13/33 -> 10/33 (S13.8 risk did not materialize). TE identical 3.457%, turnover +0.024, MaxDD slightly better, avg_ic -9.3% (IC down while IR up - transmission decoupling, consistent with the S13.45-D book-usage hypothesis). Not adopted; production rank_eval_at [5,10] unchanged. User-override consideration requires the DSR/selection-bias haircut first."
-    },
-    {
-      "script": "run_variant.py (arm_s15_1_monotone_margin)",
-      "phase": "S15.1 (2026-08-27): monotone(+1) constraints on the three sign-stable margin-axis features (oper_margin_chg_63d/252d, op_leverage_63d) from the S15-B precheck, on top of the adopted S15 fix-pack production config. Map frozen by preregistration, no sweeps.",
-      "param_space": "monotone_constraints_enabled + fixed 3-feature +1 map (single preregistered arm)",
-      "trials": 1,
-      "result": "E1 FAIL: dIR +0.0006 (1.5466 -> 1.5472, same 08-25 vintage), splits -0.075/+0.080/+0.017 sign-inconsistent. Degeneracy improved 14/33 -> 12/33 and turnover -0.8pp with avg_ic -7.9% - constraint acts as harmless capacity regularizer, no transmission. Not adopted; flag stays default-OFF. NOTE: the S15 fix-pack production flip itself is a correctness re-baseline (causal-discipline precedent), not counted."
-    },
-    {
-      "script": "run_variant.py (s16_3_fresh_fixed)",
-      "phase": "S16.3 (2026-08-31): degenerate-fallback POLICY arm - fresh_fixed refit at preregistered fixed capacity (degenerate_fresh_trees=67 = median best_iteration of the 19 unique baseline models) instead of reuse_prev, vs the S16.1 unit-fixpack run (only delta). First arm to change the fallback policy itself (S13.8 residual candidate 'explicit capacity regulation').",
-      "param_space": "degenerate_fallback_mode=fresh_fixed (single preregistered config; 67 deliberately not exposed as a variant override, no sweep; mutually exclusive with the 'no-early-stopping fixed capacity' axis, multiplicity 2 pre-declared)",
-      "trials": 1,
-      "result": "E1 FAIL: dIR +0.0164 (1.6953 -> 1.7117, same 08-25 vintage pair verified via data_vintage), splits +0.0229/+0.0029/+0.0184 all positive but far below the +0.36 bar (noise band). Mechanism fully delivered: fresh_fixed fired on all 12 degenerate retrains, unique_models 21 -> 33, live model age 4 -> 0 retrains (fit 2025-08-28 -> 2026-08-17), avg_ic +14.1% (0.01604 -> 0.01830). E2 all pass (TE 3.72%, active share 19.99%, turnover 0.996x, ECOS 194 / fallback 0). Not adopted; default stays reuse_prev. Empirical close: the 354-day-stale live model was NOT costing IR - staleness is an operational-risk finding (now visible via the report-only live_model_age_retrains gate), not a performance defect."
-    }
-  ],
-  "n_trials_total": 469,
-  "notes": [
-    "396 is a conservative lower bound. Actual N is likely higher once",
-    "ad-hoc config.py tweaks over the research period are counted.",
-    "If in doubt, pass a larger --n_trials to run_selection_bias.py.",
-    "The DSR penalty grows as sqrt(2*ln N), so going from 1 to 396 multiplies",
-    "the haircut by sqrt(2*ln(396)) ~ 3.45, not by 396 itself.",
-    "2026-07-06: +4 S7 AI-logic arms (A1 mu_vol_scaling, A2 confidence_spread_recal,",
-    "A3 adaptive_ema, A4 seed_ensemble), all evaluated and OFF-default (no production flip).",
-    "N 403 -> 407. A4's seed 43-46 harvests are non-selection diagnostic inputs, NOT counted",
-    "as trials (they feed the single A4 ensemble config).",
-    "2026-07-07: +1 S8 arm (news_trend sentiment feature), evaluated and OFF-default (no flip).",
-    "N 407 -> 408.",
-    "2026-07-10: causal-discipline work +4 distinct configs: iter15 causal S0' re-cert",
-    "(both fixes, new baseline), decomposition arm A (causal_val_only), arm B (exec_lag_only),",
-    "and challenger codex_causal_rank_65 (rank_xendcg, IR 1.695, promotion candidate). S0' counted",
-    "as a distinct config (IR changed 1.481->0.902, not a byte-identical parity recheck).",
-    "N 408 -> 412.",
-    "2026-07-18: +1 S10.2 degeneracy arm (min_child_samples 30), pre-registered, E1 FAIL,",
-    "not adopted (no flip). N 412 -> 413. S10.1 sector-limit recalibration is a report-only",
-    "diagnostic threshold change (no weight/metric impact) and is NOT counted as a trial.",
-    "2026-07-28: backfilled +26 configs covering S11.5..S13.14 (inventory had stopped at S10.2).",
-    "N 413 -> 439. NOT counted: S11.8/S13.12 (measurement-only diagnoses on existing artifacts),",
-    "S13.7 (pre-check disqualified the arm before any backtest), the aborted 4-feature S13.13",
-    "launch (killed unobserved before amendment), and byte-identical parity/vintage rechecks.",
-    "2026-07-28: +2 observed S13.15 implementation states and +2 S13.16 A/B/C new return series;",
-    "A production was reused and not recounted. N 439 -> 443. S13.16 remained OFF after both",
-    "economic and intended-risk-allocation gates failed.",
-    "2026-07-29: +4 new return series - S13.18 (index-EPS 4-feature bcast arm, E1 FAIL/gain 0),",
-    "S13.21 (2-feature subset arm, E1 FAIL/gain 0), S13.22a/b (carry TE-cap conditioning on",
-    "fac_eps_g63 and g63+tech composite, both E1 FAIL; A -0.174, B +0.111 with E2 direction FAIL).",
-    "Preflights S13.17/19/19a/20/20a reused existing artifacts (no new return series); the 19a/20a",
-    "4-way spread sweeps are recorded as exploratory selection events in the decision log. N 443 -> 447.",
-    "S13.23 country-mapped index revision feature arm (+1, E1 FAIL not adopted); the S0 recert on the 07-29 revision-vintage is a re-baseline, not a trial. N 447 -> 448.",
-    "S13.25 fwd-sales-slope feature block + month-end rebalancing arms (A/B/C, +3) vs the 07-31 slope-vintage S0 recert (IR 1.3070, re-baseline not a trial): A (4 slope features) dIR +0.266 with all three sub-periods positive and block gain share 6.09pct (first material feature consumption on this program); B (month-end rebal) dIR -0.101; C (combined) dIR -0.001 (negative interaction, month-end schedule erases the feature gain). All three E1 FAIL (< +0.36), not adopted, defaults stay OFF. N 448 -> 451.",
-    "2026-08-04: S13.28 alpha-vs-traditional-factor orthogonality diagnostic adds 2 arms (R1 characteristic-orthogonal residual score, R2 characteristic-fitted style score), both re-MVO passes over the frozen production harvest. The R0 identity arm is a round-trip integrity check, not a trial. Diagnostic only: no production flip. n_trials_total 452 -> 454.",
-    "2026-08-04: S13.27 optimizer-layer defensive arms (+2): A bm-proportional active cap (existing infra, flag-on) and B portfolio vol exposure cap 1.05 (new default-OFF infra). Both REJECT (A no defensive effect at dIR -0.10; B real defense but dIR -0.62, character break). Production unchanged. n_trials_total 454 -> 456.",
-    "2026-08-05: S13.29 pca_vol_standardize retest (+1) on the current baseline - E1 FAIL dIR -0.4986; standardization left the vol tilt intact (fat-tail mechanism) while degrading ranking quality. n_trials_total 456 -> 457.",
-    "2026-08-05: S13.31 quality-tilt re-MVO arm (+1) gated by the read-only S13.30 preflight (preflight not counted, per S13.7/S13.19 precedent). Zero-cost quality exposure shift, dIR +0.046 (noise band), tail defence not delivered; referred to user, production unchanged. n_trials_total 457 -> 458.",
-    "2026-08-05: S13.32 pipeline formalization of the S13.31 tilt (+1) - full-pipeline arm reproduces the re-MVO result to floating-point precision (E0), degeneracy 15/32 identical. Flags default-OFF, flip referred to user. n_trials_total 458 -> 459.",
-    "2026-08-07: S13.34 (+2) vs the 08-07 regenerated-workbook S0 recert (IR 1.3836, re-baseline not a trial): arm A implied-vol surface 3-feature block (skew/vrp/term) dIR -0.112, E1 FAIL (features consumed - degeneracy 50pct -> 18.75pct, turnover +10pp - but transmission negative, P3 -0.48); arm B VIX term-structure de-risking overlay (mu x0.5, 5d improve window) dIR +2.6e-08, structural no-op (max weight diff 4.2e-07 - uniform mu scaling cannot move the constraint-pinned, sign/rank-gated optimum). Both not adopted, defaults stay OFF. Read-only preflights (IC precheck, delta-slope signal characterization SHELVE, workbook quality audit) not counted per S13.7/S13.19 precedent. n_trials_total 459 -> 461.",
-    "2026-08-11: S13.35 (+2) vs the 08-11 regenerated-workbook S0 recert (IR 1.5290, PX_VOLUME + PUT_CALL_OPEN_INTEREST_RATIO sheets added, re-baseline not a trial): arm A volume 3-feature block (abnormal volume, share turnover, normalized Amihud) dIR -0.097 E1 FAIL (IC 0.020->0.027 and degeneracy 15->12/32 improved but transmission negative, P3-only sign); arm B put/call OI 2-feature block (level, d21; US-only 152/200) dIR -0.127 E1 FAIL (all three sub-periods negative, IC unchanged, degeneracy 15->22/32 worsened). Strongest-ever preflight IC (share_turnover 63d +0.115 t_cons +4.5) still failed the gate - S13.12 transmission ceiling reconfirmed. Both flags stay default-OFF. n_trials_total 461 -> 463.",
-    "2026-08-12: S13.38 (+1) vs the 08-12 regenerated-workbook S0 recert (IR 1.5383, S13.37 option-risk derived sheets added, re-baseline not a trial): arm A option-risk 5-feature passthrough block (iv30_z, downside_skew_z, downside_skew_chg_5d, iv_term_structure_z TS-252d z-scores + days_to_earnings) dIR -0.276 E1 FAIL (largest-ever IC consumption 0.0195->0.0350 +79pct and degeneracy 14->12/32 improved, but all three sub-periods negative, P2 0.910->0.379 collapse, one-way turnover +7.5pp - S13.12 transmission ceiling again; TS z removed the vol-axis redundancy rho<=0.08 yet transmission still negative). Flag stays default-OFF. Read-only preflight (IC precheck 2/4 pass) not counted per S13.7 precedent. n_trials_total 463 -> 464.",
-    "2026-08-13: S13.41 (+1) option-IV vol-forecast covariance-diagonal arm (walk-forward pooled OLS log-vol model, 63BD refit, t+21 embargo, scale clip [0.8,1.5], D@Sigma@D) vs the 08-12 vintage S0' 1.5383: dIR +0.124 all three sub-periods positive, TE 3.54->3.46pct, MaxDD -32.1->-31.8pct, one-way turnover +1.05pp, avg_ic/degeneracy bit-identical (alpha layer untouched - pure risk-model effect). E1 bar (+0.36) not met -> not adopted by default, flip referred to the user (S13.31 precedent). Read-only prechecks (P0 QLIKE, P1 binding, P2 direction) not counted per S13.7 precedent. n_trials_total 464 -> 465.",
-    "2026-08-20: +1 S13.46 arm (implied-corr off-diagonal covariance scaling), pre-registered single arm, E1 FAIL (dIR -0.0094, splits +0.075/+0.011/-0.105 sign-inconsistent), not adopted (no flip). The S13.45 four-axis prechecks were read-only (not counted). N 465 -> 466.",
-    "2026-08-20 PM: discovered Index.xlsx (FX source) is a second vintage axis - refreshes forked three same-day runs. New ops rule: effective vintage = (ai_signal_data.xlsx, Index.xlsx) mtime pair, checked before/after every comparison run. S13.46 re-adjudicated clean (verdict unchanged); reproduction-control rerun proved the pipeline bit-deterministic across processes. Recert/control runs not counted. N stays 466.",
-    "2026-08-20: +1 S13.47 arm (rank_eval_at [20]), pre-registered single arm, E1 FAIL (dIR +0.2028 < +0.36 bar, sign-inconsistent - gain concentrated in 2024+), not adopted (no flip). Degeneracy improved 13/33 -> 10/33. N 466 -> 467.",
-    "2026-08-27: +1 S15.1 arm (monotone margin constraints), pre-registered single arm, E1 FAIL (dIR +0.0006, sign-inconsistent), not adopted. The S15 fix-pack measurement + production flip (IR 1.3811 -> 1.5466) is a correctness re-baseline, NOT counted (causal-discipline S0-recert precedent); S15 A/B prechecks were read-only (not counted). N 467 -> 468.",
-    "2026-08-31: +1 S16.3 arm (degenerate_fallback_mode=fresh_fixed), pre-registered single arm, E1 FAIL (dIR +0.0164 noise band, splits all positive but far below bar), not adopted. Mechanism fully delivered (12/12 fires, unique_models 33/33, live model age 0) - closes the fallback-policy axis. S16.1 unit fix-pack and S16.2 revision-extension-cap runs are correctness-track measurements (adoption criterion = accuracy, not IR), NOT counted per the S15/causal-discipline precedent. N 468 -> 469."
-  ]
+    "description":  "Conservative inventory of distinct strategy configurations that were backtested during the research phase of ai_signal_cc2_harness. Used by run_selection_bias.py --auto to pass a realistic N_trials into the Deflated Sharpe Ratio / Haircut calculation. Update this file whenever you run a new comparison / grid / experiment.",
+    "references":  "Bailey \u0026 Lopez de Prado (2014) The Deflated Sharpe Ratio. N should count every distinct strategy configuration whose backtest was inspected, not just the single final choice.",
+    "scripts":  [
+                    {
+                        "script":  "grid_search.py",
+                        "phase":  "coarse",
+                        "param_space":  "risk_aversion(7) * turnover_penalty(5) * max_te_annual(1) * max_single_turnover(2) * sector_deviation(2)",
+                        "trials":  140
+                    },
+                    {
+                        "script":  "grid_search.py",
+                        "phase":  "fine",
+                        "param_space":  "ra(5) * tp(5) * mst(3) * sd(3) centered on Phase 1 best (minus ~5 overlaps with coarse)",
+                        "trials":  220
+                    },
+                    {
+                        "script":  "compare_improvements.py",
+                        "phase":  "pca x sector_interactions",
+                        "param_space":  "{A_Baseline, B_PartialPCA, C_SectorIX, D_Combined}",
+                        "trials":  4
+                    },
+                    {
+                        "script":  "compare_pca.py",
+                        "phase":  "pca_n_remove sweep",
+                        "param_space":  "{5, 3, 2}",
+                        "trials":  3
+                    },
+                    {
+                        "script":  "compare_max_weight.py",
+                        "phase":  "max_weight sweep",
+                        "param_space":  "[0.20, 0.25, 0.30, 0.35]",
+                        "trials":  4
+                    },
+                    {
+                        "script":  "experiment_te_sensitivity.py",
+                        "phase":  "TE sensitivity",
+                        "param_space":  "te_values=[0.125, 0.15, 0.175, 0.20] iterated across multiple sub-experiments",
+                        "trials":  8
+                    },
+                    {
+                        "script":  "experiment_monthly_rebal.py",
+                        "phase":  "monthly vs 10d rebalance",
+                        "param_space":  "{monthly, current}",
+                        "trials":  2
+                    },
+                    {
+                        "script":  "manual_config_tuning",
+                        "phase":  "LightGBM hyperparameter tuning (lr, leaves, depth, child_samples, subsample, colsample, alpha, lambda, n_est)",
+                        "param_space":  "estimated from git log / memory - conservative lower bound",
+                        "trials":  15
+                    },
+                    {
+                        "script":  "redesign_2026_04_ACDE",
+                        "phase":  "structural redesign: cap-weighted BM (A), lean feature set 239 (C), LightGBM stabilisation (D), optimiser re-tuning (E)",
+                        "param_space":  "single coordinated change set, not a grid",
+                        "trials":  1
+                    },
+                    {
+                        "script":  "redesign_2026_04_11_growth_balance",
+                        "phase":  "C+ follow-up: restore multi-horizon EPS/Sales/FCF growth + add 17 growth composite features (new \u0027Growth\u0027 group) to balance Quality vs Growth style representation",
+                        "param_space":  "single coordinated change set, not a grid",
+                        "trials":  1,
+                        "result":  "FAILED: IR 0.62 -\u003e 0.23, rolled back to A+C+D+E"
+                    },
+                    {
+                        "script":  "redesign_2026_04_11_PM_core_satellite",
+                        "phase":  "F: reduce to 81 hand-picked core features + enable core-satellite portfolio style (max_active_share 0.40 L1, max_active_per_stock 0.06)",
+                        "param_space":  "single coordinated change set, not a grid",
+                        "trials":  1
+                    },
+                    {
+                        "script":  "redesign_2026_04_11_PM_score_gated_ow",
+                        "phase":  "G: block OW on stocks with z-score \u003c 0 (prevent MVO diversification quirk from overweighting negative signals)",
+                        "param_space":  "single coordinated change set, not a grid",
+                        "trials":  1
+                    },
+                    {
+                        "script":  "redesign_2026_04_12_core_v2",
+                        "phase":  "H: further pruned core features 81 -\u003e 46 based on feature_importance ranking from previous run",
+                        "param_space":  "single coordinated change set, not a grid",
+                        "trials":  1
+                    },
+                    {
+                        "script":  "redesign_2026_04_12_financials_universe",
+                        "phase":  "I: restore JPM/GS by switching from all-sheet intersection to essential-sheet intersection. Optional sheets (FCF/CAPEX/EV_EBITDA) have NaN for banks, filled by per-date median. Universe 48 -\u003e 50.",
+                        "param_space":  "single coordinated change set, not a grid",
+                        "trials":  1
+                    },
+                    {
+                        "script":  "rl_hybrid_v1",
+                        "phase":  "ai_signal_cc2_rl Meta-Controller(4) + Signal Overlay(7 feature groups) PPO. Pretrain cutoff 2024-12-31, walk-forward fine-tune every ~63d (2 episodes). Base config = iter15_65tkr_reb21_vtg.",
+                        "param_space":  "single coordinated RL configuration (rl_enabled=true, rl_mode=hybrid, rl_overlay_clip=0.30)",
+                        "trials":  1
+                    },
+                    {
+                        "script":  "exp_S7_A1_mu_vol_scaling",
+                        "phase":  "S7 AI-logic arm (2026-07-06): Grinold variance-scaling mu_i = z_i * sigma_i / median_CS(sigma). Single pre-registered parameter-free transform, no sweep.",
+                        "param_space":  "mu_vol_scaling_enabled=true (single pre-registered form)",
+                        "trials":  1,
+                        "result":  "IR 1.552503 (dIR +0.0711 \u003c +0.36 SE, subperiod sign inconsistent: P1/P2 down, P3 up) -\u003e gate not met, OFF-default, no flip"
+                    },
+                    {
+                        "script":  "exp_S7_A2_confidence_spread_recal",
+                        "phase":  "S7 AI-logic arm (2026-07-06): confidence spread_scale recalibrated from default 0.20 to D0 raw_spread median. Single pre-registered value, no sweep.",
+                        "param_space":  "confidence_spread_scale=3.57587 (single pre-registered value)",
+                        "trials":  1,
+                        "result":  "IR 1.483625 (dIR +0.0022, subperiod P2 sign inconsistent -0.112) -\u003e gate not met, OFF-default, no flip"
+                    },
+                    {
+                        "script":  "exp_S7_A3_adaptive_ema",
+                        "phase":  "S7 AI-logic arm (2026-07-06): trailing-IC adaptive prediction EMA, alpha_t=clip(0.5+(tIC-m)/(2*IQR),0.25,0.75) with m/IQR anchored to D0 trailing_ic_dist. Single pre-registered functional form, no sweep. 2-pass injection, src/ untouched.",
+                        "param_space":  "adaptive-EMA single pre-registered functional form (D0-anchored constants, zero free params)",
+                        "trials":  1,
+                        "result":  "IR 1.484346 (dIR +0.0029, subperiod P2 -0.432 sign inconsistent) -\u003e gate not met, OFF-default, no flip"
+                    },
+                    {
+                        "script":  "exp_S7_A4_seed_ensemble",
+                        "phase":  "S7 AI-logic arm (2026-07-06): LGBM seed ensemble k=5, seeds {42,43,44,45,46}, finite-mean of pre-EMA z-panels + per-date CS restandardize + EMA(0.5). Single pre-registered config, no k sweep. 2-pass injection, src/ untouched.",
+                        "param_space":  "seed ensemble k=5 (single pre-registered config, no k sweep)",
+                        "trials":  1,
+                        "result":  "IR 1.317520 (dIR -0.1639) -\u003e gate not met, OFF-default, no flip. NOTE: seed 43-46 full harvests = per-seed diagnostics 4 runs (non-selection input to A4, NOT counted as trials); per-seed IR 42=1.481/43=1.184/44=1.057/45=1.110/46=1.406 quantifies seed-luck variance."
+                    },
+                    {
+                        "script":  "exp_S8_news_trend_feature",
+                        "phase":  "S8 sentiment feature arm (2026-07-07): single pre-registered feature `news_trend` (NEWS_SENTIMENT_DAILY_AVG 5d-21d rolling-mean spread) conditionally added to the core whitelist via the news_trend_feature_enabled flag. default-OFF, no sweep. Feature-panel change forces a full pipeline re-run (not cache-safe); ECOS solver, src feature code untouched.",
+                        "param_space":  "news_trend_feature_enabled=true (single pre-registered feature)",
+                        "trials":  1,
+                        "result":  "IR 1.272249 (dIR -0.2092, subperiod P1/P2/P3 dIR all negative -0.053/-0.309/-0.180) -\u003e gate not met, OFF-default, no flip. Feature injection confirmed (model features 61-\u003e62, exactly +news_trend). TE 0.030094 (\u003c=0.045, character preserved), ECOS 188 / fallback 0.0%."
+                    },
+                    {
+                        "script":  "iter15_65tkr_reb21_vtg_causal_recert",
+                        "phase":  "Causal-discipline S0\u0027 re-certification (2026-07-10, user-directed): production variant iter15 with causal_validation_enabled=true + execution_signal_lag_days=1 (both correctness fixes flipped simultaneously). New reference baseline under causal discipline. Distinct config (IR changed, NOT a byte-identical OFF-parity recheck like exp_s0_recheck_d2), counted per redesign-precedent (adopted structural baseline change = 1 trial). ECOS, --no-cache.",
+                        "param_space":  "causal_validation_enabled=true + execution_signal_lag_days=1 on iter15_65tkr_reb21_vtg (coordinated correctness flip, no sweep)",
+                        "trials":  1,
+                        "result":  "IR 0.902 (vs pre-causal 1.481, -0.579; active 2.59%, TE 2.87%, turnover 106.8%, realized_beta 0.993, MDD -29.5%; P1 0.14/P2 0.22/P3 2.09). pre-causal 1.481 retired as comparison base (val-label leakage + t-close-fill optimism). Becomes the S0\u0027 reference all challengers are measured against."
+                    },
+                    {
+                        "script":  "exp_causal_val_only",
+                        "phase":  "Causal contribution decomposition arm A (2026-07-10): causal_validation_enabled=true only (exec_lag=0) on iter15 base, isolating the val-label leakage (early-stopping) fix. Single-flag diagnostic arm, ECOS, --no-cache.",
+                        "param_space":  "causal_validation_enabled=true, execution_signal_lag_days=0 (single decomposition arm)",
+                        "trials":  1,
+                        "result":  "IR 0.920 (dIR -0.561 vs pre-causal 1.481; P1 0.26/P2 0.30/P3 2.05). Attributes ~all of the S0 IR drop to val-label leakage repair; P1 collapse 1.59-\u003e0.26. Diagnostic decomposition, not a production candidate."
+                    },
+                    {
+                        "script":  "exp_exec_lag_only",
+                        "phase":  "Causal contribution decomposition arm B (2026-07-10): execution_signal_lag_days=1 only (causal_val off) on iter15 base, isolating the t-close-signal/t-close-fill optimism fix. Single-flag diagnostic arm, ECOS, --no-cache.",
+                        "param_space":  "causal_validation_enabled=false, execution_signal_lag_days=1 (single decomposition arm)",
+                        "trials":  1,
+                        "result":  "IR 1.486 (dIR +0.005 vs pre-causal 1.481; P1 1.38/P2 0.64/P3 2.10). 1d execution lag alone is noise-band (|dIR|\u003c1SE). Diagnostic decomposition, not a production candidate."
+                    },
+                    {
+                        "script":  "codex_causal_rank_65",
+                        "phase":  "GPT-5.6 challenger (2026-07-10): rank_xendcg LightGBM objective (model_objective=cross_sectional_rank, metric=ndcg) + causal validation split + 1d execution signal lag. Reuses default-OFF causal infra. Single pre-registered config, no sweep. ECOS, --no-cache full re-run.",
+                        "param_space":  "lgbm objective=rank_xendcg + causal_validation_enabled=true + execution_signal_lag_days=1 (single pre-registered challenger config)",
+                        "trials":  1,
+                        "result":  "IR 1.695 vs causal-discipline S0\u0027 0.902 (dIR +0.79 \u003e +0.36 1SE; subperiod P1 0.752/P2 0.772/P3 3.080, all-positive 3/3) -\u003e §2-4 adoption bar met, comparison_gate PASS 7/7. Promotion package pending this DSR/selection-bias gate."
+                    },
+                    {
+                        "script":  "run_variant.py --variant variants/arm_s10_minchild30.yaml",
+                        "phase":  "S10.2 degeneracy arm (2026-07-18, pre-registered in decision log S10.2 before execution)",
+                        "param_space":  "lgbm_params.min_child_samples 60 -\u003e 30 (single pre-registered parameter)",
+                        "trials":  1,
+                        "result":  "E1 FAIL: degenerate_rate 65.6% (21/32) vs baseline 53.1% - hypothesis refuted, degeneracy worsened. dIR -0.137 (noise band), sub dIR -0.429/-0.239/+0.339. Not adopted; production unchanged; HOLD stays on degenerate check."
+                    },
+                    {
+                        "script":  "universe_scale_rebaselines_S9_S11_S13",
+                        "phase":  "Adopted structural re-baselines (2026-07-16..07-26): 100-ticker unhedged-USD (S9), 150-ticker + PIT double-masking (S11.4), 200-ticker + SAN (S13.3). 1 trial each per redesign precedent.",
+                        "param_space":  "universe/accounting coordinated change sets",
+                        "trials":  3,
+                        "result":  "All three adopted as new S0 baselines (S9 1.599-era -\u003e S9.1 1.570; S11.4 1.371; S13.3 1.5529)."
+                    },
+                    {
+                        "script":  "exp_S11_5_arms",
+                        "phase":  "S11.5 (2026-07-20): sector_active_risk_penalty lambda=5; val_window 252. Two single pre-registered arms.",
+                        "param_space":  "2 single-flag arms",
+                        "trials":  2,
+                        "result":  "Both E1 FAIL, not adopted. mu is z-scale so lambda*~26k would be needed (penalty inert at 5)."
+                    },
+                    {
+                        "script":  "exp_S11_9_mh_blend",
+                        "phase":  "S11.9 (2026-07-21): multi-horizon target blend arm.",
+                        "param_space":  "multi_horizon_targets_enabled (single pre-registered blend)",
+                        "trials":  1,
+                        "result":  "E1/E2 FAIL: term-structure collapse, turnover unchanged. Not adopted."
+                    },
+                    {
+                        "script":  "exp_S11_10_lr",
+                        "phase":  "S11.10 (2026-07-21): lgbm learning_rate 0.03 degeneracy arm.",
+                        "param_space":  "lr=0.03 (single pre-registered value)",
+                        "trials":  1,
+                        "result":  "E1 FAIL: degenerate rate unchanged 56.25% (n_trees moved 8~9 only). Degeneracy candidate axis exhausted."
+                    },
+                    {
+                        "script":  "exp_S12_arms",
+                        "phase":  "S12 (2026-07-22): GPT-review follow-ups - stale-depth gate \u003c=7 + 4 performance arms (objective hypothesis, mu scaling, refresh re-entry, PCA standardization).",
+                        "param_space":  "5 single pre-registered configs",
+                        "trials":  5,
+                        "result":  "stale-depth gate ADOPTED (first PRODUCTION flip of the S-series). 4 performance arms all rejected (hypothesis 40.6% disproven / scaling no-op / re-entry 0 / PCA worse all sub-periods)."
+                    },
+                    {
+                        "script":  "exp_S13_4_surprise_opcf",
+                        "phase":  "S13.4 (2026-07-26): EPS surprise / sales surprise / Fwd_OpCashflow level - three feature-admission arms on the 200 universe.",
+                        "param_space":  "3 single-flag feature arms",
+                        "trials":  3,
+                        "result":  "All E1 FAIL, dIR all negative, P2 consistently down. Not adopted."
+                    },
+                    {
+                        "script":  "exp_S13_5_fwd_opcf_rev",
+                        "phase":  "S13.5 (2026-07-26): Fwd_OpCashflow revision windows 63/126/252.",
+                        "param_space":  "3 single-flag feature arms",
+                        "trials":  3,
+                        "result":  "All E1 FAIL -\u003e Fwd_OpCashflow axis exhausted."
+                    },
+                    {
+                        "script":  "exp_S13_6_absent_nan",
+                        "phase":  "S13.6 (2026-07-27): honest-NaN for absent fundamentals (banks) instead of median fill.",
+                        "param_space":  "absent_fundamental_nan_enabled (single flag)",
+                        "trials":  1,
+                        "result":  "E1 FAIL dIR -0.388. Effect follows the MASK not the sector (fin +0.017 vs TSM -0.185) - median fill vindicated post-hoc."
+                    },
+                    {
+                        "script":  "exp_S13_8_single_eval_metric",
+                        "phase":  "S13.8 (2026-07-27): rank_eval_at [5,10]-\u003e[10] after root-causing degeneracy to best_iteration=min(argmax ndcg@5, argmax ndcg@10) (14/14 empirical).",
+                        "param_space":  "rank_eval_at=[10] (single pre-registered change)",
+                        "trials":  1,
+                        "result":  "E2 confirmed (degenerate 18/32-\u003e11/32, trees 42.4-\u003e81.0) but E1 non-action dIR -0.0829. Not adopted; ndcg@5 discovered to act as implicit capacity regularizer."
+                    },
+                    {
+                        "script":  "exp_S13_9_earnings_calendar",
+                        "phase":  "S13.9 (2026-07-27): admit the 8 existing earnings-calendar conditioning features (model previously saw timing only via PEAD overlay).",
+                        "param_space":  "earnings_calendar_feature_enabled (single 8-feature block)",
+                        "trials":  1,
+                        "result":  "E1 FAIL dIR -0.1932 despite IC +92% (0.0162-\u003e0.0311) and both counter-evidence checks passing (first in 19 arms). Damage localized: 21d prediction persistence 0.850-\u003e0.615."
+                    },
+                    {
+                        "script":  "exp_S13_10_peer_earnings",
+                        "phase":  "S13.10 (2026-07-27): relational peer-earnings cascade (3 features, first non-single-stock block).",
+                        "param_space":  "peer_earnings_cascade_feature_enabled (single 3-feature block)",
+                        "trials":  1,
+                        "result":  "E1 FAIL dIR -0.0752, IC flat; peer_earn_lead_lag #1 split (6.88%) with 54% between-ticker variance = name-identity leak (design defect, not axis refutation). Spawned the \u003e30% between-ticker pre-check rule."
+                    },
+                    {
+                        "script":  "exp_S13_11_eta_2x2",
+                        "phase":  "S13.11 (2026-07-27): 2x2 factorial eta {0.5,1.0} x features {S0, S13.9} to isolate execution-signal-speed interaction.",
+                        "param_space":  "partial_rebalance_eta=1.00 on both feature sets (2 cells)",
+                        "trials":  2,
+                        "result":  "Interaction +0.2418 (direction supported; iter17 rollback vindicated) but only ~11% of S13.9 loss recovered; eta recovery paid entirely in TE (IR +0.02). No cell beats S0. Not adopted."
+                    },
+                    {
+                        "script":  "exp_S13_13_interaction_block",
+                        "phase":  "S13.13 (2026-07-27): 5-feature nonlinear block - 4 products of core-parent CS z-scores + mom_consistency_252. Pre-checked structurally (persistence/btv/redundancy), IC untouched. NOTE: an initial 4-feature launch was killed UNOBSERVED before the user widened the block (not a trial).",
+                        "param_space":  "interaction_features_enabled (single 5-feature block)",
+                        "trials":  1,
+                        "result":  "E1 FAIL dIR -0.0809 BUT first arm ever to improve book spec capture (+0.11%/yr) and degeneracy (0.500-\u003e0.375); entire loss is carry gap -0.42%/yr. Established carry-loss ~ 3%/yr per unit book divergence."
+                    },
+                    {
+                        "script":  "exp_S13_14_ix_winner_protect",
+                        "phase":  "S13.14 (2026-07-28): combined arm - interaction block + winner-trim hinge penalty lambda=1.0 on trailing-252d top-quintile (carrier diagnosis: PLTR/NVDA/TSLA composition, not factor exposures).",
+                        "param_space":  "interaction_features_enabled + winner_trim_protection_enabled (pre-registered combination, lambda/quantile fixed)",
+                        "trials":  1,
+                        "result":  "E1 FAIL dIR -0.1157. Hinge could not move the book (divergence 0.129-\u003e0.128): mega-winner underweight is a FORMATION problem (positions never built), not liquidation - meanwhile rotation freeze erased the spec gain (3.41-\u003e3.21). Interaction axis closed."
+                    },
+                    {
+                        "script":  "exp_S13_15_nonlinear_confirmation",
+                        "phase":  "S13.15 (2026-07-28): nonlinear-confirmation feature block. One accidental 5-feature result was observed before a wiring/order defect was detected; the formal rerun contained all 6 preregistered features.",
+                        "param_space":  "observed accidental 5-feature implementation state + formal nonlinear_confirmation_features_enabled 6-feature arm",
+                        "trials":  2,
+                        "result":  "Accidental 5-feature IR was observed but is invalid for adoption and counted conservatively. Formal 6-feature E1 FAIL: dIR -0.2726; P1/P2/P3 all worse. OFF."
+                    },
+                    {
+                        "script":  "exp_S13_16_residual_nonlinear_sleeve",
+                        "phase":  "S13.16 (2026-07-28): fixed 10% ex-ante variance-reserved explicit OOF nonlinear residual sleeve with A/B/C attribution.",
+                        "param_space":  "A existing production (not recounted); B fixed sqrt(0.90) reserve-only diagnostic; C fixed sqrt(0.90) base + sqrt(0.10) covariance-orthogonal residual sleeve; no performance sweep",
+                        "trials":  2,
+                        "result":  "REJECT. B-A dIR +0.0291 (reserve/de-risking helped), C-B dIR -0.0454 and C-A dIR -0.0163. P1 improved but P2/P3 worsened; residual score IC -0.0030. Structural risk-allocation gate also failed: residual-direction MVO infeasible on 63/84 active rebalances, so median realised residual variance share was 1.60% rather than 10%. Default remains OFF; no sign flip or post-hoc budget/model retune."
+                    },
+                    {
+                        "script":  "exp_S13_24_relative_revision_nonlinear_ai",
+                        "phase":  "S13.24 (2026-07-30..08-01): one preregistered relative-revision nonlinear interaction arm with home-index-bucket neutralization and name-level confidence active caps.",
+                        "param_space":  "single frozen arm; four relative-revision interaction features plus fixed 80th-percentile confidence cap rule; no sweep or sign flip",
+                        "trials":  1,
+                        "result":  "REJECT. IR 1.1390 vs strict baseline 1.3881 (delta -0.2491); P1/P2/P3 delta IR all negative. Relative block IC overall was negative and concentration gates also failed. Production unchanged."
+                    },
+                    {
+                        "script":  "run_orthogonal_signal_arm.py",
+                        "phase":  "S13.28 (2026-08-04): characteristic-orthogonality diagnostic. Re-MVO of the saved production harvest with the model score split into a characteristic-fitted part and its orthogonal residual.",
+                        "param_space":  "two preregistered diagnostic arms (R1 residual, R2 style) on a frozen 7-characteristic basis (SMB/VALUE/MOM/QUALITY/LOWVOL/BAB/GROWTH); no sweep, no parameter tuning. The R0 identity arm is a round-trip check, not a trial.",
+                        "trials":  2,
+                        "result":  "DIAGNOSTIC, no flip. R0 reproduced production to 1.2e-6 IR (gate G0 pass). R1 residual IR 0.9248 (active +2.36%, TE 2.55%, turnover 0.977); R2 style IR 1.0816 (active +4.09%, turnover 0.645) vs production 1.5734. Orthogonal signal is real but weak and faster-turning; style tilt carries 72% of the active return. Production unchanged."
+                    },
+                    {
+                        "script":  "run_variant.py (arm_s13_27a_bmprop / arm_s13_27b_volcap)",
+                        "phase":  "S13.27 (2026-08-04): two preregistered optimizer-layer defensive arms against the SHAP-identified high-vol OW concentration. A: enable existing BM-proportional active cap infra (flag only). B: new portfolio-level vol exposure cap vols@w \u003c= 1.05 * vols@bm (new default-OFF infra).",
+                        "param_space":  "two frozen arms, single flag delta each vs production; no sweep, no retuning (A keeps existing defaults top 1.5x / vol floor 0.5 / lookback 63; B excess fixed at 0.05 = half the measured +9.55% production vol-exposure overshoot)",
+                        "trials":  2,
+                        "result":  "REJECT both, production unchanged, flags stay OFF. A: no defensive effect (07-21 vol ratio 1.0936 vs 1.0955; tail metrics 0/4 improved) at dIR -0.0998 -- the cap binds on MU but active weight redistributes to other high-vol OWs. B: defense real (vol ratio 1.0387; MaxDD/activeMaxDD/downside-capture all improved) but dIR -0.6236 with top-12 OW overlap 3/12 and beta 0.989 -- the cap dismantles the alpha-carrying high-vol growth tilt (converges with the S13.28 orthogonality diagnostic). Verified by independent re-run of the judgment script."
+                    },
+                    {
+                        "script":  "run_variant.py (arm_s13_29_pca_volstd)",
+                        "phase":  "S13.29 (2026-08-05): pca_vol_standardize retest on the current 200-name slope-ON baseline, prompted by the S13.28 vol-preference mechanism Q\u0026A; primary deliverable was the latest-rebalance OW roster of the standardized version.",
+                        "param_space":  "single preregistered flag (pca_vol_standardize: true) on the frozen production config; no sweep",
+                        "trials":  1,
+                        "result":  "E1 FAIL, not adopted. IR 1.0747 vs production 1.5734 (dIR -0.4986), all three sub-periods worse. Surprise finding: the vol tilt was NOT removed (mean active vol_z +0.365 vs +0.33, 96/96 positive; standardized-label top decile vol_z +0.552 vs raw +0.497) - fat tails survive sigma scaling, so standardization degrades selection quality without changing the style character. Confirms the S12.5 rejection on the current baseline."
+                    },
+                    {
+                        "script":  "run_s13_31_quality_tilt_arm.py",
+                        "phase":  "S13.31 (2026-08-05): 63d-horizon quality tilt inside the top idio-vol tercile, re-MVO of the saved production harvest (score\u0027 = score + 0.25*sd*z_q within tercile). Gated by the S13.30 preflight (quality defence inside high-vol exists only at 63d; preflight itself was read-only, not counted).",
+                        "param_space":  "single preregistered arm, lam=0.25 frozen, quality=best_roe_level_z frozen; no sweep. Q0 identity arm is a round-trip check, not a trial.",
+                        "trials":  1,
+                        "result":  "ZERO-COST TILT, referred to user (no auto-flip). Q0 reproduced production exactly (IR diff 0.0). Q1 IR 1.6196 vs 1.5734 (dIR +0.0463, inside the 0.36 noise band - not adoptable on IR grounds). Quality exposure moved -0.029 -\u003e +0.049 (D1a pass) with vol exposure preserved (0.385 -\u003e 0.374, character intact, E2 pass). Tail defence NOT delivered: MaxDD/activeMaxDD/downside-capture flat-to-slightly-worse, only worst-subperiod IR improved (1.285 -\u003e 1.312). D1b technically 1/4. Production unchanged."
+                    },
+                    {
+                        "script":  "run_variant.py (arm_s13_32_volqual_tilt)",
+                        "phase":  "S13.32 (2026-08-05): pipeline formalization of the S13.31 quality tilt - new default-OFF PipelineConfig flags (vol_quality_tilt_enabled / vol_quality_tilt_lambda 0.25) wired at the pre-overlay checkpoint, full pipeline rerun (cache disabled, walk-forward retrain).",
+                        "param_space":  "single frozen arm = production + 2 flags; lambda 0.25 carried from the S13.31 commitment, no sweep. OFF parity structural (guard returns the input object) + unit tests prove cell-level equality with the S13.31 diagnostic transform.",
+                        "trials":  1,
+                        "result":  "E0 PASS at floating-point precision: full-pipeline IR 1.619622 = S13.31 Q1 (active 5.884%, TE 3.633%, beta 1.0530, turnover 0.7090, MaxDD -32.85% all identical). Degenerate-retrain rate 15/32 identical to production (model layer untouched, cross-check pass). ECOS-only, fallback 0. dIR vs production +0.0463 (noise band). Referred to user for the S8 flip decision; flags stay default-OFF."
+                    },
+                    {
+                        "script":  "run_variant.py (s13_46_icorr_cov)",
+                        "phase":  "S13.46 (2026-08-20): implied-correlation off-diagonal covariance scaling arm - preregistered single config after the S13.45-C precheck PASS (NW t +8.43, OOS RMSE +11.6%). New default-OFF flag implied_corr_covariance_enabled; per-rebalance scalar s_t = clip(ICorr/rho_trail, 0.5, 2.0) applied to the covariance off-diagonal only (diagonal untouched, eigenvalue floor 1e-8).",
+                        "param_space":  "single frozen arm = production + 1 flag; clip/coverage/floor constants preregistered in decision log S13.46, no sweep. OFF parity structural (flag off builds no IV panel; s==1.0 returns the input object) + 7 unit tests.",
+                        "trials":  1,
+                        "result":  "E1 FAIL: dIR -0.0094 (1.6287 -\u003e 1.6193, 08-19 vintage), splits +0.0748/+0.0110/-0.1048 (sign inconsistent). avg_ic bit-identical (alpha channel untouched, proven). TE 3.457% -\u003e 3.359%, turnover 0.752 -\u003e 0.734, beta/MaxDD unchanged, ECOS fallback 0. s_t: 97 rebalances 100% non-inert, median 0.918, clip_lo 8 / clip_hi 2. Not adopted; flag stays default-OFF. [2026-08-20 PM correction: the original pair was contaminated by an Index.xlsx FX refresh between the two runs (second vintage axis, see decision log S13.46 postmortem). Clean same-vintage re-adjudication (rerun 14:02 vs the 08-20 batch production 1.6292): dIR -0.0093, splits +0.0748/+0.0110/-0.1046 - verdict unchanged, E1 FAIL, not adopted. Rerun is a vintage recert, not counted.]"
+                    },
+                    {
+                        "script":  "run_variant.py (s13_47_ndcg20)",
+                        "phase":  "S13.47 (2026-08-20): rank_eval_at [5, 10] -\u003e [20] single replacement arm - preregistered after the S13.45-D usage audit PASS (69.3% of gross OW outside mu-top-5, rank 6-50 contribution +0.304). Variant-only change (existing config key), no src edits. Early stopping becomes argmax@20 (S13.8 capacity-regulator replacement risk preregistered - degeneracy reported alongside E1).",
+                        "param_space":  "single frozen arm = production + rank_eval_at [20]; no sweeps ([10,20]/[5,10,20]/[50] all forbidden by preregistration).",
+                        "trials":  1,
+                        "result":  "E1 FAIL by the preregistered bar despite a large positive full-period move: dIR +0.2028 (1.6292 -\u003e 1.8320, 08-20 batch baseline, vintage pair verified before/after), splits +0.0013/-0.0125/+0.5637 (sign-inconsistent - the entire gain sits in 2024+). Degeneracy IMPROVED 13/33 -\u003e 10/33 (S13.8 risk did not materialize). TE identical 3.457%, turnover +0.024, MaxDD slightly better, avg_ic -9.3% (IC down while IR up - transmission decoupling, consistent with the S13.45-D book-usage hypothesis). Not adopted; production rank_eval_at [5,10] unchanged. User-override consideration requires the DSR/selection-bias haircut first."
+                    },
+                    {
+                        "script":  "run_variant.py (arm_s15_1_monotone_margin)",
+                        "phase":  "S15.1 (2026-08-27): monotone(+1) constraints on the three sign-stable margin-axis features (oper_margin_chg_63d/252d, op_leverage_63d) from the S15-B precheck, on top of the adopted S15 fix-pack production config. Map frozen by preregistration, no sweeps.",
+                        "param_space":  "monotone_constraints_enabled + fixed 3-feature +1 map (single preregistered arm)",
+                        "trials":  1,
+                        "result":  "E1 FAIL: dIR +0.0006 (1.5466 -\u003e 1.5472, same 08-25 vintage), splits -0.075/+0.080/+0.017 sign-inconsistent. Degeneracy improved 14/33 -\u003e 12/33 and turnover -0.8pp with avg_ic -7.9% - constraint acts as harmless capacity regularizer, no transmission. Not adopted; flag stays default-OFF. NOTE: the S15 fix-pack production flip itself is a correctness re-baseline (causal-discipline precedent), not counted."
+                    },
+                    {
+                        "script":  "run_variant.py (s16_3_fresh_fixed)",
+                        "phase":  "S16.3 (2026-08-31): degenerate-fallback POLICY arm - fresh_fixed refit at preregistered fixed capacity (degenerate_fresh_trees=67 = median best_iteration of the 19 unique baseline models) instead of reuse_prev, vs the S16.1 unit-fixpack run (only delta). First arm to change the fallback policy itself (S13.8 residual candidate \u0027explicit capacity regulation\u0027).",
+                        "param_space":  "degenerate_fallback_mode=fresh_fixed (single preregistered config; 67 deliberately not exposed as a variant override, no sweep; mutually exclusive with the \u0027no-early-stopping fixed capacity\u0027 axis, multiplicity 2 pre-declared)",
+                        "trials":  1,
+                        "result":  "E1 FAIL: dIR +0.0164 (1.6953 -\u003e 1.7117, same 08-25 vintage pair verified via data_vintage), splits +0.0229/+0.0029/+0.0184 all positive but far below the +0.36 bar (noise band). Mechanism fully delivered: fresh_fixed fired on all 12 degenerate retrains, unique_models 21 -\u003e 33, live model age 4 -\u003e 0 retrains (fit 2025-08-28 -\u003e 2026-08-17), avg_ic +14.1% (0.01604 -\u003e 0.01830). E2 all pass (TE 3.72%, active share 19.99%, turnover 0.996x, ECOS 194 / fallback 0). Not adopted; default stays reuse_prev. Empirical close: the 354-day-stale live model was NOT costing IR - staleness is an operational-risk finding (now visible via the report-only live_model_age_retrains gate), not a performance defect."
+                    },
+                    {
+                        "script":  "run_variant.py (s16_7_name_risk_cap)",
+                        "phase":  "S16.7 (2026-08-31): user-directed risk-discipline arm - enforce the existing report-only guardrail max_name_active_risk_share=0.35 INSIDE the optimiser (sequential convex re-solves shrinking per-name symmetric active bounds; applied at both MVO target and post-execution projection). Motivation: 2026-08-18 book carries 54.3% of ex-ante active risk in STX (0.42 pre-flip, 0.54 post-S16.2).",
+                        "param_space":  "name_risk_share_cap_enabled=true, cap=0.35 (reuses the existing guardrail constant, single preregistered value; iteration constants max_iter 12 / tol 0.01 / min-shrink 0.95 / bound floor 0.005 deliberately not exposed as overrides, no sweep)",
+                        "trials":  1,
+                        "result":  "PREREGISTERED (pending measurement) - gates fixed in decision log S16.7: G0 avg_ic bit-identical to S0\u0027 1.7149, G1 name-share compliance \u003e=90% of rebalances + live book, G2 character/no-harm, E1 standard dIR bar with risk-discipline adoption frame (user decision)."
+                    }
+                ],
+    "n_trials_total":  470,
+    "notes":  [
+                  "396 is a conservative lower bound. Actual N is likely higher once",
+                  "ad-hoc config.py tweaks over the research period are counted.",
+                  "If in doubt, pass a larger --n_trials to run_selection_bias.py.",
+                  "The DSR penalty grows as sqrt(2*ln N), so going from 1 to 396 multiplies",
+                  "the haircut by sqrt(2*ln(396)) ~ 3.45, not by 396 itself.",
+                  "2026-07-06: +4 S7 AI-logic arms (A1 mu_vol_scaling, A2 confidence_spread_recal,",
+                  "A3 adaptive_ema, A4 seed_ensemble), all evaluated and OFF-default (no production flip).",
+                  "N 403 -\u003e 407. A4\u0027s seed 43-46 harvests are non-selection diagnostic inputs, NOT counted",
+                  "as trials (they feed the single A4 ensemble config).",
+                  "2026-07-07: +1 S8 arm (news_trend sentiment feature), evaluated and OFF-default (no flip).",
+                  "N 407 -\u003e 408.",
+                  "2026-07-10: causal-discipline work +4 distinct configs: iter15 causal S0\u0027 re-cert",
+                  "(both fixes, new baseline), decomposition arm A (causal_val_only), arm B (exec_lag_only),",
+                  "and challenger codex_causal_rank_65 (rank_xendcg, IR 1.695, promotion candidate). S0\u0027 counted",
+                  "as a distinct config (IR changed 1.481-\u003e0.902, not a byte-identical parity recheck).",
+                  "N 408 -\u003e 412.",
+                  "2026-07-18: +1 S10.2 degeneracy arm (min_child_samples 30), pre-registered, E1 FAIL,",
+                  "not adopted (no flip). N 412 -\u003e 413. S10.1 sector-limit recalibration is a report-only",
+                  "diagnostic threshold change (no weight/metric impact) and is NOT counted as a trial.",
+                  "2026-07-28: backfilled +26 configs covering S11.5..S13.14 (inventory had stopped at S10.2).",
+                  "N 413 -\u003e 439. NOT counted: S11.8/S13.12 (measurement-only diagnoses on existing artifacts),",
+                  "S13.7 (pre-check disqualified the arm before any backtest), the aborted 4-feature S13.13",
+                  "launch (killed unobserved before amendment), and byte-identical parity/vintage rechecks.",
+                  "2026-07-28: +2 observed S13.15 implementation states and +2 S13.16 A/B/C new return series;",
+                  "A production was reused and not recounted. N 439 -\u003e 443. S13.16 remained OFF after both",
+                  "economic and intended-risk-allocation gates failed.",
+                  "2026-07-29: +4 new return series - S13.18 (index-EPS 4-feature bcast arm, E1 FAIL/gain 0),",
+                  "S13.21 (2-feature subset arm, E1 FAIL/gain 0), S13.22a/b (carry TE-cap conditioning on",
+                  "fac_eps_g63 and g63+tech composite, both E1 FAIL; A -0.174, B +0.111 with E2 direction FAIL).",
+                  "Preflights S13.17/19/19a/20/20a reused existing artifacts (no new return series); the 19a/20a",
+                  "4-way spread sweeps are recorded as exploratory selection events in the decision log. N 443 -\u003e 447.",
+                  "S13.23 country-mapped index revision feature arm (+1, E1 FAIL not adopted); the S0 recert on the 07-29 revision-vintage is a re-baseline, not a trial. N 447 -\u003e 448.",
+                  "S13.25 fwd-sales-slope feature block + month-end rebalancing arms (A/B/C, +3) vs the 07-31 slope-vintage S0 recert (IR 1.3070, re-baseline not a trial): A (4 slope features) dIR +0.266 with all three sub-periods positive and block gain share 6.09pct (first material feature consumption on this program); B (month-end rebal) dIR -0.101; C (combined) dIR -0.001 (negative interaction, month-end schedule erases the feature gain). All three E1 FAIL (\u003c +0.36), not adopted, defaults stay OFF. N 448 -\u003e 451.",
+                  "2026-08-04: S13.28 alpha-vs-traditional-factor orthogonality diagnostic adds 2 arms (R1 characteristic-orthogonal residual score, R2 characteristic-fitted style score), both re-MVO passes over the frozen production harvest. The R0 identity arm is a round-trip integrity check, not a trial. Diagnostic only: no production flip. n_trials_total 452 -\u003e 454.",
+                  "2026-08-04: S13.27 optimizer-layer defensive arms (+2): A bm-proportional active cap (existing infra, flag-on) and B portfolio vol exposure cap 1.05 (new default-OFF infra). Both REJECT (A no defensive effect at dIR -0.10; B real defense but dIR -0.62, character break). Production unchanged. n_trials_total 454 -\u003e 456.",
+                  "2026-08-05: S13.29 pca_vol_standardize retest (+1) on the current baseline - E1 FAIL dIR -0.4986; standardization left the vol tilt intact (fat-tail mechanism) while degrading ranking quality. n_trials_total 456 -\u003e 457.",
+                  "2026-08-05: S13.31 quality-tilt re-MVO arm (+1) gated by the read-only S13.30 preflight (preflight not counted, per S13.7/S13.19 precedent). Zero-cost quality exposure shift, dIR +0.046 (noise band), tail defence not delivered; referred to user, production unchanged. n_trials_total 457 -\u003e 458.",
+                  "2026-08-05: S13.32 pipeline formalization of the S13.31 tilt (+1) - full-pipeline arm reproduces the re-MVO result to floating-point precision (E0), degeneracy 15/32 identical. Flags default-OFF, flip referred to user. n_trials_total 458 -\u003e 459.",
+                  "2026-08-07: S13.34 (+2) vs the 08-07 regenerated-workbook S0 recert (IR 1.3836, re-baseline not a trial): arm A implied-vol surface 3-feature block (skew/vrp/term) dIR -0.112, E1 FAIL (features consumed - degeneracy 50pct -\u003e 18.75pct, turnover +10pp - but transmission negative, P3 -0.48); arm B VIX term-structure de-risking overlay (mu x0.5, 5d improve window) dIR +2.6e-08, structural no-op (max weight diff 4.2e-07 - uniform mu scaling cannot move the constraint-pinned, sign/rank-gated optimum). Both not adopted, defaults stay OFF. Read-only preflights (IC precheck, delta-slope signal characterization SHELVE, workbook quality audit) not counted per S13.7/S13.19 precedent. n_trials_total 459 -\u003e 461.",
+                  "2026-08-11: S13.35 (+2) vs the 08-11 regenerated-workbook S0 recert (IR 1.5290, PX_VOLUME + PUT_CALL_OPEN_INTEREST_RATIO sheets added, re-baseline not a trial): arm A volume 3-feature block (abnormal volume, share turnover, normalized Amihud) dIR -0.097 E1 FAIL (IC 0.020-\u003e0.027 and degeneracy 15-\u003e12/32 improved but transmission negative, P3-only sign); arm B put/call OI 2-feature block (level, d21; US-only 152/200) dIR -0.127 E1 FAIL (all three sub-periods negative, IC unchanged, degeneracy 15-\u003e22/32 worsened). Strongest-ever preflight IC (share_turnover 63d +0.115 t_cons +4.5) still failed the gate - S13.12 transmission ceiling reconfirmed. Both flags stay default-OFF. n_trials_total 461 -\u003e 463.",
+                  "2026-08-12: S13.38 (+1) vs the 08-12 regenerated-workbook S0 recert (IR 1.5383, S13.37 option-risk derived sheets added, re-baseline not a trial): arm A option-risk 5-feature passthrough block (iv30_z, downside_skew_z, downside_skew_chg_5d, iv_term_structure_z TS-252d z-scores + days_to_earnings) dIR -0.276 E1 FAIL (largest-ever IC consumption 0.0195-\u003e0.0350 +79pct and degeneracy 14-\u003e12/32 improved, but all three sub-periods negative, P2 0.910-\u003e0.379 collapse, one-way turnover +7.5pp - S13.12 transmission ceiling again; TS z removed the vol-axis redundancy rho\u003c=0.08 yet transmission still negative). Flag stays default-OFF. Read-only preflight (IC precheck 2/4 pass) not counted per S13.7 precedent. n_trials_total 463 -\u003e 464.",
+                  "2026-08-13: S13.41 (+1) option-IV vol-forecast covariance-diagonal arm (walk-forward pooled OLS log-vol model, 63BD refit, t+21 embargo, scale clip [0.8,1.5], D@Sigma@D) vs the 08-12 vintage S0\u0027 1.5383: dIR +0.124 all three sub-periods positive, TE 3.54-\u003e3.46pct, MaxDD -32.1-\u003e-31.8pct, one-way turnover +1.05pp, avg_ic/degeneracy bit-identical (alpha layer untouched - pure risk-model effect). E1 bar (+0.36) not met -\u003e not adopted by default, flip referred to the user (S13.31 precedent). Read-only prechecks (P0 QLIKE, P1 binding, P2 direction) not counted per S13.7 precedent. n_trials_total 464 -\u003e 465.",
+                  "2026-08-20: +1 S13.46 arm (implied-corr off-diagonal covariance scaling), pre-registered single arm, E1 FAIL (dIR -0.0094, splits +0.075/+0.011/-0.105 sign-inconsistent), not adopted (no flip). The S13.45 four-axis prechecks were read-only (not counted). N 465 -\u003e 466.",
+                  "2026-08-20 PM: discovered Index.xlsx (FX source) is a second vintage axis - refreshes forked three same-day runs. New ops rule: effective vintage = (ai_signal_data.xlsx, Index.xlsx) mtime pair, checked before/after every comparison run. S13.46 re-adjudicated clean (verdict unchanged); reproduction-control rerun proved the pipeline bit-deterministic across processes. Recert/control runs not counted. N stays 466.",
+                  "2026-08-20: +1 S13.47 arm (rank_eval_at [20]), pre-registered single arm, E1 FAIL (dIR +0.2028 \u003c +0.36 bar, sign-inconsistent - gain concentrated in 2024+), not adopted (no flip). Degeneracy improved 13/33 -\u003e 10/33. N 466 -\u003e 467.",
+                  "2026-08-27: +1 S15.1 arm (monotone margin constraints), pre-registered single arm, E1 FAIL (dIR +0.0006, sign-inconsistent), not adopted. The S15 fix-pack measurement + production flip (IR 1.3811 -\u003e 1.5466) is a correctness re-baseline, NOT counted (causal-discipline S0-recert precedent); S15 A/B prechecks were read-only (not counted). N 467 -\u003e 468.",
+                  "2026-08-31: +1 S16.3 arm (degenerate_fallback_mode=fresh_fixed), pre-registered single arm, E1 FAIL (dIR +0.0164 noise band, splits all positive but far below bar), not adopted. Mechanism fully delivered (12/12 fires, unique_models 33/33, live model age 0) - closes the fallback-policy axis. S16.1 unit fix-pack and S16.2 revision-extension-cap runs are correctness-track measurements (adoption criterion = accuracy, not IR), NOT counted per the S15/causal-discipline precedent. N 468 -\u003e 469.",
+                  "2026-08-31: +1 S16.7 arm (name_risk_share_cap_enabled, cap 0.35), pre-registered BEFORE measurement per standing rule; result pending. N 469 -\u003e 470."
+              ]
 }
