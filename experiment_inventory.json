@@ -337,9 +337,16 @@
       "param_space": "monotone_constraints_enabled + fixed 3-feature +1 map (single preregistered arm)",
       "trials": 1,
       "result": "E1 FAIL: dIR +0.0006 (1.5466 -> 1.5472, same 08-25 vintage), splits -0.075/+0.080/+0.017 sign-inconsistent. Degeneracy improved 14/33 -> 12/33 and turnover -0.8pp with avg_ic -7.9% - constraint acts as harmless capacity regularizer, no transmission. Not adopted; flag stays default-OFF. NOTE: the S15 fix-pack production flip itself is a correctness re-baseline (causal-discipline precedent), not counted."
+    },
+    {
+      "script": "run_variant.py (s16_3_fresh_fixed)",
+      "phase": "S16.3 (2026-08-31): degenerate-fallback POLICY arm - fresh_fixed refit at preregistered fixed capacity (degenerate_fresh_trees=67 = median best_iteration of the 19 unique baseline models) instead of reuse_prev, vs the S16.1 unit-fixpack run (only delta). First arm to change the fallback policy itself (S13.8 residual candidate 'explicit capacity regulation').",
+      "param_space": "degenerate_fallback_mode=fresh_fixed (single preregistered config; 67 deliberately not exposed as a variant override, no sweep; mutually exclusive with the 'no-early-stopping fixed capacity' axis, multiplicity 2 pre-declared)",
+      "trials": 1,
+      "result": "E1 FAIL: dIR +0.0164 (1.6953 -> 1.7117, same 08-25 vintage pair verified via data_vintage), splits +0.0229/+0.0029/+0.0184 all positive but far below the +0.36 bar (noise band). Mechanism fully delivered: fresh_fixed fired on all 12 degenerate retrains, unique_models 21 -> 33, live model age 4 -> 0 retrains (fit 2025-08-28 -> 2026-08-17), avg_ic +14.1% (0.01604 -> 0.01830). E2 all pass (TE 3.72%, active share 19.99%, turnover 0.996x, ECOS 194 / fallback 0). Not adopted; default stays reuse_prev. Empirical close: the 354-day-stale live model was NOT costing IR - staleness is an operational-risk finding (now visible via the report-only live_model_age_retrains gate), not a performance defect."
     }
   ],
-  "n_trials_total": 468,
+  "n_trials_total": 469,
   "notes": [
     "396 is a conservative lower bound. Actual N is likely higher once",
     "ad-hoc config.py tweaks over the research period are counted.",
@@ -386,6 +393,7 @@
     "2026-08-20: +1 S13.46 arm (implied-corr off-diagonal covariance scaling), pre-registered single arm, E1 FAIL (dIR -0.0094, splits +0.075/+0.011/-0.105 sign-inconsistent), not adopted (no flip). The S13.45 four-axis prechecks were read-only (not counted). N 465 -> 466.",
     "2026-08-20 PM: discovered Index.xlsx (FX source) is a second vintage axis - refreshes forked three same-day runs. New ops rule: effective vintage = (ai_signal_data.xlsx, Index.xlsx) mtime pair, checked before/after every comparison run. S13.46 re-adjudicated clean (verdict unchanged); reproduction-control rerun proved the pipeline bit-deterministic across processes. Recert/control runs not counted. N stays 466.",
     "2026-08-20: +1 S13.47 arm (rank_eval_at [20]), pre-registered single arm, E1 FAIL (dIR +0.2028 < +0.36 bar, sign-inconsistent - gain concentrated in 2024+), not adopted (no flip). Degeneracy improved 13/33 -> 10/33. N 466 -> 467.",
-    "2026-08-27: +1 S15.1 arm (monotone margin constraints), pre-registered single arm, E1 FAIL (dIR +0.0006, sign-inconsistent), not adopted. The S15 fix-pack measurement + production flip (IR 1.3811 -> 1.5466) is a correctness re-baseline, NOT counted (causal-discipline S0-recert precedent); S15 A/B prechecks were read-only (not counted). N 467 -> 468."
+    "2026-08-27: +1 S15.1 arm (monotone margin constraints), pre-registered single arm, E1 FAIL (dIR +0.0006, sign-inconsistent), not adopted. The S15 fix-pack measurement + production flip (IR 1.3811 -> 1.5466) is a correctness re-baseline, NOT counted (causal-discipline S0-recert precedent); S15 A/B prechecks were read-only (not counted). N 467 -> 468.",
+    "2026-08-31: +1 S16.3 arm (degenerate_fallback_mode=fresh_fixed), pre-registered single arm, E1 FAIL (dIR +0.0164 noise band, splits all positive but far below bar), not adopted. Mechanism fully delivered (12/12 fires, unique_models 33/33, live model age 0) - closes the fallback-policy axis. S16.1 unit fix-pack and S16.2 revision-extension-cap runs are correctness-track measurements (adoption criterion = accuracy, not IR), NOT counted per the S15/causal-discipline precedent. N 468 -> 469."
   ]
 }
