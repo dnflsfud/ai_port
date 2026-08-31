@@ -7864,3 +7864,30 @@ flip 후 사용자 요청("P1~P4까지 모두 수정됐는지 파악")으로 소
 `revision_extension_max_days: 21`) — production variant config와 동일. 단위테스트 14건
 (9+5) 포함 전체 709 PASS. **P1~P4 전부 구현·발동 확인, 수정 필요 0.** 사용자가 알파 상승
 기전 검토 후 flip 수용 확정.
+
+---
+
+## S16.6 — flip 후 3차 구조 점검 (사용자 요청, 2026-08-31, 읽기 전용 · 신규 결함 0)
+
+**스코프**: production 활성 경로 전량 통독 — data_loader(단위·FX·마스킹)·accounting·
+sellside(연장 상한 포함)·macro_cross·assembly·price·fwd_sales_slope·features/utils·
+target_engine·model_trainer(fresh_fixed 포함)·portfolio_optimizer·option_vol_cov·
+backtest 전체. default-OFF arm 모듈은 플래그 게이트 확인 수준.
+
+**판정: 잘못된 결과를 만드는 신규 구조 결함 0건.** §S15(34건)·§S16(O1~O7) 2회 전수
+리뷰 이후 잔여는 아래 비액션 관찰 4건뿐.
+
+| # | 심각도 | 위치 | 내용 |
+|---|---|---|---|
+| 1 | Low(잠재) | `target_engine.py:133` | eligible 종목 하나라도 forward NaN이면 **날짜 전체** 타깃 스킵. 중도 상폐가 꼬리 NaN을 만들면 ~20일×전종목 타깃이 소리 없이 소실. **실측: 현 데이터 미발현**(전 표본 mid-sample all-NaN 날짜 0, 저커버리지 0, NRG 타깃 자연 종단 07-28까지 정상) |
+| 2 | Low | `portfolio_optimizer.py:101-114` | 메가캡 vol 수축 임계 `bm > 2/n`이 250종에서 bm>0.8% = **21종**에 적용 — 65종 시절 "메가캡" 의도보다 광범위. 단 §S16.4 보정 검정(실현/ex-ante t=+0.15 무편향)이 이 수축 포함 상태로 통과 — 성능 이슈 아님, 명명-의도 드리프트 기록 |
+| 3 | Low | `backtest.py:1944` vs `apply_vol_quality_tilt` docstring | docstring "before the listing mask"는 stale — 실제 호출은 마스크 뒤(양 경로 일관·동작 올바름, 문서만 불일치) |
+| 4 | Low | `sellside.py:92-93` | `common_cols`/`common_dates` 죽은 변수(기존 dead code, 삭제 안 함) |
+
+기존 등재 비액션 항목 유지: `estimate_covariance` LW 죽은 분기·docstring(§S16.4에서
+문서 항목 강등), risk_aversion 무력(§S16.5 보류).
+
+**검증 확인(정상 재확인)**: S16.2 상한 루프(재진입·base-day 리셋·카운터), fresh_fixed
+채택/EWMA 갱신 흐름, P1~P4(§S16.1 flip 부록), FX 변환 PIT·가격-수익률 정합 보고,
+실행 타이밍(당일 PnL은 진입 가중치), IC 성숙 필터, cap-weighted BM PIT 마스킹,
+PCA eligibility. 인벤토리 불변(469).
