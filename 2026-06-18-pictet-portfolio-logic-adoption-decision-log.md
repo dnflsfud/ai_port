@@ -7822,3 +7822,29 @@ turnover 0.674 / 퇴화 12/33** (`outputs/s16_1_unit_fixpack`, 08-25 빈티지).
 소생과 정합), AAPL −0.19%p·MSFT −0.25%p(주식수 오염 제거와 정합), LYV(수정 후 진짜
 cash_conversion 상위) ±0.51%p. **해석 한계**: 매크로 사이클 1개 표본이므로 "+0.16은 매크로
 레짐 정보의 가치"라는 서술은 가설이지 증명이 아니다.
+
+---
+
+## Production flip — S16.2 리비전 연장 상한 21BD 채택 (사용자 승인, 2026-08-31)
+
+**변경**: `variants/codex_causal_rank_65.yaml`에 `revision_extension_max_days: 21` 1줄
+(+근거 주석). `PipelineConfig` 기본은 None(무제한 = §S15 fix-pack #5 원형) 유지.
+**롤백 = 플래그 1줄 삭제**(E0 단위테스트가 바이트 동일 복원 인증).
+
+**새 기준선**: **S0′ = IR 1.7149 / TE 3.730% / beta 1.0524 / avg_ic 0.018181 /
+turnover 0.703 / 퇴화 14/33** (`outputs/s16_2_revision_extension_cap`, 08-25 빈티지).
+**1.6953은 은퇴 — arm 비교에 혼용 금지.** production variant는 이제 §S16.2 런 config와
+동일하므로 이 런이 새 기준선 산출물이다.
+
+**채택 근거(정확성)**: §S15 fix-pack #5의 연장 마스크는 길이 상한이 없어 리비전 패널의
+16.3%를 동결했고, 진짜 컨센서스 붕괴도 무기한 붕괴 이전 값으로 복원했다(PEAD 의도와
+정반대). 상한 21BD(= pead_max_days, 사전 고정)가 2,326 이벤트에서 발동, 동결 셀 60~69%
+해제, avg_ic +13.4%(기전 직접 증거). ΔIR +0.020은 노이즈 — IR은 채택 사유 아님.
+
+**§8 체크리스트 이행(같은 커밋)**: ① variant 플래그+주석 ② acceptance
+`post_arm_production_flags` 5개 파일 + `test_residual_sleeve.py` allowlist 갱신
+③ production 핀 테스트 신설(`test_production_variant_pins_s16_2_flip_state`)
+④ 전체 스위트 709 PASS ⑤ 본 절. **DSR 비계수**(정확성 트랙, §S15 선례).
+
+**S16 시퀀스 종결 상태**: S16.1 flip ✓ · S16.2 flip ✓ · S16.3 불채택(축 종결) ·
+S16.4 SHELVE · S16.5 착수 보류(새 사전점검 필요). 이후 모든 arm 비교 기준은 **1.7149**.

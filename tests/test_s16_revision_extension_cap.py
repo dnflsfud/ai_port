@@ -24,6 +24,19 @@ def test_extension_cap_flag_default_none():
     assert PipelineConfig().revision_extension_max_days is None
 
 
+def test_production_variant_pins_s16_2_flip_state():
+    """§8/S16.2: 사용자 승인 flip(2026-08-31) 이후의 production 상태 핀.
+
+    revision_extension_max_days는 21(새 S0' 1.7149, 1.6953 은퇴)이어야 하고,
+    PipelineConfig 기본값은 여전히 None(§8 default-OFF 유지)이어야 한다."""
+    import yaml
+
+    with open("variants/codex_causal_rank_65.yaml", encoding="utf-8") as fh:
+        manifest = yaml.safe_load(fh)
+    overrides = manifest.get("overrides") or {}
+    assert overrides.get("revision_extension_max_days") == 21
+
+
 # ---------------------------------------------------------------------------
 # 파리티: None / 0 이하 = 인자 추가 이전 경로
 # ---------------------------------------------------------------------------

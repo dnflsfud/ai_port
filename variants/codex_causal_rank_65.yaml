@@ -175,3 +175,17 @@ overrides:
   # Rollback = delete this line (default-OFF, byte-identical restore
   # certified by unit tests).
   s16_unit_fixpack_enabled: true
+
+  # S16.2 (2026-08-31): 21-BD cap on the S15 fix-pack #5 persistent revision
+  # extension (uncapped, it froze 16.3% of the revision panel; a genuine
+  # post-earnings consensus collapse was restored to its pre-collapse value
+  # indefinitely — the opposite of the PEAD overlay's intent), adopted by
+  # user on correctness grounds — decision log S16.2 Production flip.
+  # 21 = pead_max_days (preregistered, no sweep). Certified same-vintage
+  # measurement (outputs/s16_2_revision_extension_cap): cap fired on 2,326
+  # events releasing 60-69% of frozen cells, avg_ic +13.4%, IR 1.6953 ->
+  # 1.7149, TE 3.73%, turnover 1.044x, ECOS 194 / fallback 0. This makes
+  # IR 1.7149 the S0' baseline; 1.6953 is retired for arm comparisons.
+  # Rollback = delete this line (default-None, byte-identical restore
+  # certified by unit tests).
+  revision_extension_max_days: 21

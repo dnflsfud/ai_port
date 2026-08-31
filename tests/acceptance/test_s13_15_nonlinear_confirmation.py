@@ -73,6 +73,7 @@ def test_arm_variant_differs_from_production_by_exactly_the_flag():
         "s15_fixpack_enabled",  # S15 promotion (2026-08-27)
         "option_vol_scale_fix_enabled",  # S15.2 promotion (2026-08-28)
         "s16_unit_fixpack_enabled",  # S16.1 promotion (2026-08-31)
+        "revision_extension_max_days",  # S16.2 promotion (2026-08-31)
     }
     assert not [
         key for key in prod
