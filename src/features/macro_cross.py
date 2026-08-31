@@ -92,6 +92,7 @@ def build_macro_cross_features(
     # reindex+ffill 한다(팩터 자체 캘린더 계산은 불변, 워밍업 NaN 보존).
     fixpack = bool(getattr(config, "s15_fixpack_enabled", False))
     out_dates = data.dates if fixpack else common_dates
+    unit_fix = bool(getattr(config, "s16_unit_fixpack_enabled", False))
 
     # ── Ticker-specific base signals (aligned to out_dates) ──
     # §S11.7: PIT 뷰(상장 전 NaN) — mom/vol 횡단면 z-score에서 유령 제외.
@@ -136,6 +137,14 @@ def build_macro_cross_features(
     slope_panel = None
     if "UST_10Y" in factor_px.columns and "UST_2Y" in factor_px.columns:
         slope = factor_px["UST_10Y"] - factor_px["UST_2Y"]
+        if unit_fix:
+            # §S16.1 P4: the other three scalars are 63d rolling z-scores while
+            # this one is a raw percentage-point spread. The downstream CS
+            # z-score used to hide the mismatch (it rescaled every mc_* to unit
+            # variance); once that second z-score is skipped, the slope term
+            # would carry a different amplitude than the rest. Same window as
+            # the others, so no new degree of freedom.
+            slope = _rolling_zscore(slope, window=63)
         slope_panel = _bcast_scalar_to_panel(_macro_series(slope), out_dates, tickers)
 
     # ── Cross terms ──
@@ -158,6 +167,20 @@ def build_macro_cross_features(
     # 5. DXY × revision — "USD headwind for multinationals"
     if dxy_z is not None and eps_rev_cs is not None:
         features["mc_dxy_x_eps_rev"] = dxy_z * eps_rev_cs
+
+    if unit_fix and features:
+        # §S16.1 P4 diagnostic: without the downstream CS z-score, mc_* reaches
+        # clip_outliers(±5) on its own scale. Report the share of finite cells
+        # the clip would touch so the amplitude we just restored is auditable.
+        finite_cells = 0
+        clipped_cells = 0
+        for panel in features.values():
+            values = panel.to_numpy(dtype=float, copy=False)
+            finite = np.isfinite(values)
+            finite_cells += int(finite.sum())
+            clipped_cells += int((np.abs(values[finite]) > 5.0).sum())
+        pct = 100.0 * clipped_cells / finite_cells if finite_cells else 0.0
+        print(f"[MacroCross] skip-CS-z ON: pre-clip |z|>5 cells = {pct:.2f}%")
 
     logger.info(
         "macro_cross: built %d cross features: %s",

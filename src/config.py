@@ -327,6 +327,13 @@ class PipelineConfig:
     revision_clean_threshold: float = 15.0           # daily-diff magnitude trigger
     revision_clean_extreme_threshold: float = 50.0   # prev-level "extreme" for reversion mode
     revision_clean_reversion_ratio: float = 0.5      # today's |level| < prev × this → collapse
+    # S16.2 (2026-08-31, decision log §S16.2): cap on the S15 fix-pack #5
+    # persistent-rollover extension. The extension holds the pre-event value
+    # for as long as the series stays inside the collapse band, with no length
+    # limit — a GENUINE consensus collapse that plateaus there is frozen for
+    # its whole duration (200BD reproduced synthetically). None (default) =
+    # today's uncapped behaviour, so OFF stays byte-identical.
+    revision_extension_max_days: Optional[int] = None
 
     # ------------------------------------------------------------------
     # Model (LightGBM)  — REDESIGN D (2026-04)
@@ -375,6 +382,19 @@ class PipelineConfig:
     min_model_trees: int = 10           # below this, treat retrain as degenerate
     max_degenerate_model_rate: float = 0.25
     fail_on_degenerate_model_rate: bool = False
+    # S16.3 / T1-1 (2026-08-31, decision log §S16.3): what to do when a retrain
+    # comes back degenerate. "reuse_prev" (default) keeps today's behaviour —
+    # the previous model AND its feature set are reused. Measured consequence
+    # on the certified S0' run: only 19 unique models across 33 retrains, and
+    # the live 2026-08-17 model is the 2025-08-28 fit, i.e. 354 days stale,
+    # while the stale-depth gate (<= 7 consecutive) still passes at 4.
+    # "fresh_fixed" instead refits at a preregistered fixed capacity with no
+    # early stopping, so a degenerate early stop can never freeze the book.
+    degenerate_fallback_mode: str = "reuse_prev"   # {"reuse_prev", "fresh_fixed"}
+    # Median best_iteration of the 19 unique models on the certified S0' run
+    # (12,14,15,20,28,30,48,50,58,[67],76,106,114,129,131,132,149,177,253).
+    # Preregistered single value — sweeping it is a §2.4 violation.
+    degenerate_fresh_trees: int = 67
 
     # ------------------------------------------------------------------
     # EWMA Feature Importance
@@ -942,6 +962,27 @@ class PipelineConfig:
     # OFF (default) keeps every touched code path byte-identical.
     # ------------------------------------------------------------------
     s15_fixpack_enabled: bool = False
+
+    # ------------------------------------------------------------------
+    # S16.1 (2026-08-31) — structural-review unit/duplication fix pack
+    # (decision log §S16.1). ONE flag gates all four measured defects:
+    #   P1 LSE (LN) lines quote in GBp while FactSet target prices are in
+    #      GBP — PX_LAST for the 8 LN names is rescaled x0.01 before the
+    #      USD conversion, so local_prices and prices are both correct.
+    #   P2 BEST_CALCULATED_FCF / BEST_CAPEX *_level_z compared raw local-
+    #      currency absolute amounts across the universe; they now get the
+    #      per-ticker rolling_tsz self-normalisation first (VALUATION idiom).
+    #   P3 cash_conversion_z divided a total by a per-share figure, so the
+    #      cross-section was ordered by share count; the denominator is now
+    #      net income (eps x shares implied by USD market cap / USD price).
+    #   P4 mc_* macro cross terms were cross-sectionally z-scored a second
+    #      time in assembly, which erased the macro magnitude and left sign-
+    #      flipped copies of their ticker legs; MacroCross now skips that
+    #      z-score and the yield-slope scalar is 63d z-scored like the
+    #      other three macro scalars.
+    # OFF (default) keeps every touched code path byte-identical.
+    # ------------------------------------------------------------------
+    s16_unit_fixpack_enabled: bool = False
 
     # ------------------------------------------------------------------
     # S15.1 (2026-08-27) — sign-stable monotone constraints on the margin

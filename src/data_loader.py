@@ -151,6 +151,14 @@ MARKET_TO_CURRENCY = {
     "IM": "EUR",  # Milan (UCG, ENEL) — S14 expansion, no new FX pair
 }
 
+# Bloomberg listing suffix -> multiplier that brings PX_LAST into the unit the
+# per-share estimate sheets use. LSE lines quote in GBp (pence) while FactSet
+# target prices are in GBP. Measured 2026-08-31 on the 2026-08-25 workbook:
+# AZN PX_LAST 12,170 vs Factset_TG_Price 159.31 (x100) — the same ratio for all
+# 8 LN names, while non-LN names reconcile (AAPL 310.34 / 333.10). Gated by
+# ``s16_unit_fixpack_enabled`` (decision log §S16.1 P1).
+PRICE_UNIT_SCALE = {"LN": 0.01}
+
 # Raw quote convention -> USD per one unit of local currency. ``inverse``
 # means the source is local-per-USD (USDKRW, USDJPY, USDCHF, USDDKK).
 FX_QUOTE_SPECS = {
@@ -1108,6 +1116,10 @@ class UniverseData:
             tickers=self.full_universe,
         )
         self._full_currency_map: Dict[str, str] = {}
+        # §S16.1 P1: keep the raw listing suffix alongside the currency it maps
+        # to — the quote UNIT (GBp vs GBP) is a property of the exchange, not of
+        # the currency. Tickers without a resolvable suffix are simply absent.
+        self._market_map: Dict[str, str] = {}
         for ticker in self.full_universe:
             currency = self.meta.loc[ticker, "currency"] if "currency" in self.meta else None
             exchange = (
@@ -1115,6 +1127,8 @@ class UniverseData:
                 if "exchange_code" in self.meta
                 else None
             )
+            if exchange is not None and not pd.isna(exchange):
+                self._market_map[ticker] = str(exchange).strip().upper()
             if pd.isna(currency) or not str(currency).strip():
                 if exchange is not None and not pd.isna(exchange):
                     raise ValueError(
@@ -1346,7 +1360,9 @@ class UniverseData:
                 self.factor_data[name] = df.loc[common]
 
         # Earnings Timeline (종목별 실적발표일 0/1 매트릭스)
+        self._apply_price_unit_scale()
         self._apply_usd_conversion()
+        self._check_target_price_unit_ratio()
 
         self.earnings_timeline = self._load_earnings_timeline()
 
@@ -1355,6 +1371,67 @@ class UniverseData:
         values = frame.to_numpy(dtype=float, copy=False)
         finite = np.isfinite(values)
         return float(np.max(np.abs(values[finite]))) if finite.any() else 0.0
+
+    def _apply_price_unit_scale(self) -> None:
+        """§S16.1 P1: bring exchange quote units in line with the estimate sheets.
+
+        Runs BEFORE ``_apply_usd_conversion`` so that both ``local_prices``
+        (consumed by tg_upside / fwd_opcf_yield, which divide a per-share
+        estimate quoted in the major currency) and the USD ``prices`` panel are
+        corrected by the same multiplier. OFF (default) leaves PX_LAST
+        untouched — no copy, no diagnostic key.
+        """
+        if not getattr(self.config, "s16_unit_fixpack_enabled", False):
+            return
+        prices = self.sheets["PX_LAST"]
+        scales = {
+            ticker: PRICE_UNIT_SCALE[self._market_map[ticker]]
+            for ticker in prices.columns
+            if self._market_map.get(ticker) in PRICE_UNIT_SCALE
+        }
+        if scales:
+            prices = prices.copy()
+            for ticker, scale in scales.items():
+                prices[ticker] = prices[ticker] * scale
+            self.sheets["PX_LAST"] = prices
+        self.data_quality["currency"]["price_unit_scaled"] = {
+            str(ticker): float(scale) for ticker, scale in scales.items()
+        }
+        logger.info(
+            "[UniverseData] price unit scale applied to %d ticker(s): %s",
+            len(scales), sorted(scales),
+        )
+
+    def _check_target_price_unit_ratio(self) -> None:
+        """Report median(target price / local price) per ticker (always on).
+
+        A quote-unit mismatch between PX_LAST and a per-share estimate sheet is
+        invisible in every downstream metric — it just makes tg_upside a
+        constant -99%. This guard runs regardless of
+        ``s16_unit_fixpack_enabled`` so a future listing with a new quote
+        convention surfaces immediately.
+        """
+        try:
+            target_prices = self.sheets["Factset_TG_Price"]
+        except KeyError:
+            return
+        local = self.local_prices
+        target_prices = target_prices.reindex(
+            index=local.index, columns=local.columns
+        )
+        ratio = target_prices.tail(252) / local.tail(252).replace(0, np.nan)
+        medians = ratio.median().dropna()
+        self.data_quality["currency"]["tg_px_ratio_median"] = {
+            str(ticker): float(value) for ticker, value in medians.items()
+        }
+        offenders = medians[(medians < 0.2) | (medians > 5.0)]
+        if len(offenders):
+            logger.warning(
+                "[UniverseData] target-price / local-price ratio outside "
+                "[0.2, 5] for %d ticker(s) — likely a quote-unit mismatch: %s",
+                len(offenders),
+                {str(t): round(float(v), 4) for t, v in offenders.items()},
+            )
 
     def _apply_usd_conversion(self) -> None:
         """Preserve local data, then expose USD prices/returns and FX effects."""

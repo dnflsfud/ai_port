@@ -24,9 +24,19 @@ VALUATION_SHEETS = [
 # EPS/Sales/Margin: 변화율·가속도만 중요, level 자체는 제거
 LEVEL_SKIP_SHEETS = {"BEST_EPS", "BEST_SALES", "BEST_GROSS_MARGIN", "OPER_MARGIN"}
 
+# §S16.1 P2: sheets whose level_z compares raw LOCAL-CURRENCY absolute amounts.
+# Only CUR_MKT_CAP (workbook builder) and PX_LAST / Daily_Returns (loader) are
+# USD-normalized, so these two panels mix KRW/JPY/EUR magnitudes and the
+# cross-section ends up ordered by currency unit rather than by cash flow.
+# BEST_ROE stays out: a percentage is already unit-free.
+CURRENCY_LEVEL_SHEETS = {"BEST_CALCULATED_FCF", "BEST_CAPEX"}
 
-def build_accounting_features(data: UniverseData) -> Dict[str, pd.DataFrame]:
+
+def build_accounting_features(
+    data: UniverseData, config=None
+) -> Dict[str, pd.DataFrame]:
     features: Dict[str, pd.DataFrame] = {}
+    unit_fix = bool(getattr(config, "s16_unit_fixpack_enabled", False))
 
     # -- Base fundamentals --
     for sheet in ACCOUNTING_BASE:
@@ -47,7 +57,30 @@ def build_accounting_features(data: UniverseData) -> Dict[str, pd.DataFrame]:
 
         # Level features: EPS/Sales/Margin은 제외 (변화율이 더 중요)
         if sheet not in LEVEL_SKIP_SHEETS:
-            features[f"{p}_level_z"] = cross_sectional_zscore(raw)
+            if unit_fix and sheet in CURRENCY_LEVEL_SHEETS:
+                # §S16.1 P2: same idiom as VALUATION_SHEETS below (REDESIGN M).
+                # Comparing raw levels across the universe assumes every name
+                # belongs to one distribution; here the "distribution" is the
+                # quoting currency, so 005930 (KRW) and 7203 (JPY) pinned the
+                # top of the cross-section and the remaining 234 names had a
+                # z spread of 0.001. Self-normalising per ticker first asks
+                # "how far is this name from its own norm" instead.
+                # Side effect: rolling_tsz(min_periods=252) leaves each ticker's
+                # first 251 observations NaN — 62,750 cells per feature (7.65%
+                # of the 3283x250 production panel; 212 always-listed names at
+                # the panel start plus 251 post-IPO days for 38 late listers).
+                # Those cells do NOT reach LightGBM as native missing: the panel
+                # builder fills them with the per-date cross-sectional median
+                # (assembly.py, "per_date_median"), and apply_absent_fundamental_nan
+                # deliberately re-NaNs only whole-column absence. Membership in
+                # NAN_TOLERANT_FEATURES is therefore not what covers this; the
+                # four VALUATION_SHEETS level_z features below already carry the
+                # identical warm-up under the same idiom.
+                features[f"{p}_level_z"] = cross_sectional_zscore(
+                    rolling_tsz(raw, window=756, min_periods=252)
+                )
+            else:
+                features[f"{p}_level_z"] = cross_sectional_zscore(raw)
             features[f"{p}_rank"] = cs_rank(raw)
             med = raw.rolling(252, min_periods=126).median()
             features[f"{p}_vs_median"] = (raw / med.replace(0, np.nan)) - 1
@@ -80,12 +113,13 @@ def build_accounting_features(data: UniverseData) -> Dict[str, pd.DataFrame]:
         features[f"{p}_rank"] = cs_rank(raw)
 
     # -- Cross-ratios (~10) --
-    _add_cross_ratios(data, features)
+    _add_cross_ratios(data, features, unit_fix=unit_fix)
 
     return features
 
 
-def _add_cross_ratios(data: UniverseData, features: Dict[str, pd.DataFrame]):
+def _add_cross_ratios(data: UniverseData, features: Dict[str, pd.DataFrame],
+                      unit_fix: bool = False):
     """Accounting 교차비율 피처."""
     def _safe_get(name):
         try:
@@ -113,7 +147,24 @@ def _add_cross_ratios(data: UniverseData, features: Dict[str, pd.DataFrame]):
         features["op_leverage_63d"] = safe_pct_change(om, 63) - safe_pct_change(gm, 63)
 
     if fcf is not None and eps is not None:
-        features["cash_conversion_z"] = cross_sectional_zscore(fcf / eps.replace(0, np.nan).abs())
+        if unit_fix:
+            # §S16.1 P3: [local total] / [local per-share] = share_count x
+            # (FCF / net income). The currency cancels but the share count does
+            # not, so the raw cross-section was ordered by shares outstanding
+            # (9432 NTT ~90bn shares clipped at +5.00 while its true FCF/NI is
+            # ~1.0). market_cap and prices are BOTH USD after the loader
+            # conversion, so their ratio is the exact share count and the
+            # local-currency numerator/denominator cancel. Depends on P1: the
+            # LN price rescale keeps those share counts right, and both live
+            # behind this one flag. A constant multiplier (e.g. millions) is
+            # universe-wide and therefore inert in the cross-sectional z.
+            shares = data.market_cap / data.prices.replace(0, np.nan)
+            net_income = eps * shares.reindex_like(eps)
+            features["cash_conversion_z"] = cross_sectional_zscore(
+                fcf / net_income.replace(0, np.nan).abs()
+            )
+        else:
+            features["cash_conversion_z"] = cross_sectional_zscore(fcf / eps.replace(0, np.nan).abs())
 
     if capex is not None and sales is not None:
         ratio = capex / sales.replace(0, np.nan).abs()

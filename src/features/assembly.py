@@ -599,7 +599,7 @@ def build_all_features(
     config = config or DEFAULT_CONFIG
     feature_mode = getattr(config, "feature_mode", "full")
 
-    accounting = build_accounting_features(data)
+    accounting = build_accounting_features(data, config=config)
     price = build_price_features(data)
     sellside = build_sellside_features(data, config=config)
     conditioning = build_conditioning_features(data, config=config)
@@ -784,6 +784,16 @@ def build_all_features(
     # is OFF: the core filter has already dropped these names, so they are not
     # in feature_groups["Conditioning"] to begin with.
     skip_zscore -= {"earn_days_since", "earn_days_to_next"}
+    # §S16.1 P4: macro_cross multiplies an already CS-z-scored ticker leg by a
+    # per-date macro SCALAR. Re-z-scoring that product is z(c*x) = sign(c)*z(x)
+    # for a within-date constant c, so the macro magnitude is erased and the
+    # feature degenerates into a sign-flipped copy of its leg (measured
+    # |corr(mc_rate_x_eps_rev, eps_rev)| = 1.0000 on three sampled dates).
+    # Skipping the second z-score keeps the macro amplitude; the legs are
+    # already z-scores and every macro scalar is a 63d z, so the ±5 clip below
+    # stays the right scale.
+    if getattr(config, "s16_unit_fixpack_enabled", False):
+        skip_zscore |= set(feature_groups.get("MacroCross", []))
     for name, df in list(all_features.items()):
         if name not in skip_zscore:
             all_features[name] = cross_sectional_zscore(df)
