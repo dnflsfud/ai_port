@@ -161,3 +161,17 @@ overrides:
   # comparisons. Rollback = delete this line (default-OFF, byte-identical
   # restore certified by unit tests).
   option_vol_scale_fix_enabled: true
+
+  # S16.1 (2026-08-31): Tier-0 unit/accuracy fix pack (4 verified defects
+  # behind one flag: LN GBp/GBP price-unit mismatch pinning tg_upside at a
+  # -3.8 sigma constant for 8 names; FCF/CAPEX level_z killed by local-
+  # currency scale (ex-KR/JP std 0.0008); cash_conversion_z contaminated by
+  # shares outstanding; macro-cross double z-score erasing macro amplitude),
+  # adopted by user on correctness grounds — decision log S16.1 Production
+  # flip. Certified same-vintage measurement (outputs/s16_1_unit_fixpack):
+  # IR 1.5356 -> 1.6953, TE 3.70%, turnover 0.97x, ECOS 194 / fallback 0,
+  # degenerate 14/33 -> 12/33, E1 accuracy checks 4/4 confirmed. This makes
+  # IR 1.6953 the S0' baseline; 1.5356 is retired for arm comparisons.
+  # Rollback = delete this line (default-OFF, byte-identical restore
+  # certified by unit tests).
+  s16_unit_fixpack_enabled: true

@@ -271,3 +271,21 @@ def test_assembly_on_keeps_macro_amplitude(monkeypatch):
         per_date_std = panel[col].groupby(level="date").std().iloc[-100:]
         assert per_date_std.std() > 0.1
         assert not np.allclose(per_date_std, 1.0, atol=1e-5)
+
+
+# ---------------------------------------------------------------------------
+# §8/S16.1: production flip 상태 핀 (사용자 승인 2026-08-31)
+# ---------------------------------------------------------------------------
+
+def test_production_variant_pins_s16_1_flip_state():
+    """§8/S16.1: 사용자 승인 flip(2026-08-31) 이후의 production 상태 핀.
+
+    s16_unit_fixpack_enabled는 ON(새 S0' 1.6953, 1.5356 은퇴)이어야 하고,
+    PipelineConfig 기본값은 여전히 OFF(§8 default-OFF 유지)여야 한다."""
+    import yaml
+
+    with open("variants/codex_causal_rank_65.yaml", encoding="utf-8") as fh:
+        manifest = yaml.safe_load(fh)
+    overrides = manifest.get("overrides") or {}
+    assert overrides.get("s16_unit_fixpack_enabled") is True
+    assert PipelineConfig().s16_unit_fixpack_enabled is False

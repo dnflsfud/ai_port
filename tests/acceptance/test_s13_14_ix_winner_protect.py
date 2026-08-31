@@ -71,6 +71,7 @@ def test_arm_variant_differs_from_production_by_exactly_the_two_flags():
         "option_vol_covariance_enabled",  # S13.41 promotion (2026-08-13)
         "s15_fixpack_enabled",  # S15 promotion (2026-08-27)
         "option_vol_scale_fix_enabled",  # S15.2 promotion (2026-08-28)
+        "s16_unit_fixpack_enabled",  # S16.1 promotion (2026-08-31)
     }
     assert not [
         k for k in prod
