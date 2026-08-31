@@ -678,6 +678,14 @@ class PipelineConfig:
     # P90 (0.827) rounded up to 0.05; flags only top-decile concentration.
     # Calibration: decision log §S10.1 (2026-07-18, 94-rebalance reconstruction).
     max_sector_active_risk_share: float = 0.85
+    # S16.7: enforce max_name_active_risk_share INSIDE the optimiser (the
+    # report-only monitoring above keeps working regardless). The Euler share
+    # a_i*(cov@a)_i/(a@cov@a) is a nonconvex ratio, so ON triggers sequential
+    # convex re-solves with shrinking symmetric |w_i - bm_i| bounds, applied
+    # at BOTH the MVO target and the post-execution projection so partial
+    # rebalancing cannot bypass it (same pattern as max_te_annual). OFF
+    # executes no new code — byte-identical. Decision log §S16.7.
+    name_risk_share_cap_enabled: bool = False
 
     # ------------------------------------------------------------------
     # Backtest

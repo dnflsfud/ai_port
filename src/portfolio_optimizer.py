@@ -553,7 +553,8 @@ def project_portfolio_weights(
         sector_deviation=sector_deviation,
         config=config,
     )
-    prob = cp.Problem(cp.Minimize(cp.sum_squares(w - candidate)), constraints)
+    objective = cp.Minimize(cp.sum_squares(w - candidate))
+    prob = cp.Problem(objective, constraints)
     if (
         not _solve_problem(
             prob,
@@ -575,6 +576,11 @@ def project_portfolio_weights(
             diag["fallback_reason"] = "non_finite_projection"
         return fallback
 
+    if getattr(config, "name_risk_share_cap_enabled", False):
+        projected = _enforce_name_risk_share_cap(
+            projected, w, objective, constraints, cov_matrix, bm_weights,
+            config, diag,
+        )
     return projected
 
 
@@ -662,6 +668,90 @@ def _sector_active_risk_penalty_expr(w, bm_weights, cov_matrix, sector_map,
         for mask in sectors.values()
     )
     return config.sector_active_risk_penalty * total
+
+
+# S16.7: per-name active-risk share cap (sequential convex re-solve).
+NAME_RISK_CAP_MAX_ITER = 12
+NAME_RISK_CAP_TOL = 0.01
+NAME_RISK_CAP_MIN_SHRINK = 0.95
+NAME_RISK_CAP_MIN_BOUND = 0.005
+
+
+def _name_risk_shares(weights, bm_weights, cov_matrix):
+    """Euler active-risk shares a_i*(cov@a)_i / (a@cov@a); zeros for a
+    (numerically) empty active book."""
+    a = np.asarray(weights, dtype=float) - bm_weights
+    var = float(a @ cov_matrix @ a)
+    if not np.isfinite(var) or var <= 1e-18:
+        return np.zeros(len(a)), 0.0
+    return a * (cov_matrix @ a) / var, var
+
+
+def _enforce_name_risk_share_cap(
+    solved_w: np.ndarray,
+    w: cp.Variable,
+    objective: cp.Expression,
+    constraints: List[cp.Constraint],
+    cov_matrix: np.ndarray,
+    bm_weights: np.ndarray,
+    config: PipelineConfig,
+    diag: Optional[Dict[str, Any]],
+) -> np.ndarray:
+    """Tighten per-name symmetric active bounds until every Euler share is
+    <= max_name_active_risk_share (+ tol).
+
+    The share constraint is a nonconvex ratio of quadratics, so it is
+    enforced by re-solving the SAME problem with shrinking |w_i - bm_i|
+    bounds on breached names only (single-ECOS protocol; internal re-solves
+    are not counted in solver stats). A failed re-solve or a stalled bound
+    (floor NAME_RISK_CAP_MIN_BOUND — degenerate single-risk-taker books
+    where the share ratio is scale-invariant) keeps the last good iterate;
+    this path never falls back to bm.
+    """
+    cap = float(getattr(config, "max_name_active_risk_share", 0.35))
+    cov = np.asarray(cov_matrix, dtype=float)
+    best = np.asarray(solved_w, dtype=float)
+    allow_scs = getattr(config, "allow_scs_on_ecos_exception", False)
+    bounds: Dict[int, float] = {}
+    iterations = 0
+    for _ in range(NAME_RISK_CAP_MAX_ITER):
+        shares, _ = _name_risk_shares(best, bm_weights, cov)
+        breach = np.flatnonzero(shares > cap + NAME_RISK_CAP_TOL)
+        if breach.size == 0:
+            break
+        active = best - bm_weights
+        changed = False
+        for i in breach:
+            shrink = min(float(np.sqrt(cap / shares[i])), NAME_RISK_CAP_MIN_SHRINK)
+            target = max(abs(float(active[i])) * shrink, NAME_RISK_CAP_MIN_BOUND)
+            if target < bounds.get(i, np.inf) - 1e-12:
+                bounds[i] = target
+                changed = True
+        if not changed:
+            break
+        extra: List[cp.Constraint] = []
+        for i, b in bounds.items():
+            extra.append(w[i] - bm_weights[i] <= b)
+            extra.append(bm_weights[i] - w[i] <= b)
+        prob = cp.Problem(objective, constraints + extra)
+        iterations += 1
+        if (
+            not _solve_problem(prob, None, allow_scs_fallback=allow_scs)
+            or prob.status not in ("optimal", "optimal_inaccurate")
+            or w.value is None
+        ):
+            break
+        cand = np.asarray(w.value, dtype=float).flatten()
+        if not np.all(np.isfinite(cand)):
+            break
+        best = cand
+    shares, var = _name_risk_shares(best, bm_weights, cov)
+    max_share = float(np.max(shares)) if var > 0.0 else 0.0
+    if diag is not None:
+        diag["name_risk_cap_iterations"] = iterations
+        diag["name_risk_cap_max_share"] = max_share
+        diag["name_risk_cap_converged"] = bool(max_share <= cap + NAME_RISK_CAP_TOL)
+    return best
 
 
 def optimize_portfolio(
@@ -759,6 +849,11 @@ def optimize_portfolio(
                 diag["used_fallback"] = True
                 diag["fallback_reason"] = "non_finite_solution"
             return bm_weights.copy()
+        if getattr(config, "name_risk_share_cap_enabled", False):
+            opt_w = _enforce_name_risk_share_cap(
+                opt_w, w, objective, constraints, cov_matrix, bm_weights,
+                config, diag,
+            )
         return opt_w
 
     if diag is not None:
