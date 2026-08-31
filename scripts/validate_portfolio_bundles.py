@@ -603,6 +603,18 @@ def evaluate_challenger(production: dict, challenger: dict) -> dict:
 # diagnosis: no damage detected); deeper runs are untested territory.
 MAX_CONSECUTIVE_STALE_RETRAINS = 7
 
+# S16.3 (2026-08-31): the time axis MAX_CONSECUTIVE_STALE_RETRAINS lacks. That
+# limit counts retrain SLOTS, so at retrain_freq=63BD it tolerates a live model
+# roughly 7*63 = 441BD ~ 1.75 years old. Measured on the certified S0' run: the
+# live 2026-08-17 model was fit on 2025-08-28 (354 days, 4 slots) and the depth
+# gate still passed at 4. 3 slots ~ 189BD ~ 9 months is the pre-registered
+# ceiling. REPORT-ONLY: this check is published in ``checks``/``values`` but is
+# deliberately excluded from the fail-closed status computation, so it cannot
+# flip an existing bundle's PRODUCTION/HOLD verdict (§S16 O1 is a diagnostic
+# until the s16_3_fresh_fixed arm is judged).
+MAX_LIVE_MODEL_AGE_RETRAINS = 3
+_REPORT_ONLY_CHECKS = ("live_model_age_ok",)
+
 
 def max_stale_depth(model_quality: dict):
     """Longest run of consecutive degenerate retrains, derived from the
@@ -646,6 +658,7 @@ def evaluate_production(record: dict) -> dict:
 
     degenerate_rate = _num(model_quality.get("degenerate_rate"))
     stale_depth = max_stale_depth(model_quality)
+    live_model_age = _num(model_quality.get("live_model_age_retrains"))
     tracking_error = _num(perf.get("tracking_error"))
     tail_days = _num(data_quality.get("tail_ffill_days"))
     max_tail_days = _num(data_quality.get("max_tail_ffill_days"))
@@ -660,14 +673,24 @@ def evaluate_production(record: dict) -> dict:
             None if stale_depth is None
             else stale_depth <= MAX_CONSECUTIVE_STALE_RETRAINS
         ),
+        # S16.3: report-only (see _REPORT_ONLY_CHECKS) — model AGE, not run
+        # length, so a reused model that never hits a long consecutive run is
+        # still caught.
+        "live_model_age_ok": (
+            None if live_model_age is None
+            else live_model_age <= MAX_LIVE_MODEL_AGE_RETRAINS
+        ),
         "realized_te_within_guard": None if tracking_error is None else tracking_error <= 0.045,
         "stale_tail_ok": (
             None if tail_days is None or max_tail_days is None else tail_days <= max_tail_days
         ),
     }
     # Fail-closed (2026-07-21): PRODUCTION requires every check explicitly
-    # True — a missing input (None) is not evidence of passing.
-    status = "PRODUCTION" if all(v is True for v in checks.values()) else "HOLD"
+    # True — a missing input (None) is not evidence of passing. S16.3 report-
+    # only checks are published but never bind (existing thresholds unchanged).
+    status = "PRODUCTION" if all(
+        v is True for k, v in checks.items() if k not in _REPORT_ONLY_CHECKS
+    ) else "HOLD"
     values = {
         "top_sector": guardrails.get("top_sector"),
         "top_sector_active_risk_share": guardrails.get("top_sector_active_risk_share"),
@@ -676,6 +699,8 @@ def evaluate_production(record: dict) -> dict:
         "degenerate_rate": degenerate_rate,
         "max_stale_depth": stale_depth,
         "max_consecutive_stale_retrains": MAX_CONSECUTIVE_STALE_RETRAINS,
+        "live_model_age_retrains": live_model_age,
+        "max_live_model_age_retrains": MAX_LIVE_MODEL_AGE_RETRAINS,
         "tracking_error": tracking_error,
         "tail_ffill_days": tail_days,
         "max_tail_ffill_days": max_tail_days,

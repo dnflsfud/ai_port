@@ -403,11 +403,21 @@ def train_model(
     val_dates: pd.DatetimeIndex,
     config: PipelineConfig = None,
     feature_scale: Optional[np.ndarray] = None,
+    fixed_trees: Optional[int] = None,
 ) -> lgb.LGBMModel:
-    """단일 모델 훈련 (early stopping with validation)."""
+    """단일 모델 훈련 (early stopping with validation).
+
+    §S16.3: ``fixed_trees``에 정수를 주면 고정 용량으로 적합한다 —
+    ``n_estimators=fixed_trees``에 조기종료 콜백 없음. 검증 폴드를 비우므로
+    eval_set도 넘기지 않는다(rank objective의 ``group``은 유지). None(기본)이면
+    ``val_dates``도 params도 그대로라 기존 경로와 바이트 동일하다.
+    """
     config = config or DEFAULT_CONFIG
     objective = getattr(config, "model_objective", "regression")
     mono_vec = _monotone_constraints_vector(config, feature_names)
+    if fixed_trees is not None:
+        # 조기종료가 없으므로 검증 폴드가 필요 없다 — 준비 비용을 없앤다.
+        val_dates = val_dates[:0]
     if objective == "cross_sectional_rank":
         levels = int(getattr(config, "rank_relevance_levels", 10))
         X_train, y_train, train_groups = prepare_rank_data(
@@ -444,6 +454,8 @@ def train_model(
         params["metric"] = "ndcg"
         if mono_vec is not None:
             params["monotone_constraints"] = mono_vec
+        if fixed_trees is not None:
+            params["n_estimators"] = int(fixed_trees)
         model = lgb.LGBMRanker(**params)
     elif objective == "symmetric_rank":
         params = dict(config.lgbm_params)
@@ -451,10 +463,15 @@ def train_model(
         params["metric"] = getattr(config, "symmetric_rank_metric", "l2")
         if mono_vec is not None:
             params["monotone_constraints"] = mono_vec
+        if fixed_trees is not None:
+            params["n_estimators"] = int(fixed_trees)
         model = lgb.LGBMRegressor(**params)
-    elif mono_vec is not None:
+    elif mono_vec is not None or fixed_trees is not None:
         params = dict(config.lgbm_params)
-        params["monotone_constraints"] = mono_vec
+        if mono_vec is not None:
+            params["monotone_constraints"] = mono_vec
+        if fixed_trees is not None:
+            params["n_estimators"] = int(fixed_trees)
         model = lgb.LGBMRegressor(**params)
     else:
         # Keep the canonical construction unchanged on the default path.
@@ -646,6 +663,12 @@ def walk_forward_train(
     if val_window == VAL_WINDOW:
         val_window = config.val_window
     min_trees = int(getattr(config, "min_model_trees", MIN_TREES))
+    fallback_mode = getattr(config, "degenerate_fallback_mode", "reuse_prev")
+    if fallback_mode not in ("reuse_prev", "fresh_fixed"):
+        raise ValueError(
+            f"unknown degenerate_fallback_mode={fallback_mode!r} "
+            "(expected 'reuse_prev' or 'fresh_fixed')"
+        )
 
     # OOS hold-out enforcement: during tuning, prevent predictions beyond
     # the reserved OOS window so accidental peeking can't contaminate the
@@ -688,6 +711,12 @@ def walk_forward_train(
     total_retrains = 0
     degenerate_retrains = 0
     degenerate_events = []
+    # §S16.3: model freshness. A reused model keeps serving predictions while
+    # the retrain counter advances, so "how many retrain slots ago was the
+    # live model actually FIT" is the time axis the stale-depth gate lacks.
+    unique_models = 0
+    live_fit_date: Optional[pd.Timestamp] = None
+    live_fit_slot: Optional[int] = None
     split_audit = []
     # S12.3: full-refresh / re-entry evidence (recorded only when the
     # periodic refresh is enabled — keys stay absent on the parity path).
@@ -781,16 +810,38 @@ def walk_forward_train(
             total_retrains += 1
             n_trees = int(getattr(new_model, "n_estimators_", 0) or 0)
             is_degenerate = n_trees < min_trees
+            # ``fresh_fixed`` (§S16.3) refits at a preregistered fixed capacity
+            # instead of rewinding, so the live model can never age past one
+            # retrain slot. ``reuse_prev`` (default) keeps the rewind.
+            adopt_new = not is_degenerate
+            fallback = None
             if is_degenerate:
                 degenerate_retrains += 1
+                fallback = "reuse_prev"
+                if fallback_mode == "fresh_fixed":
+                    fresh_model = train_model(
+                        panel, targets, candidate_features, train_dates, val_dates,
+                        config=config, feature_scale=candidate_fw,
+                        fixed_trees=int(getattr(config, "degenerate_fresh_trees", 67)),
+                    )
+                    fresh_n_trees = int(getattr(fresh_model, "n_estimators_", 0) or 0)
+                    if fresh_n_trees >= min_trees:
+                        print(f"[ModelTrainer] WARNING: Degenerate model ({n_trees} trees) "
+                              f"-> fresh fixed-capacity refit ({fresh_n_trees} trees)")
+                        new_model = fresh_model
+                        adopt_new = True
+                        fallback = "fresh_fixed"
+                    else:
+                        fallback = "fresh_fixed_failed"
                 degenerate_events.append({
                     "date": t_date.strftime("%Y-%m-%d"),
                     "n_trees": n_trees,
                     "min_model_trees": min_trees,
                     "candidate_features": len(candidate_features),
-                    "reused_prev_model": prev_model is not None,
+                    "reused_prev_model": (not adopt_new) and prev_model is not None,
+                    "fallback": fallback,
                 })
-            if is_degenerate and prev_model is not None:
+            if not adopt_new and prev_model is not None:
                 print(f"[ModelTrainer] WARNING: Degenerate model ({n_trees} trees) "
                       f"-> reuse prev model AND prev feature set ({len(prev_features)} features)")
                 current_model = prev_model
@@ -804,6 +855,9 @@ def walk_forward_train(
                 active_fw = candidate_fw
                 current_features = candidate_features
                 current_fw = candidate_fw
+                unique_models += 1
+                live_fit_date = t_date
+                live_fit_slot = total_retrains
                 # EWMA: 새 모델의 importance로 tracker 업데이트
                 ewma_tracker.update(current_model, active_features, t_date)
 
@@ -882,6 +936,15 @@ def walk_forward_train(
         ),
         "fail_on_degenerate_model_rate": bool(
             getattr(config, "fail_on_degenerate_model_rate", False)
+        ),
+        # §S16.3 model freshness: how many models were actually FIT, when the
+        # live one was fit, and how many retrain slots it has served since.
+        "unique_models": int(unique_models),
+        "live_model_fit_date": (
+            None if live_fit_date is None else live_fit_date.strftime("%Y-%m-%d")
+        ),
+        "live_model_age_retrains": (
+            None if live_fit_slot is None else int(total_retrains - live_fit_slot)
         ),
         "events": degenerate_events,
     }

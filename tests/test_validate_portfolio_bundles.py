@@ -479,6 +479,31 @@ def test_production_gate_holds_when_single_check_missing(tmp_path):
     assert registry["production_gate"]["checks"]["stale_depth_ok"] is None
 
 
+def test_production_gate_reports_live_model_age(tmp_path):
+    # §S16.3: model AGE (retrain slots since the live model was FIT) is the
+    # time axis MAX_CONSECUTIVE_STALE_RETRAINS lacks. Report-only — it is
+    # published in checks/values but never flips the status.
+    from scripts.validate_portfolio_bundles import (
+        MAX_LIVE_MODEL_AGE_RETRAINS, evaluate_production,
+    )
+
+    quality = _model_quality_from_flags("..DDDD")
+    stale = evaluate_production({"_model_quality": {
+        **quality, "live_model_age_retrains": MAX_LIVE_MODEL_AGE_RETRAINS + 1,
+    }})
+    assert stale["checks"]["live_model_age_ok"] is False
+    assert stale["values"]["live_model_age_retrains"] == MAX_LIVE_MODEL_AGE_RETRAINS + 1
+
+    fresh = evaluate_production({"_model_quality": {
+        **quality, "live_model_age_retrains": MAX_LIVE_MODEL_AGE_RETRAINS,
+    }})
+    assert fresh["checks"]["live_model_age_ok"] is True
+
+    # Field absent (pre-S16.3 runs) -> None, not a pass.
+    assert evaluate_production({"_model_quality": quality})[
+        "checks"]["live_model_age_ok"] is None
+
+
 def test_bundle_accepts_overdue_rebalance_counters(tmp_path):
     # §S15 FIX4: 스킵된 리밸 뒤 rows_since >= freq 상태가 rebalance_overdue
     # 플래그와 함께 export될 수 있다 — 검증기는 이를 유효 상태로 수용해야 한다.
