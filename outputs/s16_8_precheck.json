@@ -1,0 +1,52 @@
+{
+  "preregistration": "decision log §S16.8 (2026-09-01)",
+  "base_pkl": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\c2\\ai_port\\outputs\\s16_7_name_risk_cap\\backtest_result.pkl",
+  "nw_lag": 20,
+  "A_fwd_opcf_level_z": {
+    "coverage_days": 3011,
+    "raw_ic_mean": 0.02795,
+    "raw_ic_t_nw": 3.708,
+    "resid_ic_mean": 0.02441,
+    "resid_ic_t_nw": 2.97,
+    "p1_top_corr": [
+      [
+        "best_eps_chg_252d",
+        0.568
+      ],
+      [
+        "best_calculated_fcf_level_z",
+        0.548
+      ],
+      [
+        "best_sales_chg_252d",
+        0.533
+      ]
+    ]
+  },
+  "B_fwd_opcf_invest_divergence": {
+    "coverage_days": 3011,
+    "raw_ic_mean": 0.00999,
+    "raw_ic_t_nw": 1.495,
+    "resid_ic_mean": 0.00381,
+    "resid_ic_t_nw": 0.472,
+    "p1_top_corr": [
+      [
+        "best_sales_chg_252d",
+        0.515
+      ],
+      [
+        "best_eps_chg_252d",
+        0.491
+      ],
+      [
+        "nl_fslope_growth_confirm",
+        0.424
+      ]
+    ]
+  },
+  "arm_b_gate": {
+    "t_resid_nw": 0.472,
+    "bar": 2.0,
+    "proceed": false
+  }
+}
