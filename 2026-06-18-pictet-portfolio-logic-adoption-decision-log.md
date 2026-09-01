@@ -7985,3 +7985,49 @@ turnover 0.687 / 퇴화 14/33** (`outputs/s16_7_name_risk_cap`, 08-25 빈티지)
 
 **§S16 시퀀스 최종 상태**: S16.1 flip ✓ · S16.2 flip ✓ · S16.3 불채택(축 종결) ·
 S16.4 SHELVE · S16.5 착수 보류 · **S16.7 flip ✓**. 이후 모든 arm 비교 기준은 **1.7596**.
+
+---
+
+## S16.8 — 단위 수정 후 OCF 재도전 arm 2종 (사전등록, 2026-09-01, 측정 전)
+
+**동기(사용자 지시)**: ① "단위 수정 후 OCF 레벨 재도전 사전등록해서 진행해줘" —
+§S13.4c/§S13.5의 "Fwd_OpCashflow 축 소진" 판정은 **S16.1 단위 수정 이전** 아키텍처
+측정이므로, S16.1 P2 관용구가 `best_calculated_fcf_level_z`를 소생시킨(gain 7위) 지금
+**레벨 정식화에 한해** 축을 재개봉. ② 빅테크 AI 투자 논리(CAPEX↑·FCF↓·OCF↑ = 선제
+투자) 피처화 요청 — 상호작용 항 대신 **발산 조합 1개**로 정의하고 비선형 매핑은 트리에
+위임(§S13.13/14 상호작용 블록 실패 전례 회피).
+
+**arm 정의(각 단일 사전등록, 다중성 2 선언)**:
+- **A `fwd_opcf_level_z`** = `cs_z(rolling_tsz(Factset_Fwd_OpCashflow, 756, 252))` —
+  S16.1 P2와 동일 관용구(통화 스케일 자기정규화 후 횡단면 z).
+  `variants/s16_8a_opcf_level.yaml` = 새 S0′ config + 플래그 1줄. **사용자 지시
+  재도전이므로 사전점검 비게이트 — 실행 확정.**
+- **B `fwd_opcf_invest_divergence`** = `cs_z(pct_chg(OpCF,252)) −
+  cs_z(pct_chg(BEST_CALCULATED_FCF,252))` — OCF는 계속 성장하는데 FCF 성장이 뒤처지면
+  양수(투자 주도 압축 = AI 선제투자 논리), 둘 다 악화하면 ~0. 252d 단일 창(production
+  growth 관용구), 스윕 금지. `variants/s16_8b_invest_divergence.yaml`.
+  **사전점검 게이트 통과 시에만 실행.**
+
+**사전점검(read-only, 표준 데이터원 = 새 기준선 pkl + 워크북, 측정 전 게이트 고정)**:
+`scripts/precheck_s16_8.py` → `outputs/s16_8_precheck.json`.
+- P1(중복 진단, 비게이트): 활성 62피처와의 per-date Spearman 중앙값 상위 3 보고 —
+  |ρ|≥0.8이면 중복 경고 병기.
+- P2(예측력): 일별 횡단면 rank IC(vs 21d fwd target) + executable score **잔차 IC**,
+  둘 다 NW(lag 20) t 보고(21d 중첩 자기상관 보정, §S13.43 관용구).
+  **arm B 게이트 = 잔차 IC NW |t| ≥ 2**(§S13.36 잔차 IC 우선 원칙). 부호 무관(트리).
+  미달 시 B는 SHELVE(실행 0, 인벤토리 비계수) — 사용자 오버라이드 가능.
+
+**arm 판정 게이트(측정 전 고정)** — 비교 기준 S0′ = IR 1.7596
+(`outputs/s16_7_name_risk_cap`, 08-25 빈티지; data_vintage 쌍 일치 필수):
+- E1: full ΔIR > +0.36 & 3분할 부호 일관. |ΔIR| < 0.36 노이즈. **스윕/최대-IR 선택
+  금지** — A·B는 독립 판정, 채택 후보 발생 시 다중성 2로 DSR 해킷.
+- E2 do-no-harm: TE ≤ 4.5% · active share ±3%p · turnover ≤ 1.25× · fallback 0.
+- 병기 의무: 신규 피처의 EWMA 생존 여부·gain(0이면 arm은 no-op — §S13.21 전례),
+  퇴화율, name-risk 캡 준수(새 기준선의 G1 상태 유지 확인).
+
+**인프라(default-OFF, 커밋 선행)**: S8 관용구 — sellside 무조건 빌드, whitelist
+승인만 플래그 게이트(`fwd_opcf_level_feature_enabled` /
+`fwd_opcf_invest_divergence_feature_enabled`), SAFE_FOR_CACHE_REUSE 밖.
+신규 테스트 11건(수용 7+사전점검 헬퍼 4) 포함 전체 730 PASS.
+
+**다중성**: arm 2건 사전 선언(A 확정 실행 + B 조건부). 인벤토리는 실행된 arm만 계수.
