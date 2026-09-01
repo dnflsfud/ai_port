@@ -82,6 +82,8 @@
     "feature_mode": "core",
     "forward_horizon": 20,
     "fwd_opcf_feature_enabled": false,
+    "fwd_opcf_invest_divergence_feature_enabled": false,
+    "fwd_opcf_level_feature_enabled": false,
     "fwd_opcf_rev_126d_feature_enabled": false,
     "fwd_opcf_rev_252d_feature_enabled": false,
     "fwd_opcf_rev_63d_feature_enabled": false,
@@ -193,6 +195,7 @@
     "multi_horizon_targets_enabled": false,
     "multi_horizon_weights": {},
     "n_grid_points": 30,
+    "name_risk_share_cap_enabled": true,
     "news_trend_feature_enabled": false,
     "no_trade_band": 0.003,
     "nonlinear_confirmation_features_enabled": false,
@@ -273,10 +276,10 @@
     "revision_clean_mode": "reversion_gated",
     "revision_clean_reversion_ratio": 0.5,
     "revision_clean_threshold": 15.0,
-    "revision_extension_max_days": null,
+    "revision_extension_max_days": 21,
     "risk_aversion": 1.0,
     "s15_fixpack_enabled": true,
-    "s16_unit_fixpack_enabled": false,
+    "s16_unit_fixpack_enabled": true,
     "sales_surprise_feature_enabled": false,
     "satellite_budget": 0.225,
     "satellite_max_per_stock": 0.04,
@@ -318,8 +321,8 @@
     "data_mtime_utc": "2026-08-25T11:47:55Z",
     "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
     "data_size_bytes": 358972673,
-    "fx_mtime_utc": "2026-08-25T07:37:36Z",
-    "fx_size_bytes": 86308161,
+    "fx_mtime_utc": "2026-09-01T02:19:11Z",
+    "fx_size_bytes": 86441553,
     "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx"
   },
   "extra": {
@@ -329,6 +332,6 @@
     "variant_label": "codex_causal_rank_65"
   },
   "git_dirty": false,
-  "git_hash": "2bdea4df6ab47741937e63e3b99e0439c7c3ea65",
-  "timestamp_utc": "2026-08-31T03:21:10Z"
+  "git_hash": "c13c6aecec708255fe16d79e8a032a691f67ca84",
+  "timestamp_utc": "2026-09-01T03:28:52Z"
 }

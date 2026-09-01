@@ -15,12 +15,12 @@
   "used_fallback": false,
   "fallback_reason": null,
   "option_vol_cov_scaling_applied": false,
-  "expected_turnover_two_way": 0.1290031232,
-  "expected_turnover_one_way": 0.0645015616,
+  "expected_turnover_two_way": 0.1289269079,
+  "expected_turnover_one_way": 0.0644634539,
   "one_way_transaction_cost_bps": 10.0,
-  "expected_transaction_cost": 0.0001290031,
-  "expected_active_share_one_way": 0.146704,
-  "estimated_te": 0.041186,
+  "expected_transaction_cost": 0.0001289269,
+  "expected_active_share_one_way": 0.146716,
+  "estimated_te": 0.041196,
   "max_tracking_error_annual": 0.045,
   "weight_sum": 1.0,
   "n_holdings": 250,
@@ -30,349 +30,349 @@
       "ticker": "TTD",
       "sector": "Communication Services",
       "mu": 4.439279,
-      "current": 0.0185144449,
-      "target": 0.0287487322,
-      "delta": 0.0102342873,
+      "current": 0.0185098971,
+      "target": 0.0287460138,
+      "delta": 0.0102361167,
       "bm_weight": 8.53823e-05,
-      "active": 0.0286633499
+      "active": 0.0286606315
     },
     {
       "ticker": "LITE",
       "sector": "Technology",
       "mu": 2.039578,
-      "current": 0.0264615295,
-      "target": 0.0228893705,
-      "delta": -0.003572159,
+      "current": 0.0264550297,
+      "target": 0.0228833646,
+      "delta": -0.003571665,
       "bm_weight": 0.0010196926,
-      "active": 0.0218696779
+      "active": 0.021863672
     },
     {
       "ticker": "000660",
       "sector": "Technology",
       "mu": 7.15528,
-      "current": 0.0209269451,
-      "target": 0.032318435,
-      "delta": 0.0113914899,
+      "current": 0.02094977,
+      "target": 0.0323308732,
+      "delta": 0.0113811032,
       "bm_weight": 0.0120895016,
-      "active": 0.0202289335
+      "active": 0.0202413717
     },
     {
       "ticker": "BE",
       "sector": "Industrials",
       "mu": 3.394636,
-      "current": 0.0166105761,
-      "target": 0.0167809394,
-      "delta": 0.0001703632,
+      "current": 0.016606496,
+      "target": 0.0167765648,
+      "delta": 0.0001700689,
       "bm_weight": 0.0008228263,
-      "active": 0.0159581131
+      "active": 0.0159537385
     },
     {
       "ticker": "LRCX",
       "sector": "Technology",
       "mu": 1.463599,
-      "current": 0.0209649091,
-      "target": 0.0211352721,
-      "delta": 0.000170363,
+      "current": 0.0209597594,
+      "target": 0.021129828,
+      "delta": 0.0001700687,
       "bm_weight": 0.0053146947,
-      "active": 0.0158205774
+      "active": 0.0158151333
     },
     {
       "ticker": "005930",
       "sector": "Technology",
       "mu": 4.847878,
-      "current": 0.0283866621,
-      "target": 0.0285570252,
-      "delta": 0.0001703631,
+      "current": 0.0284176233,
+      "target": 0.028587692,
+      "delta": 0.0001700688,
       "bm_weight": 0.0148164712,
-      "active": 0.013740554
+      "active": 0.0137712209
     },
     {
       "ticker": "MPC",
       "sector": "Energy",
       "mu": 2.008378,
-      "current": 0.0013493364,
-      "target": 0.0119655758,
-      "delta": 0.0106162394,
+      "current": 0.0013490049,
+      "target": 0.0119649429,
+      "delta": 0.0106159379,
       "bm_weight": 0.0013940462,
-      "active": 0.0105715295
+      "active": 0.0105708966
     },
     {
       "ticker": "6857",
       "sector": "Technology",
       "mu": 1.083576,
-      "current": 0.0123666172,
-      "target": 0.01253698,
-      "delta": 0.0001703629,
+      "current": 0.0123752294,
+      "target": 0.0125452979,
+      "delta": 0.0001700685,
       "bm_weight": 0.0021671316,
-      "active": 0.0103698484
+      "active": 0.0103781663
     },
     {
       "ticker": "TEAM",
       "sector": "Technology",
       "mu": 0.297271,
-      "current": 0.0053141715,
-      "target": 0.0054845332,
-      "delta": 0.0001703617,
+      "current": 0.0053128662,
+      "target": 0.0054829338,
+      "delta": 0.0001700676,
       "bm_weight": 0.0005960783,
-      "active": 0.0048884549
+      "active": 0.0048868554
     },
     {
       "ticker": "STX",
       "sector": "Technology",
       "mu": 3.633533,
-      "current": 0.0038484962,
-      "target": 0.0040188573,
-      "delta": 0.000170361,
+      "current": 0.0038475509,
+      "target": 0.0040176179,
+      "delta": 0.000170067,
       "bm_weight": 0.0024662395,
-      "active": 0.0015526178
+      "active": 0.0015513785
     },
     {
       "ticker": "NVDA",
       "sector": "Technology",
       "mu": 0.204332,
-      "current": 0.0693553136,
-      "target": 0.0695256704,
-      "delta": 0.0001703568,
+      "current": 0.0693382776,
+      "target": 0.0695083415,
+      "delta": 0.0001700639,
       "bm_weight": 0.0690859227,
-      "active": 0.0004397477
+      "active": 0.0004224188
     },
     {
       "ticker": "6758",
       "sector": "Consumer Discretionary",
       "mu": 0.107753,
-      "current": 0.0020250735,
-      "target": 0.0021954314,
-      "delta": 0.000170358,
+      "current": 0.0020264837,
+      "target": 0.0021965486,
+      "delta": 0.0001700648,
       "bm_weight": 0.0019644635,
-      "active": 0.0002309679
+      "active": 0.0002320851
     },
     {
       "ticker": "285A",
       "sector": "Technology",
       "mu": 2.993996,
-      "current": 0.0024721392,
-      "target": 0.0026424977,
-      "delta": 0.0001703585,
+      "current": 0.0024738608,
+      "target": 0.002643926,
+      "delta": 0.0001700652,
       "bm_weight": 0.0024157923,
-      "active": 0.0002267054
+      "active": 0.0002281337
     },
     {
       "ticker": "REL",
       "sector": "Industrials",
       "mu": 0.714918,
-      "current": 0.0008751198,
-      "target": 0.0010454761,
-      "delta": 0.0001703563,
+      "current": 0.000876253,
+      "target": 0.0010463167,
+      "delta": 0.0001700637,
       "bm_weight": 0.0008586674,
-      "active": 0.0001868087
+      "active": 0.0001876493
     },
     {
       "ticker": "PEP",
       "sector": "Consumer Staples",
       "mu": 0.015679,
-      "current": 0.002719267,
-      "target": 0.0028896251,
-      "delta": 0.0001703581,
+      "current": 0.0027185991,
+      "target": 0.002888664,
+      "delta": 0.0001700649,
       "bm_weight": 0.0027038739,
-      "active": 0.0001857512
-    },
-    {
-      "ticker": "NKE",
-      "sector": "Consumer Discretionary",
-      "mu": 0.290208,
-      "current": 0.0008159022,
-      "target": 0.0009862582,
-      "delta": 0.000170356,
-      "bm_weight": 0.0008277984,
-      "active": 0.0001584598
+      "active": 0.0001847901
     },
     {
       "ticker": "9432",
       "sector": "Communication Services",
       "mu": 0.125384,
-      "current": 0.0013046608,
-      "target": 0.0014750178,
-      "delta": 0.000170357,
+      "current": 0.0013055694,
+      "target": 0.0014756335,
+      "delta": 0.0001700642,
       "bm_weight": 0.0013166651,
-      "active": 0.0001583527
+      "active": 0.0001589685
+    },
+    {
+      "ticker": "NKE",
+      "sector": "Consumer Discretionary",
+      "mu": 0.290208,
+      "current": 0.0008157018,
+      "target": 0.0009857653,
+      "delta": 0.0001700635,
+      "bm_weight": 0.0008277984,
+      "active": 0.0001579669
     },
     {
       "ticker": "LMT",
       "sector": "Industrials",
       "mu": 0.327314,
-      "current": 0.0017388027,
-      "target": 0.00190916,
-      "delta": 0.0001703573,
+      "current": 0.0017383756,
+      "target": 0.0019084399,
+      "delta": 0.0001700644,
       "bm_weight": 0.0017828512,
-      "active": 0.0001263088
+      "active": 0.0001255888
     },
     {
       "ticker": "BSX",
       "sector": "Healthcare",
       "mu": 0.560522,
-      "current": 0.0009187105,
-      "target": 0.0010890667,
-      "delta": 0.0001703561,
+      "current": 0.0009184849,
+      "target": 0.0010885484,
+      "delta": 0.0001700636,
       "bm_weight": 0.0009725942,
-      "active": 0.0001164725
+      "active": 0.0001159542
     },
     {
       "ticker": "REGN",
       "sector": "Healthcare",
       "mu": 0.093976,
-      "current": 0.0011094012,
-      "target": 0.0012797576,
-      "delta": 0.0001703565,
+      "current": 0.0011091287,
+      "target": 0.0012791925,
+      "delta": 0.0001700638,
       "bm_weight": 0.0011680185,
-      "active": 0.0001117392
+      "active": 0.000111174
     },
     {
       "ticker": "ZTS",
       "sector": "Healthcare",
       "mu": 0.558588,
-      "current": 0.0003676702,
-      "target": 0.0005380239,
-      "delta": 0.0001703537,
+      "current": 0.0003675799,
+      "target": 0.0005376419,
+      "delta": 0.0001700619,
       "bm_weight": 0.00043666,
-      "active": 0.0001013639
+      "active": 0.0001009818
     },
     {
       "ticker": "HON",
       "sector": "Industrials",
       "mu": 0.09613,
-      "current": 0.0008622496,
-      "target": 0.0010326056,
-      "delta": 0.000170356,
+      "current": 0.0008620378,
+      "target": 0.0010321013,
+      "delta": 0.0001700635,
       "bm_weight": 0.0009320957,
-      "active": 0.0001005099
+      "active": 0.0001000056
     },
     {
       "ticker": "MCO",
       "sector": "Financials",
       "mu": 0.15664,
-      "current": 0.0011414781,
-      "target": 0.0013118346,
-      "delta": 0.0001703565,
+      "current": 0.0011411977,
+      "target": 0.0013112615,
+      "delta": 0.0001700638,
       "bm_weight": 0.001212763,
-      "active": 9.90716e-05
+      "active": 9.84985e-05
     },
     {
       "ticker": "MDLZ",
       "sector": "Consumer Staples",
       "mu": 0.074342,
-      "current": 0.0010560493,
-      "target": 0.0012264057,
-      "delta": 0.0001703563,
+      "current": 0.0010557899,
+      "target": 0.0012258536,
+      "delta": 0.0001700637,
       "bm_weight": 0.0011307578,
-      "active": 9.56479e-05
+      "active": 9.50958e-05
     },
     {
       "ticker": "CB",
       "sector": "Financials",
       "mu": 0.137229,
-      "current": 0.0017470942,
-      "target": 0.0019174513,
-      "delta": 0.0001703571,
+      "current": 0.001746665,
+      "target": 0.0019167293,
+      "delta": 0.0001700642,
       "bm_weight": 0.0018269977,
-      "active": 9.04536e-05
+      "active": 8.97315e-05
     },
     {
       "ticker": "RHM",
       "sector": "Industrials",
       "mu": 0.471112,
-      "current": 0.0007552814,
-      "target": 0.0009256369,
-      "delta": 0.0001703556,
+      "current": 0.0007561969,
+      "target": 0.0009262601,
+      "delta": 0.0001700632,
       "bm_weight": 0.0008380612,
-      "active": 8.75757e-05
+      "active": 8.81989e-05
     },
     {
       "ticker": "AMT",
       "sector": "Real Estate",
       "mu": 0.30048,
-      "current": 0.0010548297,
-      "target": 0.0012251859,
-      "delta": 0.0001703563,
+      "current": 0.0010545706,
+      "target": 0.0012246342,
+      "delta": 0.0001700637,
       "bm_weight": 0.0011382273,
-      "active": 8.69587e-05
+      "active": 8.6407e-05
     },
     {
       "ticker": "ABT",
       "sector": "Healthcare",
       "mu": 0.203952,
-      "current": 0.0026797141,
-      "target": 0.0028500716,
-      "delta": 0.0001703575,
+      "current": 0.0026790558,
+      "target": 0.0028491204,
+      "delta": 0.0001700645,
       "bm_weight": 0.0027644664,
-      "active": 8.56053e-05
+      "active": 8.4654e-05
     },
     {
       "ticker": "MDT",
       "sector": "Healthcare",
       "mu": 0.223566,
-      "current": 0.0015413527,
-      "target": 0.0017117096,
-      "delta": 0.0001703569,
+      "current": 0.0015409741,
+      "target": 0.0017110382,
+      "delta": 0.0001700641,
       "bm_weight": 0.0016282796,
-      "active": 8.343e-05
+      "active": 8.27585e-05
     },
     {
       "ticker": "ADBE",
       "sector": "Technology",
       "mu": 0.210506,
-      "current": 0.0014160429,
-      "target": 0.0015863996,
-      "delta": 0.0001703567,
+      "current": 0.0014156951,
+      "target": 0.0015857591,
+      "delta": 0.000170064,
       "bm_weight": 0.0015037674,
-      "active": 8.26323e-05
+      "active": 8.19917e-05
     },
     {
       "ticker": "MRVL",
       "sector": "Technology",
       "mu": 1.821113,
-      "current": 0.002650273,
-      "target": 0.0028206306,
-      "delta": 0.0001703577,
+      "current": 0.002649622,
+      "target": 0.0028196866,
+      "delta": 0.0001700646,
       "bm_weight": 0.0027466523,
-      "active": 7.39783e-05
+      "active": 7.30343e-05
     },
     {
       "ticker": "NESN",
       "sector": "Consumer Staples",
       "mu": 0.100054,
-      "current": 0.0033899487,
-      "target": 0.0035603063,
-      "delta": 0.0001703576,
+      "current": 0.0033967273,
+      "target": 0.0035667919,
+      "delta": 0.0001700646,
       "bm_weight": 0.0035153829,
-      "active": 4.49234e-05
+      "active": 5.1409e-05
     },
     {
       "ticker": "PLD",
       "sector": "Real Estate",
       "mu": 0.037731,
-      "current": 0.0017643988,
-      "target": 0.0019347557,
-      "delta": 0.0001703569,
+      "current": 0.0017639654,
+      "target": 0.0019340295,
+      "delta": 0.0001700641,
       "bm_weight": 0.0018981792,
-      "active": 3.65765e-05
+      "active": 3.58503e-05
     },
     {
       "ticker": "TJX",
       "sector": "Consumer Discretionary",
       "mu": 0.238775,
-      "current": 0.0019889062,
-      "target": 0.0021592632,
-      "delta": 0.000170357,
+      "current": 0.0019884177,
+      "target": 0.0021584818,
+      "delta": 0.0001700641,
       "bm_weight": 0.002128546,
-      "active": 3.07172e-05
+      "active": 2.99358e-05
     },
     {
       "ticker": "AAPL",
       "sector": "Technology",
       "mu": -0.390197,
-      "current": 0.0624409991,
+      "current": 0.0624256615,
       "target": 0.0620193559,
-      "delta": -0.0004216432,
+      "delta": -0.0004063055,
       "bm_weight": 0.062019356,
       "active": -0.0
     },
@@ -380,9 +380,9 @@
       "ticker": "MSFT",
       "sector": "Technology",
       "mu": -0.2172,
-      "current": 0.0497755382,
+      "current": 0.0497633117,
       "target": 0.0495499801,
-      "delta": -0.0002255582,
+      "delta": -0.0002133316,
       "bm_weight": 0.0495499801,
       "active": -0.0
     },
@@ -390,9 +390,9 @@
       "ticker": "PLTR",
       "sector": "Technology",
       "mu": -0.464387,
-      "current": 0.0057716217,
+      "current": 0.005770204,
       "target": 0.005785165,
-      "delta": 1.35433e-05,
+      "delta": 1.4961e-05,
       "bm_weight": 0.0057851651,
       "active": -0.0
     },
@@ -400,29 +400,19 @@
       "ticker": "LLY",
       "sector": "Healthcare",
       "mu": -0.114916,
-      "current": 0.0222402342,
+      "current": 0.0222347713,
       "target": 0.0160733447,
-      "delta": -0.0061668895,
+      "delta": -0.0061614266,
       "bm_weight": 0.0160733447,
-      "active": -0.0
-    },
-    {
-      "ticker": "SPGI",
-      "sector": "Financials",
-      "mu": -0.45563,
-      "current": 0.0017091535,
-      "target": 0.0018006326,
-      "delta": 9.1479e-05,
-      "bm_weight": 0.0018006326,
       "active": -0.0
     },
     {
       "ticker": "MCD",
       "sector": "Consumer Discretionary",
       "mu": -0.205072,
-      "current": 0.0025593139,
+      "current": 0.0025586853,
       "target": 0.0026409085,
-      "delta": 8.15946e-05,
+      "delta": 8.22233e-05,
       "bm_weight": 0.0026409086,
       "active": -0.0
     },
@@ -430,9 +420,9 @@
       "ticker": "LNG",
       "sector": "Energy",
       "mu": -0.005046,
-      "current": 0.0007271645,
+      "current": 0.0007269858,
       "target": 0.0007941148,
-      "delta": 6.69504e-05,
+      "delta": 6.7129e-05,
       "bm_weight": 0.0007941149,
       "active": -0.0
     },
@@ -440,9 +430,9 @@
       "ticker": "TMUS",
       "sector": "Communication Services",
       "mu": -0.3285,
-      "current": 0.0028835604,
+      "current": 0.0028828521,
       "target": 0.0026824246,
-      "delta": -0.0002011358,
+      "delta": -0.0002004275,
       "bm_weight": 0.0026824246,
       "active": -0.0
     },
@@ -450,9 +440,9 @@
       "ticker": "KLAC",
       "sector": "Technology",
       "mu": -0.360852,
-      "current": 0.0117378565,
+      "current": 0.0117349733,
       "target": 0.00324847,
-      "delta": -0.0084893865,
+      "delta": -0.0084865033,
       "bm_weight": 0.00324847,
       "active": -0.0
     },
@@ -460,9 +450,9 @@
       "ticker": "BKNG",
       "sector": "Consumer Discretionary",
       "mu": -1.06967,
-      "current": 0.0021664891,
+      "current": 0.0021659569,
       "target": 0.0021952436,
-      "delta": 2.87545e-05,
+      "delta": 2.92866e-05,
       "bm_weight": 0.0021952436,
       "active": -0.0
     },
@@ -470,9 +460,9 @@
       "ticker": "RACE",
       "sector": "Consumer Discretionary",
       "mu": -0.069535,
-      "current": 0.0009430592,
+      "current": 0.0009428276,
       "target": 0.001022428,
-      "delta": 7.93688e-05,
+      "delta": 7.96004e-05,
       "bm_weight": 0.001022428,
       "active": -0.0
     },
@@ -480,9 +470,9 @@
       "ticker": "SHEL",
       "sector": "Energy",
       "mu": -0.180145,
-      "current": 0.0035701413,
+      "current": 0.0035747644,
       "target": 0.0035285872,
-      "delta": -4.15541e-05,
+      "delta": -4.61772e-05,
       "bm_weight": 0.0035285872,
       "active": -0.0
     },
@@ -490,9 +480,9 @@
       "ticker": "NOVOB",
       "sector": "Healthcare",
       "mu": -0.0,
-      "current": 0.0029108576,
+      "current": 0.0029142329,
       "target": 0.0029215019,
-      "delta": 1.06443e-05,
+      "delta": 7.2691e-06,
       "bm_weight": 0.002921502,
       "active": -0.0
     },
@@ -500,9 +490,9 @@
       "ticker": "NOW",
       "sector": "Technology",
       "mu": -0.0,
-      "current": 0.0017459127,
+      "current": 0.0017454838,
       "target": 0.0018130505,
-      "delta": 6.71379e-05,
+      "delta": 6.75667e-05,
       "bm_weight": 0.0018130506,
       "active": -0.0
     },
@@ -510,29 +500,19 @@
       "ticker": "ACN",
       "sector": "Technology",
       "mu": -0.327294,
-      "current": 0.0014733978,
+      "current": 0.0014730359,
       "target": 0.0015638034,
-      "delta": 9.04056e-05,
+      "delta": 9.07675e-05,
       "bm_weight": 0.0015638034,
-      "active": -0.0
-    },
-    {
-      "ticker": "PGR",
-      "sector": "Financials",
-      "mu": -0.544966,
-      "current": 0.0016952741,
-      "target": 0.0017891367,
-      "delta": 9.38627e-05,
-      "bm_weight": 0.0017891368,
       "active": -0.0
     },
     {
       "ticker": "AON",
       "sector": "Financials",
       "mu": -0.0,
-      "current": 0.0009700422,
+      "current": 0.000969804,
       "target": 0.0010430891,
-      "delta": 7.30469e-05,
+      "delta": 7.32851e-05,
       "bm_weight": 0.0010430891,
       "active": -0.0
     },
@@ -540,9 +520,9 @@
       "ticker": "CME",
       "sector": "Financials",
       "mu": -0.753915,
-      "current": 0.0012999808,
+      "current": 0.0012996615,
       "target": 0.0013745653,
-      "delta": 7.45845e-05,
+      "delta": 7.49038e-05,
       "bm_weight": 0.0013745654,
       "active": -0.0
     },
@@ -550,9 +530,9 @@
       "ticker": "LSEG",
       "sector": "Financials",
       "mu": -0.28264,
-      "current": 0.0007279106,
+      "current": 0.0007288532,
       "target": 0.0007907992,
-      "delta": 6.28886e-05,
+      "delta": 6.1946e-05,
       "bm_weight": 0.0007907992,
       "active": -0.0
     },
@@ -560,9 +540,9 @@
       "ticker": "CS",
       "sector": "Financials",
       "mu": -0.977932,
-      "current": 0.0013951234,
+      "current": 0.0013968147,
       "target": 0.0014739967,
-      "delta": 7.88733e-05,
+      "delta": 7.71821e-05,
       "bm_weight": 0.0014739968,
       "active": -0.0
     },
@@ -570,9 +550,9 @@
       "ticker": "CMCSA",
       "sector": "Communication Services",
       "mu": -0.624557,
-      "current": 0.0013099019,
+      "current": 0.0013095801,
       "target": 0.0013129756,
-      "delta": 3.0737e-06,
+      "delta": 3.3955e-06,
       "bm_weight": 0.0013129756,
       "active": -0.0
     },
@@ -580,9 +560,9 @@
       "ticker": "VZ",
       "sector": "Communication Services",
       "mu": -0.369593,
-      "current": 0.0028464946,
+      "current": 0.0028457954,
       "target": 0.002853174,
-      "delta": 6.6794e-06,
+      "delta": 7.3786e-06,
       "bm_weight": 0.0028531741,
       "active": -0.0
     },
@@ -590,9 +570,9 @@
       "ticker": "T",
       "sector": "Communication Services",
       "mu": -0.256222,
-      "current": 0.0025712927,
+      "current": 0.0025706611,
       "target": 0.0024105475,
-      "delta": -0.0001607452,
+      "delta": -0.0001601136,
       "bm_weight": 0.0024105475,
       "active": -0.0
     },
@@ -600,9 +580,9 @@
       "ticker": "PUB",
       "sector": "Communication Services",
       "mu": -0.667054,
-      "current": 0.0003500936,
+      "current": 0.000350518,
       "target": 0.0004187643,
-      "delta": 6.86707e-05,
+      "delta": 6.82463e-05,
       "bm_weight": 0.0004187643,
       "active": -0.0
     },
@@ -610,9 +590,9 @@
       "ticker": "7974",
       "sector": "Communication Services",
       "mu": -0.222577,
-      "current": 0.00447732,
+      "current": 0.004480438,
       "target": 0.0009805754,
-      "delta": -0.0034967445,
+      "delta": -0.0034998626,
       "bm_weight": 0.0009805754,
       "active": -0.0
     },
@@ -620,9 +600,9 @@
       "ticker": "DTE",
       "sector": "Communication Services",
       "mu": -0.144152,
-      "current": 0.0021736253,
+      "current": 0.0021762603,
       "target": 0.0022405479,
-      "delta": 6.69226e-05,
+      "delta": 6.42877e-05,
       "bm_weight": 0.002240548,
       "active": -0.0
     },
@@ -630,9 +610,9 @@
       "ticker": "UMG",
       "sector": "Communication Services",
       "mu": -0.284571,
-      "current": 0.0003582406,
+      "current": 0.0003586749,
       "target": 0.0004326147,
-      "delta": 7.43741e-05,
+      "delta": 7.39398e-05,
       "bm_weight": 0.0004326148,
       "active": -0.0
     },
@@ -640,9 +620,9 @@
       "ticker": "LOW",
       "sector": "Consumer Discretionary",
       "mu": -0.596329,
-      "current": 0.0015911397,
+      "current": 0.0015907489,
       "target": 0.0016659636,
-      "delta": 7.48239e-05,
+      "delta": 7.52147e-05,
       "bm_weight": 0.0016659636,
       "active": -0.0
     },
@@ -650,9 +630,9 @@
       "ticker": "7203",
       "sector": "Consumer Discretionary",
       "mu": -0.107075,
-      "current": 0.0038855535,
+      "current": 0.0038882595,
       "target": 0.0038656394,
-      "delta": -1.99141e-05,
+      "delta": -2.262e-05,
       "bm_weight": 0.0038656395,
       "active": -0.0
     },
@@ -660,9 +640,9 @@
       "ticker": "DHR",
       "sector": "Healthcare",
       "mu": -0.116371,
-      "current": 0.0019867189,
+      "current": 0.0019862309,
       "target": 0.0020706996,
-      "delta": 8.39807e-05,
+      "delta": 8.44687e-05,
       "bm_weight": 0.0020706996,
       "active": -0.0
     },
@@ -670,9 +650,9 @@
       "ticker": "SAN",
       "sector": "Healthcare",
       "mu": -0.054406,
-      "current": 0.0014367318,
+      "current": 0.0014384735,
       "target": 0.0015100522,
-      "delta": 7.33204e-05,
+      "delta": 7.15787e-05,
       "bm_weight": 0.0015100523,
       "active": -0.0
     },
@@ -680,9 +660,9 @@
       "ticker": "ULVR",
       "sector": "Consumer Staples",
       "mu": -0.063214,
-      "current": 0.0018344666,
+      "current": 0.0018368421,
       "target": 0.0019037918,
-      "delta": 6.93252e-05,
+      "delta": 6.69497e-05,
       "bm_weight": 0.0019037918,
       "active": -0.0
     },
@@ -690,9 +670,9 @@
       "ticker": "ECL",
       "sector": "Materials",
       "mu": -0.103962,
-      "current": 0.0010235917,
+      "current": 0.0010233403,
       "target": 0.0011016124,
-      "delta": 7.80207e-05,
+      "delta": 7.82721e-05,
       "bm_weight": 0.0011016125,
       "active": -0.0
     },
@@ -700,9 +680,9 @@
       "ticker": "AI",
       "sector": "Materials",
       "mu": -0.376959,
-      "current": 0.0016229931,
+      "current": 0.0016249606,
       "target": 0.0017159737,
-      "delta": 9.29806e-05,
+      "delta": 9.10131e-05,
       "bm_weight": 0.0017159737,
       "active": -0.0
     },
@@ -710,9 +690,9 @@
       "ticker": "INTU",
       "sector": "Technology",
       "mu": -0.049035,
-      "current": 0.0012992532,
+      "current": 0.0012989341,
       "target": 0.0013855866,
-      "delta": 8.63334e-05,
+      "delta": 8.66525e-05,
       "bm_weight": 0.0013855866,
       "active": -0.0
     },
@@ -720,9 +700,9 @@
       "ticker": "MSI",
       "sector": "Technology",
       "mu": -0.446247,
-      "current": 0.0010143669,
+      "current": 0.0010141177,
       "target": 0.0010912036,
-      "delta": 7.68368e-05,
+      "delta": 7.70859e-05,
       "bm_weight": 0.0010912037,
       "active": -0.0
     },
@@ -730,9 +710,9 @@
       "ticker": "ADSK",
       "sector": "Technology",
       "mu": -0.424988,
-      "current": 0.000659944,
+      "current": 0.0006597819,
       "target": 0.000735095,
-      "delta": 7.5151e-05,
+      "delta": 7.53131e-05,
       "bm_weight": 0.0007350951,
       "active": -0.0
     },
@@ -740,9 +720,9 @@
       "ticker": "WDAY",
       "sector": "Technology",
       "mu": -0.287236,
-      "current": 0.0006719998,
+      "current": 0.0006718348,
       "target": 0.0006735767,
-      "delta": 1.5768e-06,
+      "delta": 1.7419e-06,
       "bm_weight": 0.0006735767,
       "active": -0.0
     },
@@ -750,9 +730,9 @@
       "ticker": "DSY",
       "sector": "Technology",
       "mu": -0.921382,
-      "current": 0.0003996547,
+      "current": 0.0004001392,
       "target": 0.0004750498,
-      "delta": 7.53951e-05,
+      "delta": 7.49106e-05,
       "bm_weight": 0.0004750498,
       "active": -0.0
     },
@@ -760,9 +740,9 @@
       "ticker": "6146",
       "sector": "Technology",
       "mu": -0.019687,
-      "current": 0.0005504806,
+      "current": 0.0005508639,
       "target": 0.0005660176,
-      "delta": 1.5537e-05,
+      "delta": 1.51537e-05,
       "bm_weight": 0.0005660176,
       "active": -0.0
     },
@@ -770,9 +750,9 @@
       "ticker": "ICE",
       "sector": "Financials",
       "mu": -0.044237,
-      "current": 0.0011784042,
+      "current": 0.0011781148,
       "target": 0.0012529598,
-      "delta": 7.45556e-05,
+      "delta": 7.48451e-05,
       "bm_weight": 0.0012529599,
       "active": -0.0
     },
@@ -780,9 +760,9 @@
       "ticker": "PYPL",
       "sector": "Financials",
       "mu": -0.766408,
-      "current": 0.0006652261,
+      "current": 0.0006650627,
       "target": 0.0007225274,
-      "delta": 5.73012e-05,
+      "delta": 5.74646e-05,
       "bm_weight": 0.0007225274,
       "active": -0.0
     },
@@ -790,9 +770,9 @@
       "ticker": "COF",
       "sector": "Financials",
       "mu": -0.317993,
-      "current": 0.0017611322,
+      "current": 0.0017606996,
       "target": 0.0018168116,
-      "delta": 5.56794e-05,
+      "delta": 5.6112e-05,
       "bm_weight": 0.0018168117,
       "active": -0.0
     },
@@ -800,9 +780,9 @@
       "ticker": "BNP",
       "sector": "Financials",
       "mu": -0.136354,
-      "current": 0.0017898907,
-      "target": 0.0018746285,
-      "delta": 8.47378e-05,
+      "current": 0.0017920604,
+      "target": 0.0018746284,
+      "delta": 8.2568e-05,
       "bm_weight": 0.0018746285,
       "active": -0.0
     },
@@ -810,9 +790,9 @@
       "ticker": "MUV2",
       "sector": "Financials",
       "mu": -0.634606,
-      "current": 0.0009686873,
+      "current": 0.0009698615,
       "target": 0.0010487254,
-      "delta": 8.00382e-05,
+      "delta": 7.88639e-05,
       "bm_weight": 0.0010487255,
       "active": -0.0
     },
@@ -820,9 +800,9 @@
       "ticker": "SYK",
       "sector": "Healthcare",
       "mu": -0.279415,
-      "current": 0.0016336758,
+      "current": 0.0016332745,
       "target": 0.0017217895,
-      "delta": 8.81138e-05,
+      "delta": 8.8515e-05,
       "bm_weight": 0.0017217896,
       "active": -0.0
     },
@@ -830,9 +810,9 @@
       "ticker": "MCK",
       "sector": "Healthcare",
       "mu": -0.871825,
-      "current": 0.0013174342,
+      "current": 0.0013171106,
       "target": 0.001395017,
-      "delta": 7.75828e-05,
+      "delta": 7.79064e-05,
       "bm_weight": 0.0013950171,
       "active": -0.0
     },
@@ -840,9 +820,9 @@
       "ticker": "ORLY",
       "sector": "Consumer Discretionary",
       "mu": -0.003093,
-      "current": 0.0009487406,
+      "current": 0.0009485075,
       "target": 0.0010044973,
-      "delta": 5.57567e-05,
+      "delta": 5.59897e-05,
       "bm_weight": 0.0010044973,
       "active": -0.0
     },
@@ -850,9 +830,9 @@
       "ticker": "DASH",
       "sector": "Consumer Discretionary",
       "mu": -0.762058,
-      "current": 0.001278932,
+      "current": 0.0012786179,
       "target": 0.001359082,
-      "delta": 8.015e-05,
+      "delta": 8.04641e-05,
       "bm_weight": 0.001359082,
       "active": -0.0
     },
@@ -860,9 +840,9 @@
       "ticker": "9433",
       "sector": "Communication Services",
       "mu": -0.410953,
-      "current": 0.0009996631,
+      "current": 0.0010003593,
       "target": 0.0010020088,
-      "delta": 2.3457e-06,
+      "delta": 1.6496e-06,
       "bm_weight": 0.0010020089,
       "active": -0.0
     },
@@ -870,9 +850,9 @@
       "ticker": "TTE",
       "sector": "Energy",
       "mu": -0.184052,
-      "current": 0.0027352099,
+      "current": 0.0027385256,
       "target": 0.0027827713,
-      "delta": 4.75614e-05,
+      "delta": 4.42457e-05,
       "bm_weight": 0.0027827713,
       "active": -0.0
     },
@@ -880,9 +860,9 @@
       "ticker": "NEM",
       "sector": "Materials",
       "mu": -0.367887,
-      "current": 0.0293722131,
+      "current": 0.0293649983,
       "target": 0.001902264,
-      "delta": -0.0274699491,
+      "delta": -0.0274627343,
       "bm_weight": 0.001902264,
       "active": -0.0
     },
@@ -890,9 +870,9 @@
       "ticker": "SHW",
       "sector": "Materials",
       "mu": -0.324225,
-      "current": 0.001091951,
+      "current": 0.0010916827,
       "target": 0.0011525905,
-      "delta": 6.06395e-05,
+      "delta": 6.09077e-05,
       "bm_weight": 0.0011525905,
       "active": -0.0
     },
@@ -900,9 +880,9 @@
       "ticker": "SO",
       "sector": "Utilities",
       "mu": -0.501693,
-      "current": 0.0013888286,
+      "current": 0.0013884875,
       "target": 0.0013920884,
-      "delta": 3.2597e-06,
+      "delta": 3.6009e-06,
       "bm_weight": 0.0013920884,
       "active": -0.0
     },
@@ -910,9 +890,9 @@
       "ticker": "NET",
       "sector": "Technology",
       "mu": -0.019955,
-      "current": 0.001284411,
-      "target": 0.0013680945,
-      "delta": 8.36835e-05,
+      "current": 0.0012840955,
+      "target": 0.0013680944,
+      "delta": 8.3999e-05,
       "bm_weight": 0.0013680945,
       "active": -0.0
     },
@@ -920,9 +900,9 @@
       "ticker": "ZS",
       "sector": "Technology",
       "mu": -0.436356,
-      "current": 0.000324985,
+      "current": 0.0003249052,
       "target": 0.0003898576,
-      "delta": 6.48727e-05,
+      "delta": 6.49525e-05,
       "bm_weight": 0.0003898577,
       "active": -0.0
     },
@@ -930,9 +910,9 @@
       "ticker": "FICO",
       "sector": "Technology",
       "mu": -0.629006,
-      "current": 0.0003441483,
+      "current": 0.0003440638,
       "target": 0.0003449558,
-      "delta": 8.075e-07,
+      "delta": 8.921e-07,
       "bm_weight": 0.0003449558,
       "active": -0.0
     },
@@ -940,9 +920,9 @@
       "ticker": "VRSN",
       "sector": "Technology",
       "mu": -0.416844,
-      "current": 0.0002845205,
-      "target": 0.0003595585,
-      "delta": 7.50379e-05,
+      "current": 0.0002844506,
+      "target": 0.0003595584,
+      "delta": 7.51078e-05,
       "bm_weight": 0.0003595585,
       "active": -0.0
     },
@@ -950,9 +930,9 @@
       "ticker": "MRSH",
       "sector": "Financials",
       "mu": -0.528797,
-      "current": 0.0012066325,
+      "current": 0.0012063362,
       "target": 0.0012720949,
-      "delta": 6.54623e-05,
+      "delta": 6.57587e-05,
       "bm_weight": 0.0012720949,
       "active": -0.0
     },
@@ -960,9 +940,9 @@
       "ticker": "MSCI",
       "sector": "Financials",
       "mu": -0.662848,
-      "current": 0.0005023365,
+      "current": 0.0005022131,
       "target": 0.0005687927,
-      "delta": 6.64562e-05,
+      "delta": 6.65796e-05,
       "bm_weight": 0.0005687927,
       "active": -0.0
     },
@@ -970,9 +950,9 @@
       "ticker": "ADP",
       "sector": "Industrials",
       "mu": -0.576163,
-      "current": 0.0014606554,
+      "current": 0.0014602966,
       "target": 0.0015395344,
-      "delta": 7.8879e-05,
+      "delta": 7.92378e-05,
       "bm_weight": 0.0015395344,
       "active": -0.0
     },
@@ -980,9 +960,9 @@
       "ticker": "WM",
       "sector": "Industrials",
       "mu": -0.268696,
-      "current": 0.0011636959,
+      "current": 0.0011634101,
       "target": 0.0012395154,
-      "delta": 7.58195e-05,
+      "delta": 7.61053e-05,
       "bm_weight": 0.0012395155,
       "active": -0.0
     },
@@ -990,9 +970,9 @@
       "ticker": "PFE",
       "sector": "Healthcare",
       "mu": -0.178858,
-      "current": 0.0021241998,
+      "current": 0.0021236781,
       "target": 0.0021829925,
-      "delta": 5.87927e-05,
+      "delta": 5.93144e-05,
       "bm_weight": 0.0021829925,
       "active": -0.0
     },
@@ -1000,9 +980,9 @@
       "ticker": "HCA",
       "sector": "Healthcare",
       "mu": -0.512078,
-      "current": 0.0012181552,
+      "current": 0.001217856,
       "target": 0.0012725384,
-      "delta": 5.43831e-05,
+      "delta": 5.46824e-05,
       "bm_weight": 0.0012725384,
       "active": -0.0
     },
@@ -1010,9 +990,9 @@
       "ticker": "CMG",
       "sector": "Consumer Discretionary",
       "mu": -0.187772,
-      "current": 0.0005804946,
+      "current": 0.000580352,
       "target": 0.0006588035,
-      "delta": 7.83089e-05,
+      "delta": 7.84515e-05,
       "bm_weight": 0.0006588035,
       "active": -0.0
     },
@@ -1020,9 +1000,9 @@
       "ticker": "GM",
       "sector": "Consumer Discretionary",
       "mu": -0.535622,
-      "current": 0.0010426402,
+      "current": 0.001042384,
       "target": 0.0010450867,
-      "delta": 2.4466e-06,
+      "delta": 2.7027e-06,
       "bm_weight": 0.0010450868,
       "active": -0.0
     },
@@ -1030,9 +1010,9 @@
       "ticker": "GRMN",
       "sector": "Consumer Discretionary",
       "mu": -0.231433,
-      "current": 0.0006906996,
+      "current": 0.00069053,
       "target": 0.0007691323,
-      "delta": 7.84327e-05,
+      "delta": 7.86023e-05,
       "bm_weight": 0.0007691324,
       "active": -0.0
     },
@@ -1040,9 +1020,9 @@
       "ticker": "RDDT",
       "sector": "Communication Services",
       "mu": -0.106123,
-      "current": 0.0146381786,
+      "current": 0.014634583,
       "target": 0.0004022963,
-      "delta": -0.0142358824,
+      "delta": -0.0142322867,
       "bm_weight": 0.0004022963,
       "active": -0.0
     },
@@ -1050,9 +1030,9 @@
       "ticker": "LYV",
       "sector": "Communication Services",
       "mu": -0.337034,
-      "current": 0.0005169104,
+      "current": 0.0005167834,
       "target": 0.0005956013,
-      "delta": 7.86909e-05,
+      "delta": 7.88179e-05,
       "bm_weight": 0.0005956013,
       "active": -0.0
     },
@@ -1060,9 +1040,9 @@
       "ticker": "TKO",
       "sector": "Communication Services",
       "mu": -0.366731,
-      "current": 0.0004291923,
+      "current": 0.0004290869,
       "target": 0.0005012937,
-      "delta": 7.21014e-05,
+      "delta": 7.22068e-05,
       "bm_weight": 0.0005012938,
       "active": -0.0
     },
@@ -1070,9 +1050,9 @@
       "ticker": "MO",
       "sector": "Consumer Staples",
       "mu": -0.534133,
-      "current": 0.0014769957,
+      "current": 0.0014766329,
       "target": 0.0015655249,
-      "delta": 8.85293e-05,
+      "delta": 8.88921e-05,
       "bm_weight": 0.001565525,
       "active": -0.0
     },
@@ -1080,9 +1060,9 @@
       "ticker": "CL",
       "sector": "Consumer Staples",
       "mu": -0.659487,
-      "current": 0.0009359947,
+      "current": 0.0009357648,
       "target": 0.0010102729,
-      "delta": 7.42781e-05,
+      "delta": 7.45081e-05,
       "bm_weight": 0.0010102729,
       "active": -0.0
     },
@@ -1090,9 +1070,9 @@
       "ticker": "MNST",
       "sector": "Consumer Staples",
       "mu": -0.809844,
-      "current": 0.0012264565,
+      "current": 0.0012261552,
       "target": 0.0013123272,
-      "delta": 8.58707e-05,
+      "delta": 8.6172e-05,
       "bm_weight": 0.0013123273,
       "active": -0.0
     },
@@ -1100,9 +1080,9 @@
       "ticker": "APD",
       "sector": "Materials",
       "mu": -0.156357,
-      "current": 0.0008570136,
+      "current": 0.0008568031,
       "target": 0.0009338286,
-      "delta": 7.6815e-05,
+      "delta": 7.70255e-05,
       "bm_weight": 0.0009338286,
       "active": -0.0
     },
@@ -1110,9 +1090,9 @@
       "ticker": "4063",
       "sector": "Materials",
       "mu": -0.759529,
-      "current": 0.0010219737,
+      "current": 0.0010226854,
       "target": 0.0010243717,
-      "delta": 2.3981e-06,
+      "delta": 1.6864e-06,
       "bm_weight": 0.0010243718,
       "active": -0.0
     },
@@ -1120,9 +1100,9 @@
       "ticker": "ENEL",
       "sector": "Utilities",
       "mu": -0.586614,
-      "current": 0.001461071,
+      "current": 0.0014628422,
       "target": 0.0015471862,
-      "delta": 8.61152e-05,
+      "delta": 8.4344e-05,
       "bm_weight": 0.0015471862,
       "active": -0.0
     },
@@ -1130,9 +1110,9 @@
       "ticker": "GOOGL",
       "sector": "Technology",
       "mu": -0.238109,
-      "current": 0.0579132559,
+      "current": 0.0578990304,
       "target": 0.0580070469,
-      "delta": 9.3791e-05,
+      "delta": 0.0001080165,
       "bm_weight": 0.058007047,
       "active": -1e-10
     },
@@ -1140,19 +1120,29 @@
       "ticker": "AMZN",
       "sector": "Consumer Discretionary",
       "mu": -0.136485,
-      "current": 0.0386029513,
+      "current": 0.0385934691,
       "target": 0.0387079479,
-      "delta": 0.0001049966,
+      "delta": 0.0001144788,
       "bm_weight": 0.0387079479,
+      "active": -1e-10
+    },
+    {
+      "ticker": "SPGI",
+      "sector": "Financials",
+      "mu": -0.45563,
+      "current": 0.0017087337,
+      "target": 0.0018006326,
+      "delta": 9.18988e-05,
+      "bm_weight": 0.0018006326,
       "active": -1e-10
     },
     {
       "ticker": "UNP",
       "sector": "Industrials",
       "mu": -0.240465,
-      "current": 0.0024171586,
+      "current": 0.0024165649,
       "target": 0.0025206957,
-      "delta": 0.0001035371,
+      "delta": 0.0001041308,
       "bm_weight": 0.0025206958,
       "active": -1e-10
     },
@@ -1160,9 +1150,9 @@
       "ticker": "LIN",
       "sector": "Materials",
       "mu": -0.269524,
-      "current": 0.0029704514,
+      "current": 0.0029697218,
       "target": 0.0030932477,
-      "delta": 0.0001227962,
+      "delta": 0.0001235259,
       "bm_weight": 0.0030932477,
       "active": -1e-10
     },
@@ -1170,9 +1160,9 @@
       "ticker": "CRM",
       "sector": "Technology",
       "mu": -0.271911,
-      "current": 0.002243399,
+      "current": 0.0022428479,
       "target": 0.0023445777,
-      "delta": 0.0001011788,
+      "delta": 0.0001017298,
       "bm_weight": 0.0023445778,
       "active": -1e-10
     },
@@ -1180,9 +1170,9 @@
       "ticker": "FN",
       "sector": "Technology",
       "mu": -0.135388,
-      "current": 8.99297e-05,
+      "current": 8.99076e-05,
       "target": 0.0002066531,
-      "delta": 0.0001167234,
+      "delta": 0.0001167455,
       "bm_weight": 0.0002066532,
       "active": -1e-10
     },
@@ -1190,29 +1180,29 @@
       "ticker": "SPOT",
       "sector": "Communication Services",
       "mu": -0.643058,
-      "current": 0.0014072639,
+      "current": 0.0014069182,
       "target": 0.0015159221,
-      "delta": 0.0001086583,
+      "delta": 0.0001090039,
       "bm_weight": 0.0015159222,
       "active": -1e-10
     },
     {
-      "ticker": "KKR",
+      "ticker": "PGR",
       "sector": "Financials",
-      "mu": -0.668072,
-      "current": 0.0011621795,
-      "target": 0.0013191388,
-      "delta": 0.0001569593,
-      "bm_weight": 0.0013191389,
+      "mu": -0.544966,
+      "current": 0.0016948576,
+      "target": 0.0017891367,
+      "delta": 9.42791e-05,
+      "bm_weight": 0.0017891368,
       "active": -1e-10
     },
     {
       "ticker": "ZURN",
       "sector": "Financials",
       "mu": -0.111194,
-      "current": 0.001410663,
+      "current": 0.0014134838,
       "target": 0.001527628,
-      "delta": 0.000116965,
+      "delta": 0.0001141442,
       "bm_weight": 0.0015276281,
       "active": -1e-10
     },
@@ -1220,9 +1210,9 @@
       "ticker": "VRTX",
       "sector": "Healthcare",
       "mu": -0.914883,
-      "current": 0.0017865985,
+      "current": 0.0017861597,
       "target": 0.0019005369,
-      "delta": 0.0001139384,
+      "delta": 0.0001143772,
       "bm_weight": 0.001900537,
       "active": -1e-10
     },
@@ -1230,9 +1220,9 @@
       "ticker": "APO",
       "sector": "Financials",
       "mu": -0.680709,
-      "current": 0.0009718963,
+      "current": 0.0009716576,
       "target": 0.0010738084,
-      "delta": 0.0001019121,
+      "delta": 0.0001021508,
       "bm_weight": 0.0010738084,
       "active": -1e-10
     },
@@ -1240,9 +1230,9 @@
       "ticker": "MAR",
       "sector": "Consumer Discretionary",
       "mu": -0.678415,
-      "current": 0.0011856505,
+      "current": 0.0011853592,
       "target": 0.0012861894,
-      "delta": 0.000100539,
+      "delta": 0.0001008302,
       "bm_weight": 0.0012861895,
       "active": -1e-10
     },
@@ -1250,1281 +1240,1291 @@
       "ticker": "WELL",
       "sector": "Real Estate",
       "mu": -0.323028,
-      "current": 0.0022307265,
+      "current": 0.0022301785,
       "target": 0.0023687582,
-      "delta": 0.0001380317,
+      "delta": 0.0001385797,
       "bm_weight": 0.0023687583,
       "active": -1e-10
+    },
+    {
+      "ticker": "KKR",
+      "sector": "Financials",
+      "mu": -0.668072,
+      "current": 0.001161894,
+      "target": 0.0013191387,
+      "delta": 0.0001572447,
+      "bm_weight": 0.0013191389,
+      "active": -2e-10
     },
     {
       "ticker": "PM",
       "sector": "Consumer Staples",
       "mu": -0.270759,
-      "current": 0.0039281716,
-      "target": 0.0040862624,
-      "delta": 0.0001580908,
+      "current": 0.0039272067,
+      "target": 0.0040862623,
+      "delta": 0.0001590556,
       "bm_weight": 0.0040862626,
-      "active": -2e-10
+      "active": -3e-10
     },
     {
       "ticker": "DIS",
       "sector": "Communication Services",
       "mu": -0.458599,
-      "current": 0.0024487922,
-      "target": 0.0026152739,
-      "delta": 0.0001664817,
+      "current": 0.0024481907,
+      "target": 0.0026152715,
+      "delta": 0.0001670808,
       "bm_weight": 0.0026152775,
-      "active": -3.6e-09
+      "active": -6e-09
     },
     {
       "ticker": "ABNB",
       "sector": "Consumer Discretionary",
       "mu": -0.864336,
-      "current": 0.0013919274,
-      "target": 0.0015595953,
-      "delta": 0.0001676679,
+      "current": 0.0013915855,
+      "target": 0.0015595899,
+      "delta": 0.0001680043,
       "bm_weight": 0.0015596048,
-      "active": -9.4e-09
-    },
-    {
-      "ticker": "7011",
-      "sector": "Industrials",
-      "mu": -0.142028,
-      "current": 0.0009671939,
-      "target": 0.0011377317,
-      "delta": 0.0001705378,
-      "bm_weight": 0.0011440416,
-      "active": -6.3099e-06
+      "active": -1.49e-08
     },
     {
       "ticker": "CFR",
       "sector": "Consumer Discretionary",
       "mu": -0.178282,
-      "current": 0.0016964843,
-      "target": 0.0018670029,
-      "delta": 0.0001705186,
+      "current": 0.0016998766,
+      "target": 0.0018701082,
+      "delta": 0.0001702316,
       "bm_weight": 0.0018749187,
-      "active": -7.9159e-06
+      "active": -4.8106e-06
+    },
+    {
+      "ticker": "7011",
+      "sector": "Industrials",
+      "mu": -0.142028,
+      "current": 0.0009678674,
+      "target": 0.0011380884,
+      "delta": 0.0001702209,
+      "bm_weight": 0.0011440416,
+      "active": -5.9532e-06
     },
     {
       "ticker": "COP",
       "sector": "Energy",
       "mu": 0.150039,
-      "current": 0.0020112963,
-      "target": 0.0021816531,
-      "delta": 0.0001703568,
+      "current": 0.0020108023,
+      "target": 0.0021808663,
+      "delta": 0.000170064,
       "bm_weight": 0.0021936526,
-      "active": -1.19994e-05
+      "active": -1.27862e-05
     },
     {
       "ticker": "NRG",
       "sector": "Utilities",
       "mu": -0.257287,
-      "current": 0.0001302818,
-      "target": 0.0003006673,
-      "delta": 0.0001703854,
+      "current": 0.0001302498,
+      "target": 0.0003003258,
+      "delta": 0.0001700759,
       "bm_weight": 0.0003217572,
-      "active": -2.10899e-05
+      "active": -2.14314e-05
     },
     {
       "ticker": "UCG",
       "sector": "Financials",
       "mu": -0.287131,
-      "current": 0.0018308553,
-      "target": 0.0020012226,
-      "delta": 0.0001703673,
+      "current": 0.0018330747,
+      "target": 0.0020031423,
+      "delta": 0.0001700676,
       "bm_weight": 0.0020312397,
-      "active": -3.0017e-05
+      "active": -2.80973e-05
     },
     {
       "ticker": "ALV",
       "sector": "Financials",
       "mu": -0.664612,
-      "current": 0.0025086297,
-      "target": 0.0026789924,
-      "delta": 0.0001703627,
+      "current": 0.0025116707,
+      "target": 0.0026817356,
+      "delta": 0.0001700649,
       "bm_weight": 0.0027230871,
-      "active": -4.40947e-05
+      "active": -4.13515e-05
     },
     {
       "ticker": "XOM",
       "sector": "Energy",
       "mu": 0.209708,
-      "current": 0.0090947616,
-      "target": 0.0092651193,
-      "delta": 0.0001703577,
+      "current": 0.0090925276,
+      "target": 0.0092625922,
+      "delta": 0.0001700646,
       "bm_weight": 0.0093100823,
-      "active": -4.4963e-05
+      "active": -4.749e-05
     },
     {
       "ticker": "EQIX",
       "sector": "Real Estate",
       "mu": -0.400153,
-      "current": 0.001203883,
-      "target": 0.0013742432,
-      "delta": 0.0001703602,
+      "current": 0.0012035873,
+      "target": 0.00137365,
+      "delta": 0.0001700628,
       "bm_weight": 0.0014257295,
-      "active": -5.14863e-05
+      "active": -5.20794e-05
     },
     {
       "ticker": "8316",
       "sector": "Financials",
       "mu": 0.140378,
-      "current": 0.0019410943,
-      "target": 0.0021114509,
-      "delta": 0.0001703566,
+      "current": 0.0019424461,
+      "target": 0.00211251,
+      "delta": 0.0001700639,
       "bm_weight": 0.0021667416,
-      "active": -5.52907e-05
+      "active": -5.42316e-05
     },
     {
       "ticker": "UBSG",
       "sector": "Financials",
       "mu": -0.116192,
-      "current": 0.0021860601,
-      "target": 0.0023564192,
-      "delta": 0.0001703591,
+      "current": 0.0021904314,
+      "target": 0.0023604941,
+      "delta": 0.0001700627,
       "bm_weight": 0.0024171392,
-      "active": -6.072e-05
+      "active": -5.66451e-05
     },
     {
       "ticker": "SBUX",
       "sector": "Consumer Discretionary",
       "mu": -0.060354,
-      "current": 0.001440432,
-      "target": 0.0016107898,
-      "delta": 0.0001703578,
+      "current": 0.0014400782,
+      "target": 0.00161014,
+      "delta": 0.0001700618,
       "bm_weight": 0.0016779643,
-      "active": -6.71745e-05
+      "active": -6.78243e-05
     },
     {
       "ticker": "AXP",
       "sector": "Financials",
       "mu": -0.60494,
-      "current": 0.0028809,
-      "target": 0.0030512583,
-      "delta": 0.0001703583,
+      "current": 0.0028801924,
+      "target": 0.0030502545,
+      "delta": 0.0001700621,
       "bm_weight": 0.0031193768,
-      "active": -6.81185e-05
+      "active": -6.91223e-05
     },
     {
       "ticker": "MRK",
       "sector": "Healthcare",
       "mu": -0.007086,
-      "current": 0.0048491921,
-      "target": 0.0050195504,
-      "delta": 0.0001703583,
+      "current": 0.004848001,
+      "target": 0.0050180632,
+      "delta": 0.0001700622,
       "bm_weight": 0.0050898751,
-      "active": -7.03247e-05
+      "active": -7.18119e-05
     },
     {
       "ticker": "IBE",
       "sector": "Utilities",
       "mu": -0.726355,
-      "current": 0.0018885787,
-      "target": 0.0020589358,
-      "delta": 0.0001703571,
+      "current": 0.0018908681,
+      "target": 0.0020609301,
+      "delta": 0.000170062,
       "bm_weight": 0.0021412149,
-      "active": -8.22791e-05
+      "active": -8.02848e-05
     },
     {
       "ticker": "RBLX",
       "sector": "Communication Services",
       "mu": 0.59744,
-      "current": 0.0001273628,
-      "target": 0.0002977132,
-      "delta": 0.0001703504,
+      "current": 0.0001273315,
+      "target": 0.0002973913,
+      "delta": 0.0001700598,
       "bm_weight": 0.0003805845,
-      "active": -8.28713e-05
-    },
-    {
-      "ticker": "TMO",
-      "sector": "Healthcare",
-      "mu": -0.297652,
-      "current": 0.0029255814,
-      "target": 0.0030959388,
-      "delta": 0.0001703573,
-      "bm_weight": 0.0031833609,
-      "active": -8.74222e-05
+      "active": -8.31932e-05
     },
     {
       "ticker": "OR",
       "sector": "Consumer Staples",
       "mu": 0.118022,
-      "current": 0.0030458514,
-      "target": 0.0032162082,
-      "delta": 0.0001703568,
+      "current": 0.0030495437,
+      "target": 0.0032196077,
+      "delta": 0.000170064,
       "bm_weight": 0.0033051425,
-      "active": -8.89343e-05
+      "active": -8.55347e-05
+    },
+    {
+      "ticker": "TMO",
+      "sector": "Healthcare",
+      "mu": -0.297652,
+      "current": 0.0029248628,
+      "target": 0.0030949253,
+      "delta": 0.0001700625,
+      "bm_weight": 0.0031833609,
+      "active": -8.84356e-05
     },
     {
       "ticker": "SCHW",
       "sector": "Financials",
       "mu": 0.180074,
-      "current": 0.0024289132,
-      "target": 0.0025992698,
-      "delta": 0.0001703566,
+      "current": 0.0024283166,
+      "target": 0.0025983805,
+      "delta": 0.0001700639,
       "bm_weight": 0.0026912779,
-      "active": -9.20081e-05
+      "active": -9.28975e-05
     },
     {
       "ticker": "NEE",
       "sector": "Utilities",
       "mu": -0.688554,
-      "current": 0.0021342376,
-      "target": 0.002304595,
-      "delta": 0.0001703573,
+      "current": 0.0021337134,
+      "target": 0.0023037764,
+      "delta": 0.000170063,
       "bm_weight": 0.0024022354,
-      "active": -9.76404e-05
+      "active": -9.8459e-05
     },
     {
       "ticker": "C",
       "sector": "Financials",
       "mu": -0.581227,
-      "current": 0.0027537659,
-      "target": 0.0029241236,
-      "delta": 0.0001703576,
+      "current": 0.0027530895,
+      "target": 0.0029231529,
+      "delta": 0.0001700634,
       "bm_weight": 0.0030255733,
-      "active": -0.0001014498
-    },
-    {
-      "ticker": "BX",
-      "sector": "Financials",
-      "mu": -0.797061,
-      "current": 0.0021536696,
-      "target": 0.0023240279,
-      "delta": 0.0001703583,
-      "bm_weight": 0.0024409029,
-      "active": -0.000116875
+      "active": -0.0001024204
     },
     {
       "ticker": "RMS",
       "sector": "Consumer Discretionary",
       "mu": -0.043843,
-      "current": 0.0023641582,
-      "target": 0.0025345167,
-      "delta": 0.0001703585,
+      "current": 0.0023670241,
+      "target": 0.0025370885,
+      "delta": 0.0001700644,
       "bm_weight": 0.0026543153,
-      "active": -0.0001197986
+      "active": -0.0001172268
+    },
+    {
+      "ticker": "BX",
+      "sector": "Financials",
+      "mu": -0.797061,
+      "current": 0.0021531406,
+      "target": 0.002323205,
+      "delta": 0.0001700644,
+      "bm_weight": 0.0024409029,
+      "active": -0.0001176979
     },
     {
       "ticker": "ON",
       "sector": "Technology",
       "mu": 0.640024,
-      "current": 9.25313e-05,
-      "target": 0.0002628814,
-      "delta": 0.0001703501,
+      "current": 9.25085e-05,
+      "target": 0.0002625682,
+      "delta": 0.0001700597,
       "bm_weight": 0.0003834576,
-      "active": -0.0001205762
+      "active": -0.0001208894
     },
     {
       "ticker": "SLB",
       "sector": "Energy",
       "mu": -0.126848,
-      "current": 0.0008050041,
-      "target": 0.0009753619,
-      "delta": 0.0001703577,
+      "current": 0.0008048064,
+      "target": 0.0009748707,
+      "delta": 0.0001700643,
       "bm_weight": 0.0010974364,
-      "active": -0.0001220746
+      "active": -0.0001225658
     },
     {
       "ticker": "GILD",
       "sector": "Healthcare",
       "mu": -0.496438,
-      "current": 0.0021958262,
-      "target": 0.002366185,
-      "delta": 0.0001703588,
+      "current": 0.0021952868,
+      "target": 0.0023653518,
+      "delta": 0.000170065,
       "bm_weight": 0.0024915095,
-      "active": -0.0001253246
+      "active": -0.0001261577
     },
     {
       "ticker": "8306",
       "sector": "Financials",
       "mu": 0.050009,
-      "current": 0.003296124,
-      "target": 0.0034664807,
-      "delta": 0.0001703567,
+      "current": 0.0032984194,
+      "target": 0.0034684834,
+      "delta": 0.0001700639,
       "bm_weight": 0.0035991803,
-      "active": -0.0001326996
+      "active": -0.0001306969
     },
     {
       "ticker": "8035",
       "sector": "Technology",
       "mu": 0.286442,
-      "current": 0.0019249079,
-      "target": 0.0020952642,
-      "delta": 0.0001703563,
+      "current": 0.0019262484,
+      "target": 0.0020963121,
+      "delta": 0.0001700637,
       "bm_weight": 0.0022286885,
-      "active": -0.0001334243
-    },
-    {
-      "ticker": "6981",
-      "sector": "Technology",
-      "mu": -0.731519,
-      "current": 0.0008846671,
-      "target": 0.0010550264,
-      "delta": 0.0001703593,
-      "bm_weight": 0.001202805,
-      "active": -0.0001477786
+      "active": -0.0001323764
     },
     {
       "ticker": "AIR",
       "sector": "Industrials",
       "mu": 0.006526,
-      "current": 0.0022714074,
-      "target": 0.0024417637,
-      "delta": 0.0001703562,
+      "current": 0.0022741609,
+      "target": 0.0024442246,
+      "delta": 0.0001700636,
       "bm_weight": 0.0025896345,
-      "active": -0.0001478708
+      "active": -0.0001454099
+    },
+    {
+      "ticker": "6981",
+      "sector": "Technology",
+      "mu": -0.731519,
+      "current": 0.0008852832,
+      "target": 0.001055349,
+      "delta": 0.0001700658,
+      "bm_weight": 0.001202805,
+      "active": -0.000147456
     },
     {
       "ticker": "KO",
       "sector": "Consumer Staples",
       "mu": 0.176027,
-      "current": 0.0050977384,
-      "target": 0.0052680953,
-      "delta": 0.0001703568,
+      "current": 0.0050964863,
+      "target": 0.0052665503,
+      "delta": 0.000170064,
       "bm_weight": 0.0054197127,
-      "active": -0.0001516174
+      "active": -0.0001531624
     },
     {
       "ticker": "WMB",
       "sector": "Energy",
       "mu": -0.536939,
-      "current": 0.0008467662,
-      "target": 0.0010171261,
-      "delta": 0.0001703599,
+      "current": 0.0008465582,
+      "target": 0.0010166247,
+      "delta": 0.0001700665,
       "bm_weight": 0.0011883935,
-      "active": -0.0001712674
-    },
-    {
-      "ticker": "DE",
-      "sector": "Industrials",
-      "mu": 0.048956,
-      "current": 0.0020493624,
-      "target": 0.0022197184,
-      "delta": 0.000170356,
-      "bm_weight": 0.0023975994,
-      "active": -0.000177881
+      "active": -0.0001717688
     },
     {
       "ticker": "RIO",
       "sector": "Materials",
       "mu": -0.186556,
-      "current": 0.0020967229,
-      "target": 0.0022670839,
-      "delta": 0.000170361,
+      "current": 0.002099438,
+      "target": 0.0022695053,
+      "delta": 0.0001700673,
       "bm_weight": 0.0024481129,
-      "active": -0.0001810289
+      "active": -0.0001786076
+    },
+    {
+      "ticker": "DE",
+      "sector": "Industrials",
+      "mu": 0.048956,
+      "current": 0.002048859,
+      "target": 0.0022189225,
+      "delta": 0.0001700635,
+      "bm_weight": 0.0023975994,
+      "active": -0.0001786769
     },
     {
       "ticker": "ISRG",
       "sector": "Healthcare",
       "mu": -0.043084,
-      "current": 0.0014556286,
-      "target": 0.0016259893,
-      "delta": 0.0001703607,
+      "current": 0.0014552711,
+      "target": 0.0016253381,
+      "delta": 0.0001700671,
       "bm_weight": 0.0018071676,
-      "active": -0.0001811783
+      "active": -0.0001818295
     },
     {
       "ticker": "AXON",
       "sector": "Industrials",
       "mu": 0.393823,
-      "current": 0.0003093846,
-      "target": 0.0004797365,
-      "delta": 0.0001703519,
+      "current": 0.0003093086,
+      "target": 0.0004793693,
+      "delta": 0.0001700607,
       "bm_weight": 0.0006647666,
-      "active": -0.0001850302
+      "active": -0.0001853974
     },
     {
       "ticker": "CDNS",
       "sector": "Technology",
       "mu": 0.012265,
-      "current": 0.0008272719,
-      "target": 0.0009976264,
-      "delta": 0.0001703545,
+      "current": 0.0008270687,
+      "target": 0.0009971312,
+      "delta": 0.0001700625,
       "bm_weight": 0.0011913608,
-      "active": -0.0001937343
-    },
-    {
-      "ticker": "TTWO",
-      "sector": "Communication Services",
-      "mu": -0.463026,
-      "current": 0.000232869,
-      "target": 0.0004032267,
-      "delta": 0.0001703577,
-      "bm_weight": 0.0005978509,
-      "active": -0.0001946242
+      "active": -0.0001942296
     },
     {
       "ticker": "ROP",
       "sector": "Healthcare",
       "mu": -0.144765,
-      "current": 0.0047490303,
-      "target": 0.004919392,
-      "delta": 0.0001703617,
+      "current": 0.0047585265,
+      "target": 0.0049285943,
+      "delta": 0.0001700678,
       "bm_weight": 0.0051233871,
-      "active": -0.0002039951
+      "active": -0.0001947928
     },
     {
-      "ticker": "QCOM",
-      "sector": "Technology",
-      "mu": 0.115991,
-      "current": 0.0019010979,
-      "target": 0.0020714537,
-      "delta": 0.0001703558,
-      "bm_weight": 0.0022793476,
-      "active": -0.0002078938
+      "ticker": "TTWO",
+      "sector": "Communication Services",
+      "mu": -0.463026,
+      "current": 0.0002328118,
+      "target": 0.0004028768,
+      "delta": 0.000170065,
+      "bm_weight": 0.0005978509,
+      "active": -0.000194974
     },
     {
       "ticker": "ITX",
       "sector": "Consumer Discretionary",
       "mu": -0.236143,
-      "current": 0.0025193756,
-      "target": 0.0026897371,
-      "delta": 0.0001703614,
+      "current": 0.0025224297,
+      "target": 0.0026924974,
+      "delta": 0.0001700677,
       "bm_weight": 0.0029006192,
-      "active": -0.0002108821
+      "active": -0.0002081218
+    },
+    {
+      "ticker": "QCOM",
+      "sector": "Technology",
+      "mu": 0.115991,
+      "current": 0.0019006309,
+      "target": 0.0020706943,
+      "delta": 0.0001700633,
+      "bm_weight": 0.0022793476,
+      "active": -0.0002086533
     },
     {
       "ticker": "SNPS",
       "sector": "Technology",
       "mu": -0.671226,
-      "current": 0.0006482878,
-      "target": 0.0008186475,
-      "delta": 0.0001703597,
+      "current": 0.0006481285,
+      "target": 0.0008181949,
+      "delta": 0.0001700664,
       "bm_weight": 0.0010344028,
-      "active": -0.0002157554
+      "active": -0.0002162079
     },
     {
       "ticker": "BNY",
       "sector": "Financials",
       "mu": 0.081083,
-      "current": 0.0011139862,
-      "target": 0.0012843412,
-      "delta": 0.0001703549,
+      "current": 0.0011137126,
+      "target": 0.0012837753,
+      "delta": 0.0001700627,
       "bm_weight": 0.0015064422,
-      "active": -0.000222101
+      "active": -0.0002226668
     },
     {
       "ticker": "EMR",
       "sector": "Industrials",
       "mu": -0.848247,
-      "current": 0.0008067495,
-      "target": 0.0009771095,
-      "delta": 0.00017036,
+      "current": 0.0008065513,
+      "target": 0.000976618,
+      "delta": 0.0001700666,
       "bm_weight": 0.0012035388,
-      "active": -0.0002264293
+      "active": -0.0002269208
     },
     {
       "ticker": "NXPI",
       "sector": "Technology",
       "mu": 0.455757,
-      "current": 0.0003698274,
-      "target": 0.0005401797,
-      "delta": 0.0001703523,
+      "current": 0.0003697366,
+      "target": 0.0005397976,
+      "delta": 0.000170061,
       "bm_weight": 0.0007690141,
-      "active": -0.0002288344
-    },
-    {
-      "ticker": "DLR",
-      "sector": "Real Estate",
-      "mu": 0.453206,
-      "current": 0.000559888,
-      "target": 0.0007302413,
-      "delta": 0.0001703533,
-      "bm_weight": 0.0009726857,
-      "active": -0.0002424443
+      "active": -0.0002292166
     },
     {
       "ticker": "AZN",
       "sector": "Healthcare",
       "mu": 0.054321,
-      "current": 0.0031063965,
-      "target": 0.0032767526,
-      "delta": 0.0001703561,
+      "current": 0.003110419,
+      "target": 0.0032804826,
+      "delta": 0.0001700635,
       "bm_weight": 0.0035219426,
-      "active": -0.00024519
+      "active": -0.00024146
+    },
+    {
+      "ticker": "DLR",
+      "sector": "Real Estate",
+      "mu": 0.453206,
+      "current": 0.0005597504,
+      "target": 0.0007298121,
+      "delta": 0.0001700617,
+      "bm_weight": 0.0009726857,
+      "active": -0.0002428735
     },
     {
       "ticker": "BN",
       "sector": "Financials",
       "mu": -0.673554,
-      "current": 0.000972921,
-      "target": 0.0011432809,
-      "delta": 0.0001703599,
+      "current": 0.0009726821,
+      "target": 0.0011427486,
+      "delta": 0.0001700665,
       "bm_weight": 0.0014088716,
-      "active": -0.0002655907
+      "active": -0.000266123
     },
     {
       "ticker": "PH",
       "sector": "Industrials",
       "mu": -0.751185,
-      "current": 0.0013108108,
-      "target": 0.0014811711,
-      "delta": 0.0001703604,
+      "current": 0.0013104888,
+      "target": 0.0014805556,
+      "delta": 0.0001700668,
       "bm_weight": 0.0017511314,
-      "active": -0.0002699603
+      "active": -0.0002705758
     },
     {
       "ticker": "SAF",
       "sector": "Industrials",
       "mu": -0.356817,
-      "current": 0.0018503771,
-      "target": 0.0020207378,
-      "delta": 0.0001703607,
+      "current": 0.0018526202,
+      "target": 0.0020226873,
+      "delta": 0.0001700671,
       "bm_weight": 0.002302689,
-      "active": -0.0002819512
+      "active": -0.0002800017
     },
     {
       "ticker": "TT",
       "sector": "Industrials",
       "mu": -0.405696,
-      "current": 0.000911428,
-      "target": 0.0010817875,
-      "delta": 0.0001703596,
+      "current": 0.0009112041,
+      "target": 0.0010812703,
+      "delta": 0.0001700662,
       "bm_weight": 0.0013647028,
-      "active": -0.0002829153
+      "active": -0.0002834325
     },
     {
       "ticker": "VST",
       "sector": "Utilities",
       "mu": 0.0,
-      "current": 0.0001520512,
-      "target": 0.0003224063,
-      "delta": 0.0001703552,
+      "current": 0.0001520138,
+      "target": 0.000322077,
+      "delta": 0.0001700632,
       "bm_weight": 0.0006234894,
-      "active": -0.0003010831
+      "active": -0.0003014125
     },
     {
       "ticker": "ABBN",
       "sector": "Industrials",
       "mu": -0.45824,
-      "current": 0.0019743982,
-      "target": 0.0021447585,
-      "delta": 0.0001703603,
+      "current": 0.0019783462,
+      "target": 0.002148413,
+      "delta": 0.0001700668,
       "bm_weight": 0.0024634113,
-      "active": -0.0003186528
+      "active": -0.0003149983
     },
     {
       "ticker": "UBER",
       "sector": "Industrials",
       "mu": -0.945919,
-      "current": 0.0017270545,
-      "target": 0.0018974145,
-      "delta": 0.00017036,
+      "current": 0.0017266303,
+      "target": 0.0018966968,
+      "delta": 0.0001700665,
       "bm_weight": 0.0022177014,
-      "active": -0.0003202869
+      "active": -0.0003210046
     },
     {
       "ticker": "ASM",
       "sector": "Technology",
       "mu": -0.007715,
-      "current": 0.0001548953,
-      "target": 0.00032525,
-      "delta": 0.0001703548,
+      "current": 0.0001550831,
+      "target": 0.0003251459,
+      "delta": 0.0001700628,
       "bm_weight": 0.0006509199,
-      "active": -0.0003256699
+      "active": -0.0003257741
     },
     {
       "ticker": "AMGN",
       "sector": "Healthcare",
       "mu": -0.283566,
-      "current": 0.0027441788,
-      "target": 0.0029145386,
-      "delta": 0.0001703598,
+      "current": 0.0027435048,
+      "target": 0.0029135711,
+      "delta": 0.0001700663,
       "bm_weight": 0.0032857763,
-      "active": -0.0003712377
+      "active": -0.0003722052
     },
     {
       "ticker": "KEYS",
       "sector": "Technology",
       "mu": -0.243232,
-      "current": 0.0001592124,
-      "target": 0.0003295661,
-      "delta": 0.0001703536,
+      "current": 0.0001591733,
+      "target": 0.0003292353,
+      "delta": 0.0001700619,
       "bm_weight": 0.0007244523,
-      "active": -0.0003948862
+      "active": -0.000395217
     },
     {
       "ticker": "SNOW",
       "sector": "Technology",
       "mu": -1.145108,
-      "current": 0.0009564573,
-      "target": 0.001126815,
-      "delta": 0.0001703577,
+      "current": 0.0009562224,
+      "target": 0.0011262871,
+      "delta": 0.0001700648,
       "bm_weight": 0.0015319513,
-      "active": -0.0004051363
+      "active": -0.0004056642
     },
     {
       "ticker": "BLK",
       "sector": "Financials",
       "mu": -0.497132,
-      "current": 0.0020227102,
-      "target": 0.0021930689,
-      "delta": 0.0001703588,
+      "current": 0.0020222133,
+      "target": 0.0021922788,
+      "delta": 0.0001700655,
       "bm_weight": 0.0026205242,
-      "active": -0.0004274552
+      "active": -0.0004282453
     },
     {
       "ticker": "SU",
       "sector": "Industrials",
       "mu": -0.506438,
-      "current": 0.0021229207,
-      "target": 0.0022932796,
-      "delta": 0.0001703589,
+      "current": 0.0021254942,
+      "target": 0.0022955598,
+      "delta": 0.0001700656,
       "bm_weight": 0.0027257469,
-      "active": -0.0004324673
+      "active": -0.0004301871
     },
     {
       "ticker": "TER",
       "sector": "Technology",
       "mu": 1.534204,
-      "current": 0.0001776028,
-      "target": 0.0003479526,
-      "delta": 0.0001703499,
+      "current": 0.0001775591,
+      "target": 0.0003476185,
+      "delta": 0.0001700594,
       "bm_weight": 0.0007811885,
-      "active": -0.0004332359
+      "active": -0.00043357
     },
     {
       "ticker": "COHR",
       "sector": "Technology",
       "mu": -0.764746,
-      "current": 0.0001176731,
-      "target": 0.0002880257,
-      "delta": 0.0001703527,
+      "current": 0.0001176441,
+      "target": 0.0002877055,
+      "delta": 0.0001700614,
       "bm_weight": 0.000738754,
-      "active": -0.0004507282
+      "active": -0.0004510485
     },
     {
       "ticker": "RTX",
       "sector": "Industrials",
       "mu": -0.295461,
-      "current": 0.0031955171,
-      "target": 0.0033658757,
-      "delta": 0.0001703585,
+      "current": 0.0031947322,
+      "target": 0.0033647975,
+      "delta": 0.0001700653,
       "bm_weight": 0.0038612237,
-      "active": -0.000495348
+      "active": -0.0004964262
     },
     {
       "ticker": "HPE",
       "sector": "Technology",
       "mu": 2.300274,
-      "current": 0.0002832624,
-      "target": 0.0004536132,
-      "delta": 0.0001703508,
+      "current": 0.0002831928,
+      "target": 0.0004532528,
+      "delta": 0.00017006,
       "bm_weight": 0.000950702,
-      "active": -0.0004970888
+      "active": -0.0004974492
     },
     {
       "ticker": "SIE",
       "sector": "Industrials",
       "mu": -0.911132,
-      "current": 0.0028138641,
-      "target": 0.0029842221,
-      "delta": 0.0001703579,
+      "current": 0.0028172752,
+      "target": 0.0029873401,
+      "delta": 0.0001700649,
       "bm_weight": 0.0035353618,
-      "active": -0.0005511398
-    },
-    {
-      "ticker": "NFLX",
-      "sector": "Communication Services",
-      "mu": -0.364732,
-      "current": 0.0038402057,
-      "target": 0.0040105639,
-      "delta": 0.0001703582,
-      "bm_weight": 0.0045620338,
-      "active": -0.0005514699
+      "active": -0.0005480218
     },
     {
       "ticker": "ADI",
       "sector": "Technology",
       "mu": 0.266101,
-      "current": 0.001740566,
-      "target": 0.0019109208,
-      "delta": 0.0001703547,
+      "current": 0.0017401385,
+      "target": 0.0019102011,
+      "delta": 0.0001700626,
       "bm_weight": 0.0024628339,
-      "active": -0.0005519131
+      "active": -0.0005526328
+    },
+    {
+      "ticker": "NFLX",
+      "sector": "Communication Services",
+      "mu": -0.364732,
+      "current": 0.0038392624,
+      "target": 0.0040093274,
+      "delta": 0.000170065,
+      "bm_weight": 0.0045620338,
+      "active": -0.0005527063
     },
     {
       "ticker": "MPWR",
       "sector": "Technology",
       "mu": 0.011091,
-      "current": 0.0001404419,
-      "target": 0.0003107911,
-      "delta": 0.0001703492,
+      "current": 0.0001404075,
+      "target": 0.0003104664,
+      "delta": 0.000170059,
       "bm_weight": 0.0008647384,
-      "active": -0.0005539472
+      "active": -0.000554272
     },
     {
       "ticker": "APP",
       "sector": "Technology",
       "mu": -0.026707,
-      "current": 0.0006417587,
-      "target": 0.000812114,
-      "delta": 0.0001703553,
+      "current": 0.0006416011,
+      "target": 0.0008116641,
+      "delta": 0.000170063,
       "bm_weight": 0.0013682869,
-      "active": -0.0005561729
+      "active": -0.0005566229
     },
     {
       "ticker": "GE",
       "sector": "Industrials",
       "mu": -0.670878,
-      "current": 0.004127799,
-      "target": 0.0042981572,
-      "delta": 0.0001703582,
+      "current": 0.0041267851,
+      "target": 0.0042968502,
+      "delta": 0.000170065,
       "bm_weight": 0.0048567634,
-      "active": -0.0005586062
+      "active": -0.0005599133
     },
     {
       "ticker": "IFX",
       "sector": "Technology",
       "mu": 0.437337,
-      "current": 0.0004121823,
-      "target": 0.000582534,
-      "delta": 0.0001703517,
+      "current": 0.0004126819,
+      "target": 0.0005827426,
+      "delta": 0.0001700606,
       "bm_weight": 0.0011530668,
-      "active": -0.0005705328
-    },
-    {
-      "ticker": "CVX",
-      "sector": "Energy",
-      "mu": 0.07853,
-      "current": 0.0047423855,
-      "target": 0.004912741,
-      "delta": 0.0001703555,
-      "bm_weight": 0.0054945864,
-      "active": -0.0005818454
+      "active": -0.0005703242
     },
     {
       "ticker": "FTNT",
       "sector": "Technology",
       "mu": 1.172169,
-      "current": 0.0007747908,
-      "target": 0.0009451441,
-      "delta": 0.0001703533,
+      "current": 0.0007746005,
+      "target": 0.0009446622,
+      "delta": 0.0001700617,
       "bm_weight": 0.0015270374,
-      "active": -0.0005818933
+      "active": -0.0005823752
+    },
+    {
+      "ticker": "CVX",
+      "sector": "Energy",
+      "mu": 0.07853,
+      "current": 0.0047412206,
+      "target": 0.0049112837,
+      "delta": 0.0001700631,
+      "bm_weight": 0.0054945864,
+      "active": -0.0005833026
     },
     {
       "ticker": "HWM",
       "sector": "Industrials",
       "mu": -0.442506,
-      "current": 0.0006085393,
-      "target": 0.0007788938,
-      "delta": 0.0001703545,
+      "current": 0.0006083899,
+      "target": 0.0007784523,
+      "delta": 0.0001700624,
       "bm_weight": 0.0014378078,
-      "active": -0.000658914
+      "active": -0.0006593555
     },
     {
       "ticker": "CEG",
       "sector": "Utilities",
       "mu": -0.0,
-      "current": 0.0004700159,
-      "target": 0.0006403696,
-      "delta": 0.0001703537,
+      "current": 0.0004699005,
+      "target": 0.0006399623,
+      "delta": 0.0001700618,
       "bm_weight": 0.0013265883,
-      "active": -0.0006862187
+      "active": -0.000686626
     },
     {
       "ticker": "ETN",
       "sector": "Industrials",
       "mu": -0.21146,
-      "current": 0.0012861285,
-      "target": 0.0014564844,
-      "delta": 0.0001703559,
+      "current": 0.0012858126,
+      "target": 0.001455876,
+      "delta": 0.0001700634,
       "bm_weight": 0.0021735107,
-      "active": -0.0007170262
+      "active": -0.0007176347
     },
     {
       "ticker": "DDOG",
       "sector": "Technology",
       "mu": -1.002825,
-      "current": 0.0002201752,
-      "target": 0.0003905266,
-      "delta": 0.0001703514,
+      "current": 0.0002201211,
+      "target": 0.0003901814,
+      "delta": 0.0001700603,
       "bm_weight": 0.0011131769,
-      "active": -0.0007226503
+      "active": -0.0007229955
     },
     {
       "ticker": "JNJ",
       "sector": "Healthcare",
       "mu": -0.077001,
-      "current": 0.0081083698,
-      "target": 0.0082787272,
-      "delta": 0.0001703574,
+      "current": 0.0081063782,
+      "target": 0.0082764426,
+      "delta": 0.0001700644,
       "bm_weight": 0.0090102085,
-      "active": -0.0007314813
+      "active": -0.0007337659
     },
     {
       "ticker": "ASML",
       "sector": "Technology",
       "mu": 1.00845,
-      "current": 0.0083655638,
-      "target": 0.0085359193,
-      "delta": 0.0001703555,
+      "current": 0.0083757049,
+      "target": 0.008545768,
+      "delta": 0.0001700631,
       "bm_weight": 0.0092845019,
-      "active": -0.0007485825
+      "active": -0.0007387339
     },
     {
       "ticker": "RR/",
       "sector": "Industrials",
       "mu": -0.844327,
-      "current": 0.0014312055,
-      "target": 0.0016015613,
-      "delta": 0.0001703558,
+      "current": 0.0014330588,
+      "target": 0.0016031221,
+      "delta": 0.0001700633,
       "bm_weight": 0.0023658054,
-      "active": -0.0007642441
+      "active": -0.0007626832
     },
     {
       "ticker": "WDC",
       "sector": "Technology",
       "mu": 3.815286,
-      "current": 0.0010815212,
-      "target": 0.0012518751,
-      "delta": 0.0001703539,
+      "current": 0.0010812556,
+      "target": 0.0012513176,
+      "delta": 0.0001700621,
       "bm_weight": 0.00205493,
-      "active": -0.000803055
+      "active": -0.0008036124
     },
     {
       "ticker": "PWR",
       "sector": "Industrials",
       "mu": -0.558021,
-      "current": 0.0001629089,
-      "target": 0.000333259,
-      "delta": 0.0001703501,
+      "current": 0.0001628688,
+      "target": 0.0003329284,
+      "delta": 0.0001700595,
       "bm_weight": 0.0012697681,
-      "active": -0.0009365091
+      "active": -0.0009368398
     },
     {
       "ticker": "VRT",
       "sector": "Industrials",
       "mu": -0.202171,
-      "current": 0.0001428815,
-      "target": 0.0003132313,
-      "delta": 0.0001703498,
+      "current": 0.0001428464,
+      "target": 0.0003129057,
+      "delta": 0.0001700593,
       "bm_weight": 0.0013441455,
-      "active": -0.0010309142
+      "active": -0.0010312397
     },
     {
       "ticker": "IBKR",
       "sector": "Financials",
       "mu": -1.094937,
-      "current": 0.0009130183,
-      "target": 0.0010833724,
-      "delta": 0.0001703541,
+      "current": 0.000912794,
+      "target": 0.0010828562,
+      "delta": 0.0001700622,
       "bm_weight": 0.0021758324,
-      "active": -0.00109246
+      "active": -0.0010929762
     },
     {
       "ticker": "FCX",
       "sector": "Materials",
       "mu": -0.169998,
-      "current": 0.0002663193,
-      "target": 0.0004366702,
-      "delta": 0.0001703509,
+      "current": 0.0002662539,
+      "target": 0.0004363139,
+      "delta": 0.00017006,
       "bm_weight": 0.001529851,
-      "active": -0.0010931808
+      "active": -0.0010935371
     },
     {
       "ticker": "ANET",
       "sector": "Technology",
       "mu": -0.670445,
-      "current": 0.0019582248,
-      "target": 0.0021285802,
-      "delta": 0.0001703554,
+      "current": 0.0019577438,
+      "target": 0.0021278068,
+      "delta": 0.000170063,
       "bm_weight": 0.0032494246,
-      "active": -0.0011208445
+      "active": -0.0011216178
     },
     {
       "ticker": "GEV",
       "sector": "Industrials",
       "mu": -0.802668,
-      "current": 0.002140446,
-      "target": 0.0023108015,
-      "delta": 0.0001703554,
+      "current": 0.0021399202,
+      "target": 0.0023099833,
+      "delta": 0.0001700631,
       "bm_weight": 0.0034358384,
-      "active": -0.001125037
+      "active": -0.0011258551
     },
     {
       "ticker": "CRWD",
       "sector": "Technology",
       "mu": 0.318484,
-      "current": 0.0013504913,
-      "target": 0.0015208452,
-      "delta": 0.0001703539,
+      "current": 0.0013501596,
+      "target": 0.0015202217,
+      "delta": 0.0001700622,
       "bm_weight": 0.0026587244,
-      "active": -0.0011378792
+      "active": -0.0011385027
     },
     {
       "ticker": "APH",
       "sector": "Technology",
       "mu": 0.349795,
-      "current": 0.0013131007,
-      "target": 0.0014834546,
-      "delta": 0.0001703539,
+      "current": 0.0013127781,
+      "target": 0.0014828403,
+      "delta": 0.0001700621,
       "bm_weight": 0.0026262455,
-      "active": -0.001142791
+      "active": -0.0011434053
     },
     {
       "ticker": "WMT",
       "sector": "Consumer Staples",
       "mu": -0.5406,
-      "current": 0.0102534295,
-      "target": 0.0104237856,
-      "delta": 0.0001703561,
+      "current": 0.0102509109,
+      "target": 0.0104209745,
+      "delta": 0.0001700635,
       "bm_weight": 0.0116045119,
-      "active": -0.0011807263
+      "active": -0.0011835375
     },
     {
       "ticker": "DELL",
       "sector": "Technology",
       "mu": 0.246816,
-      "current": 0.0023642916,
-      "target": 0.0025346462,
-      "delta": 0.0001703545,
+      "current": 0.0023637109,
+      "target": 0.0025337735,
+      "delta": 0.0001700626,
       "bm_weight": 0.0038328028,
-      "active": -0.0012981566
+      "active": -0.0012990294
     },
     {
       "ticker": "WFC",
       "sector": "Financials",
       "mu": -0.038126,
-      "current": 0.0019574723,
-      "target": 0.0021278272,
-      "delta": 0.0001703549,
+      "current": 0.0019569915,
+      "target": 0.0021270542,
+      "delta": 0.0001700627,
       "bm_weight": 0.0035081442,
-      "active": -0.001380317
+      "active": -0.00138109
     },
     {
       "ticker": "GLW",
       "sector": "Technology",
       "mu": 0.215051,
-      "current": 0.0001449792,
-      "target": 0.0003153276,
-      "delta": 0.0001703484,
+      "current": 0.0001449436,
+      "target": 0.0003150021,
+      "delta": 0.0001700585,
       "bm_weight": 0.0017168051,
-      "active": -0.0014014775
+      "active": -0.001401803
     },
     {
       "ticker": "IBM",
       "sector": "Technology",
       "mu": 0.414343,
-      "current": 0.0013738665,
-      "target": 0.0015442204,
-      "delta": 0.0001703538,
+      "current": 0.0013735291,
+      "target": 0.0015435912,
+      "delta": 0.0001700622,
       "bm_weight": 0.0029806421,
-      "active": -0.0014364217
+      "active": -0.0014370509
     },
     {
       "ticker": "MC",
       "sector": "Consumer Discretionary",
       "mu": -0.048387,
-      "current": 0.0019329697,
-      "target": 0.0021033245,
-      "delta": 0.0001703548,
+      "current": 0.0019353129,
+      "target": 0.0021053756,
+      "delta": 0.0001700627,
       "bm_weight": 0.0035886176,
-      "active": -0.0014852932
+      "active": -0.0014832421
     },
     {
       "ticker": "BRK/B",
       "sector": "Financials",
       "mu": -0.25162,
-      "current": 0.0130497338,
-      "target": 0.0132200896,
-      "delta": 0.0001703558,
+      "current": 0.0130465283,
+      "target": 0.0132165916,
+      "delta": 0.0001700633,
       "bm_weight": 0.014710536,
-      "active": -0.0014904465
+      "active": -0.0014939444
     },
     {
       "ticker": "ARM",
       "sector": "Technology",
       "mu": 0.807076,
-      "current": 0.0018182132,
-      "target": 0.0019885675,
-      "delta": 0.0001703543,
+      "current": 0.0018177666,
+      "target": 0.001987829,
+      "delta": 0.0001700624,
       "bm_weight": 0.0034920383,
-      "active": -0.0015034708
+      "active": -0.0015042093
     },
     {
       "ticker": "PANW",
       "sector": "Technology",
       "mu": -1.321819,
-      "current": 0.0022134307,
-      "target": 0.0023837857,
-      "delta": 0.0001703549,
+      "current": 0.0022128871,
+      "target": 0.0023829498,
+      "delta": 0.0001700628,
       "bm_weight": 0.003916073,
-      "active": -0.0015322873
+      "active": -0.0015331231
     },
     {
       "ticker": "SAP",
       "sector": "Technology",
       "mu": -0.545557,
-      "current": 0.0018308091,
-      "target": 0.0020011637,
-      "delta": 0.0001703546,
+      "current": 0.0018330285,
+      "target": 0.0020030911,
+      "delta": 0.0001700626,
       "bm_weight": 0.0036332238,
-      "active": -0.0016320601
+      "active": -0.0016301328
     },
     {
       "ticker": "TXN",
       "sector": "Technology",
       "mu": -0.235632,
-      "current": 0.0012655463,
-      "target": 0.0014359004,
-      "delta": 0.0001703541,
+      "current": 0.0012652354,
+      "target": 0.0014352977,
+      "delta": 0.0001700623,
       "bm_weight": 0.0032381542,
-      "active": -0.0018022538
+      "active": -0.0018028565
     },
     {
       "ticker": "AMAT",
       "sector": "Technology",
       "mu": 1.699622,
-      "current": 0.0032852977,
-      "target": 0.0034556525,
-      "delta": 0.0001703547,
+      "current": 0.0032844908,
+      "target": 0.0034545535,
+      "delta": 0.0001700627,
       "bm_weight": 0.0052616975,
-      "active": -0.001806045
+      "active": -0.001807144
     },
     {
       "ticker": "NOVN",
       "sector": "Healthcare",
       "mu": 0.020892,
-      "current": 0.0024200364,
-      "target": 0.0025903908,
-      "delta": 0.0001703544,
+      "current": 0.0024248755,
+      "target": 0.0025949381,
+      "delta": 0.0001700626,
       "bm_weight": 0.0044023846,
-      "active": -0.0018119938
+      "active": -0.0018074465
     },
     {
       "ticker": "PG",
       "sector": "Consumer Staples",
       "mu": -0.173811,
-      "current": 0.0025744932,
-      "target": 0.002744848,
-      "delta": 0.0001703548,
+      "current": 0.0025738608,
+      "target": 0.0027439235,
+      "delta": 0.0001700627,
       "bm_weight": 0.0046661727,
-      "active": -0.0019213248
+      "active": -0.0019222492
     },
     {
       "ticker": "HD",
       "sector": "Consumer Discretionary",
       "mu": -0.516962,
-      "current": 0.0024701621,
-      "target": 0.0026405169,
-      "delta": 0.0001703548,
+      "current": 0.0024695554,
+      "target": 0.0026396181,
+      "delta": 0.0001700627,
       "bm_weight": 0.0046072255,
-      "active": -0.0019667086
+      "active": -0.0019676075
     },
     {
       "ticker": "UNH",
       "sector": "Healthcare",
       "mu": -0.358734,
-      "current": 0.0027592526,
-      "target": 0.0029296075,
-      "delta": 0.0001703549,
+      "current": 0.0027585748,
+      "target": 0.0029286376,
+      "delta": 0.0001700628,
       "bm_weight": 0.0049011922,
-      "active": -0.0019715848
+      "active": -0.0019725546
     },
     {
       "ticker": "GS",
       "sector": "Financials",
       "mu": 0.107567,
-      "current": 0.0018960424,
-      "target": 0.0020663967,
-      "delta": 0.0001703542,
+      "current": 0.0018955767,
+      "target": 0.0020656392,
+      "delta": 0.0001700625,
       "bm_weight": 0.0042956887,
-      "active": -0.002229292
+      "active": -0.0022300495
     },
     {
       "ticker": "HSBA",
       "sector": "Financials",
       "mu": -0.144104,
-      "current": 0.0024799954,
-      "target": 0.0026503501,
-      "delta": 0.0001703547,
+      "current": 0.0024832068,
+      "target": 0.0026532695,
+      "delta": 0.0001700627,
       "bm_weight": 0.0049036087,
-      "active": -0.0022532586
+      "active": -0.0022503393
     },
     {
       "ticker": "SNDK",
       "sector": "Technology",
       "mu": 5.103289,
-      "current": 0.0005480026,
-      "target": 0.0007183546,
-      "delta": 0.000170352,
+      "current": 0.000547868,
+      "target": 0.000717929,
+      "delta": 0.000170061,
       "bm_weight": 0.0029936564,
-      "active": -0.0022753018
+      "active": -0.0022757274
     },
     {
       "ticker": "ABBV",
       "sector": "Healthcare",
       "mu": -0.886473,
-      "current": 0.003899452,
-      "target": 0.004069807,
-      "delta": 0.000170355,
+      "current": 0.0038984942,
+      "target": 0.004068557,
+      "delta": 0.0001700628,
       "bm_weight": 0.0064007916,
-      "active": -0.0023309846
+      "active": -0.0023322346
     },
     {
       "ticker": "MS",
       "sector": "Financials",
       "mu": -0.345161,
-      "current": 0.0019499313,
-      "target": 0.0021202857,
-      "delta": 0.0001703545,
+      "current": 0.0019494523,
+      "target": 0.0021195148,
+      "delta": 0.0001700625,
       "bm_weight": 0.0046040726,
-      "active": -0.0024837869
+      "active": -0.0024845578
     },
     {
       "ticker": "BAC",
       "sector": "Financials",
       "mu": 0.318468,
-      "current": 0.0032410419,
-      "target": 0.0034113965,
-      "delta": 0.0001703546,
+      "current": 0.0032402458,
+      "target": 0.0034103085,
+      "delta": 0.0001700627,
       "bm_weight": 0.0059683574,
-      "active": -0.002556961
+      "active": -0.002558049
     },
     {
       "ticker": "INTC",
       "sector": "Technology",
       "mu": 0.204295,
-      "current": 0.0031420294,
-      "target": 0.0033123841,
-      "delta": 0.0001703547,
+      "current": 0.0031412576,
+      "target": 0.0033113203,
+      "delta": 0.0001700627,
       "bm_weight": 0.0063150342,
-      "active": -0.0030026502
+      "active": -0.0030037139
     },
     {
       "ticker": "META",
       "sector": "Technology",
       "mu": -0.385686,
-      "current": 0.016228487,
-      "target": 0.0163988423,
-      "delta": 0.0001703553,
+      "current": 0.0162245007,
+      "target": 0.0163945638,
+      "delta": 0.000170063,
       "bm_weight": 0.0195007986,
-      "active": -0.0031019564
+      "active": -0.0031062349
     },
     {
       "ticker": "CAT",
       "sector": "Industrials",
       "mu": 0.266096,
-      "current": 0.0017231819,
-      "target": 0.0018935361,
-      "delta": 0.0001703542,
+      "current": 0.0017227587,
+      "target": 0.0018928211,
+      "delta": 0.0001700625,
       "bm_weight": 0.0051049576,
-      "active": -0.0032114215
+      "active": -0.0032121365
     },
     {
       "ticker": "MA",
       "sector": "Financials",
       "mu": -0.413832,
-      "current": 0.0037578891,
-      "target": 0.0039282439,
-      "delta": 0.0001703548,
+      "current": 0.003756966,
+      "target": 0.0039270288,
+      "delta": 0.0001700628,
       "bm_weight": 0.0071972043,
-      "active": -0.0032689604
+      "active": -0.0032701756
     },
     {
       "ticker": "CSCO",
       "sector": "Technology",
       "mu": -0.105166,
-      "current": 0.0024724327,
-      "target": 0.0026427873,
-      "delta": 0.0001703546,
+      "current": 0.0024718254,
+      "target": 0.002641888,
+      "delta": 0.0001700626,
       "bm_weight": 0.0059492735,
-      "active": -0.0033064863
+      "active": -0.0033073855
     },
     {
       "ticker": "COST",
       "sector": "Consumer Staples",
       "mu": -0.425822,
-      "current": 0.0020625797,
-      "target": 0.0022329341,
-      "delta": 0.0001703544,
+      "current": 0.0020620731,
+      "target": 0.0022321356,
+      "delta": 0.0001700625,
       "bm_weight": 0.0058990322,
-      "active": -0.0036660981
+      "active": -0.0036668966
     },
     {
       "ticker": "V",
       "sector": "Financials",
       "mu": 0.194231,
-      "current": 0.0054701794,
-      "target": 0.0056405342,
-      "delta": 0.0001703548,
+      "current": 0.0054688358,
+      "target": 0.0056388986,
+      "delta": 0.0001700628,
       "bm_weight": 0.0097770899,
-      "active": -0.0041365557
+      "active": -0.0041381913
     },
     {
       "ticker": "AMD",
       "sector": "Technology",
       "mu": 1.338033,
-      "current": 0.0057745811,
-      "target": 0.0059449359,
-      "delta": 0.0001703548,
+      "current": 0.0057731627,
+      "target": 0.0059432255,
+      "delta": 0.0001700628,
       "bm_weight": 0.0102101036,
-      "active": -0.0042651677
+      "active": -0.0042668781
     },
     {
       "ticker": "ORCL",
       "sector": "Technology",
       "mu": 0.007145,
-      "current": 0.0008340131,
-      "target": 0.0010043659,
-      "delta": 0.0001703528,
+      "current": 0.0008338083,
+      "target": 0.0010038699,
+      "delta": 0.0001700616,
       "bm_weight": 0.0056186989,
-      "active": -0.0046143329
+      "active": -0.004614829
     },
     {
       "ticker": "TSM",
       "sector": "Technology",
       "mu": -0.22094,
-      "current": 0.0243004973,
-      "target": 0.0244708526,
-      "delta": 0.0001703552,
+      "current": 0.0242945283,
+      "target": 0.0244645913,
+      "delta": 0.000170063,
       "bm_weight": 0.029126812,
-      "active": -0.0046559594
+      "active": -0.0046622207
     },
     {
       "ticker": "AVGO",
       "sector": "Technology",
       "mu": -0.550234,
-      "current": 0.0184791781,
-      "target": 0.0186495333,
-      "delta": 0.0001703552,
+      "current": 0.018474639,
+      "target": 0.018644702,
+      "delta": 0.000170063,
       "bm_weight": 0.0233722181,
-      "active": -0.0047226849
+      "active": -0.0047275162
     },
     {
       "ticker": "MU",
       "sector": "Technology",
       "mu": 4.117978,
-      "current": 0.0072306869,
-      "target": 0.0074010418,
-      "delta": 0.0001703548,
+      "current": 0.0072289108,
+      "target": 0.0073989736,
+      "delta": 0.0001700628,
       "bm_weight": 0.0140799628,
-      "active": -0.006678921
+      "active": -0.0066809892
     },
     {
       "ticker": "JPM",
       "sector": "Financials",
       "mu": 0.27023,
-      "current": 0.0023063434,
-      "target": 0.0024766976,
-      "delta": 0.0001703541,
+      "current": 0.0023057769,
+      "target": 0.0024758394,
+      "delta": 0.0001700624,
       "bm_weight": 0.0129724112,
-      "active": -0.0104957136
+      "active": -0.0104965718
     },
     {
       "ticker": "TSLA",
       "sector": "Consumer Discretionary",
       "mu": -1.090802,
-      "current": 0.0024958343,
-      "target": 0.0026661884,
-      "delta": 0.0001703542,
+      "current": 0.0024952212,
+      "target": 0.0026652837,
+      "delta": 0.0001700624,
       "bm_weight": 0.0188721044,
-      "active": -0.016205916
+      "active": -0.0162068207
     }
   ],
   "top_ow": [
@@ -2532,121 +2532,121 @@
       "ticker": "TTD",
       "sector": "Communication Services",
       "mu": 4.439279,
-      "current": 0.0185144449,
-      "target": 0.0287487322,
-      "delta": 0.0102342873,
+      "current": 0.0185098971,
+      "target": 0.0287460138,
+      "delta": 0.0102361167,
       "bm_weight": 8.53823e-05,
-      "active": 0.0286633499
+      "active": 0.0286606315
     },
     {
       "ticker": "LITE",
       "sector": "Technology",
       "mu": 2.039578,
-      "current": 0.0264615295,
-      "target": 0.0228893705,
-      "delta": -0.003572159,
+      "current": 0.0264550297,
+      "target": 0.0228833646,
+      "delta": -0.003571665,
       "bm_weight": 0.0010196926,
-      "active": 0.0218696779
+      "active": 0.021863672
     },
     {
       "ticker": "000660",
       "sector": "Technology",
       "mu": 7.15528,
-      "current": 0.0209269451,
-      "target": 0.032318435,
-      "delta": 0.0113914899,
+      "current": 0.02094977,
+      "target": 0.0323308732,
+      "delta": 0.0113811032,
       "bm_weight": 0.0120895016,
-      "active": 0.0202289335
+      "active": 0.0202413717
     },
     {
       "ticker": "BE",
       "sector": "Industrials",
       "mu": 3.394636,
-      "current": 0.0166105761,
-      "target": 0.0167809394,
-      "delta": 0.0001703632,
+      "current": 0.016606496,
+      "target": 0.0167765648,
+      "delta": 0.0001700689,
       "bm_weight": 0.0008228263,
-      "active": 0.0159581131
+      "active": 0.0159537385
     },
     {
       "ticker": "LRCX",
       "sector": "Technology",
       "mu": 1.463599,
-      "current": 0.0209649091,
-      "target": 0.0211352721,
-      "delta": 0.000170363,
+      "current": 0.0209597594,
+      "target": 0.021129828,
+      "delta": 0.0001700687,
       "bm_weight": 0.0053146947,
-      "active": 0.0158205774
+      "active": 0.0158151333
     },
     {
       "ticker": "005930",
       "sector": "Technology",
       "mu": 4.847878,
-      "current": 0.0283866621,
-      "target": 0.0285570252,
-      "delta": 0.0001703631,
+      "current": 0.0284176233,
+      "target": 0.028587692,
+      "delta": 0.0001700688,
       "bm_weight": 0.0148164712,
-      "active": 0.013740554
+      "active": 0.0137712209
     },
     {
       "ticker": "MPC",
       "sector": "Energy",
       "mu": 2.008378,
-      "current": 0.0013493364,
-      "target": 0.0119655758,
-      "delta": 0.0106162394,
+      "current": 0.0013490049,
+      "target": 0.0119649429,
+      "delta": 0.0106159379,
       "bm_weight": 0.0013940462,
-      "active": 0.0105715295
+      "active": 0.0105708966
     },
     {
       "ticker": "6857",
       "sector": "Technology",
       "mu": 1.083576,
-      "current": 0.0123666172,
-      "target": 0.01253698,
-      "delta": 0.0001703629,
+      "current": 0.0123752294,
+      "target": 0.0125452979,
+      "delta": 0.0001700685,
       "bm_weight": 0.0021671316,
-      "active": 0.0103698484
+      "active": 0.0103781663
     },
     {
       "ticker": "TEAM",
       "sector": "Technology",
       "mu": 0.297271,
-      "current": 0.0053141715,
-      "target": 0.0054845332,
-      "delta": 0.0001703617,
+      "current": 0.0053128662,
+      "target": 0.0054829338,
+      "delta": 0.0001700676,
       "bm_weight": 0.0005960783,
-      "active": 0.0048884549
+      "active": 0.0048868554
     },
     {
       "ticker": "STX",
       "sector": "Technology",
       "mu": 3.633533,
-      "current": 0.0038484962,
-      "target": 0.0040188573,
-      "delta": 0.000170361,
+      "current": 0.0038475509,
+      "target": 0.0040176179,
+      "delta": 0.000170067,
       "bm_weight": 0.0024662395,
-      "active": 0.0015526178
+      "active": 0.0015513785
     },
     {
       "ticker": "NVDA",
       "sector": "Technology",
       "mu": 0.204332,
-      "current": 0.0693553136,
-      "target": 0.0695256704,
-      "delta": 0.0001703568,
+      "current": 0.0693382776,
+      "target": 0.0695083415,
+      "delta": 0.0001700639,
       "bm_weight": 0.0690859227,
-      "active": 0.0004397477
+      "active": 0.0004224188
     },
     {
       "ticker": "6758",
       "sector": "Consumer Discretionary",
       "mu": 0.107753,
-      "current": 0.0020250735,
-      "target": 0.0021954314,
-      "delta": 0.000170358,
+      "current": 0.0020264837,
+      "target": 0.0021965486,
+      "delta": 0.0001700648,
       "bm_weight": 0.0019644635,
-      "active": 0.0002309679
+      "active": 0.0002320851
     }
   ],
   "top_uw": [
@@ -2654,121 +2654,121 @@
       "ticker": "TSLA",
       "sector": "Consumer Discretionary",
       "mu": -1.090802,
-      "current": 0.0024958343,
-      "target": 0.0026661884,
-      "delta": 0.0001703542,
+      "current": 0.0024952212,
+      "target": 0.0026652837,
+      "delta": 0.0001700624,
       "bm_weight": 0.0188721044,
-      "active": -0.016205916
+      "active": -0.0162068207
     },
     {
       "ticker": "JPM",
       "sector": "Financials",
       "mu": 0.27023,
-      "current": 0.0023063434,
-      "target": 0.0024766976,
-      "delta": 0.0001703541,
+      "current": 0.0023057769,
+      "target": 0.0024758394,
+      "delta": 0.0001700624,
       "bm_weight": 0.0129724112,
-      "active": -0.0104957136
+      "active": -0.0104965718
     },
     {
       "ticker": "MU",
       "sector": "Technology",
       "mu": 4.117978,
-      "current": 0.0072306869,
-      "target": 0.0074010418,
-      "delta": 0.0001703548,
+      "current": 0.0072289108,
+      "target": 0.0073989736,
+      "delta": 0.0001700628,
       "bm_weight": 0.0140799628,
-      "active": -0.006678921
+      "active": -0.0066809892
     },
     {
       "ticker": "AVGO",
       "sector": "Technology",
       "mu": -0.550234,
-      "current": 0.0184791781,
-      "target": 0.0186495333,
-      "delta": 0.0001703552,
+      "current": 0.018474639,
+      "target": 0.018644702,
+      "delta": 0.000170063,
       "bm_weight": 0.0233722181,
-      "active": -0.0047226849
+      "active": -0.0047275162
     },
     {
       "ticker": "TSM",
       "sector": "Technology",
       "mu": -0.22094,
-      "current": 0.0243004973,
-      "target": 0.0244708526,
-      "delta": 0.0001703552,
+      "current": 0.0242945283,
+      "target": 0.0244645913,
+      "delta": 0.000170063,
       "bm_weight": 0.029126812,
-      "active": -0.0046559594
+      "active": -0.0046622207
     },
     {
       "ticker": "ORCL",
       "sector": "Technology",
       "mu": 0.007145,
-      "current": 0.0008340131,
-      "target": 0.0010043659,
-      "delta": 0.0001703528,
+      "current": 0.0008338083,
+      "target": 0.0010038699,
+      "delta": 0.0001700616,
       "bm_weight": 0.0056186989,
-      "active": -0.0046143329
+      "active": -0.004614829
     },
     {
       "ticker": "AMD",
       "sector": "Technology",
       "mu": 1.338033,
-      "current": 0.0057745811,
-      "target": 0.0059449359,
-      "delta": 0.0001703548,
+      "current": 0.0057731627,
+      "target": 0.0059432255,
+      "delta": 0.0001700628,
       "bm_weight": 0.0102101036,
-      "active": -0.0042651677
+      "active": -0.0042668781
     },
     {
       "ticker": "V",
       "sector": "Financials",
       "mu": 0.194231,
-      "current": 0.0054701794,
-      "target": 0.0056405342,
-      "delta": 0.0001703548,
+      "current": 0.0054688358,
+      "target": 0.0056388986,
+      "delta": 0.0001700628,
       "bm_weight": 0.0097770899,
-      "active": -0.0041365557
+      "active": -0.0041381913
     },
     {
       "ticker": "COST",
       "sector": "Consumer Staples",
       "mu": -0.425822,
-      "current": 0.0020625797,
-      "target": 0.0022329341,
-      "delta": 0.0001703544,
+      "current": 0.0020620731,
+      "target": 0.0022321356,
+      "delta": 0.0001700625,
       "bm_weight": 0.0058990322,
-      "active": -0.0036660981
+      "active": -0.0036668966
     },
     {
       "ticker": "CSCO",
       "sector": "Technology",
       "mu": -0.105166,
-      "current": 0.0024724327,
-      "target": 0.0026427873,
-      "delta": 0.0001703546,
+      "current": 0.0024718254,
+      "target": 0.002641888,
+      "delta": 0.0001700626,
       "bm_weight": 0.0059492735,
-      "active": -0.0033064863
+      "active": -0.0033073855
     },
     {
       "ticker": "MA",
       "sector": "Financials",
       "mu": -0.413832,
-      "current": 0.0037578891,
-      "target": 0.0039282439,
-      "delta": 0.0001703548,
+      "current": 0.003756966,
+      "target": 0.0039270288,
+      "delta": 0.0001700628,
       "bm_weight": 0.0071972043,
-      "active": -0.0032689604
+      "active": -0.0032701756
     },
     {
       "ticker": "CAT",
       "sector": "Industrials",
       "mu": 0.266096,
-      "current": 0.0017231819,
-      "target": 0.0018935361,
-      "delta": 0.0001703542,
+      "current": 0.0017227587,
+      "target": 0.0018928211,
+      "delta": 0.0001700625,
       "bm_weight": 0.0051049576,
-      "active": -0.0032114215
+      "active": -0.0032121365
     }
   ],
   "top_trades": [
@@ -2776,9 +2776,9 @@
       "ticker": "NEM",
       "sector": "Materials",
       "mu": -0.367887,
-      "current": 0.0293722131,
+      "current": 0.0293649983,
       "target": 0.001902264,
-      "delta": -0.0274699491,
+      "delta": -0.0274627343,
       "bm_weight": 0.001902264,
       "active": -0.0
     },
@@ -2786,9 +2786,9 @@
       "ticker": "RDDT",
       "sector": "Communication Services",
       "mu": -0.106123,
-      "current": 0.0146381786,
+      "current": 0.014634583,
       "target": 0.0004022963,
-      "delta": -0.0142358824,
+      "delta": -0.0142322867,
       "bm_weight": 0.0004022963,
       "active": -0.0
     },
@@ -2796,39 +2796,39 @@
       "ticker": "000660",
       "sector": "Technology",
       "mu": 7.15528,
-      "current": 0.0209269451,
-      "target": 0.032318435,
-      "delta": 0.0113914899,
+      "current": 0.02094977,
+      "target": 0.0323308732,
+      "delta": 0.0113811032,
       "bm_weight": 0.0120895016,
-      "active": 0.0202289335
+      "active": 0.0202413717
     },
     {
       "ticker": "MPC",
       "sector": "Energy",
       "mu": 2.008378,
-      "current": 0.0013493364,
-      "target": 0.0119655758,
-      "delta": 0.0106162394,
+      "current": 0.0013490049,
+      "target": 0.0119649429,
+      "delta": 0.0106159379,
       "bm_weight": 0.0013940462,
-      "active": 0.0105715295
+      "active": 0.0105708966
     },
     {
       "ticker": "TTD",
       "sector": "Communication Services",
       "mu": 4.439279,
-      "current": 0.0185144449,
-      "target": 0.0287487322,
-      "delta": 0.0102342873,
+      "current": 0.0185098971,
+      "target": 0.0287460138,
+      "delta": 0.0102361167,
       "bm_weight": 8.53823e-05,
-      "active": 0.0286633499
+      "active": 0.0286606315
     },
     {
       "ticker": "KLAC",
       "sector": "Technology",
       "mu": -0.360852,
-      "current": 0.0117378565,
+      "current": 0.0117349733,
       "target": 0.00324847,
-      "delta": -0.0084893865,
+      "delta": -0.0084865033,
       "bm_weight": 0.00324847,
       "active": -0.0
     },
@@ -2836,9 +2836,9 @@
       "ticker": "LLY",
       "sector": "Healthcare",
       "mu": -0.114916,
-      "current": 0.0222402342,
+      "current": 0.0222347713,
       "target": 0.0160733447,
-      "delta": -0.0061668895,
+      "delta": -0.0061614266,
       "bm_weight": 0.0160733447,
       "active": -0.0
     },
@@ -2846,19 +2846,19 @@
       "ticker": "LITE",
       "sector": "Technology",
       "mu": 2.039578,
-      "current": 0.0264615295,
-      "target": 0.0228893705,
-      "delta": -0.003572159,
+      "current": 0.0264550297,
+      "target": 0.0228833646,
+      "delta": -0.003571665,
       "bm_weight": 0.0010196926,
-      "active": 0.0218696779
+      "active": 0.021863672
     },
     {
       "ticker": "7974",
       "sector": "Communication Services",
       "mu": -0.222577,
-      "current": 0.00447732,
+      "current": 0.004480438,
       "target": 0.0009805754,
-      "delta": -0.0034967445,
+      "delta": -0.0034998626,
       "bm_weight": 0.0009805754,
       "active": -0.0
     },
@@ -2866,9 +2866,9 @@
       "ticker": "AAPL",
       "sector": "Technology",
       "mu": -0.390197,
-      "current": 0.0624409991,
+      "current": 0.0624256615,
       "target": 0.0620193559,
-      "delta": -0.0004216432,
+      "delta": -0.0004063055,
       "bm_weight": 0.062019356,
       "active": -0.0
     },
@@ -2876,9 +2876,9 @@
       "ticker": "MSFT",
       "sector": "Technology",
       "mu": -0.2172,
-      "current": 0.0497755382,
+      "current": 0.0497633117,
       "target": 0.0495499801,
-      "delta": -0.0002255582,
+      "delta": -0.0002133316,
       "bm_weight": 0.0495499801,
       "active": -0.0
     },
@@ -2886,193 +2886,199 @@
       "ticker": "TMUS",
       "sector": "Communication Services",
       "mu": -0.3285,
-      "current": 0.0028835604,
+      "current": 0.0028828521,
       "target": 0.0026824246,
-      "delta": -0.0002011358,
+      "delta": -0.0002004275,
       "bm_weight": 0.0026824246,
       "active": -0.0
-    },
-    {
-      "ticker": "7011",
-      "sector": "Industrials",
-      "mu": -0.142028,
-      "current": 0.0009671939,
-      "target": 0.0011377317,
-      "delta": 0.0001705378,
-      "bm_weight": 0.0011440416,
-      "active": -6.3099e-06
     },
     {
       "ticker": "CFR",
       "sector": "Consumer Discretionary",
       "mu": -0.178282,
-      "current": 0.0016964843,
-      "target": 0.0018670029,
-      "delta": 0.0001705186,
+      "current": 0.0016998766,
+      "target": 0.0018701082,
+      "delta": 0.0001702316,
       "bm_weight": 0.0018749187,
-      "active": -7.9159e-06
+      "active": -4.8106e-06
+    },
+    {
+      "ticker": "7011",
+      "sector": "Industrials",
+      "mu": -0.142028,
+      "current": 0.0009678674,
+      "target": 0.0011380884,
+      "delta": 0.0001702209,
+      "bm_weight": 0.0011440416,
+      "active": -5.9532e-06
     },
     {
       "ticker": "NRG",
       "sector": "Utilities",
       "mu": -0.257287,
-      "current": 0.0001302818,
-      "target": 0.0003006673,
-      "delta": 0.0001703854,
+      "current": 0.0001302498,
+      "target": 0.0003003258,
+      "delta": 0.0001700759,
       "bm_weight": 0.0003217572,
-      "active": -2.10899e-05
-    },
-    {
-      "ticker": "UCG",
-      "sector": "Financials",
-      "mu": -0.287131,
-      "current": 0.0018308553,
-      "target": 0.0020012226,
-      "delta": 0.0001703673,
-      "bm_weight": 0.0020312397,
-      "active": -3.0017e-05
+      "active": -2.14314e-05
     },
     {
       "ticker": "BE",
       "sector": "Industrials",
       "mu": 3.394636,
-      "current": 0.0166105761,
-      "target": 0.0167809394,
-      "delta": 0.0001703632,
+      "current": 0.016606496,
+      "target": 0.0167765648,
+      "delta": 0.0001700689,
       "bm_weight": 0.0008228263,
-      "active": 0.0159581131
+      "active": 0.0159537385
     },
     {
       "ticker": "005930",
       "sector": "Technology",
       "mu": 4.847878,
-      "current": 0.0283866621,
-      "target": 0.0285570252,
-      "delta": 0.0001703631,
+      "current": 0.0284176233,
+      "target": 0.028587692,
+      "delta": 0.0001700688,
       "bm_weight": 0.0148164712,
-      "active": 0.013740554
+      "active": 0.0137712209
     },
     {
       "ticker": "LRCX",
       "sector": "Technology",
       "mu": 1.463599,
-      "current": 0.0209649091,
-      "target": 0.0211352721,
-      "delta": 0.000170363,
+      "current": 0.0209597594,
+      "target": 0.021129828,
+      "delta": 0.0001700687,
       "bm_weight": 0.0053146947,
-      "active": 0.0158205774
+      "active": 0.0158151333
     },
     {
       "ticker": "6857",
       "sector": "Technology",
       "mu": 1.083576,
-      "current": 0.0123666172,
-      "target": 0.01253698,
-      "delta": 0.0001703629,
+      "current": 0.0123752294,
+      "target": 0.0125452979,
+      "delta": 0.0001700685,
       "bm_weight": 0.0021671316,
-      "active": 0.0103698484
-    },
-    {
-      "ticker": "ALV",
-      "sector": "Financials",
-      "mu": -0.664612,
-      "current": 0.0025086297,
-      "target": 0.0026789924,
-      "delta": 0.0001703627,
-      "bm_weight": 0.0027230871,
-      "active": -4.40947e-05
-    },
-    {
-      "ticker": "TEAM",
-      "sector": "Technology",
-      "mu": 0.297271,
-      "current": 0.0053141715,
-      "target": 0.0054845332,
-      "delta": 0.0001703617,
-      "bm_weight": 0.0005960783,
-      "active": 0.0048884549
+      "active": 0.0103781663
     },
     {
       "ticker": "ROP",
       "sector": "Healthcare",
       "mu": -0.144765,
-      "current": 0.0047490303,
-      "target": 0.004919392,
-      "delta": 0.0001703617,
+      "current": 0.0047585265,
+      "target": 0.0049285943,
+      "delta": 0.0001700678,
       "bm_weight": 0.0051233871,
-      "active": -0.0002039951
+      "active": -0.0001947928
     },
     {
       "ticker": "ITX",
       "sector": "Consumer Discretionary",
       "mu": -0.236143,
-      "current": 0.0025193756,
-      "target": 0.0026897371,
-      "delta": 0.0001703614,
+      "current": 0.0025224297,
+      "target": 0.0026924974,
+      "delta": 0.0001700677,
       "bm_weight": 0.0029006192,
-      "active": -0.0002108821
+      "active": -0.0002081218
     },
     {
-      "ticker": "STX",
+      "ticker": "TEAM",
       "sector": "Technology",
-      "mu": 3.633533,
-      "current": 0.0038484962,
-      "target": 0.0040188573,
-      "delta": 0.000170361,
-      "bm_weight": 0.0024662395,
-      "active": 0.0015526178
+      "mu": 0.297271,
+      "current": 0.0053128662,
+      "target": 0.0054829338,
+      "delta": 0.0001700676,
+      "bm_weight": 0.0005960783,
+      "active": 0.0048868554
+    },
+    {
+      "ticker": "UCG",
+      "sector": "Financials",
+      "mu": -0.287131,
+      "current": 0.0018330747,
+      "target": 0.0020031423,
+      "delta": 0.0001700676,
+      "bm_weight": 0.0020312397,
+      "active": -2.80973e-05
     },
     {
       "ticker": "RIO",
       "sector": "Materials",
       "mu": -0.186556,
-      "current": 0.0020967229,
-      "target": 0.0022670839,
-      "delta": 0.000170361,
+      "current": 0.002099438,
+      "target": 0.0022695053,
+      "delta": 0.0001700673,
       "bm_weight": 0.0024481129,
-      "active": -0.0001810289
+      "active": -0.0001786076
     },
     {
       "ticker": "ISRG",
       "sector": "Healthcare",
       "mu": -0.043084,
-      "current": 0.0014556286,
-      "target": 0.0016259893,
-      "delta": 0.0001703607,
+      "current": 0.0014552711,
+      "target": 0.0016253381,
+      "delta": 0.0001700671,
       "bm_weight": 0.0018071676,
-      "active": -0.0001811783
+      "active": -0.0001818295
     },
     {
       "ticker": "SAF",
       "sector": "Industrials",
       "mu": -0.356817,
-      "current": 0.0018503771,
-      "target": 0.0020207378,
-      "delta": 0.0001703607,
+      "current": 0.0018526202,
+      "target": 0.0020226873,
+      "delta": 0.0001700671,
       "bm_weight": 0.002302689,
-      "active": -0.0002819512
+      "active": -0.0002800017
+    },
+    {
+      "ticker": "STX",
+      "sector": "Technology",
+      "mu": 3.633533,
+      "current": 0.0038475509,
+      "target": 0.0040176179,
+      "delta": 0.000170067,
+      "bm_weight": 0.0024662395,
+      "active": 0.0015513785
     },
     {
       "ticker": "PH",
       "sector": "Industrials",
       "mu": -0.751185,
-      "current": 0.0013108108,
-      "target": 0.0014811711,
-      "delta": 0.0001703604,
+      "current": 0.0013104888,
+      "target": 0.0014805556,
+      "delta": 0.0001700668,
       "bm_weight": 0.0017511314,
-      "active": -0.0002699603
+      "active": -0.0002705758
     },
     {
       "ticker": "ABBN",
       "sector": "Industrials",
       "mu": -0.45824,
-      "current": 0.0019743982,
-      "target": 0.0021447585,
-      "delta": 0.0001703603,
+      "current": 0.0019783462,
+      "target": 0.002148413,
+      "delta": 0.0001700668,
       "bm_weight": 0.0024634113,
-      "active": -0.0003186528
+      "active": -0.0003149983
+    },
+    {
+      "ticker": "EMR",
+      "sector": "Industrials",
+      "mu": -0.848247,
+      "current": 0.0008065513,
+      "target": 0.000976618,
+      "delta": 0.0001700666,
+      "bm_weight": 0.0012035388,
+      "active": -0.0002269208
     }
   ],
+  "e0_selfcheck": {
+    "applicable": false,
+    "l1_diff": null,
+    "tolerance": 1e-08,
+    "ok": null
+  },
   "feature_attribution": {
     "as_of": "2026-08-25",
     "signal_date": "2026-08-24",
@@ -3432,9 +3438,9 @@
         }
       },
       "META": {
-        "weight": 0.0163988423,
+        "weight": 0.0163945638,
         "bm_weight": 0.019500798623691976,
-        "active": -0.0031019563236919755,
+        "active": -0.003106234823691975,
         "sector": "Technology",
         "mu": -0.38568606534761646,
         "model_mu": -0.4301765747018358,
@@ -3504,9 +3510,9 @@
         }
       },
       "NVDA": {
-        "weight": 0.0695256704,
+        "weight": 0.0695083415,
         "bm_weight": 0.0690859226672939,
-        "active": 0.00043974773270610834,
+        "active": 0.00042241883270610625,
         "sector": "Technology",
         "mu": 0.20433180989409008,
         "model_mu": 0.009543169132624513,
@@ -3576,9 +3582,9 @@
         }
       },
       "TSLA": {
-        "weight": 0.0026661884,
+        "weight": 0.0026652837,
         "bm_weight": 0.01887210438697005,
-        "active": -0.01620591598697005,
+        "active": -0.01620682068697005,
         "sector": "Consumer Discretionary",
         "mu": -1.0908020815758421,
         "model_mu": -0.9910547519098116,
@@ -3720,9 +3726,9 @@
         }
       },
       "AVGO": {
-        "weight": 0.0186495333,
+        "weight": 0.018644702,
         "bm_weight": 0.02337221813595947,
-        "active": -0.00472268483595947,
+        "active": -0.00472751613595947,
         "sector": "Technology",
         "mu": -0.5502340194095322,
         "model_mu": -0.7432518925651223,
@@ -3792,9 +3798,9 @@
         }
       },
       "MU": {
-        "weight": 0.0074010418,
+        "weight": 0.0073989736,
         "bm_weight": 0.01407996280147117,
-        "active": -0.00667892100147117,
+        "active": -0.0066809892014711705,
         "sector": "Technology",
         "mu": 4.11797767382856,
         "model_mu": 3.873985486197146,
@@ -3864,9 +3870,9 @@
         }
       },
       "GEV": {
-        "weight": 0.0023108015,
+        "weight": 0.0023099833,
         "bm_weight": 0.0034358384071296894,
-        "active": -0.0011250369071296893,
+        "active": -0.0011258551071296895,
         "sector": "Industrials",
         "mu": -0.8026681160535168,
         "model_mu": -0.9290534540028522,
@@ -3936,9 +3942,9 @@
         }
       },
       "VRT": {
-        "weight": 0.0003132313,
+        "weight": 0.0003129057,
         "bm_weight": 0.0013441454611368409,
-        "active": -0.0010309141611368408,
+        "active": -0.0010312397611368408,
         "sector": "Industrials",
         "mu": -0.2021714559616511,
         "model_mu": -0.31103922107937954,
@@ -4008,9 +4014,9 @@
         }
       },
       "BE": {
-        "weight": 0.0167809394,
+        "weight": 0.0167765648,
         "bm_weight": 0.0008228263002736348,
-        "active": 0.015958113099726366,
+        "active": 0.015953738499726366,
         "sector": "Industrials",
         "mu": 3.3946358665983283,
         "model_mu": 2.957114843416746,
@@ -4080,9 +4086,9 @@
         }
       },
       "LITE": {
-        "weight": 0.0228893705,
+        "weight": 0.0228833646,
         "bm_weight": 0.001019692619649476,
-        "active": 0.021869677880350522,
+        "active": 0.021863671980350524,
         "sector": "Technology",
         "mu": 2.0395782753132625,
         "model_mu": 1.772504426560616,
@@ -4152,9 +4158,9 @@
         }
       },
       "000660": {
-        "weight": 0.032318435,
+        "weight": 0.0323308732,
         "bm_weight": 0.012089501556090442,
-        "active": 0.02022893344390956,
+        "active": 0.02024137164390956,
         "sector": "Technology",
         "mu": 7.155280203573292,
         "model_mu": 7.043575358820393,
@@ -4224,9 +4230,9 @@
         }
       },
       "005930": {
-        "weight": 0.0285570252,
+        "weight": 0.028587692,
         "bm_weight": 0.01481647117808836,
-        "active": 0.01374055402191164,
+        "active": 0.013771220821911642,
         "sector": "Technology",
         "mu": 4.847878167103347,
         "model_mu": 4.715619484330066,
@@ -4296,9 +4302,9 @@
         }
       },
       "UNH": {
-        "weight": 0.0029296075,
+        "weight": 0.0029286376,
         "bm_weight": 0.004901192223825593,
-        "active": -0.001971584723825593,
+        "active": -0.001972554623825593,
         "sector": "Healthcare",
         "mu": -0.3587344569191024,
         "model_mu": -0.44280608884563954,
@@ -4440,9 +4446,9 @@
         }
       },
       "ISRG": {
-        "weight": 0.0016259893,
+        "weight": 0.0016253381,
         "bm_weight": 0.0018071675934159634,
-        "active": -0.00018117829341596334,
+        "active": -0.00018182949341596336,
         "sector": "Healthcare",
         "mu": -0.04308403861582549,
         "model_mu": -0.12382772360306923,
@@ -4512,9 +4518,9 @@
         }
       },
       "ABBV": {
-        "weight": 0.004069807,
+        "weight": 0.004068557,
         "bm_weight": 0.0064007915890788875,
-        "active": -0.0023309845890788876,
+        "active": -0.002332234589078887,
         "sector": "Healthcare",
         "mu": -0.8864727909549974,
         "model_mu": -0.7806012012235943,
@@ -4584,9 +4590,9 @@
         }
       },
       "REGN": {
-        "weight": 0.0012797576,
+        "weight": 0.0012791925,
         "bm_weight": 0.0011680184503324298,
-        "active": 0.00011173914966757024,
+        "active": 0.0001111740496675701,
         "sector": "Healthcare",
         "mu": 0.09397608667972783,
         "model_mu": 0.0380157760105389,
@@ -4656,9 +4662,9 @@
         }
       },
       "JPM": {
-        "weight": 0.0024766976,
+        "weight": 0.0024758394,
         "bm_weight": 0.012972411172265616,
-        "active": -0.010495713572265617,
+        "active": -0.010496571772265616,
         "sector": "Financials",
         "mu": 0.27022986907748425,
         "model_mu": 0.15406790015706887,
@@ -4728,9 +4734,9 @@
         }
       },
       "V": {
-        "weight": 0.0056405342,
+        "weight": 0.0056388986,
         "bm_weight": 0.009777089857670115,
-        "active": -0.004136555657670115,
+        "active": -0.004138191257670115,
         "sector": "Financials",
         "mu": 0.19423108166198466,
         "model_mu": 0.10868989184636449,
@@ -4800,9 +4806,9 @@
         }
       },
       "MA": {
-        "weight": 0.0039282439,
+        "weight": 0.0039270288,
         "bm_weight": 0.007197204322398927,
-        "active": -0.003268960422398926,
+        "active": -0.0032701755223989264,
         "sector": "Financials",
         "mu": -0.41383229351504525,
         "model_mu": -0.35242975883146366,
@@ -4872,9 +4878,9 @@
         }
       },
       "BLK": {
-        "weight": 0.0021930689,
+        "weight": 0.0021922788,
         "bm_weight": 0.0026205241597035754,
-        "active": -0.00042745525970357525,
+        "active": -0.00042824535970357536,
         "sector": "Financials",
         "mu": -0.4971318201316406,
         "model_mu": -0.5650079358604009,
@@ -5016,9 +5022,9 @@
         }
       },
       "GS": {
-        "weight": 0.0020663967,
+        "weight": 0.0020656392,
         "bm_weight": 0.0042956886769556476,
-        "active": -0.0022292919769556475,
+        "active": -0.0022300494769556477,
         "sector": "Financials",
         "mu": 0.10756668298089192,
         "model_mu": -0.027919845354969323,
@@ -5088,9 +5094,9 @@
         }
       },
       "COST": {
-        "weight": 0.0022329341,
+        "weight": 0.0022321356,
         "bm_weight": 0.0058990321694670925,
-        "active": -0.0036660980694670927,
+        "active": -0.0036668965694670926,
         "sector": "Consumer Staples",
         "mu": -0.42582163096453685,
         "model_mu": -0.36959175461854044,
@@ -5160,9 +5166,9 @@
         }
       },
       "HD": {
-        "weight": 0.0026405169,
+        "weight": 0.0026396181,
         "bm_weight": 0.004607225527691056,
-        "active": -0.001966708627691056,
+        "active": -0.0019676074276910563,
         "sector": "Consumer Discretionary",
         "mu": -0.5169616089982483,
         "model_mu": -0.35967787104590276,
@@ -5232,9 +5238,9 @@
         }
       },
       "PG": {
-        "weight": 0.002744848,
+        "weight": 0.0027439235,
         "bm_weight": 0.004666172735837033,
-        "active": -0.0019213247358370335,
+        "active": -0.0019222492358370335,
         "sector": "Consumer Staples",
         "mu": -0.17381106360845042,
         "model_mu": 0.01196166698498563,
@@ -5376,9 +5382,9 @@
         }
       },
       "WMT": {
-        "weight": 0.0104237856,
+        "weight": 0.0104209745,
         "bm_weight": 0.011604511930069413,
-        "active": -0.0011807263300694128,
+        "active": -0.0011835374300694142,
         "sector": "Consumer Staples",
         "mu": -0.540600226124463,
         "model_mu": -0.4136346592151635,
@@ -5448,9 +5454,9 @@
         }
       },
       "CAT": {
-        "weight": 0.0018935361,
+        "weight": 0.0018928211,
         "bm_weight": 0.0051049576295426466,
-        "active": -0.0032114215295426466,
+        "active": -0.0032121365295426467,
         "sector": "Industrials",
         "mu": 0.2660955434319554,
         "model_mu": 0.08780234348274428,
@@ -5520,9 +5526,9 @@
         }
       },
       "HON": {
-        "weight": 0.0010326056,
+        "weight": 0.0010321013,
         "bm_weight": 0.0009320956515700231,
-        "active": 0.00010050994842997695,
+        "active": 0.00010000564842997694,
         "sector": "Industrials",
         "mu": 0.09613032999946092,
         "model_mu": 0.355548652354886,
@@ -5592,9 +5598,9 @@
         }
       },
       "DE": {
-        "weight": 0.0022197184,
+        "weight": 0.0022189225,
         "bm_weight": 0.002397599424172498,
-        "active": -0.00017788102417249816,
+        "active": -0.00017867692417249809,
         "sector": "Industrials",
         "mu": 0.04895570353524949,
         "model_mu": -0.0038714738857557342,
@@ -5736,9 +5742,9 @@
         }
       },
       "LMT": {
-        "weight": 0.00190916,
+        "weight": 0.0019084399,
         "bm_weight": 0.0017828511935698863,
-        "active": 0.00012630880643011376,
+        "active": 0.00012558870643011367,
         "sector": "Industrials",
         "mu": 0.32731424656037983,
         "model_mu": 0.24722504040161492,
@@ -5808,9 +5814,9 @@
         }
       },
       "ETN": {
-        "weight": 0.0014564844,
+        "weight": 0.001455876,
         "bm_weight": 0.0021735106714928483,
-        "active": -0.0007170262714928483,
+        "active": -0.0007176346714928483,
         "sector": "Industrials",
         "mu": -0.21145969707936035,
         "model_mu": -0.10733544022378343,
@@ -5880,9 +5886,9 @@
         }
       },
       "XOM": {
-        "weight": 0.0092651193,
+        "weight": 0.0092625922,
         "bm_weight": 0.009310082290119679,
-        "active": -4.4962990119679774e-05,
+        "active": -4.7490090119679806e-05,
         "sector": "Energy",
         "mu": 0.2097076581654964,
         "model_mu": 0.16493138838132204,
@@ -6024,9 +6030,9 @@
         }
       },
       "FCX": {
-        "weight": 0.0004366702,
+        "weight": 0.0004363139,
         "bm_weight": 0.001529850998245978,
-        "active": -0.001093180798245978,
+        "active": -0.001093537098245978,
         "sector": "Materials",
         "mu": -0.16999750170017797,
         "model_mu": -0.3217276041952557,
@@ -6168,9 +6174,9 @@
         }
       },
       "NEE": {
-        "weight": 0.002304595,
+        "weight": 0.0023037764,
         "bm_weight": 0.002402235390924873,
-        "active": -9.764039092487317e-05,
+        "active": -9.845899092487303e-05,
         "sector": "Utilities",
         "mu": -0.6885540862465083,
         "model_mu": -0.6010434826144923,
@@ -6240,9 +6246,9 @@
         }
       },
       "AMT": {
-        "weight": 0.0012251859,
+        "weight": 0.0012246342,
         "bm_weight": 0.0011382272659131738,
-        "active": 8.695863408682628e-05,
+        "active": 8.640693408682614e-05,
         "sector": "Real Estate",
         "mu": 0.3004795247983515,
         "model_mu": 0.3384668121106998,
@@ -6312,9 +6318,9 @@
         }
       },
       "EQIX": {
-        "weight": 0.0013742432,
+        "weight": 0.00137365,
         "bm_weight": 0.0014257294794458408,
-        "active": -5.148627944584071e-05,
+        "active": -5.20794794458409e-05,
         "sector": "Real Estate",
         "mu": -0.4001533447281652,
         "model_mu": -0.3951290668511139,
@@ -6456,9 +6462,9 @@
         }
       },
       "PLD": {
-        "weight": 0.0019347557,
+        "weight": 0.0019340295,
         "bm_weight": 0.0018981791674456748,
-        "active": 3.657653255432526e-05,
+        "active": 3.5850332554325254e-05,
         "sector": "Real Estate",
         "mu": 0.03773075569694243,
         "model_mu": 0.06272692157404354,
@@ -6528,9 +6534,9 @@
         }
       },
       "AMD": {
-        "weight": 0.0059449359,
+        "weight": 0.0059432255,
         "bm_weight": 0.010210103626215819,
-        "active": -0.004265167726215819,
+        "active": -0.004266878126215819,
         "sector": "Technology",
         "mu": 1.338032808671199,
         "model_mu": 1.1409658583506883,
@@ -6672,9 +6678,9 @@
         }
       },
       "NFLX": {
-        "weight": 0.0040105639,
+        "weight": 0.0040093274,
         "bm_weight": 0.00456203378676811,
-        "active": -0.0005514698867681101,
+        "active": -0.0005527063867681098,
         "sector": "Communication Services",
         "mu": -0.3647317740828484,
         "model_mu": -0.3493960954001952,
@@ -6744,9 +6750,9 @@
         }
       },
       "TER": {
-        "weight": 0.0003479526,
+        "weight": 0.0003476185,
         "bm_weight": 0.0007811885198137759,
-        "active": -0.00043323591981377595,
+        "active": -0.00043357001981377593,
         "sector": "Technology",
         "mu": 1.5342036975280147,
         "model_mu": 1.3650056405780724,
@@ -6816,9 +6822,9 @@
         }
       },
       "GLW": {
-        "weight": 0.0003153276,
+        "weight": 0.0003150021,
         "bm_weight": 0.0017168050884172324,
-        "active": -0.0014014774884172324,
+        "active": -0.0014018029884172323,
         "sector": "Technology",
         "mu": 0.21505061389875274,
         "model_mu": 0.18661457076609952,
@@ -6888,9 +6894,9 @@
         }
       },
       "JNJ": {
-        "weight": 0.0082787272,
+        "weight": 0.0082764426,
         "bm_weight": 0.009010208521218581,
-        "active": -0.0007314813212185804,
+        "active": -0.0007337659212185814,
         "sector": "Healthcare",
         "mu": -0.07700066726855409,
         "model_mu": -0.0024172023264218715,
@@ -6960,9 +6966,9 @@
         }
       },
       "WFC": {
-        "weight": 0.0021278272,
+        "weight": 0.0021270542,
         "bm_weight": 0.0035081441984689907,
-        "active": -0.0013803169984689906,
+        "active": -0.001381089998468991,
         "sector": "Financials",
         "mu": -0.03812576129448073,
         "model_mu": -0.008661186012830753,
@@ -7032,9 +7038,9 @@
         }
       },
       "MPC": {
-        "weight": 0.0119655758,
+        "weight": 0.0119649429,
         "bm_weight": 0.0013940462105253614,
-        "active": 0.010571529589474639,
+        "active": 0.01057089668947464,
         "sector": "Energy",
         "mu": 2.008377842880764,
         "model_mu": 1.908736002197527,
@@ -7104,9 +7110,9 @@
         }
       },
       "LRCX": {
-        "weight": 0.0211352721,
+        "weight": 0.021129828,
         "bm_weight": 0.005314694689986098,
-        "active": 0.015820577410013904,
+        "active": 0.015815133310013902,
         "sector": "Technology",
         "mu": 1.4635986257499025,
         "model_mu": 1.227397643280412,
@@ -7176,9 +7182,9 @@
         }
       },
       "AMAT": {
-        "weight": 0.0034556525,
+        "weight": 0.0034545535,
         "bm_weight": 0.005261697461358364,
-        "active": -0.0018060449613583637,
+        "active": -0.0018071439613583638,
         "sector": "Technology",
         "mu": 1.6996223985244225,
         "model_mu": 1.4558026254267518,
@@ -7248,9 +7254,9 @@
         }
       },
       "PANW": {
-        "weight": 0.0023837857,
+        "weight": 0.0023829498,
         "bm_weight": 0.003916072962014321,
-        "active": -0.001532287262014321,
+        "active": -0.0015331231620143212,
         "sector": "Technology",
         "mu": -1.3218192431596163,
         "model_mu": -1.4230108012210765,
@@ -7392,9 +7398,9 @@
         }
       },
       "MPWR": {
-        "weight": 0.0003107911,
+        "weight": 0.0003104664,
         "bm_weight": 0.0008647383695448673,
-        "active": -0.0005539472695448673,
+        "active": -0.0005542719695448674,
         "sector": "Technology",
         "mu": 0.011090928443367037,
         "model_mu": -0.1733134862660023,
@@ -7464,9 +7470,9 @@
         }
       },
       "BAC": {
-        "weight": 0.0034113965,
+        "weight": 0.0034103085,
         "bm_weight": 0.005968357443725412,
-        "active": -0.002556960943725412,
+        "active": -0.002558048943725412,
         "sector": "Financials",
         "mu": 0.31846825973818793,
         "model_mu": 0.20431817352665244,
@@ -7536,9 +7542,9 @@
         }
       },
       "CSCO": {
-        "weight": 0.0026427873,
+        "weight": 0.002641888,
         "bm_weight": 0.0059492735314213,
-        "active": -0.0033064862314213,
+        "active": -0.0033073855314213,
         "sector": "Technology",
         "mu": -0.10516639439651959,
         "model_mu": -0.327236733320692,
@@ -7608,9 +7614,9 @@
         }
       },
       "INTC": {
-        "weight": 0.0033123841,
+        "weight": 0.0033113203,
         "bm_weight": 0.00631503424626606,
-        "active": -0.0030026501462660604,
+        "active": -0.00300371394626606,
         "sector": "Technology",
         "mu": 0.20429512760663993,
         "model_mu": 0.024367802338005083,
@@ -7680,9 +7686,9 @@
         }
       },
       "ORCL": {
-        "weight": 0.0010043659,
+        "weight": 0.0010038699,
         "bm_weight": 0.0056186988889633605,
-        "active": -0.0046143329889633605,
+        "active": -0.0046148289889633605,
         "sector": "Technology",
         "mu": 0.007145155439174031,
         "model_mu": -0.1488287609097869,
@@ -7752,9 +7758,9 @@
         }
       },
       "TSM": {
-        "weight": 0.0244708526,
+        "weight": 0.0244645913,
         "bm_weight": 0.029126812001173032,
-        "active": -0.0046559594011730335,
+        "active": -0.004662220701173031,
         "sector": "Technology",
         "mu": -0.22094021391025143,
         "model_mu": -0.44213985280117574,
@@ -7824,9 +7830,9 @@
         }
       },
       "SNDK": {
-        "weight": 0.0007183546,
+        "weight": 0.000717929,
         "bm_weight": 0.002993656384300003,
-        "active": -0.002275301784300003,
+        "active": -0.0022757273843000032,
         "sector": "Technology",
         "mu": 5.103289331212583,
         "model_mu": 4.896522822306049,
@@ -7968,9 +7974,9 @@
         }
       },
       "ANET": {
-        "weight": 0.0021285802,
+        "weight": 0.0021278068,
         "bm_weight": 0.0032494246443361173,
-        "active": -0.0011208444443361171,
+        "active": -0.0011216178443361172,
         "sector": "Technology",
         "mu": -0.6704449055224698,
         "model_mu": -0.8197061842781225,
@@ -8040,9 +8046,9 @@
         }
       },
       "MRVL": {
-        "weight": 0.0028206306,
+        "weight": 0.0028196866,
         "bm_weight": 0.00274665230687728,
-        "active": 7.397829312271982e-05,
+        "active": 7.30342931227197e-05,
         "sector": "Technology",
         "mu": 1.8211129463712927,
         "model_mu": 0.9718012090533943,
@@ -8112,9 +8118,9 @@
         }
       },
       "CDNS": {
-        "weight": 0.0009976264,
+        "weight": 0.0009971312,
         "bm_weight": 0.0011913607543560033,
-        "active": -0.00019373435435600318,
+        "active": -0.00019422955435600335,
         "sector": "Technology",
         "mu": 0.012264530103355861,
         "model_mu": -0.013702892816408966,
@@ -8184,9 +8190,9 @@
         }
       },
       "STX": {
-        "weight": 0.0040188573,
+        "weight": 0.0040176179,
         "bm_weight": 0.0024662394844257728,
-        "active": 0.0015526178155742276,
+        "active": 0.0015513784155742273,
         "sector": "Technology",
         "mu": 3.6335325847637248,
         "model_mu": 3.47731233680114,
@@ -8256,9 +8262,9 @@
         }
       },
       "PWR": {
-        "weight": 0.000333259,
+        "weight": 0.0003329284,
         "bm_weight": 0.0012697681448624845,
-        "active": -0.0009365091448624845,
+        "active": -0.0009368397448624845,
         "sector": "Industrials",
         "mu": -0.5580214483801867,
         "model_mu": -0.7038053005364965,
@@ -8328,9 +8334,9 @@
         }
       },
       "BX": {
-        "weight": 0.0023240279,
+        "weight": 0.002323205,
         "bm_weight": 0.002440902944858384,
-        "active": -0.00011687504485838373,
+        "active": -0.00011769794485838375,
         "sector": "Financials",
         "mu": -0.7970611251964003,
         "model_mu": -0.7132692988282284,
@@ -8400,9 +8406,9 @@
         }
       },
       "TMO": {
-        "weight": 0.0030959388,
+        "weight": 0.0030949253,
         "bm_weight": 0.003183360941855773,
-        "active": -8.742214185577298e-05,
+        "active": -8.843564185577295e-05,
         "sector": "Healthcare",
         "mu": -0.297652428811593,
         "model_mu": -0.29785284227731856,
@@ -8472,9 +8478,9 @@
         }
       },
       "BSX": {
-        "weight": 0.0010890667,
+        "weight": 0.0010885484,
         "bm_weight": 0.0009725941971112159,
-        "active": 0.00011647250288878417,
+        "active": 0.00011595420288878415,
         "sector": "Healthcare",
         "mu": 0.5605216301143114,
         "model_mu": 0.7950561780358094,
@@ -8616,9 +8622,9 @@
         }
       },
       "PM": {
-        "weight": 0.0040862624,
+        "weight": 0.0040862623,
         "bm_weight": 0.004086262563798365,
-        "active": -1.6379836462881991e-10,
+        "active": -2.6379836509660137e-10,
         "sector": "Consumer Staples",
         "mu": -0.2707592431590021,
         "model_mu": -0.1258805411162139,
@@ -8688,9 +8694,9 @@
         }
       },
       "WMB": {
-        "weight": 0.0010171261,
+        "weight": 0.0010166247,
         "bm_weight": 0.001188393478747185,
-        "active": -0.000171267378747185,
+        "active": -0.0001717687787471849,
         "sector": "Energy",
         "mu": -0.5369393675535689,
         "model_mu": -0.40616676848649824,
@@ -8760,9 +8766,9 @@
         }
       },
       "CEG": {
-        "weight": 0.0006403696,
+        "weight": 0.0006399623,
         "bm_weight": 0.0013265882837264216,
-        "active": -0.0006862186837264216,
+        "active": -0.0006866259837264216,
         "sector": "Utilities",
         "mu": -0.0,
         "model_mu": -0.18313586887270678,
@@ -8832,9 +8838,9 @@
         }
       },
       "VST": {
-        "weight": 0.0003224063,
+        "weight": 0.000322077,
         "bm_weight": 0.0006234894453553425,
-        "active": -0.0003010831453553425,
+        "active": -0.00030141244535534254,
         "sector": "Utilities",
         "mu": 0.0,
         "model_mu": 0.21586774438664735,
@@ -8904,9 +8910,9 @@
         }
       },
       "DLR": {
-        "weight": 0.0007302413,
+        "weight": 0.0007298121,
         "bm_weight": 0.0009726856591226086,
-        "active": -0.00024244435912260868,
+        "active": -0.00024287355912260868,
         "sector": "Real Estate",
         "mu": 0.4532055277676671,
         "model_mu": 0.4905462144196261,
@@ -8976,9 +8982,9 @@
         }
       },
       "ARM": {
-        "weight": 0.0019885675,
+        "weight": 0.001987829,
         "bm_weight": 0.003492038300100966,
-        "active": -0.0015034708001009662,
+        "active": -0.001504209300100966,
         "sector": "Technology",
         "mu": 0.8070764906618593,
         "model_mu": 0.6195214210683855,
@@ -9192,9 +9198,9 @@
         }
       },
       "285A": {
-        "weight": 0.0026424977,
+        "weight": 0.002643926,
         "bm_weight": 0.0024157923292144634,
-        "active": 0.0002267053707855366,
+        "active": 0.00022813367078553665,
         "sector": "Technology",
         "mu": 2.993996136298717,
         "model_mu": 2.7645557139670696,
@@ -9264,9 +9270,9 @@
         }
       },
       "6857": {
-        "weight": 0.01253698,
+        "weight": 0.0125452979,
         "bm_weight": 0.002167131636965727,
-        "active": 0.010369848363034274,
+        "active": 0.010378166263034273,
         "sector": "Technology",
         "mu": 1.0835761342459533,
         "model_mu": 1.0113832272222703,
@@ -9336,9 +9342,9 @@
         }
       },
       "SU": {
-        "weight": 0.0022932796,
+        "weight": 0.0022955598,
         "bm_weight": 0.0027257468702752002,
-        "active": -0.0004324672702752004,
+        "active": -0.00043018707027520043,
         "sector": "Industrials",
         "mu": -0.5064377837923761,
         "model_mu": -0.46230603888793803,
@@ -9408,9 +9414,9 @@
         }
       },
       "SIE": {
-        "weight": 0.0029842221,
+        "weight": 0.0029873401,
         "bm_weight": 0.0035353618362935495,
-        "active": -0.0005511397362935495,
+        "active": -0.0005480217362935497,
         "sector": "Industrials",
         "mu": -0.9111322280974036,
         "model_mu": -0.7842245906583599,
@@ -9480,9 +9486,9 @@
         }
       },
       "RHM": {
-        "weight": 0.0009256369,
+        "weight": 0.0009262601,
         "bm_weight": 0.0008380611953942301,
-        "active": 8.757570460576989e-05,
+        "active": 8.81989046057699e-05,
         "sector": "Industrials",
         "mu": 0.47111237053516897,
         "model_mu": 0.7129888418717545,
@@ -9552,9 +9558,9 @@
         }
       },
       "ALV": {
-        "weight": 0.0026789924,
+        "weight": 0.0026817356,
         "bm_weight": 0.0027230870750204654,
-        "active": -4.409467502046547e-05,
+        "active": -4.135147502046547e-05,
         "sector": "Financials",
         "mu": -0.6646118093310105,
         "model_mu": -0.5473238353767774,
@@ -9624,9 +9630,9 @@
         }
       },
       "MC": {
-        "weight": 0.0021033245,
+        "weight": 0.0021053756,
         "bm_weight": 0.003588617635634423,
-        "active": -0.001485293135634423,
+        "active": -0.001483242035634423,
         "sector": "Consumer Discretionary",
         "mu": -0.048387299380692,
         "model_mu": 0.20003923673246682,
@@ -9696,9 +9702,9 @@
         }
       },
       "NESN": {
-        "weight": 0.0035603063,
+        "weight": 0.0035667919,
         "bm_weight": 0.0035153828835628675,
-        "active": 4.4923416437132706e-05,
+        "active": 5.140901643713256e-05,
         "sector": "Consumer Staples",
         "mu": 0.10005410131426887,
         "model_mu": 0.17703729995239345,
@@ -9768,9 +9774,9 @@
         }
       },
       "RR/": {
-        "weight": 0.0016015613,
+        "weight": 0.0016031221,
         "bm_weight": 0.0023658053508654664,
-        "active": -0.0007642440508654664,
+        "active": -0.0007626832508654663,
         "sector": "Industrials",
         "mu": -0.8443267706458875,
         "model_mu": -0.899050060912632,
@@ -9840,9 +9846,9 @@
         }
       },
       "SAP": {
-        "weight": 0.0020011637,
+        "weight": 0.0020030911,
         "bm_weight": 0.0036332238176064436,
-        "active": -0.0016320601176064435,
+        "active": -0.0016301327176064437,
         "sector": "Technology",
         "mu": -0.5455566183221017,
         "model_mu": -0.4182589490916272,
@@ -9912,9 +9918,9 @@
         }
       },
       "ASML": {
-        "weight": 0.0085359193,
+        "weight": 0.008545768,
         "bm_weight": 0.009284501873039223,
-        "active": -0.0007485825730392231,
+        "active": -0.0007387338730392226,
         "sector": "Technology",
         "mu": 1.008450182591314,
         "model_mu": 0.8637736576547923,
@@ -9984,9 +9990,9 @@
         }
       },
       "AZN": {
-        "weight": 0.0032767526,
+        "weight": 0.0032804826,
         "bm_weight": 0.003521942576385195,
-        "active": -0.00024518997638519474,
+        "active": -0.00024145997638519478,
         "sector": "Healthcare",
         "mu": 0.05432065562480276,
         "model_mu": 0.16190709275965334,
@@ -10128,9 +10134,9 @@
         }
       },
       "HSBA": {
-        "weight": 0.0026503501,
+        "weight": 0.0026532695,
         "bm_weight": 0.004903608740633099,
-        "active": -0.0022532586406330993,
+        "active": -0.0022503392406330995,
         "sector": "Financials",
         "mu": -0.14410447490869532,
         "model_mu": -0.21065220158223755,
@@ -10272,9 +10278,9 @@
         }
       },
       "RIO": {
-        "weight": 0.0022670839,
+        "weight": 0.0022695053,
         "bm_weight": 0.002448112880353721,
-        "active": -0.00018102898035372112,
+        "active": -0.00017860758035372114,
         "sector": "Materials",
         "mu": -0.18655640811023583,
         "model_mu": -0.26739544778412,
@@ -10344,9 +10350,9 @@
         }
       },
       "QCOM": {
-        "weight": 0.0020714537,
+        "weight": 0.0020706943,
         "bm_weight": 0.002279347581246949,
-        "active": -0.00020789388124694934,
+        "active": -0.00020865328124694896,
         "sector": "Technology",
         "mu": 0.11599087366410024,
         "model_mu": 0.3411792646690275,
@@ -10416,9 +10422,9 @@
         }
       },
       "TXN": {
-        "weight": 0.0014359004,
+        "weight": 0.0014352977,
         "bm_weight": 0.00323815417009743,
-        "active": -0.00180225377009743,
+        "active": -0.0018028564700974302,
         "sector": "Technology",
         "mu": -0.23563178194723428,
         "model_mu": -0.39303195564634497,
@@ -10488,9 +10494,9 @@
         }
       },
       "ADBE": {
-        "weight": 0.0015863996,
+        "weight": 0.0015857591,
         "bm_weight": 0.0015037673753668982,
-        "active": 8.263222463310185e-05,
+        "active": 8.19917246331018e-05,
         "sector": "Technology",
         "mu": 0.21050622135288968,
         "model_mu": 0.1177014253646692,
@@ -10704,9 +10710,9 @@
         }
       },
       "IBM": {
-        "weight": 0.0015442204,
+        "weight": 0.0015435912,
         "bm_weight": 0.0029806420944455993,
-        "active": -0.0014364216944455993,
+        "active": -0.0014370508944455992,
         "sector": "Technology",
         "mu": 0.41434305150588147,
         "model_mu": 0.5664293271329603,
@@ -10776,9 +10782,9 @@
         }
       },
       "ADI": {
-        "weight": 0.0019109208,
+        "weight": 0.0019102011,
         "bm_weight": 0.0024628339023950135,
-        "active": -0.0005519131023950135,
+        "active": -0.0005526328023950134,
         "sector": "Technology",
         "mu": 0.26610142094274275,
         "model_mu": -0.005695744099612787,
@@ -10848,9 +10854,9 @@
         }
       },
       "DELL": {
-        "weight": 0.0025346462,
+        "weight": 0.0025337735,
         "bm_weight": 0.0038328028400943376,
-        "active": -0.0012981566400943377,
+        "active": -0.0012990293400943374,
         "sector": "Technology",
         "mu": 0.24681646951194336,
         "model_mu": -0.04154080952081612,
@@ -10920,9 +10926,9 @@
         }
       },
       "8035": {
-        "weight": 0.0020952642,
+        "weight": 0.0020963121,
         "bm_weight": 0.002228688451528782,
-        "active": -0.00013342425152878222,
+        "active": -0.00013237635152878223,
         "sector": "Technology",
         "mu": 0.28644223339413855,
         "model_mu": 0.09830865713287172,
@@ -10992,9 +10998,9 @@
         }
       },
       "IFX": {
-        "weight": 0.000582534,
+        "weight": 0.0005827426,
         "bm_weight": 0.001153066804156057,
-        "active": -0.000570532804156057,
+        "active": -0.000570324204156057,
         "sector": "Technology",
         "mu": 0.4373369436360362,
         "model_mu": 0.12880226763112232,
@@ -11064,9 +11070,9 @@
         }
       },
       "MS": {
-        "weight": 0.0021202857,
+        "weight": 0.0021195148,
         "bm_weight": 0.0046040726304689495,
-        "active": -0.0024837869304689493,
+        "active": -0.0024845578304689493,
         "sector": "Financials",
         "mu": -0.34516051397948067,
         "model_mu": -0.5142714717219201,
@@ -11136,9 +11142,9 @@
         }
       },
       "SCHW": {
-        "weight": 0.0025992698,
+        "weight": 0.0025983805,
         "bm_weight": 0.002691277920418546,
-        "active": -9.200812041854599e-05,
+        "active": -9.289742041854567e-05,
         "sector": "Financials",
         "mu": 0.18007414050158244,
         "model_mu": 0.018997006353428755,
@@ -11208,9 +11214,9 @@
         }
       },
       "AXP": {
-        "weight": 0.0030512583,
+        "weight": 0.0030502545,
         "bm_weight": 0.0031193767982005756,
-        "active": -6.811849820057567e-05,
+        "active": -6.91222982005758e-05,
         "sector": "Financials",
         "mu": -0.6049403367734045,
         "model_mu": -0.5817621664934559,
@@ -11496,9 +11502,9 @@
         }
       },
       "KKR": {
-        "weight": 0.0013191388,
+        "weight": 0.0013191387,
         "bm_weight": 0.0013191389094626966,
-        "active": -1.0946269671935349e-10,
+        "active": -2.0946269653661365e-10,
         "sector": "Financials",
         "mu": -0.6680721678570193,
         "model_mu": -0.5992645667010623,
@@ -11568,9 +11574,9 @@
         }
       },
       "BN": {
-        "weight": 0.0011432809,
+        "weight": 0.0011427486,
         "bm_weight": 0.0014088716133471798,
-        "active": -0.00026559071334717973,
+        "active": -0.00026612301334717975,
         "sector": "Financials",
         "mu": -0.673554061450816,
         "model_mu": -0.6047776873120104,
@@ -11640,9 +11646,9 @@
         }
       },
       "C": {
-        "weight": 0.0029241236,
+        "weight": 0.0029231529,
         "bm_weight": 0.003025573320700759,
-        "active": -0.00010144972070075904,
+        "active": -0.00010242042070075915,
         "sector": "Financials",
         "mu": -0.5812269063844244,
         "model_mu": -0.7549507440544894,
@@ -11928,9 +11934,9 @@
         }
       },
       "8306": {
-        "weight": 0.0034664807,
+        "weight": 0.0034684834,
         "bm_weight": 0.0035991802936812607,
-        "active": -0.00013269959368126085,
+        "active": -0.00013069689368126053,
         "sector": "Financials",
         "mu": 0.050008815803665174,
         "model_mu": -0.10557268164069715,
@@ -12000,9 +12006,9 @@
         }
       },
       "DIS": {
-        "weight": 0.0026152739,
+        "weight": 0.0026152715,
         "bm_weight": 0.0026152775433601863,
-        "active": -3.6433601864616083e-09,
+        "active": -6.043360186412661e-09,
         "sector": "Communication Services",
         "mu": -0.4585991384651074,
         "model_mu": -0.47721594735866624,
@@ -12288,9 +12294,9 @@
         }
       },
       "TTWO": {
-        "weight": 0.0004032267,
+        "weight": 0.0004028768,
         "bm_weight": 0.0005978508715051253,
-        "active": -0.00019462417150512527,
+        "active": -0.00019497407150512527,
         "sector": "Communication Services",
         "mu": -0.46302562231386835,
         "model_mu": -0.5044111611590594,
@@ -12720,9 +12726,9 @@
         }
       },
       "TJX": {
-        "weight": 0.0021592632,
+        "weight": 0.0021584818,
         "bm_weight": 0.002128545971836755,
-        "active": 3.071722816324479e-05,
+        "active": 2.9935828163245044e-05,
         "sector": "Consumer Discretionary",
         "mu": 0.23877489500853796,
         "model_mu": 0.15189872742483648,
@@ -12792,9 +12798,9 @@
         }
       },
       "SBUX": {
-        "weight": 0.0016107898,
+        "weight": 0.00161014,
         "bm_weight": 0.0016779642820760222,
-        "active": -6.717448207602225e-05,
+        "active": -6.782428207602223e-05,
         "sector": "Consumer Discretionary",
         "mu": -0.060353539159299086,
         "model_mu": 0.03966859734590494,
@@ -12864,9 +12870,9 @@
         }
       },
       "ABNB": {
-        "weight": 0.0015595953,
+        "weight": 0.0015595899,
         "bm_weight": 0.0015596047546240115,
-        "active": -9.454624011430088e-09,
+        "active": -1.4854624011536796e-08,
         "sector": "Consumer Discretionary",
         "mu": -0.86433558525171,
         "model_mu": -1.0323448866267648,
@@ -13008,9 +13014,9 @@
         }
       },
       "ITX": {
-        "weight": 0.0026897371,
+        "weight": 0.0026924974,
         "bm_weight": 0.002900619152115456,
-        "active": -0.0002108820521154564,
+        "active": -0.0002081217521154562,
         "sector": "Consumer Discretionary",
         "mu": -0.2361426398928791,
         "model_mu": -0.10877276413618332,
@@ -13080,9 +13086,9 @@
         }
       },
       "ABT": {
-        "weight": 0.0028500716,
+        "weight": 0.0028491204,
         "bm_weight": 0.002764466360631646,
-        "active": 8.560523936835401e-05,
+        "active": 8.465403936835404e-05,
         "sector": "Healthcare",
         "mu": 0.20395211818558334,
         "model_mu": 0.25905504688212533,
@@ -13368,9 +13374,9 @@
         }
       },
       "GE": {
-        "weight": 0.0042981572,
+        "weight": 0.0042968502,
         "bm_weight": 0.004856763431332897,
-        "active": -0.0005586062313328978,
+        "active": -0.0005599132313328977,
         "sector": "Industrials",
         "mu": -0.6708775725720755,
         "model_mu": -0.7521162082184886,
@@ -13440,9 +13446,9 @@
         }
       },
       "TT": {
-        "weight": 0.0010817875,
+        "weight": 0.0010812703,
         "bm_weight": 0.0013647027960041703,
-        "active": -0.0002829152960041703,
+        "active": -0.0002834324960041704,
         "sector": "Industrials",
         "mu": -0.4056960252987826,
         "model_mu": -0.36944951966990985,
@@ -13512,9 +13518,9 @@
         }
       },
       "ABBN": {
-        "weight": 0.0021447585,
+        "weight": 0.002148413,
         "bm_weight": 0.0024634113326577303,
-        "active": -0.0003186528326577305,
+        "active": -0.0003149983326577303,
         "sector": "Industrials",
         "mu": -0.458239881476092,
         "model_mu": -0.4836044411285819,
@@ -13584,9 +13590,9 @@
         }
       },
       "KO": {
-        "weight": 0.0052680953,
+        "weight": 0.0052665503,
         "bm_weight": 0.005419712713963738,
-        "active": -0.000151617413963738,
+        "active": -0.00015316241396373838,
         "sector": "Consumer Staples",
         "mu": 0.17602729468690603,
         "model_mu": 0.20129218545968333,
@@ -13872,9 +13878,9 @@
         }
       },
       "IBE": {
-        "weight": 0.0020589358,
+        "weight": 0.0020609301,
         "bm_weight": 0.0021412148629234695,
-        "active": -8.227906292346959e-05,
+        "active": -8.028476292346954e-05,
         "sector": "Utilities",
         "mu": -0.726354867797784,
         "model_mu": -0.6079664444845789,
@@ -14016,9 +14022,9 @@
         }
       },
       "SNPS": {
-        "weight": 0.0008186475,
+        "weight": 0.0008181949,
         "bm_weight": 0.0010344028339874956,
-        "active": -0.00021575533398749563,
+        "active": -0.00021620793398749558,
         "sector": "Technology",
         "mu": -0.671225744122701,
         "model_mu": -0.6341708223210938,
@@ -14088,9 +14094,9 @@
         }
       },
       "APH": {
-        "weight": 0.0014834546,
+        "weight": 0.0014828403,
         "bm_weight": 0.002626245527327397,
-        "active": -0.0011427909273273972,
+        "active": -0.0011434052273273973,
         "sector": "Technology",
         "mu": 0.34979490286082726,
         "model_mu": 0.11746695974111379,
@@ -14232,9 +14238,9 @@
         }
       },
       "CRWD": {
-        "weight": 0.0015208452,
+        "weight": 0.0015202217,
         "bm_weight": 0.002658724378676533,
-        "active": -0.0011378791786765333,
+        "active": -0.0011385026786765332,
         "sector": "Technology",
         "mu": 0.31848375913526145,
         "model_mu": 0.3008908079646742,
@@ -14304,9 +14310,9 @@
         }
       },
       "NXPI": {
-        "weight": 0.0005401797,
+        "weight": 0.0005397976,
         "bm_weight": 0.0007690141309243831,
-        "active": -0.00022883443092438312,
+        "active": -0.0002292165309243831,
         "sector": "Technology",
         "mu": 0.4557567787185427,
         "model_mu": 0.34549776549098504,
@@ -14376,9 +14382,9 @@
         }
       },
       "KEYS": {
-        "weight": 0.0003295661,
+        "weight": 0.0003292353,
         "bm_weight": 0.0007244522801224775,
-        "active": -0.00039488618012247753,
+        "active": -0.00039521698012247753,
         "sector": "Technology",
         "mu": -0.24323185216272664,
         "model_mu": -0.5394499489328484,
@@ -14592,9 +14598,9 @@
         }
       },
       "WDC": {
-        "weight": 0.0012518751,
+        "weight": 0.0012513176,
         "bm_weight": 0.0020549300456891005,
-        "active": -0.0008030549456891005,
+        "active": -0.0008036124456891004,
         "sector": "Technology",
         "mu": 3.815285904441318,
         "model_mu": 4.026116779569174,
@@ -14664,9 +14670,9 @@
         }
       },
       "DDOG": {
-        "weight": 0.0003905266,
+        "weight": 0.0003901814,
         "bm_weight": 0.0011131768900327112,
-        "active": -0.0007226502900327112,
+        "active": -0.0007229954900327112,
         "sector": "Technology",
         "mu": -1.0028250290321026,
         "model_mu": -1.1677026657750003,
@@ -14736,9 +14742,9 @@
         }
       },
       "FTNT": {
-        "weight": 0.0009451441,
+        "weight": 0.0009446622,
         "bm_weight": 0.0015270374072437,
-        "active": -0.0005818933072437001,
+        "active": -0.0005823752072437001,
         "sector": "Technology",
         "mu": 1.1721692828892742,
         "model_mu": 1.0462032243841903,
@@ -14952,9 +14958,9 @@
         }
       },
       "6981": {
-        "weight": 0.0010550264,
+        "weight": 0.001055349,
         "bm_weight": 0.001202804992719048,
-        "active": -0.000147778592719048,
+        "active": -0.00014745599271904814,
         "sector": "Technology",
         "mu": -0.731519282320678,
         "model_mu": -0.9357212722619248,
@@ -15024,9 +15030,9 @@
         }
       },
       "BRK/B": {
-        "weight": 0.0132200896,
+        "weight": 0.0132165916,
         "bm_weight": 0.014710536048281056,
-        "active": -0.0014904464482810558,
+        "active": -0.0014939444482810552,
         "sector": "Financials",
         "mu": -0.2516196037012176,
         "model_mu": -0.19714166475459952,
@@ -15096,9 +15102,9 @@
         }
       },
       "CB": {
-        "weight": 0.0019174513,
+        "weight": 0.0019167293,
         "bm_weight": 0.0018269977017025055,
-        "active": 9.045359829749455e-05,
+        "active": 8.973159829749446e-05,
         "sector": "Financials",
         "mu": 0.13722920263365276,
         "model_mu": 0.20653449114002187,
@@ -15240,9 +15246,9 @@
         }
       },
       "MCO": {
-        "weight": 0.0013118346,
+        "weight": 0.0013112615,
         "bm_weight": 0.0012127630197568294,
-        "active": 9.907158024317062e-05,
+        "active": 9.849848024317057e-05,
         "sector": "Financials",
         "mu": 0.15664008999578832,
         "model_mu": 0.25656483300593785,
@@ -15456,9 +15462,9 @@
         }
       },
       "BNP": {
-        "weight": 0.0018746285,
+        "weight": 0.0018746284,
         "bm_weight": 0.0018746284929514211,
-        "active": 7.0485789514102004e-12,
+        "active": -9.295142108269039e-11,
         "sector": "Financials",
         "mu": -0.13635438304920436,
         "model_mu": -0.043621677110424334,
@@ -15600,9 +15606,9 @@
         }
       },
       "RTX": {
-        "weight": 0.0033658757,
+        "weight": 0.0033647975,
         "bm_weight": 0.0038612236745556145,
-        "active": -0.0004953479745556143,
+        "active": -0.0004964261745556147,
         "sector": "Industrials",
         "mu": -0.29546148908606745,
         "model_mu": -0.3267388233136056,
@@ -15672,9 +15678,9 @@
         }
       },
       "EMR": {
-        "weight": 0.0009771095,
+        "weight": 0.000976618,
         "bm_weight": 0.001203538828126636,
-        "active": -0.00022642932812663588,
+        "active": -0.00022692082812663587,
         "sector": "Industrials",
         "mu": -0.8482465773138201,
         "model_mu": -0.6825324729632597,
@@ -15744,9 +15750,9 @@
         }
       },
       "AXON": {
-        "weight": 0.0004797365,
+        "weight": 0.0004793693,
         "bm_weight": 0.0006647666360171069,
-        "active": -0.00018503013601710696,
+        "active": -0.00018539733601710695,
         "sector": "Industrials",
         "mu": 0.39382344724154655,
         "model_mu": 0.33406507042599237,
@@ -15816,9 +15822,9 @@
         }
       },
       "UBER": {
-        "weight": 0.0018974145,
+        "weight": 0.0018966968,
         "bm_weight": 0.0022177013667056345,
-        "active": -0.0003202868667056345,
+        "active": -0.0003210045667056344,
         "sector": "Industrials",
         "mu": -0.9459187251569492,
         "model_mu": -0.8683574161609172,
@@ -15888,9 +15894,9 @@
         }
       },
       "AIR": {
-        "weight": 0.0024417637,
+        "weight": 0.0024442246,
         "bm_weight": 0.002589634492383097,
-        "active": -0.0001478707923830971,
+        "active": -0.0001454098923830971,
         "sector": "Industrials",
         "mu": 0.006525882639259711,
         "model_mu": 0.11600520509404542,
@@ -15960,9 +15966,9 @@
         }
       },
       "SAF": {
-        "weight": 0.0020207378,
+        "weight": 0.0020226873,
         "bm_weight": 0.002302688992340953,
-        "active": -0.00028195119234095296,
+        "active": -0.000280001692340953,
         "sector": "Industrials",
         "mu": -0.35681663631309074,
         "model_mu": -0.36325491710151814,
@@ -16032,9 +16038,9 @@
         }
       },
       "MRK": {
-        "weight": 0.0050195504,
+        "weight": 0.0050180632,
         "bm_weight": 0.005089875092941849,
-        "active": -7.032469294184895e-05,
+        "active": -7.181189294184955e-05,
         "sector": "Healthcare",
         "mu": -0.00708570836154801,
         "model_mu": 0.16025554804438083,
@@ -16104,9 +16110,9 @@
         }
       },
       "AMGN": {
-        "weight": 0.0029145386,
+        "weight": 0.0029135711,
         "bm_weight": 0.0032857762730043676,
-        "active": -0.00037123767300436747,
+        "active": -0.0003722051730043678,
         "sector": "Healthcare",
         "mu": -0.28356567823795603,
         "model_mu": -0.2559028124781342,
@@ -16320,9 +16326,9 @@
         }
       },
       "NOVN": {
-        "weight": 0.0025903908,
+        "weight": 0.0025949381,
         "bm_weight": 0.004402384602669999,
-        "active": -0.0018119938026699986,
+        "active": -0.0018074465026699988,
         "sector": "Healthcare",
         "mu": 0.020892448089323362,
         "model_mu": 0.17821509702458038,
@@ -16392,9 +16398,9 @@
         }
       },
       "NKE": {
-        "weight": 0.0009862582,
+        "weight": 0.0009857653,
         "bm_weight": 0.0008277983977573227,
-        "active": 0.00015845980224267725,
+        "active": 0.00015796690224267743,
         "sector": "Consumer Discretionary",
         "mu": 0.2902081431599216,
         "model_mu": 0.5917445105712583,
@@ -16608,9 +16614,9 @@
         }
       },
       "CFR": {
-        "weight": 0.0018670029,
+        "weight": 0.0018701082,
         "bm_weight": 0.0018749187435904131,
-        "active": -7.915843590413068e-06,
+        "active": -4.810543590413191e-06,
         "sector": "Consumer Discretionary",
         "mu": -0.178281941815702,
         "model_mu": -0.19859575841535787,
@@ -16680,9 +16686,9 @@
         }
       },
       "TTD": {
-        "weight": 0.0287487322,
+        "weight": 0.0287460138,
         "bm_weight": 8.538230241951759e-05,
-        "active": 0.02866334989758048,
+        "active": 0.028660631497580483,
         "sector": "Communication Services",
         "mu": 4.439278794210434,
         "model_mu": 4.758851058324499,
@@ -16752,9 +16758,9 @@
         }
       },
       "RBLX": {
-        "weight": 0.0002977132,
+        "weight": 0.0002973913,
         "bm_weight": 0.00038058454977768236,
-        "active": -8.287134977768239e-05,
+        "active": -8.319324977768238e-05,
         "sector": "Communication Services",
         "mu": 0.597439824227527,
         "model_mu": 0.7442061256645532,
@@ -16824,9 +16830,9 @@
         }
       },
       "9432": {
-        "weight": 0.0014750178,
+        "weight": 0.0014756335,
         "bm_weight": 0.0013166650509580846,
-        "active": 0.00015835274904191536,
+        "active": 0.0001589684490419154,
         "sector": "Communication Services",
         "mu": 0.12538441653197904,
         "model_mu": 0.22887166228956707,
@@ -16968,9 +16974,9 @@
         }
       },
       "PEP": {
-        "weight": 0.0028896251,
+        "weight": 0.002888664,
         "bm_weight": 0.002703873857804717,
-        "active": 0.00018575124219528298,
+        "active": 0.0001847901421952831,
         "sector": "Consumer Staples",
         "mu": 0.015678645132339658,
         "model_mu": 0.0904974315457742,
@@ -17040,9 +17046,9 @@
         }
       },
       "MDLZ": {
-        "weight": 0.0012264057,
+        "weight": 0.0012258536,
         "bm_weight": 0.001130757792546201,
-        "active": 9.564790745379909e-05,
+        "active": 9.509580745379904e-05,
         "sector": "Consumer Staples",
         "mu": 0.07434217493590325,
         "model_mu": 0.20590442163953357,
@@ -17112,9 +17118,9 @@
         }
       },
       "OR": {
-        "weight": 0.0032162082,
+        "weight": 0.0032196077,
         "bm_weight": 0.003305142454734039,
-        "active": -8.893425473403913e-05,
+        "active": -8.553475473403911e-05,
         "sector": "Consumer Staples",
         "mu": 0.11802178324803753,
         "model_mu": 0.19326702158920359,
@@ -17184,9 +17190,9 @@
         }
       },
       "CVX": {
-        "weight": 0.004912741,
+        "weight": 0.0049112837,
         "bm_weight": 0.005494586366350554,
-        "active": -0.0005818453663505542,
+        "active": -0.0005833026663505545,
         "sector": "Energy",
         "mu": 0.0785302474655674,
         "model_mu": 0.0035025202929295203,
@@ -17544,9 +17550,9 @@
         }
       },
       "APP": {
-        "weight": 0.000812114,
+        "weight": 0.0008116641,
         "bm_weight": 0.0013682869462021882,
-        "active": -0.0005561729462021883,
+        "active": -0.0005566228462021883,
         "sector": "Technology",
         "mu": -0.026706914423588968,
         "model_mu": -0.13652114574557597,
@@ -17616,9 +17622,9 @@
         }
       },
       "SNOW": {
-        "weight": 0.001126815,
+        "weight": 0.0011262871,
         "bm_weight": 0.0015319513490580237,
-        "active": -0.00040513634905802376,
+        "active": -0.0004056642490580238,
         "sector": "Technology",
         "mu": -1.145107729157742,
         "model_mu": -1.3394020852323365,
@@ -17688,9 +17694,9 @@
         }
       },
       "NET": {
-        "weight": 0.0013680945,
+        "weight": 0.0013680944,
         "bm_weight": 0.0013680944957138556,
-        "active": 4.286144356102639e-12,
+        "active": -9.571385567799795e-11,
         "sector": "Technology",
         "mu": -0.019954662376162557,
         "model_mu": -0.13146324088407188,
@@ -17832,9 +17838,9 @@
         }
       },
       "TEAM": {
-        "weight": 0.0054845332,
+        "weight": 0.0054829338,
         "bm_weight": 0.0005960783436672459,
-        "active": 0.004888454856332754,
+        "active": 0.004886855456332754,
         "sector": "Technology",
         "mu": 0.2972713990278437,
         "model_mu": 0.1273448177019887,
@@ -17904,9 +17910,9 @@
         }
       },
       "COHR": {
-        "weight": 0.0002880257,
+        "weight": 0.0002877055,
         "bm_weight": 0.0007387539943596072,
-        "active": -0.00045072829435960723,
+        "active": -0.00045104849435960724,
         "sector": "Technology",
         "mu": -0.7647464670411699,
         "model_mu": -0.9713321633532732,
@@ -17976,9 +17982,9 @@
         }
       },
       "ON": {
-        "weight": 0.0002628814,
+        "weight": 0.0002625682,
         "bm_weight": 0.0003834575891018294,
-        "active": -0.00012057618910182942,
+        "active": -0.00012088938910182942,
         "sector": "Technology",
         "mu": 0.6400235163713128,
         "model_mu": 0.5052134655253672,
@@ -18120,9 +18126,9 @@
         }
       },
       "HPE": {
-        "weight": 0.0004536132,
+        "weight": 0.0004532528,
         "bm_weight": 0.000950701969853661,
-        "active": -0.000497088769853661,
+        "active": -0.0004974491698536609,
         "sector": "Technology",
         "mu": 2.3002737394806925,
         "model_mu": 2.1854644906738296,
@@ -18192,9 +18198,9 @@
         }
       },
       "VRSN": {
-        "weight": 0.0003595585,
+        "weight": 0.0003595584,
         "bm_weight": 0.00035955849007448994,
-        "active": 9.92551006662179e-12,
+        "active": -9.00744899674788e-11,
         "sector": "Technology",
         "mu": -0.4168438339060695,
         "model_mu": -0.36006118985999797,
@@ -18264,9 +18270,9 @@
         }
       },
       "ASM": {
-        "weight": 0.00032525,
+        "weight": 0.0003251459,
         "bm_weight": 0.0006509199302620363,
-        "active": -0.00032566993026203624,
+        "active": -0.0003257740302620363,
         "sector": "Technology",
         "mu": -0.007715330355915373,
         "model_mu": -0.14001401047186463,
@@ -18552,9 +18558,9 @@
         }
       },
       "BNY": {
-        "weight": 0.0012843412,
+        "weight": 0.0012837753,
         "bm_weight": 0.0015064421883464996,
-        "active": -0.00022210098834649973,
+        "active": -0.0002226668883464997,
         "sector": "Financials",
         "mu": 0.08108297144691512,
         "model_mu": -0.16190852176949563,
@@ -18624,9 +18630,9 @@
         }
       },
       "IBKR": {
-        "weight": 0.0010833724,
+        "weight": 0.0010828562,
         "bm_weight": 0.0021758324095863743,
-        "active": -0.0010924600095863744,
+        "active": -0.0010929762095863744,
         "sector": "Financials",
         "mu": -1.0949370206866835,
         "model_mu": -1.1943349279419013,
@@ -18696,9 +18702,9 @@
         }
       },
       "UBSG": {
-        "weight": 0.0023564192,
+        "weight": 0.0023604941,
         "bm_weight": 0.0024171392144280877,
-        "active": -6.072001442808785e-05,
+        "active": -5.66451144280878e-05,
         "sector": "Financials",
         "mu": -0.11619198414322107,
         "model_mu": -0.32653298090564326,
@@ -18768,9 +18774,9 @@
         }
       },
       "UCG": {
-        "weight": 0.0020012226,
+        "weight": 0.0020031423,
         "bm_weight": 0.0020312396514548282,
-        "active": -3.001705145482805e-05,
+        "active": -2.809735145482828e-05,
         "sector": "Financials",
         "mu": -0.2871308124481622,
         "model_mu": -0.3082533625491881,
@@ -18840,9 +18846,9 @@
         }
       },
       "8316": {
-        "weight": 0.0021114509,
+        "weight": 0.00211251,
         "bm_weight": 0.0021667416003049124,
-        "active": -5.5290700304912524e-05,
+        "active": -5.423160030491219e-05,
         "sector": "Financials",
         "mu": 0.14037813502409457,
         "model_mu": 0.04580351940037317,
@@ -18984,9 +18990,9 @@
         }
       },
       "HWM": {
-        "weight": 0.0007788938,
+        "weight": 0.0007784523,
         "bm_weight": 0.001437807799879957,
-        "active": -0.000658913999879957,
+        "active": -0.0006593554998799569,
         "sector": "Industrials",
         "mu": -0.4425060276570082,
         "model_mu": -0.5946762033755646,
@@ -19128,9 +19134,9 @@
         }
       },
       "PH": {
-        "weight": 0.0014811711,
+        "weight": 0.0014805556,
         "bm_weight": 0.0017511314154321574,
-        "active": -0.00026996031543215747,
+        "active": -0.00027057581543215746,
         "sector": "Industrials",
         "mu": -0.7511853323081522,
         "model_mu": -0.7420210174755234,
@@ -19200,9 +19206,9 @@
         }
       },
       "REL": {
-        "weight": 0.0010454761,
+        "weight": 0.0010463167,
         "bm_weight": 0.000858667434828295,
-        "active": 0.00018680866517170505,
+        "active": 0.00018764926517170503,
         "sector": "Industrials",
         "mu": 0.714918150835207,
         "model_mu": 0.8781778135326389,
@@ -19272,9 +19278,9 @@
         }
       },
       "7011": {
-        "weight": 0.0011377317,
+        "weight": 0.0011380884,
         "bm_weight": 0.0011440415785749346,
-        "active": -6.3098785749347245e-06,
+        "active": -5.953178574934735e-06,
         "sector": "Industrials",
         "mu": -0.14202765010703192,
         "model_mu": -0.16021260146338098,
@@ -19344,9 +19350,9 @@
         }
       },
       "ROP": {
-        "weight": 0.004919392,
+        "weight": 0.0049285943,
         "bm_weight": 0.0051233870866845225,
-        "active": -0.00020399508668452263,
+        "active": -0.00019479278668452227,
         "sector": "Healthcare",
         "mu": -0.1447645039000462,
         "model_mu": -0.0251526190106218,
@@ -19416,9 +19422,9 @@
         }
       },
       "GILD": {
-        "weight": 0.002366185,
+        "weight": 0.0023653518,
         "bm_weight": 0.0024915095359186157,
-        "active": -0.00012532453591861592,
+        "active": -0.00012615773591861555,
         "sector": "Healthcare",
         "mu": -0.49643808654316013,
         "model_mu": -0.4724640223067057,
@@ -19560,9 +19566,9 @@
         }
       },
       "MDT": {
-        "weight": 0.0017117096,
+        "weight": 0.0017110382,
         "bm_weight": 0.001628279622010782,
-        "active": 8.342997798921814e-05,
+        "active": 8.275857798921817e-05,
         "sector": "Healthcare",
         "mu": 0.22356554043554594,
         "model_mu": 0.32917250119833247,
@@ -19704,9 +19710,9 @@
         }
       },
       "ZTS": {
-        "weight": 0.0005380239,
+        "weight": 0.0005376419,
         "bm_weight": 0.0004366600071440107,
-        "active": 0.00010136389285598927,
+        "active": 0.00010098189285598933,
         "sector": "Healthcare",
         "mu": 0.5585884959940697,
         "model_mu": 0.8270284206716496,
@@ -19776,9 +19782,9 @@
         }
       },
       "RMS": {
-        "weight": 0.0025345167,
+        "weight": 0.0025370885,
         "bm_weight": 0.0026543152943839968,
-        "active": -0.00011979859438399684,
+        "active": -0.00011722679438399674,
         "sector": "Consumer Discretionary",
         "mu": -0.04384321895061,
         "model_mu": 0.16861029025350358,
@@ -19848,9 +19854,9 @@
         }
       },
       "6758": {
-        "weight": 0.0021954314,
+        "weight": 0.0021965486,
         "bm_weight": 0.00196446349801533,
-        "active": 0.00023096790198467,
+        "active": 0.0002320851019846702,
         "sector": "Consumer Discretionary",
         "mu": 0.10775297761114572,
         "model_mu": 0.24349913325773082,
@@ -20640,9 +20646,9 @@
         }
       },
       "COP": {
-        "weight": 0.0021816531,
+        "weight": 0.0021808663,
         "bm_weight": 0.002193652563729415,
-        "active": -1.1999463729415061e-05,
+        "active": -1.2786263729414916e-05,
         "sector": "Energy",
         "mu": 0.1500385010405965,
         "model_mu": 0.093897693449517,
@@ -20712,9 +20718,9 @@
         }
       },
       "SLB": {
-        "weight": 0.0009753619,
+        "weight": 0.0009748707,
         "bm_weight": 0.0010974364316483445,
-        "active": -0.0001220745316483445,
+        "active": -0.0001225657316483445,
         "sector": "Energy",
         "mu": -0.12684847770890667,
         "model_mu": 0.00907482787462155,
@@ -20928,9 +20934,9 @@
         }
       },
       "NRG": {
-        "weight": 0.0003006673,
+        "weight": 0.0003003258,
         "bm_weight": 0.00032175719954881117,
-        "active": -2.108989954881116e-05,
+        "active": -2.143139954881117e-05,
         "sector": "Utilities",
         "mu": -0.2572874786890902,
         "model_mu": -0.11727505981682061,

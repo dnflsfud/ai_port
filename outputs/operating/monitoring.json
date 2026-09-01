@@ -31531,18 +31531,18 @@
     },
     {
       "date": "2026-08-25",
-      "active_return_63d_ann": 0.024584,
+      "active_return_63d_ann": 0.024634,
       "tracking_error_63d_ann": 0.041515,
-      "information_ratio_63d": 0.592183,
-      "beta_63d": 1.135779,
-      "active_return_126d_ann": 0.011816,
+      "information_ratio_63d": 0.593373,
+      "beta_63d": 1.135774,
+      "active_return_126d_ann": 0.011841,
       "tracking_error_126d_ann": 0.047333,
-      "information_ratio_126d": 0.249641,
-      "beta_126d": 1.11801,
-      "active_return_252d_ann": 0.086456,
+      "information_ratio_126d": 0.250163,
+      "beta_126d": 1.118012,
+      "active_return_252d_ann": 0.086468,
       "tracking_error_252d_ann": 0.051248,
-      "information_ratio_252d": 1.687006,
-      "beta_252d": 1.137555
+      "information_ratio_252d": 1.68725,
+      "beta_252d": 1.137552
     }
   ],
   "monthly_returns": [
@@ -32106,9 +32106,9 @@
     },
     {
       "month": "2026-08",
-      "portfolio_ret": 0.039281,
-      "benchmark_ret": 0.024073,
-      "active": 0.015209
+      "portfolio_ret": 0.039537,
+      "benchmark_ret": 0.024312,
+      "active": 0.015225
     }
   ],
   "drawdown_events": [
