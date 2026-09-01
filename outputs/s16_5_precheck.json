@@ -1,0 +1,37 @@
+{
+  "preregistration": "decision log §S16.5-P (2026-09-01)",
+  "base_pkl": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\c2\\ai_port\\outputs\\s16_7_name_risk_cap\\backtest_result.pkl",
+  "p0": {
+    "n_rebalances": 97,
+    "ratio_ret_over_risk_median": 114930.68338959028,
+    "binding_rate": 0.2474,
+    "te_annual_median": 0.03267
+  },
+  "p1a": {
+    "max_dw_inf_median": 4.096113634388665e-08,
+    "max_dw_inf_max": 1.5675152586155667e-06,
+    "risk_term_inert": true
+  },
+  "p1": {
+    "gap2_median_pct": 0.024,
+    "bar_pct": 5.0,
+    "p1_pass": false,
+    "n_gap2_dates": 4,
+    "gap1_median_pct": 33.301,
+    "n_gap1_dates": 38
+  },
+  "p2": {
+    "lambda_star_turnover_rule": 925.7,
+    "scale_equalizer_median": 125975.8,
+    "n_sample": 49
+  },
+  "p3": {
+    "as_drift_max_pp": 0.0,
+    "te_ratio_median": 1.0,
+    "all_optimal": true,
+    "p3_pass": true,
+    "alpha_keep_median": 1.0,
+    "lambda_star_used": 925.7
+  },
+  "verdict": "SHELVE"
+}
