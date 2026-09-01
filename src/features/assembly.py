@@ -740,6 +740,11 @@ def build_all_features(
             extra.add("fwd_opcf_rev_126d")
         if getattr(config, "fwd_opcf_rev_252d_feature_enabled", False):
             extra.add("fwd_opcf_rev_252d")
+        # S16.8: post-unit-fix OCF retest (A: level, B: invest divergence).
+        if getattr(config, "fwd_opcf_level_feature_enabled", False):
+            extra.add("fwd_opcf_level_z")
+        if getattr(config, "fwd_opcf_invest_divergence_feature_enabled", False):
+            extra.add("fwd_opcf_invest_divergence")
         # S13.9: admit the announcement-timing block conditioning.py already
         # builds. Until this flag the model saw earnings only via the PEAD
         # overlay, i.e. after the ranking was already fixed.

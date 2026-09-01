@@ -9,7 +9,7 @@ import numpy as np
 from typing import Dict, Optional
 
 from src.data_loader import UniverseData
-from src.features.utils import cross_sectional_zscore, safe_pct_change, cs_rank
+from src.features.utils import cross_sectional_zscore, safe_pct_change, cs_rank, rolling_tsz
 
 logger = logging.getLogger(__name__)
 
@@ -436,6 +436,26 @@ def build_sellside_features(data: UniverseData, config=None) -> Dict[str, pd.Dat
         features["fwd_opcf_rev_63d"] = safe_pct_change(opcf, 63)
         features["fwd_opcf_rev_126d"] = safe_pct_change(opcf, 126)
         features["fwd_opcf_rev_252d"] = safe_pct_change(opcf, 252)
+        # §S16.8-A: unit-fixed OCF level — the S16.1 P2 idiom (per-ticker
+        # 3Y self-normalisation BEFORE the cross-sectional z), so the local
+        # currency unit never orders the cross-section. Retries the S13.4c
+        # axis with the treatment that revived best_calculated_fcf_level_z.
+        features["fwd_opcf_level_z"] = cross_sectional_zscore(
+            rolling_tsz(opcf, window=756, min_periods=252)
+        )
+        # §S16.8-B: investment-led FCF compression. Positive when operating
+        # cash keeps compounding while FCF growth lags (capex absorbing it —
+        # the pre-emptive-AI-investment thesis); ~0 when both deteriorate.
+        try:
+            fcf = data.get_sheet("BEST_CALCULATED_FCF")
+            features["fwd_opcf_invest_divergence"] = (
+                cross_sectional_zscore(safe_pct_change(opcf, 252))
+                - cross_sectional_zscore(safe_pct_change(fcf, 252))
+            )
+        except KeyError:
+            logger.debug(
+                "sellside: BEST_CALCULATED_FCF missing — skipping fwd_opcf_invest_divergence"
+            )
     except KeyError:
         logger.debug("sellside: Factset_Fwd_OpCashflow missing — skipping fwd_opcf_yield")
 

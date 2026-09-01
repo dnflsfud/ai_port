@@ -782,6 +782,23 @@ class PipelineConfig:
     fwd_opcf_rev_252d_feature_enabled: bool = False
 
     # ------------------------------------------------------------------
+    # S16.8 (2026-09-01) — fwd OpCF retest arms (post-S16.1 unit fix)
+    # ------------------------------------------------------------------
+    # A: fwd_opcf_level_z = cs_z(rolling_tsz(Factset_Fwd_OpCashflow, 756, 252))
+    #    — the S13.4c OCF axis retried with the S16.1 P2 idiom that revived
+    #    best_calculated_fcf_level_z (gain rank 7 post-fix; the 2026-07 arms
+    #    predate that fix, so the axis-exhaustion verdict is re-opened for
+    #    the LEVEL formulation only).
+    # B: fwd_opcf_invest_divergence
+    #    = cs_z(pct_chg(OpCF,252)) - cs_z(pct_chg(BEST_CALCULATED_FCF,252))
+    #    — investment-led FCF compression (operating cash still compounding
+    #    while capex absorbs FCF) vs operational deterioration (both fall).
+    #    Single 252d window (production growth idiom), no sweep.
+    # OFF by default: whitelist-gated (S8 idiom) — decision log §S16.8.
+    fwd_opcf_level_feature_enabled: bool = False
+    fwd_opcf_invest_divergence_feature_enabled: bool = False
+
+    # ------------------------------------------------------------------
     # S13.9 (2026-07-27) — earnings-calendar admission arm
     # ------------------------------------------------------------------
     # conditioning.py already builds the 8 EARNINGS_CALENDAR_FEATURES from
