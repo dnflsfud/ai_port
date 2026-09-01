@@ -1,0 +1,39 @@
+{
+  "preregistration": "decision log S16.8 (2026-09-01)",
+  "base": "outputs/s16_8_s0recert",
+  "note": "same-vintage pair (09-01 fx recert); name-cap live 0.285/6857/OK measured on identical arm book",
+  "full_period": {
+    "ir_base": 1.7596,
+    "ir_arm": 1.5821,
+    "delta_ir": -0.1775,
+    "e1_bar": 0.36
+  },
+  "split_deltas": [
+    -0.3247,
+    -0.495,
+    0.2483
+  ],
+  "e1_pass": false,
+  "feature": {
+    "active_in_live_model": true,
+    "live_gain_pct": 2.072,
+    "is_noop": false,
+    "models_with_feature": "33/33"
+  },
+  "e2": {
+    "te_ok": true,
+    "active_share_ok": true,
+    "turnover_ok": true,
+    "fallback_zero": true
+  },
+  "e2_pass": true,
+  "companions": {
+    "avg_ic_base": 0.01818093285522787,
+    "avg_ic_arm": 0.020622817268227636,
+    "te_arm": 0.03731,
+    "turnover_ratio": 0.9919,
+    "active_share_arm": 0.19788,
+    "degenerate_arm": "14/33",
+    "fallback_arm": 0.0
+  }
+}

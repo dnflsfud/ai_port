@@ -25,7 +25,9 @@ from scripts.eval_s13_46_arm import (  # noqa: E402 — 공용 판정 헬퍼
     E1_DELTA_IR, N_SPLITS, TE_GUARD, _ir, _kst, evaluate_e1,
 )
 
-BASE_DIR = AI_PORT / "outputs" / "s16_7_name_risk_cap"
+# 09-01 Index.xlsx 빈티지 포크(§S16.8 사고 절)로 비교 기준은 동일 빈티지
+# 재인증 런. 재인증은 S0′(1.7596)의 avg_ic 비트 동일·IR 서브 정밀도 재현.
+BASE_DIR = AI_PORT / "outputs" / "s16_8_s0recert"
 ARM_DIR = AI_PORT / "outputs" / "s16_8a_opcf_level"
 FEATURE = "fwd_opcf_level_z"
 TURNOVER_RATIO_MAX = 1.25

@@ -351,9 +351,16 @@
                         "param_space":  "name_risk_share_cap_enabled=true, cap=0.35 (reuses the existing guardrail constant, single preregistered value; iteration constants max_iter 12 / tol 0.01 / min-shrink 0.95 / bound floor 0.005 deliberately not exposed as overrides, no sweep)",
                         "trials":  1,
                         "result":  "MEASURED 2026-09-01: G0 PASS (avg_ic bit-identical 0.01818093285522787, vintage pair equal), G1 PASS (arm compliance 100% - 0/97 breaches vs base 31/97, live book STX share 0.5428 -\u003e 0.3439, arm worst 0.3564), G2 PASS (TE 3.71%, active share 20.01% unchanged, turnover 0.977x, ECOS 194/fallback 0, degenerate 14/33 identical), E1 formal FAIL dIR +0.0446 \u003c +0.36 bar BUT all 3 splits positive (+0.0634/+0.0351/+0.0267). Risk-discipline adoption frame satisfied (binding + no-harm + dIR in noise band) -\u003e submitted to user as flip candidate; adoption basis is risk discipline, not IR (DSR not counted per correctness-track precedent)."
+                    },
+                    {
+                        "script":  "run_variant.py (s16_8a_opcf_level)",
+                        "phase":  "S16.8-A (2026-09-01): user-directed retest of the Fwd_OpCashflow LEVEL axis after the S16.1 unit fix - fwd_opcf_level_z = cs_z(rolling_tsz(OpCF,756,252)), the idiom that revived best_calculated_fcf_level_z. Precheck: raw IC NW t 3.71, residual IC NW t 2.97 (real incremental signal), max redundancy 0.57. First run invalidated by an Index.xlsx mid-refresh vintage fork (fx stat size 0); re-adjudicated on a same-vintage pair vs a bit-faithful S0 recert (not counted).",
+                        "param_space":  "fwd_opcf_level_feature_enabled=true (single preregistered formulation, no sweep; multiplicity 2 declared with arm B fwd_opcf_invest_divergence which was precheck-SHELVED at residual IC t 0.47, never run)",
+                        "trials":  1,
+                        "result":  "E1 FAIL: dIR -0.1775 (1.7596 -\u003e 1.5821, same 09-01 fx vintage pair), splits -0.325/-0.495/+0.248 sign-inconsistent (losses in P1/P2, gain only 2024+). Feature NOT a no-op: EWMA survival 33/33 models, live gain 2.07%, avg_ic +13.4% - yet transmission negative (S13.12/S13.38 pattern reconfirmed: precheck residual IC t 2.97 did not transmit). E2 all pass. Not adopted; flag stays default-OFF. Fwd_OpCashflow axis re-closed including the level formulation."
                     }
                 ],
-    "n_trials_total":  470,
+    "n_trials_total":  471,
     "notes":  [
                   "396 is a conservative lower bound. Actual N is likely higher once",
                   "ad-hoc config.py tweaks over the research period are counted.",
@@ -402,6 +409,7 @@
                   "2026-08-20: +1 S13.47 arm (rank_eval_at [20]), pre-registered single arm, E1 FAIL (dIR +0.2028 \u003c +0.36 bar, sign-inconsistent - gain concentrated in 2024+), not adopted (no flip). Degeneracy improved 13/33 -\u003e 10/33. N 466 -\u003e 467.",
                   "2026-08-27: +1 S15.1 arm (monotone margin constraints), pre-registered single arm, E1 FAIL (dIR +0.0006, sign-inconsistent), not adopted. The S15 fix-pack measurement + production flip (IR 1.3811 -\u003e 1.5466) is a correctness re-baseline, NOT counted (causal-discipline S0-recert precedent); S15 A/B prechecks were read-only (not counted). N 467 -\u003e 468.",
                   "2026-08-31: +1 S16.3 arm (degenerate_fallback_mode=fresh_fixed), pre-registered single arm, E1 FAIL (dIR +0.0164 noise band, splits all positive but far below bar), not adopted. Mechanism fully delivered (12/12 fires, unique_models 33/33, live model age 0) - closes the fallback-policy axis. S16.1 unit fix-pack and S16.2 revision-extension-cap runs are correctness-track measurements (adoption criterion = accuracy, not IR), NOT counted per the S15/causal-discipline precedent. N 468 -\u003e 469.",
-                  "2026-08-31: +1 S16.7 arm (name_risk_share_cap_enabled, cap 0.35), pre-registered BEFORE measurement per standing rule; measured 2026-09-01 (G0/G1/G2 PASS, E1 formal FAIL dIR +0.0446 noise-band positive, all splits positive) - flip candidate pending user decision. N 469 -\u003e 470."
+                  "2026-08-31: +1 S16.7 arm (name_risk_share_cap_enabled, cap 0.35), pre-registered BEFORE measurement per standing rule; measured 2026-09-01 (G0/G1/G2 PASS, E1 formal FAIL dIR +0.0446 noise-band positive, all splits positive) - flip candidate pending user decision. N 469 -\u003e 470.",
+                  "2026-09-01: +1 S16.8-A arm (fwd_opcf_level_z retest post unit-fix), pre-registered with precheck gates, E1 FAIL (dIR -0.1775, sign-inconsistent), not adopted. Arm B (invest divergence) precheck-SHELVED (residual IC t 0.47), never run, NOT counted. S0 recert on the 09-01 fx vintage (bit-faithful reproduction) NOT counted. N 470 -\u003e 471."
               ]
 }
