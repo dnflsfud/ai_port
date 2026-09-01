@@ -1,0 +1,142 @@
+{
+  "preregistration": "decision log §S16.7 (2026-08-31)",
+  "vintage": {
+    "base_pkl_mtime": "2026-08-31 14:13:22",
+    "arm_pkl_mtime": "2026-09-01 10:02:41"
+  },
+  "g0": {
+    "vintage_equal": true,
+    "avg_ic_bit_identical": true,
+    "g0_pass": true
+  },
+  "full_period": {
+    "ir_base": 1.7149,
+    "ir_arm": 1.7596,
+    "delta_ir": 0.0446,
+    "e1_bar": 0.36
+  },
+  "subperiods": [
+    {
+      "split": 1,
+      "start": "2018-11-26",
+      "end": "2021-06-24",
+      "ir_base": 1.5872,
+      "ir_arm": 1.6506,
+      "delta": 0.0634
+    },
+    {
+      "split": 2,
+      "start": "2021-06-25",
+      "end": "2024-01-24",
+      "ir_base": 1.7292,
+      "ir_arm": 1.7643,
+      "delta": 0.0351
+    },
+    {
+      "split": 3,
+      "start": "2024-01-25",
+      "end": "2026-08-25",
+      "ir_base": 1.741,
+      "ir_arm": 1.7678,
+      "delta": 0.0267
+    }
+  ],
+  "e1_pass": false,
+  "risk_discipline_frame": true,
+  "g1": {
+    "arm": {
+      "n_rebalances": 97,
+      "n_breaches": 0,
+      "compliance_rate": 1.0,
+      "live_book_ok": true,
+      "g1_pass": true
+    },
+    "base_reference": {
+      "n_rebalances": 97,
+      "n_breaches": 31,
+      "compliance_rate": 0.6804,
+      "live_book_ok": false,
+      "g1_pass": false
+    },
+    "live_book": {
+      "date": "2026-08-18",
+      "arm": [
+        0.3439,
+        "STX"
+      ],
+      "base": [
+        0.5428,
+        "STX"
+      ]
+    },
+    "arm_worst5": [
+      [
+        "2026-06-19",
+        0.3594
+      ],
+      [
+        "2019-11-13",
+        0.3579
+      ],
+      [
+        "2026-04-22",
+        0.3577
+      ],
+      [
+        "2018-12-25",
+        0.3564
+      ],
+      [
+        "2026-05-21",
+        0.3559
+      ]
+    ],
+    "base_worst5": [
+      [
+        "2024-11-08",
+        0.7839
+      ],
+      [
+        "2024-12-09",
+        0.7455
+      ],
+      [
+        "2025-02-05",
+        0.6768
+      ],
+      [
+        "2025-01-07",
+        0.6616
+      ],
+      [
+        "2026-05-21",
+        0.618
+      ]
+    ]
+  },
+  "g2": {
+    "te_ok": true,
+    "active_share_ok": true,
+    "turnover_ok": true,
+    "fallback_zero": true,
+    "degenerate_equal": true
+  },
+  "g2_pass": true,
+  "companions": {
+    "te_base": 0.0373,
+    "te_arm": 0.0371,
+    "beta_base": 1.0524,
+    "beta_arm": 1.0551,
+    "turnover_base": 0.7031,
+    "turnover_arm": 0.6872,
+    "turnover_ratio": 0.9773,
+    "active_share_base": 0.20007,
+    "active_share_arm": 0.20011,
+    "maxdd_base": -0.3247,
+    "maxdd_arm": -0.3228,
+    "avg_ic_base": 0.01818093285522787,
+    "avg_ic_arm": 0.01818093285522787,
+    "fallback_base": 0.0,
+    "fallback_arm": 0.0
+  }
+}
