@@ -7962,3 +7962,26 @@ PCA eligibility. 인벤토리 불변(469).
 무손상 확인용(리스크 규율 트랙, DSR 비계수 — §S15/S16.2 선례). flip 시 report-only
 가드레일 breach 만성 상태(31/97)가 구조적으로 해소되고 라이브 북 STX 리스크 몫
 54→34%가 된다. 롤백 = variant 한 줄 삭제.
+
+### Production flip — §S16.7 name_risk_share_cap_enabled 채택 (2026-09-01, 사용자 승인)
+
+사용자 승인("승인할게")으로 production variant에 `name_risk_share_cap_enabled: true`
+1줄 flip. 근거는 리스크 규율(§8 beta-neutral 유사 프레임): 캡 완전 바인딩(breach
+31/97→0/97) + 캐릭터·리스크예산 무손상 + IR 무비용(+0.0446, 3분할 전부 양).
+
+**새 기준선**: **S0′ = IR 1.7596 / TE 3.71% / beta 1.0551 / avg_ic 0.018181(불변) /
+turnover 0.687 / 퇴화 14/33** (`outputs/s16_7_name_risk_cap`, 08-25 빈티지).
+**1.7149는 은퇴 — arm 비교에 혼용 금지.** production variant는 이제 §S16.7 런 config와
+동일하므로 이 런이 새 기준선 산출물이다. 라이브 북(08-18)의 name-share 가드레일이
+채택 이후 실제 북에서 충족 상태가 된다(STX 0.344 ≤ 0.35 — report-only 모니터와
+옵티마이저 강제가 같은 상수를 공유).
+
+**§8 체크리스트 이행(같은 커밋)**: ① variant 플래그+주석 ② acceptance
+`post_arm_production_flags` 5개 파일 + `test_residual_sleeve.py` allowlist 갱신
+③ production 핀 테스트 신설(`test_production_variant_pins_s16_7_flip_state`)
+④ 전체 스위트 719 PASS ⑤ 본 절. **DSR 비계수**(리스크 규율 트랙 — IR을 채택 근거로
+쓰지 않음, §S15/S16.2 선례). 롤백 = variant 1줄 삭제(default-OFF 바이트 동일 복원,
+단위테스트 인증).
+
+**§S16 시퀀스 최종 상태**: S16.1 flip ✓ · S16.2 flip ✓ · S16.3 불채택(축 종결) ·
+S16.4 SHELVE · S16.5 착수 보류 · **S16.7 flip ✓**. 이후 모든 arm 비교 기준은 **1.7596**.

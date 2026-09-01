@@ -189,3 +189,17 @@ overrides:
   # Rollback = delete this line (default-None, byte-identical restore
   # certified by unit tests).
   revision_extension_max_days: 21
+
+  # S16.7 (2026-09-01): enforce the 0.35 per-name Euler active-risk share
+  # guardrail inside the optimiser (sequential convex re-solves at BOTH the
+  # MVO target and the post-execution projection), adopted by user on
+  # risk-discipline grounds — decision log S16.7 Production flip. Certified
+  # same-vintage measurement (outputs/s16_7_name_risk_cap): guardrail
+  # breaches 31/97 -> 0/97 rebalances, live-book STX risk share 0.543 ->
+  # 0.344, avg_ic bit-identical (optimizer-only change), TE 3.71%, turnover
+  # 0.977x, ECOS 194 / fallback 0, IR 1.7149 -> 1.7596 (dIR +0.0446 noise
+  # band, all 3 splits positive — IR is the no-harm check, not the adoption
+  # basis). This makes IR 1.7596 the S0' baseline; 1.7149 is retired for arm
+  # comparisons. Rollback = delete this line (default-OFF, byte-identical
+  # restore certified by unit tests).
+  name_risk_share_cap_enabled: true

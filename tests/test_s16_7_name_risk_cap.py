@@ -61,6 +61,21 @@ def test_default_off():
     assert PipelineConfig().name_risk_share_cap_enabled is False
 
 
+def test_production_variant_pins_s16_7_flip_state():
+    """§8/S16.7: 사용자 승인 flip(2026-09-01) 이후의 production 상태 핀.
+
+    production variant는 name_risk_share_cap_enabled=True(새 S0′ 1.7596,
+    1.7149 은퇴)여야 하고, PipelineConfig 기본값은 여전히 False(§8
+    default-OFF 유지)여야 한다."""
+    import yaml
+
+    with open("variants/codex_causal_rank_65.yaml", encoding="utf-8") as fh:
+        manifest = yaml.safe_load(fh)
+    overrides = manifest.get("overrides") or {}
+    assert overrides.get("name_risk_share_cap_enabled") is True
+    assert PipelineConfig().name_risk_share_cap_enabled is False
+
+
 def test_off_breaches_and_records_no_diag():
     mu, cov, bm = _problem()
     diag = {}
