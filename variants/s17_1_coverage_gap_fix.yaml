@@ -1,0 +1,205 @@
+label: s17_1_coverage_gap_fix
+display_name: S17.1 Coverage-Gap Fix (250)
+portfolio_role: diagnostic
+description: >
+  Current production baseline (codex_causal_rank_65, S0' IR 1.7052 on the
+  2026-09-01 14:05:40 / 2026-09-02 11:09:18 vintage pair, frozen copy in
+  outputs/s17_s0_0902) plus ONE flag line (decision log S17.1 preregistration,
+  2026-09-02). T-01: the loader's cross-sectional median fill turns FactSet coverage gaps into other names' target-price LEVELS (tg_upside pinned at +5.0 for VRT 409 rows; the rest of the cross-section compressed 2.4x). ON re-NaNs pre-coverage cells of the per-share level sheets from the pre-impute observed mask so the panel builder's per-date median fills them instead. Correctness track (S16.1 precedent): dIR is an observation, not a gate; not counted in the DSR inventory.
+out_dir: outputs/s17_1_coverage_gap_fix
+tuning_mode: production
+overrides:
+  # Causal ranking model. These are the only intentional signal-path changes.
+  model_objective: cross_sectional_rank
+  causal_validation_enabled: true
+  execution_signal_lag_days: 1
+  rank_relevance_levels: 10
+  # S13.47 (2026-08-20): rank_eval_at [5, 10] -> [20], adopted by user
+  # override — decision log S13.47 Production flip (E1 bar missed at
+  # dIR +0.2028 but DSR p=0.0543 beats the S13.41/S13.31 promotion
+  # precedents; degeneracy improved 13/33 -> 10/33). Early stopping is
+  # argmax@20. Rollback = restore "rank_eval_at: [5, 10]" on this line
+  # (bit-deterministic pipeline reproduces the old baseline exactly).
+  rank_eval_at: [20]
+
+  # Model/data pins copied from the production S0 variant.
+  train_window: 1260
+  retrain_freq: 63
+  val_window: 126
+  prediction_ema_alpha: 0.5
+  early_stopping_rounds: 100
+  lgbm_params:
+    objective: rank_xendcg
+    metric: ndcg
+    learning_rate: 0.02
+    num_leaves: 31
+    max_depth: 5
+    min_child_samples: 60
+    subsample: 0.8
+    colsample_bytree: 0.8
+    reg_alpha: 0.3
+    reg_lambda: 2.0
+    n_estimators: 800
+    verbose: -1
+    random_state: 42
+  ewma_enabled: true
+  ewma_alpha: 0.3
+  ewma_min_retrains: 2
+  ewma_drop_pct: 0.05
+  ewma_min_features: 60
+  feature_mode: core
+  min_model_trees: 10
+  max_degenerate_model_rate: 0.25
+  fail_on_degenerate_model_rate: false
+  max_tail_ffill_days: 10
+  fail_on_stale_tail_ffill: false
+
+  # Benchmark / optimizer / execution pins.
+  benchmark_type: cap_weighted
+  risk_aversion: 1.0
+  turnover_penalty: 0.03
+  # Production mandate: ex-ante active risk must stay within 3.5% annual TE.
+  # The same value is enforced in both the MVO target and post-execution
+  # projection, so partial rebalancing cannot bypass the hard constraint.
+  max_te_annual: 0.035
+  max_single_turnover: 0.15
+  sector_deviation: 0.10
+  cov_lookback: 126
+  bm_weight_floor: 0.02
+  max_active_share: 0.45
+  max_active_share_ceiling: null
+  max_weight: 0.15
+  max_active_per_stock: 0.04
+  use_score_based: false
+  portfolio_style: core_satellite
+  satellite_budget: 0.225
+  satellite_max_per_stock: 0.04
+  enforce_score_gated_ow: true
+  score_threshold_for_ow: 0.0
+  no_trade_band: 0.003
+  partial_rebalance_eta: 0.50
+  trailing_ic_window: 6
+  one_way_tc: 0.0010
+  rebalance_freq: 21
+
+  # Mega-cap / proportional-cap controls.
+  mega_cap_protection_enabled: true
+  mega_cap_bm_threshold: 0.04
+  mega_cap_wide_uw_cap: 0.10
+  mega_cap_funding_mode: true
+  mega_cap_funding_k: 4
+  mega_cap_funding_score_max: 0.0
+  bm_proportional_cap_enabled: false
+  bm_proportional_cap_bm_scale_at_top: 1.5
+  bm_proportional_cap_vol_scale_floor: 0.5
+  bm_proportional_cap_vol_lookback: 63
+
+  # Post-prediction overlays.
+  pead_boost_enabled: true
+  pead_boost_weight: 0.30
+  pead_decay_days: 7.0
+  pead_max_days: 21
+  growth_tilt_enabled: true
+  growth_tilt_weight: 0.25
+  growth_tilt_rev_weight: 0.50
+  growth_tilt_fundamental_weight: 0.50
+  growth_tilt_eps_skew: 0.50
+  growth_tilt_rev_eps_share: 0.50
+  growth_tilt_rev_sales_share: 0.50
+  growth_tilt_rev_tg_share: 0.00
+  signal_stability_lambda: 0.0
+  value_trap_gate_enabled: true
+  vtg_pe_z_threshold: -0.5
+  vtg_momentum_threshold: -0.5
+  vtg_accel_threshold: 0.5
+  vtg_scale: 0.0
+
+  # Operating guardrails / solver protocol.
+  allow_scs_on_ecos_exception: false
+  max_name_active_risk_share: 0.35
+  max_sector_active_risk_share: 0.85  # recalibrated 2026-07-18, decision log S10.1
+  expected_universe_size: 250  # point-in-time membership guard, decision log S14.2
+  dr_alpha_enabled: false
+
+  # Fwd sales term-structure slope feature block (4 features), adopted by user
+  # override 2026-08-04 — decision log S13.25 Production flips. Rollback = delete
+  # this line (default-OFF, byte-identical parity certified by unit tests).
+  fwd_sales_slope_features_enabled: true
+
+  # Vol-tercile quality tilt (score' = score + 0.25*sd*z_q inside the top
+  # idio-vol tercile), adopted by user decision 2026-08-05 — decision log
+  # S13.32 Production flip. Zero-cost quality exposure (-0.03 -> +0.05, vol
+  # character preserved); IR 1.6196 certified by the S13.32 arm at exact
+  # floating-point reproduction. Rollback = delete these two lines
+  # (default-OFF, OFF path returns the input object — structural parity).
+  vol_quality_tilt_enabled: true
+  vol_quality_tilt_lambda: 0.25
+
+  # S13.41 (2026-08-13): option-IV vol-forecast covariance diagonal.
+  # User-approved promotion; decision log S13.41 Production flip.
+  option_vol_covariance_enabled: true
+
+  # S15 (2026-08-27): structural-review correctness fix pack (8 verified
+  # defects behind one flag), adopted by user on correctness grounds —
+  # decision log S15 Production flip. Certified same-vintage measurement:
+  # IR 1.3811 -> 1.5466 (avg_ic unchanged - structural channel), TE 3.73%,
+  # ECOS 194/194. This makes IR 1.5466 the S0' baseline; pre-flip numbers
+  # (1.3811) are retired for arm comparisons. Rollback = delete this line
+  # (default-OFF, byte-identical restore certified by unit tests).
+  s15_fixpack_enabled: true
+
+  # S15.2 (2026-08-28): S13.41 option-scale correctness fix, adopted by
+  # user on correctness grounds — decision log S15.2 Production flip.
+  # Restores the preregistered S13.41 contract: (a) scale model trained on
+  # raw risk returns, (b) loader-imputed iv30_z cells (3.77%) forced inert.
+  # Certified same-vintage paired measurement: IR 1.5466 -> 1.5356
+  # (avg_ic bit-identical, degenerate 14/33 identical, ECOS 194/194).
+  # This makes IR 1.5356 the S0' baseline; 1.5466 is retired for arm
+  # comparisons. Rollback = delete this line (default-OFF, byte-identical
+  # restore certified by unit tests).
+  option_vol_scale_fix_enabled: true
+
+  # S16.1 (2026-08-31): Tier-0 unit/accuracy fix pack (4 verified defects
+  # behind one flag: LN GBp/GBP price-unit mismatch pinning tg_upside at a
+  # -3.8 sigma constant for 8 names; FCF/CAPEX level_z killed by local-
+  # currency scale (ex-KR/JP std 0.0008); cash_conversion_z contaminated by
+  # shares outstanding; macro-cross double z-score erasing macro amplitude),
+  # adopted by user on correctness grounds — decision log S16.1 Production
+  # flip. Certified same-vintage measurement (outputs/s16_1_unit_fixpack):
+  # IR 1.5356 -> 1.6953, TE 3.70%, turnover 0.97x, ECOS 194 / fallback 0,
+  # degenerate 14/33 -> 12/33, E1 accuracy checks 4/4 confirmed. This makes
+  # IR 1.6953 the S0' baseline; 1.5356 is retired for arm comparisons.
+  # Rollback = delete this line (default-OFF, byte-identical restore
+  # certified by unit tests).
+  s16_unit_fixpack_enabled: true
+
+  # S16.2 (2026-08-31): 21-BD cap on the S15 fix-pack #5 persistent revision
+  # extension (uncapped, it froze 16.3% of the revision panel; a genuine
+  # post-earnings consensus collapse was restored to its pre-collapse value
+  # indefinitely — the opposite of the PEAD overlay's intent), adopted by
+  # user on correctness grounds — decision log S16.2 Production flip.
+  # 21 = pead_max_days (preregistered, no sweep). Certified same-vintage
+  # measurement (outputs/s16_2_revision_extension_cap): cap fired on 2,326
+  # events releasing 60-69% of frozen cells, avg_ic +13.4%, IR 1.6953 ->
+  # 1.7149, TE 3.73%, turnover 1.044x, ECOS 194 / fallback 0. This makes
+  # IR 1.7149 the S0' baseline; 1.6953 is retired for arm comparisons.
+  # Rollback = delete this line (default-None, byte-identical restore
+  # certified by unit tests).
+  revision_extension_max_days: 21
+
+  # S16.7 (2026-09-01): enforce the 0.35 per-name Euler active-risk share
+  # guardrail inside the optimiser (sequential convex re-solves at BOTH the
+  # MVO target and the post-execution projection), adopted by user on
+  # risk-discipline grounds — decision log S16.7 Production flip. Certified
+  # same-vintage measurement (outputs/s16_7_name_risk_cap): guardrail
+  # breaches 31/97 -> 0/97 rebalances, live-book STX risk share 0.543 ->
+  # 0.344, avg_ic bit-identical (optimizer-only change), TE 3.71%, turnover
+  # 0.977x, ECOS 194 / fallback 0, IR 1.7149 -> 1.7596 (dIR +0.0446 noise
+  # band, all 3 splits positive — IR is the no-harm check, not the adoption
+  # basis). This makes IR 1.7596 the S0' baseline; 1.7149 is retired for arm
+  # comparisons. Rollback = delete this line (default-OFF, byte-identical
+  # restore certified by unit tests).
+  name_risk_share_cap_enabled: true
+
+  # S17.1 preregistered arm (2026-09-02): the ONLY delta vs production.
+  s17_coverage_gap_fix_enabled: true

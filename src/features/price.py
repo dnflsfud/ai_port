@@ -71,8 +71,14 @@ def rolling_market_model_idio_vol(
     return np.sqrt(residual_variance.where(admissible)) * np.sqrt(252.0)
 
 
-def build_price_features(data: UniverseData) -> Dict[str, pd.DataFrame]:
+def build_price_features(data: UniverseData, config=None) -> Dict[str, pd.DataFrame]:
     features: Dict[str, pd.DataFrame] = {}
+    # §S17 M2 (feature channel): K-day overlapping sums for the market-model
+    # block below; 0 keeps the legacy contemporaneous formula byte-identical.
+    beta_overlap_k = (
+        int(getattr(config, "s17_beta_overlap_days", 5))
+        if getattr(config, "s17_beta_overlap_enabled", False) else 0
+    )
     # §S11.7: PIT 뷰(상장 전 NaN) — 유령의 합성 수익률이 횡단면 순위·시장평균·
     # 베타 계산에 참여하지 않도록 dense returns 대신 masked 뷰를 소비한다.
     returns = data.returns_masked
@@ -166,18 +172,30 @@ def build_price_features(data: UniverseData) -> Dict[str, pd.DataFrame]:
 
     # --- Rolling beta to EW market (2) ---
     mkt = returns.mean(axis=1)
+    if beta_overlap_k > 1:
+        # §S17 M2: Asia closes before the US, so the contemporaneous daily
+        # beta of the 16 Asia names is ~3x understated (0.324 vs Dimson
+        # 0.997). Summing K days on both sides restores the lagged
+        # co-movement with the same rolling formula.
+        ret_mm = returns.rolling(beta_overlap_k, min_periods=beta_overlap_k).sum()
+        mkt_mm = mkt.rolling(beta_overlap_k, min_periods=beta_overlap_k).sum()
+    else:
+        ret_mm, mkt_mm = returns, mkt
     for w in [63]:
-        xy = returns.mul(mkt, axis=0)
+        xy = ret_mm.mul(mkt_mm, axis=0)
         e_xy = xy.rolling(w, min_periods=w).mean()
-        e_x = returns.rolling(w, min_periods=w).mean()
-        e_y = mkt.rolling(w, min_periods=w).mean()
+        e_x = ret_mm.rolling(w, min_periods=w).mean()
+        e_y = mkt_mm.rolling(w, min_periods=w).mean()
         cov_xy = e_xy - e_x.mul(e_y, axis=0)
-        var_y = mkt.rolling(w, min_periods=w).var().replace(0, np.nan)
+        var_y = mkt_mm.rolling(w, min_periods=w).var().replace(0, np.nan)
         beta = cov_xy.div(var_y, axis=0)
         features[f"beta_{w}d"] = beta
         # Idiosyncratic vol
-        resid = returns - beta.mul(mkt, axis=0)
-        features[f"idio_vol_{w}d"] = resid.rolling(w, min_periods=w).std() * np.sqrt(252)
+        resid = ret_mm - beta.mul(mkt_mm, axis=0)
+        idio = resid.rolling(w, min_periods=w).std() * np.sqrt(252)
+        if beta_overlap_k > 1:
+            idio = idio / np.sqrt(beta_overlap_k)   # K-day residual -> daily-equivalent
+        features[f"idio_vol_{w}d"] = idio
 
     # Standard market-model idiosyncratic volatility.  Keep the legacy
     # idio_vol_63d above for experiment/backward compatibility, while this

@@ -1,0 +1,47 @@
+[
+ {
+  "a": "best_roe_level_z",
+  "b": "fin_roe_level_z",
+  "corr": 1.0
+ },
+ {
+  "a": "best_px_bps_ratio_level_z",
+  "b": "fin_pb_level_z",
+  "corr": 1.0
+ },
+ {
+  "a": "oper_margin_chg_63d",
+  "b": "op_leverage_63d",
+  "corr": 0.975
+ },
+ {
+  "a": "best_eps_chg_252d",
+  "b": "earnings_quality_252d",
+  "corr": 0.934
+ },
+ {
+  "a": "fac_F_Quality_mom_63d",
+  "b": "fac_F_Growth_mom_63d",
+  "corr": 0.913
+ },
+ {
+  "a": "momentum_252d",
+  "b": "risk_adj_mom_252d",
+  "corr": 0.882
+ },
+ {
+  "a": "realized_vol_126d",
+  "b": "idio_vol_63d",
+  "corr": 0.88
+ },
+ {
+  "a": "best_sales_accel",
+  "b": "fin_sales_chg_63d",
+  "corr": -0.872
+ },
+ {
+  "a": "fac_F_Quality_mom_63d",
+  "b": "fac_F_Value_mom_63d",
+  "corr": 0.871
+ }
+]

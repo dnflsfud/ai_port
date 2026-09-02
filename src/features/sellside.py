@@ -324,6 +324,33 @@ def build_bounded_revision_features(
     return features
 
 
+def _mask_pre_coverage(sheet: pd.DataFrame, data, name: str) -> pd.DataFrame:
+    """§S17 T-01: re-NaN a per-share LEVEL sheet before each ticker's first
+    observation (post-listing coverage gap).
+
+    The loader's ``_fill_missing`` (ffill → per-date cross-sectional median)
+    fills a coverage gap with OTHER names' price levels, so tg_upside became
+    a +5.0 constant (VRT 409 rows) and compressed the rest of the cross-
+    section 2.4x. The pre-impute observed mask (``raw_sheet_observed_mask``,
+    §S15.2 idiom) tells us where coverage actually starts; cells from the
+    first observation onward keep the loader's ffill (interior gaps stay
+    filled). Consumers without the mask API (older stubs) are left untouched.
+    """
+    mask_fn = getattr(data, "raw_sheet_observed_mask", None)
+    if mask_fn is None:
+        return sheet
+    observed = mask_fn(name)
+    if observed is None:
+        return sheet
+    observed = (
+        observed.reindex(index=sheet.index, columns=sheet.columns)
+        .fillna(False)
+        .astype(bool)
+    )
+    covered = observed.cummax(axis=0)
+    return sheet.where(covered)
+
+
 def build_sellside_features(data: UniverseData, config=None) -> Dict[str, pd.DataFrame]:
     """Build the sellside / sentiment feature block.
 
@@ -340,6 +367,7 @@ def build_sellside_features(data: UniverseData, config=None) -> Dict[str, pd.Dat
     clean_thr = float(getattr(config, "revision_clean_threshold", 15.0))
     extreme_thr = float(getattr(config, "revision_clean_extreme_threshold", 50.0))
     reversion_ratio = float(getattr(config, "revision_clean_reversion_ratio", 0.5))
+    coverage_fix = bool(getattr(config, "s17_coverage_gap_fix_enabled", False))
 
     features: Dict[str, pd.DataFrame] = {}
 
@@ -362,6 +390,8 @@ def build_sellside_features(data: UniverseData, config=None) -> Dict[str, pd.Dat
     # --- Target Price (~10) ---
     try:
         tg = data.get_sheet("Factset_TG_Price")
+        if coverage_fix:
+            tg = _mask_pre_coverage(tg, data, "Factset_TG_Price")
         # Vendor target prices are quoted in each listing's local currency.
         # UniverseData.prices is USD-normalized for return/momentum features,
         # so target-price upside must retain the matching local price unit.
@@ -426,6 +456,8 @@ def build_sellside_features(data: UniverseData, config=None) -> Dict[str, pd.Dat
         logger.debug("sellside: Factset_Sales_Surprise missing — skipping sales_surprise")
     try:
         opcf = data.get_sheet("Factset_Fwd_OpCashflow")
+        if coverage_fix:
+            opcf = _mask_pre_coverage(opcf, data, "Factset_Fwd_OpCashflow")
         # Vendor CF/share estimates are quoted in local currency — divide by
         # the matching local price (same unit contract as tg_upside above).
         px_local = getattr(data, "local_prices", data.prices).replace(0, np.nan)

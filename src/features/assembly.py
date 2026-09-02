@@ -293,9 +293,39 @@ CORE_FEATURE_WHITELIST: set = {
 }
 
 
+# §S17 M4 (2026-09-02, decision log §S17 P4): core features the production
+# model structurally cannot consume. (a) Per-date-constant (broadcast)
+# columns are inert under the date-grouped rank_xendcg objective — the
+# gradients are zero-sum within each query, so a split on a within-query
+# constant has zero gain: split 0 / gain 0 in 33/33 models (§S13.18
+# mechanism; regime.py's "GBT interaction branch" claim is refuted by the
+# fit). (b) fin_roe_level_z and fin_pb_level_z are the SAME expression as
+# best_roe_level_z / best_px_bps_ratio_level_z (820,750 cells, max|diff| 0).
+# The EWMA drop budget (n_drop = int(65*0.05) = 3) is spent entirely on
+# these, so the feature-selection layer has never dropped a live feature.
+# Gated by ``s17_dead_feature_prune_enabled``; best_* copies stay (they are
+# interaction parents, interactions.py). NOTE: with 56 features n_drop = 2
+# and n_keep = max(54, ewma_min_features=60) -> 56, i.e. the selection layer
+# is STILL inert after the prune — activating it is a separate decision.
+S17_DEAD_FEATURES: frozenset = frozenset({
+    "cal_is_Q1", "regime_mkt_ret_21d",
+    "fac_yield_slope", "fac_F_Quality_mom_63d", "fac_F_Growth_mom_63d",
+    "fac_F_Value_mom_63d", "fac_value_growth_63d",
+    "fin_roe_level_z", "fin_pb_level_z",
+})
+
+
+def dead_feature_exclusions(config) -> frozenset | None:
+    """Exclusion set for apply_core_filter; None (flag OFF) is byte-identical."""
+    if getattr(config, "s17_dead_feature_prune_enabled", False):
+        return S17_DEAD_FEATURES
+    return None
+
+
 def apply_core_filter(features: Dict[str, pd.DataFrame],
                       feature_groups: Dict[str, List[str]],
-                      extra_whitelist: set | None = None) -> None:
+                      extra_whitelist: set | None = None,
+                      exclude: set | None = None) -> None:
     """In-place prune features to CORE_FEATURE_WHITELIST only.
 
     Features in the whitelist that don't actually exist in the panel are
@@ -305,16 +335,20 @@ def apply_core_filter(features: Dict[str, pd.DataFrame],
 
     `extra_whitelist` (S8) conditionally admits additional feature keys on top
     of CORE_FEATURE_WHITELIST; None (default) is inert and byte-identical to
-    the legacy filter.
+    the legacy filter. `exclude` (§S17 M4) removes keys from the admitted set;
+    None (default) is inert.
     """
     before = len(features)
-    survivors = set(features.keys()) & (CORE_FEATURE_WHITELIST | (extra_whitelist or set()))
+    admitted = CORE_FEATURE_WHITELIST | (extra_whitelist or set())
+    if exclude:
+        admitted = admitted - set(exclude)
+    survivors = set(features.keys()) & admitted
     dropped_here = [n for n in list(features.keys()) if n not in survivors]
     for name in dropped_here:
         features.pop(name, None)
 
     # Warn on any whitelist misses so we can spot stale entries
-    missing = sorted(CORE_FEATURE_WHITELIST - survivors)
+    missing = sorted((CORE_FEATURE_WHITELIST & admitted) - survivors)
     if missing:
         print(f"[FeatureEngine] core mode: whitelist misses (will be ignored): {missing[:8]}"
               + ("..." if len(missing) > 8 else ""))
@@ -600,7 +634,7 @@ def build_all_features(
     feature_mode = getattr(config, "feature_mode", "full")
 
     accounting = build_accounting_features(data, config=config)
-    price = build_price_features(data)
+    price = build_price_features(data, config=config)
     sellside = build_sellside_features(data, config=config)
     conditioning = build_conditioning_features(data, config=config)
     factor = build_factor_features(data, config=config)
@@ -776,7 +810,8 @@ def build_all_features(
         # S13.38: option-risk standardized block (same idiom).
         extra.update(admitted_option_risk_features(config))
         apply_core_filter(all_features, feature_groups,
-                          extra_whitelist=(extra or None))
+                          extra_whitelist=(extra or None),
+                          exclude=dead_feature_exclusions(config))
 
     # CS Z-score: conditioning / factor / regime(broadcast)는 제외
     skip_zscore = (set(feature_groups.get("Conditioning", []))

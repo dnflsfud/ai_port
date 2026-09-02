@@ -1010,6 +1010,41 @@ class PipelineConfig:
     s16_unit_fixpack_enabled: bool = False
 
     # ------------------------------------------------------------------
+    # S17 (2026-09-02) — structural-review round-4 fixes (decision log
+    # §S17.1 preregistration). FOUR independent default-OFF flags, one arm
+    # each (single-flag delta on production, no sweeps):
+    #   s17_coverage_gap_fix_enabled  T-01: the loader's cross-sectional
+    #      median fill turns a FactSet coverage gap (post-listing, pre-
+    #      coverage) into OTHER names' target-price LEVELS, so tg_upside is
+    #      pinned at +5.0 (VRT 409 rows) and the rest of the cross-section
+    #      is compressed 2.4x. ON re-NaNs the pre-coverage cells of the
+    #      per-share level sheets (Factset_TG_Price, Factset_Fwd_OpCashflow)
+    #      from the pre-impute observed mask; the panel builder's per-date
+    #      median then fills the feature (not the native-NaN path, §S13.6).
+    #   cov_corr_overlap_enabled  M2 (Σ channel): non-synchronous trading —
+    #      Asia closes before the US, so daily ASIA×US correlations are
+    #      3.1x understated on 97/97 rebalance dates. ON keeps the daily
+    #      variances and re-estimates ONLY the correlation matrix from
+    #      cov_corr_overlap_days-day overlapping-sum returns (same LW /
+    #      pairwise branch as the daily path), Σ' = D·C_K·D, PSD repaired.
+    #   s17_beta_overlap_enabled  M2 (feature channel): beta_63d /
+    #      idio_vol_63d from the same K-day overlapping sums (idio_vol
+    #      rescaled by sqrt(K) to a daily-equivalent annualised figure).
+    #   s17_dead_feature_prune_enabled  M4: drop the nine core features the
+    #      date-grouped rank objective cannot consume (7 per-date-constant
+    #      broadcast columns with split 0 in 33/33 models, 2 exact duplicates
+    #      of best_* columns) at the core-whitelist filter.
+    # K = 5 (weekly horizon) is preregistered for both M2 channels. OFF
+    # (default) keeps every touched code path byte-identical.
+    # ------------------------------------------------------------------
+    s17_coverage_gap_fix_enabled: bool = False
+    cov_corr_overlap_enabled: bool = False
+    cov_corr_overlap_days: int = 5
+    s17_beta_overlap_enabled: bool = False
+    s17_beta_overlap_days: int = 5
+    s17_dead_feature_prune_enabled: bool = False
+
+    # ------------------------------------------------------------------
     # S15.1 (2026-08-27) — sign-stable monotone constraints on the margin
     # axis (decision log §S15.1 preregistration). The map is FIXED to the
     # §S15 precheck output (oper_margin_chg_63d/252d, op_leverage_63d,

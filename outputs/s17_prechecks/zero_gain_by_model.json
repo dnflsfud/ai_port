@@ -1,0 +1,583 @@
+{
+ "2018-11-23": {
+  "nfeat": 65,
+  "zero_gain_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40",
+   "Column_41",
+   "Column_42",
+   "Column_43"
+  ],
+  "zero_split_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40",
+   "Column_41",
+   "Column_42",
+   "Column_43"
+  ],
+  "zero_gain_names": [
+   "cal_is_Q1",
+   "regime_mkt_ret_21d",
+   "fac_F_Quality_mom_63d",
+   "fac_F_Growth_mom_63d",
+   "fac_F_Value_mom_63d",
+   "fac_value_growth_63d",
+   "fac_yield_slope"
+  ]
+ },
+ "2019-02-20": {
+  "nfeat": 65,
+  "zero_gain_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40",
+   "Column_41",
+   "Column_42",
+   "Column_43"
+  ],
+  "zero_split_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40",
+   "Column_41",
+   "Column_42",
+   "Column_43"
+  ],
+  "zero_gain_names": [
+   "cal_is_Q1",
+   "regime_mkt_ret_21d",
+   "fac_F_Quality_mom_63d",
+   "fac_F_Growth_mom_63d",
+   "fac_F_Value_mom_63d",
+   "fac_value_growth_63d",
+   "fac_yield_slope"
+  ]
+ },
+ "2019-05-20": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ],
+  "zero_split_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ]
+ },
+ "2019-08-15": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ],
+  "zero_split_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ]
+ },
+ "2019-11-12": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40",
+   "Column_44"
+  ],
+  "zero_split_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40",
+   "Column_44"
+  ]
+ },
+ "2020-02-07": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40",
+   "Column_43"
+  ],
+  "zero_split_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40",
+   "Column_43"
+  ]
+ },
+ "2020-05-06": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ],
+  "zero_split_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ]
+ },
+ "2020-08-03": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ],
+  "zero_split_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ]
+ },
+ "2020-10-29": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40",
+   "Column_47"
+  ],
+  "zero_split_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40",
+   "Column_47"
+  ]
+ },
+ "2021-01-26": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40",
+   "Column_42",
+   "Column_43",
+   "Column_47"
+  ],
+  "zero_split_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40",
+   "Column_42",
+   "Column_43",
+   "Column_47"
+  ]
+ },
+ "2021-04-23": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40",
+   "Column_42",
+   "Column_43",
+   "Column_47"
+  ],
+  "zero_split_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40",
+   "Column_42",
+   "Column_43",
+   "Column_47"
+  ]
+ },
+ "2021-07-21": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40",
+   "Column_42",
+   "Column_43",
+   "Column_47"
+  ],
+  "zero_split_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40",
+   "Column_42",
+   "Column_43",
+   "Column_47"
+  ]
+ },
+ "2021-10-18": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40",
+   "Column_42",
+   "Column_43",
+   "Column_47"
+  ],
+  "zero_split_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40",
+   "Column_42",
+   "Column_43",
+   "Column_47"
+  ]
+ },
+ "2022-01-13": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40",
+   "Column_42",
+   "Column_43",
+   "Column_47"
+  ],
+  "zero_split_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40",
+   "Column_42",
+   "Column_43",
+   "Column_47"
+  ]
+ },
+ "2022-04-12": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ],
+  "zero_split_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ]
+ },
+ "2022-07-08": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ],
+  "zero_split_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ]
+ },
+ "2022-10-05": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ],
+  "zero_split_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ]
+ },
+ "2023-01-02": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ],
+  "zero_split_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ]
+ },
+ "2023-03-30": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ],
+  "zero_split_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ]
+ },
+ "2023-06-27": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ],
+  "zero_split_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ]
+ },
+ "2023-09-22": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ],
+  "zero_split_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ]
+ },
+ "2023-12-20": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ],
+  "zero_split_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ]
+ },
+ "2024-03-18": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ],
+  "zero_split_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ]
+ },
+ "2024-06-13": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ],
+  "zero_split_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ]
+ },
+ "2024-09-10": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ],
+  "zero_split_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ]
+ },
+ "2024-12-06": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40",
+   "Column_46",
+   "Column_47"
+  ],
+  "zero_split_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40",
+   "Column_46",
+   "Column_47"
+  ]
+ },
+ "2025-03-05": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ],
+  "zero_split_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ]
+ },
+ "2025-06-02": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ],
+  "zero_split_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ]
+ },
+ "2025-08-28": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ],
+  "zero_split_cols": [
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40"
+  ]
+ },
+ "2025-11-25": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_31",
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40",
+   "Column_47"
+  ],
+  "zero_split_cols": [
+   "Column_31",
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40",
+   "Column_47"
+  ]
+ },
+ "2026-02-20": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_31",
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40",
+   "Column_47"
+  ],
+  "zero_split_cols": [
+   "Column_31",
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40",
+   "Column_47"
+  ]
+ },
+ "2026-05-20": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_31",
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40",
+   "Column_47"
+  ],
+  "zero_split_cols": [
+   "Column_31",
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40",
+   "Column_47"
+  ]
+ },
+ "2026-08-17": {
+  "nfeat": 62,
+  "zero_gain_cols": [
+   "Column_31",
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40",
+   "Column_47"
+  ],
+  "zero_split_cols": [
+   "Column_31",
+   "Column_37",
+   "Column_38",
+   "Column_39",
+   "Column_40",
+   "Column_47"
+  ]
+ }
+}

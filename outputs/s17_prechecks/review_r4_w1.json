@@ -1,0 +1,561 @@
+{
+ "raw_count": 20,
+ "lens_coverage": [
+  {
+   "lens_id": "F1_diff_since_s16_6",
+   "n": 5,
+   "coverage_notes": "[방법] git diff 6bc5fcc HEAD -- src scripts run_variant.py tests variants 전량 + 호출부(backtest.py simulate_portfolio/_optimizer_fn/projection, export_operating_data 헬퍼, harness SUB_PERIODS, model_trainer 피처 순서, assembly apply_core_filter) 통독; 합성 재현 3본(scratchpad/w1/synth_namecap{,2,3}.py, n≤8, 수 초) — pkl·워크북·pytest·백테스트 미실행. metrics.json/e1_summary.json/precheck json(소형)은 읽음. JSON 사본: scratchpad/w1/F1_diff_since_s16_6.json. [정상 확인 — 결함 아님] (a) Σ 정합: 캡의 Euler 몫은 optimize_portfolio에 전달된 cov_matrix(S13.41 optvol 대각 스케일 적용본; icorr OFF)를 그대로 쓰고, 같은 객체가 diagnostics['cov_matrix']로 투영에 전달 → MVO·투영·캡 3경로 동일 Σ. eval_s16_7 오프라인 재계산은 _production_risk_source(raw_returns reindex)+_load_optvol_scale(option_vol_scale_fix_enabled 존중 — 기지 O3 해소 확인)+estimate_covariance+창 index<d .tail(126) — 백테스트 iloc[hist_start:t_idx](risk_source index=returns.index)와 코드상 동치(경험적 미확인). (b) OFF parity: 캡은 플래그 게이트 호출이라 OFF 시 새 코드 미실행(objective 변수 바인딩만 변경); sellside/assembly/config는 S8 관용구, apply_core_filter가 features·feature_groups 모두 프루닝 → OFF inert 확인; cs_z∘cs_z는 멱등. (c) bounds는 축소만(1e-12 가드), `constraints + extra`는 매회 새 리스트(누적 오염 없음), ECOS는 warm start 없음, invalid_alpha 핀·score gate·sector 밴드·weight floor·mega funding 캡과 bm 대칭 바운드는 호환 — turnover(L1 to prev)만 infeasible 원인(-01). (d) 음수 Euler 몫: 메가캡 UW 펀딩 합성에서 −0.06 → 캡 불감 무해. (e) eval_s16_7/8a E1: 페어링은 common index intersection, 3분할은 array_split(harness SUB_PERIODS P1~P3와 다르지만 스크립트군 내부 일관), _ir ddof=1·√252(기지 O5 260.9행/년 미반영 — 상대비교 무해), G0 avg_ic 비트 비교, G1 dict 삽입순=날짜순·live=마지막 OK; gain 인덱싱은 booster feature order == _active_features(train_model feature_names 순서) 확인. (f) precheck_s16_8: daily_rank_ic(rank→mask→corrcoef)·NW Bartlett lag20 정확. 관찰: residualize_on의 β는 분자(feature∩score 셀)/분모·demean(score 전 셀) 모집단 불일치 + score는 lag 1 적용본(d−1 신호)이라 부분 제거 → 잔차 IC가 raw 쪽(PROCEED 쪽)으로 편향 가능하나 B는 그래도 t 0.47 FAIL, A는 사용자 지시 재도전이라 판정 불변(다음 사전점검부터 교집합 기준 OLS 권장). (g) precheck_s16_5: prev=미드리프트 직전 실행북은 로그에 사전등록된 정의와 일치(production prev는 21BD 드리프트 북이라 다름 — λ*·갭₂ 2차 영향, 갭₂ 0.024% vs 5% 바라 200× 여유); 갭₂ n=4는 로그 명시; 갭₂는 turnover 페널티+name 캡 포함 타깃 vs 둘 다 없는 max-alpha라 상향(PROCEED 쪽) 편향 → FAIL은 보수적; risk_aversion=0.0/λ* 전달은 RISK_AVERSION 센티널(1.0)과 충돌 없음; P3 0.0/1.0은 round(4) 효과. (h) S16.2 연장 상한 루프는 6bc5fcc 이후 diff에 없음(S16.6 검증 완료) → 미재검. (i) tests: test_s16_7(5건) OFF parity·ON 강제·slack 캡 바이트동일·투영 강제를 실제 고정(비수렴 케이스 부재 → -02 fix); test_s16_8(7건) 정의·게이팅·캐시 비안전·variant 핀 고정; 스크립트 헬퍼 테스트는 헬퍼만 고정(데이터 경로 미검증 — -03/-05가 그 사각). (j) variants: s16_7/s16_8a/s16_8_s0recert가 production 대비 단일 델타·동일 확인; acceptance allowlist 6건 갱신 확인. (k) name_risk_share_cap_enabled는 SAFE_FOR_CACHE_REUSE 밖(보수적 전체 재실행) — 결함 아님."
+  },
+  {
+   "lens_id": "F2_temporal_integrity",
+   "n": 1,
+   "coverage_notes": "확인 방법: production variant overrides 전수 판독 후 활성 경로만 코드 추적(model_trainer·target_engine·backtest·data_loader·sellside·option_vol_cov·portfolio_optimizer·assembly·price·accounting·factor·macro_cross·conditioning·fwd_sales_slope·features/utils·run_variant), src 전역 grep(shift(-k)/bfill/center=True/전표본 통계/fit)로 역방향 참조 탐색, 합성 입력 함수 단위 재현(수 초·<50MB, 스크립트 scratchpad/w1/causality_checks.py), production metrics.json(split_audit 33건 causal_ok, embargo 20, FX staleness 0·정합 6.7e-16)과 operating returns.csv 실측. 결함 아님으로 판정한 의심 지점: (1) build_walk_forward_split — val_end=t-H+1·train_end=val_start-H로 학습 라벨 실현 ≤ val_start-1(중첩 없음), 마지막 검증 라벨 실현일=예측일 t(close t 정보, 예측 피처도 close t라 정합); 합성 검증 통과. (2) compute_forward_returns — label(d)=Π(1+r[d+1..d+H])-1, d+H 실현(합성 확인); PCA는 returns[t-252,t) 롤링 적합(전표본 fit 아님), eligibility는 창 전체 non-NaN 열만. (3) EWMAFeatureTracker — 이미 실현된 라벨로 적합한 모델의 importance만 이월(인과). (4) in-loop EMA(alpha 0.5) — 일별·비리밸일 포함·재훈련 경계 리셋 없음이나 전일 값만 참조(인과; 설계 선택). apply_prediction_ema는 DR 경로 전용(휴면). (5) 오버레이 — PEAD days_since는 S15 수정 후 행 위치차, 이벤트 행=발표일(사전 공지 이벤트라 PIT), rev_quality는 t까지 63d MA; growth tilt는 shift(252)/rolling/ffill 전부 인과; vol_quality·VTG는 당일 패널; 전부 lag 적용 전에 얹혀 함께 shift(이중 lag 없음). (6) sellside 클리너(reversion_gated + S15 지속연장 + S16.2 cap 21) — 마스크 결정이 diff[t]·prev_row·run_len(과거)만 참조, ffill 인과; 합성 미래 교란 시 rows<250 바이트 불변 확인. Pattern-2 timeline 분기(`shift(-shift)` 미래 이벤트 창)는 production 호출부 전부 earnings_timeline=None이라 미사용. (7) Σ — hist_returns=risk_source.iloc[t-126:t]로 t 당일 제외(보수적 1일 지연); option-vol 스케일은 e 시점 추정에 p+21<e만 사용·[e,e+63) 블록 예측, 합성 미래 교란 시 rows<500 불변; trail_126이 t 당일 수익률을 포함해 Σ와 1일 어긋나지만 close t 정보라 룩어헤드 아님(관찰). (8) simulate_portfolio — PnL(t)는 진입 가중치, 리밸은 close t→t+1 유효, TC는 t 부과, IC는 targets(t) 진단용, 신뢰도 IC는 a+20≤t 성숙 필터(21BD≥20이라 항상 성숙); cap-weight BM은 CUR_MKT_CAP[t] as-of; listing mask는 BM ≥상장일 / 예측·타깃 ≤상장일 마스크(비대칭이나 상장일 리밸에 NaN α→w=bm 고정이라 무해). (9) data_loader — _fill_missing=ffill+당일 횡단면 median(인과), align_dates 교집합+tail ffill(production 1일), FX는 관측치 ≤날짜 ffill·pct_change(PIT), 펀더멘털 시트에 발표 지연 lag 미적용 — PIT 계약서는 상장 마스크만 다루고 공시 지연은 미규정; BEST_* 컨센서스는 일별 PIT 필드이나 OPER_MARGIN(실적치)의 기간말/발표일 정렬은 워크북 생성기(ai_port 밖) 설정에 의존해 여기서 검증 불가(추정 보고 금지 원칙상 finding 제외). (10) 캘린더 — 평일 인덱스에 미 휴장일 77행 잔존(SPX NaN), Daily_Returns는 가격 정합(미국 종목 0)이라 수익률 ffill 중복 없음; 팩터 캘린더는 휴장일 미포함이라 fac_* 롤링합 중복 없음(S15 #2 수정 경로 reindex+ffill 인과). (11) 휴면 경로(residual_sleeve targets.shift(-lag), conditioning earn_days_to_next, regime PCA, DR alpha)는 플래그 OFF 확인만. 유일 보고는 휴장일 행 리밸의 lag 계약 위반(4/97, low). 동일 JSON 저장: scratchpad/w1/F2_temporal_integrity.json"
+  },
+  {
+   "lens_id": "F3_optimizer_execution",
+   "n": 3,
+   "coverage_notes": "확인 범위: src/portfolio_optimizer.py 전량(estimate_covariance/_pairwise_covariance/_build_mvo_constraints/project_*/_solve_problem/_enforce_name_risk_share_cap/optimize_portfolio), src/backtest.py simulate_portfolio(1383-1799)·run_backtest 준비부(1802-2239)·_optimizer_fn(2136-2210)·apply_dynamic_execution·_drift_weights·_sanitize_daily_ret·apply_execution_signal_lag·_matured_trailing_ic_mean·compute_signal_confidence·make_capweight_bm_fn·compute_metrics, src/utils.py 지표, src/option_vol_cov.py 스케일 PIT, data_loader 관련부(_fill_missing·mask_pre_listing·returns/raw_returns·market_cap). 산출물은 pkl 없이 metrics.json·e1_summary.json·operating JSON·returns.csv만 사용. 결함 아님으로 판단한 의심 지점: (1) 제약 정합 — sum=1·w≥0·max_weight(bm_i>0.15 완화)·TE 캡(일 분산 단위 일치)·L1 0.45(=2×0.225, active share 최대 0.2250 바인딩 관측)·floor 0.02bm·±0.04·score gate(μ==0.0 → w≤bm, NaN → w==bm; mega funding은 strict <0.0이라 μ==0.0 mega는 w==bm으로 정합)·섹터 ±0.10 사이 구조적 모순 없음, infeasible 원천은 turnover 캡뿐(F3-02). (2) projection은 target과 동일 feasible region·동일 cov(diagnostics 경유, optvol 대각 포함) — eta·ntb 적용 후 sum≠1은 projection이 복원, 음수는 clip 후 w≥0 제약으로 재발 없음, target feasible이면 projection feasible. (3) 턴오버·TC — two-way L1 × one_way_tc = 양 레그 각 10bp로 정확, TC는 리밸일 PnL에서 차감(체결 전 가중치로 PnL → 드리프트 → 리밸), 드리프트 재정규화는 (1+port_ret)로 정확, _sanitize_daily_ret는 production에서 NaN 0건(로더 dense)이라 no-op이며 미국 휴장일 수익률은 0(전일 반복 아님, returns.csv로 확인). (4) 공분산 — hist_returns는 마스킹된 raw_returns [t−126, t−1](r_t 제외, optvol 스케일은 r_t 포함 — 1일 불일치이나 룩어헤드 아님), pairwise/floor/LW 죽은 분기·메가캡 수축은 §S16 P6/P7·S16.6 #2 기지, 대각 스케일링 D S D는 PSD 보존. (5) _solve_problem — cvxpy ECOS는 MAXIT/NUMERICS를 SolverError로 올려 catch되고 non-optimal status·non-finite 해 모두 fallback 사유 기록됨, allow_scs False 시 SCS 미시도 정상. optimal_inaccurate 수용은 제약 미세 위반 가능하나 est TE 최대 0.0350으로 관측상 무해. (6) 신뢰도 — spread_score 상시 1.0 포화는 §S7.A2 기지(재보고 안 함), 성숙 IC 필터는 a+20≤t_idx로 off-by-one 없음, <2 성숙 시 0.0 → conf 0.25 → eta 0.25(첫 2회 리밸). (7) 벤치마크 — CUR_MKT_CAP은 워크북 USD, 마스킹 후 row/s 재정규화, 벤치·포트 모두 동일 dense data.returns로 PnL, 상장일은 bm 적격·예측 NaN → w==bm 정합. get_benchmark_fn의 broad except → EW 폴백은 make_capweight_bm_fn 생성 시 예외 경로가 사실상 없어 사문. (8) 기지 재확인: NEM −2.0% 단일 거래(08-18 trade_list)는 score gate μ≤0 클리프(§S13.49 기지), max_name_active_abs>0.04 10회는 funding mega UW(허용 0.10) 범위. 라인 번호는 HEAD b2a7bc4 grep 확인. 동일 JSON 저장: scratchpad/w1/F3_optimizer_execution.json"
+  },
+  {
+   "lens_id": "F4_features_data_units",
+   "n": 3,
+   "coverage_notes": "【확인 방법】 production variant overrides 전량 → data_loader.py 1755행 전량(_apply_price_unit_scale·_check_target_price_unit_ratio·_apply_usd_conversion·build_fx_rates_usd_per_local·align_dates·_fill_missing·resolve_listing_dates·mask_pre_listing·load_universe_meta) → assembly.py(CORE_FEATURE_WHITELIST 61 + fwd_sales_slope 4 = 65 확정, apply_core_filter·skip_zscore·clip·per_date_median) → accounting/price/sellside/factor/macro_cross/fwd_sales_slope/utils/conditioning/target_engine 전량 통독. 산출물은 pkl 미적재: metrics.json(data_quality)·features.json·feature_attribution.json(SHAP)·currency.json 구조·outputs/ai_signal_data_stability/*(07-26 200종 감사 CSV)만 사용. 합성 재현 2건(scratch w1/repro_prefix*.py, 수 초·<100MB). 결과 JSON 사본: scratchpad/w1/F4_features_data_units.json.\n【65 코어 피처 단위표 요약】 Quality 12: oper_margin_chg_63d/252d/accel·best_gross_margin_chg_63d/252d(%의 safe_pct_change, 단위자유)·cash_conversion_z(FCF총액/(EPS×shares), shares=USD시총/USD가, P3 후 정합)·capex_intensity_z(총액/총액)·op_leverage_63d·best_roe_level_z(% cs z)·earnings_quality_252d·best_calculated_fcf_level_z/best_capex_level_z(rolling_tsz 756/252→cs z, P2 후 단위자유). Growth 3: best_sales_chg_252d·best_sales_accel·best_eps_chg_252d(pct, 단위자유). Value 3: peg/ev_ebitda/px_bps level_z(tsz→cs z). Momentum 7·Price/Risk 5: USD 수익률(returns_masked)·USD 가격 비율 — 비USD 종목은 FX 변동 포함(unhedged 설계). Sellside 8: analyst_rec_level(1~5)·analyst_rec_stability(63/21 std)·tg_mom_63d(pct)·tg_upside(TG/현지가, LN ×0.01 후)·eps_rev/eps_rev_ma_63d/eps_rev_trend/sales_rev_ma_63d(유계 −100~100). Factor 5: fac_yield_slope(raw pp, skip z, |값|<5)·fac_F_*_mom_63d·fac_value_growth_63d(소수 수익률 합, Factor_Returns는 소수 — fac_vrp_proxy의 ×100 및 S16 테스트 픽스처로 확인). Regime 2: regime_mkt_ret_21d(USD EW)·cal_is_Q1. Financials 11: ROE/PB/PE 변환·rank gap(단위자유, 단 2쌍 중복 → F4-02). MacroCross 5: 63d 매크로 z × cs z 레그(P4 후 skip z, 클립 0.78% 계측). FwdSalesSlope 4: (2FY−1FY)/1FY 비율. → 총액÷주당·현지통화 횡단면 비교·%/소수 혼합 잔여는 정상 경로에서 발견 못함.\n【의심했으나 결함 아님/미검증】 (1) LN 8종 BEST_EPS가 GBp일 가능성(cash_conversion_z P3의 EPS×shares vs FCF 통화 가정, accounting.py:160-163; 가드 없음): 워크북 미적재로 단위 미확인이나 최신일 SHAP 백분위가 LN 8종에서 0.18~0.98로 분산 — 고정 극단의 징후 없음. 목표주가 외 컨센서스 시트 통화=현지가 가정 위치: sellside.py:368-369(tg_upside, 가드 있음·tail 252만), sellside.py:429-432(fwd_opcf_yield, 휴면), accounting.py:160-163(cash_conversion, 가드 없음), backtest.py:357-364(growth tilt TG 레그, rev_tg_share=0 inert). (2) OPER_MARGIN(코어 3피처, gain 7.3%)은 코어 중 유일한 '실적 실측' 시트인데 Bloomberg 기간말/발표일 스탬프 여부가 어떤 문서(PIT 계약서 포함)에도 없음 — 감사 CSV의 trailing_constant_run이 이 시트에 NaN이라 판별 불가. 권고 검정: 티커별 OPER_MARGIN 스텝 날짜 vs Earnings_Date 발표 매트릭스(스텝이 분기말에 집중되면 룩어헤드). (3) min_periods<window 롤링 전수: rolling_tsz(756,252)[fcf/capex/peg/ev/pb level_z·fin_pb/pe]·dist_52w_high(252,126)·analyst_rec_stability(63,21)·eps_rev_ma_63d/sales_rev_ma_63d(63,21)·eps_rev_trend(21/10,63/21)·macro _rolling_zscore(63,21, 2014 워밍업만)·mom_accel_63_252(S15 #9로 252 고정) — 부분창 '합' 축소형 가짜 극단(§S15 #9 유형)은 없음(평균/표준편차/최대는 방향 편향 없음). (4) FX: USD 수익률 = (1+r_loc)(1+r_fx)−1(곱 형태 정확), 가격은 LN 스케일 → FX 순서 정합(:1363-1364), price_return_reconciliation_max_abs_error 6.7e-16(수익률 = 가격 pct_change와 정확 일치·소수 단위 확인), 캘린더는 Earnings_Date BusinessDays(3,278행) ∩ 나머지 = 순수 평일 인덱스라 FX 이동일 손실 없음, 결측 FX는 fail_on_missing_fx=True·coverage 1.0·staleness 0. (5) 주간/월간 시트: 코어 소비 시트 중 없음(AAII 주간은 비코어). (6) 캘린더 드롭아웃 잔여: production은 전 시트 교집합(calendar_exempt OFF, 문서화된 +0행 inert)이라 §S15 #2/#4 유형의 시트 간 결손일 자체가 없음. (7) listing mask 4소비처(피처=sheets 재마스크+returns_masked·타깃=returns_masked+inclusive 마스크·BM=_listing_eligibility_mask·Σ=raw_returns inclusive) 정합; flat-run 휴장 오판(F4-03 증거)은 패널 시작 2014-01-24 밖이라 현재 피해 0. (8) fin_pe_level_z의 clip(upper=1.5) 후 assembly 재 z는 날짜 내 단조라 비결함. (9) fin_sales_chg_63d SHAP 전종목 0 = EWMA 프루닝 결과(62/65 활성), 결함 아님. (10) CUR_MKT_CAP USD 여부는 scripts/audit_usd_cap_benchmark.py의 FX 공변 검정(cap/local_px 변화 vs FX 변화)으로 설계상 검증됨. (11) Daily_Returns 상장일 median 셀·D1 무제한 ffill은 PIT 계약서 §4·§S16 D1 기지. (12) 임퓨트 접두 단위 오염의 KRW/JPY BEST_* 변형(합성: pct_change 창 길이만큼 +5 클립)은 07-26 감사에서 BEST_* 시트 갭 0이라 현재 미발현 — F4-01은 발현이 확인된 FactSet 목표주가 채널로 한정."
+  },
+  {
+   "lens_id": "F5_model_training_config",
+   "n": 3,
+   "coverage_notes": "환경 실측: lightgbm 4.6.0 / pandas 3.0.2 / numpy 2.4.4. [train_model] `n_estimators_` = `booster.current_iteration()`이고 lgb.train이 조기종료 후 `model_from_string(model_to_string())`로 best_iteration까지 절단하므로 n_trees=best_iteration, predict는 남은 전 그루 사용(fixed_trees 경로는 best_iteration=0 → 전 그루) — 퇴화 판정·재사용 로직과 정합. rank 경로는 objective/metric을 코드가 덮어쓰고 eval_at=(20,)로 ndcg@20 단일 metric·patience 100·n_estimators 800 상한 정상. [prepare_rank_data] 날짜 단위 쿼리, sort_index 후 rank(method='first')로 결정적 동점 처리, relevance=floor(rank·10/n) clip(0,9)로 n<levels에서도 정상, 그룹<2 스킵, 라벨은 returns_masked 기반 PCA specific return(fwd = cum[t+20]/cum[t]−1, PCA는 [t−252,t) 과거창) — 오버레이는 z-score 예측에 가산하므로 정합. [causal split] audit 실측: train_end→val 임베고 20BD, val 마지막 라벨 실현일 = 예측일(당일 종가 정보), 실행 lag 1로 t+1 체결 — 누수 없음. [EWMA] n_drop=int(65×0.05)=3 → 62/65 유지(events의 candidate_features 62와 일치; '최대 5개'가 아니라 3개), dropped 피처는 신규 질량 0·0.7^k 감쇠라 재진입 실질 불가(§S12.3 기지 설계), active 순서는 원 리스트 순 유지·모델에 _active_features 부착, feature_scale은 단조 양수라 트리 분할 inert이고 학습·검증·예측 동일 적용, argsort 동점은 결정적. [predict] 학습은 NaN 행 제거·예측은 미제거지만 production 패널은 per-date median fill(assembly.py:867-869) 후 NaN 0이라 동일; 상장 eligibility strict '>' vs mask_pre_listing inclusive '<=' 정합; 예측은 매 슬롯 63BD+lag 1 사용. [lgbm_params] 76개 variant 전부 동일 13키(부분 dict·오타 0건) — 치환(병합 아님) 방식이지만 실해 없음; subsample(P8 기지) 외 무시 키 없음; num_threads 미지정·deterministic=False라 동일 머신 비트 재현은 실증됐으나 코어 수가 다른 머신 간 비트 재현은 미보장(운영 노트, 결함 아님). [harness] build_override_config의 replace()→__post_init__ 2회 호출은 멱등; 따옴표 불리언 variant 0건; satellite_budget 완화 무시는 §S16 D표 기지. [캐시] outputs/checkpoints 부재·writer 없음·전 .bat이 --no-cache → 캐시 히트 경로 물리적 불가(§S15 #12 기지); phase3 token 필드 누락(listing_mask_enabled·pca_vol_standardize)은 writer 부재로 inert. [run_backtest 배선] 피처→타깃→타깃 마스크→학습→예측 마스크→vol_quality→PEAD→growth→VTG→stability→μ스케일→calibration→vix→lag 순서 확인; 각 오버레이는 직전 출력을 입력받고 growth/PEAD는 가산(순서 무의존), VTG는 곱(가산분 포함 0화, 설계 의도), config.py의 vol_quality 'after listing mask' 서술과 일치(함수 docstring 'before'는 S16.6 #3 기지); precomputed 경로의 이중 오버레이는 pre_overlay 객체 설계로 방지, raw_predictions 재주입 2일 지연은 O9 기지(run_variant.py:519-543 dr_alpha 블록도 동일 클래스·dormant). [config] rebalance 21 vs horizon 20(S15 #7 기지), pead_max_days=revision_extension_max_days=21 의도적, ceiling null inert, ewma_min_features 60 ≤ 62 정합. 의심했으나 비결함: retrain 슬롯(1260+63k)과 리밸(1261+21j) 위상 불일치는 설계, pandas 3 stack() dropna 변경은 _valid_rows가 흡수, float32 패널×float64 스케일은 학습·예측 동일, harness.inject_config 미커버 모듈(model_trainer/target_engine/sellside)은 전부 config 인자를 명시 전달받아 실해 없음(attribution은 S15 #34 기지), in-run config 뮤테이션 0건이라 manifest resolved config는 정확. 동일 JSON을 scratchpad/w1/F5_model_training_config.json에 저장함."
+  },
+  {
+   "lens_id": "F6_metrics_evaluation_ops",
+   "n": 5,
+   "coverage_notes": "확인 방법: 코드 정독(src/backtest.py compute_metrics·simulate_portfolio IC/turnover 기록·validate_backtest, src/utils.py, src/harness.py, run_selection_bias.py 전량, scripts/export_operating_data.py 1-300·687-1331·1331-2180, scripts/validate_portfolio_bundles.py 241-788, scripts/eval_s13_46/s16_7_arm.py, streamlit_app.py 지표 표시부, tests/test_harness·test_pictet_metrics·acceptance 핀) + 소형 산출물(returns.csv·performance/monitoring/risk/expected_rebalance/registry JSON) 직접 계산 + harness.sub_ir 합성 재현. pkl·워크북 미로드, 백테스트·pytest 미실행, 레포 내 파일 미작성(git status 변화 없음). 결함 아님으로 판정한 의심점: (1) IR/TE ddof — pandas .std()·numpy std(ddof=1) 일관, np.std/ddof=0 사용 0건; 벤치마크 정렬 ffill+0은 production에서 inert(동일 루프 인덱스, NaN 0행); 첫날은 init BM 북이라 액티브 = −초기편입 TC 1행뿐, TE 희석 없음; turnover 연율화 252/len(port)는 O5 범위, 초기편입 turnover 0.034(누적의 0.6%) 무시 가능. (2) spx 1950 vs port 2027행(08-25 빈티지 1945/2022) 차이 = Factor_Returns 미 거래일 달력의 US 휴장일 77행; compute_metrics sp500 블록의 dropna는 그 날의 포트 수익(비미국 슬리브)을 버리지만 sp500_active_return 10.70%(dropna) vs 10.73%(0-fill)로 무시 가능; sp500_beta 교집합 계산은 타당. (3) realized_beta 전표본 cov/var ddof=1, bm ffill inert. (4) SUB_PERIODS P1~P3 연속(2021-05-11/12, 2023-10-27/30), port 시작 2018-11-26 ≥ P1 시작, P4_tail(04-14~) 정상; NaN 서브IR(<20행 또는 NaN 입력)은 NaN 반환 → eval 스크립트 `d > 0`/evaluate_challenger `>=`에서 False(보수적, 통과 없음). 단 '3분할'이 두 정의(metrics.json의 달력 P1~P3 vs e1_summary의 페어드 공통 인덱스 row-thirds np.array_split)로 공존 — E1 게이트 입력은 row-thirds. (5) compute_ic: predictions.loc[t]는 lag 1 적용된 t−1 실행 신호, targets.loc[t] = cum[t+20]/cum[t]−1(close t→t+20) = close t 체결 북의 보유기간 수익과 정확히 일치; spearman; NaN IC 스킵; 96 vs 97 = 마지막 리밸(08-18) 타깃이 forward 20행 부족으로 NaN. _matured_trailing_ic_mean(a+20≤t)은 production 그리드 21에서 전 엔트리 성숙; export의 무필터 ic_history는 데이터 말단에서 동치(IC 존재 조건 r+20≤T가 곧 성숙 조건). (6) DSR: skew/kurt/SR 모두 일간 스케일로 SE 계산 후 √252 일관 연율화(DSR은 스케일 불변), T vs T−1 무시 가능, N=inventory, MinTRL SR*=0 정합, sub_period_stability n//3 vs eval array_split 경계 ≤2행 차. O6(√(2lnN)·생존편향)은 기지라 미보고. (7) HOLD 게이트: 임계 단위 share(0.35/0.85) export와 일치, None fail-closed, live_model_age report-only; risk.json·TE 감사·eval_s16_7의 Σ 창(리밸일 직전 126행·raw_returns·bm_fn(last)·S15.2 optvol 미러)은 production 루프와 동일 확인(O3 회귀 없음). (8) expected_rebalance: prev_book 재구성(리밸 as-of 시 전일 북 드리프트)·hist 창·lag 처리(preds/raw 모두 lag 적용, feature_attribution signal_date = as_of − lag, model_date ≤ signal_date)·e0 적용조건 정합; contribution의 진입비중(daily_weights shift 1 + init bm, BM 드리프트·리밸 리셋) 루프와 일치. (9) active_share: metrics.active_share = 리밸일 평균 ½‖w−bm‖₁(0.200, G2 입력), holdings/대시보드 = 최신 리밸(0.176) — 정의 동일·시점 상이; CLAUDE.md §2.5 '~4.75%'는 §S13.35에서 정정된 액티브수익 혼동 수치(기지)라 미보고. (10) summary()의 '편도 bps' 라벨만 모듈 상수 ONE_WAY_TC(값은 config 반영, S15 #24 기지). (11) validate_backtest 레거시 게이트(IC≥0.015/turnover≤4.0/fail≤0.10)는 상대경로 ./outputs 기록 외 문제 없음. (12) 두 빈티지 혼재 관찰: outputs/codex_causal_rank_65/metrics.json이 16:17 수동 런(09-01 빈티지, IR 1.7054)으로 덮여 인증 S0′(s16_7, 08-25 빈티지 1.7596)와 다름 — 빈티지 규율상 정상, 코드 결함 아님. 결과 JSON 사본: C:/Users/westl/AppData/Local/Temp/claude/C--Users-westl-PycharmProjects-pythonProject-venv-vf-new-machine-re-study-c2-ai-port/0caf960f-9660-4a4b-a91e-809a2f4ab53d/scratchpad/w1/F6_metrics_evaluation_ops.json"
+  }
+ ],
+ "triage_notes": "원시 20건 → 18건(병합 2·기지 0·드롭 0). [병합] T-03 = F3-01 + F1-04(옵티마이저 NAME_RISK_CAP_TOL 0.01 vs export/validate strict 0.35 — 파일은 다르나 동일 상수 불일치 기전, F3-01의 결정 로그 서술 불일치 논지로 통합); T-09 = F2-01 + F3-03(휴장일 행 리밸 4/97에서 US 종목 lag 0일 — 동일 캘린더·동일 4일자). [기지 대조] S15 34건·S16 P/O/D·S16.6 #1~4 전수 대조 결과 동일 기전 항목 없음 — 전부 novel. 관련(비동일) 참조: T-01↔S16 P1(같은 tg_upside, 다른 기전: 단위 vs 임퓨트)·S15 #25(median fill 부활, 다른 시트); T-04↔S16 O7(O7 후속 수정이 도입한 지문의 타이밍 결함); T-09↔S16 O5(같은 평일 캘린더 사실, O5는 연율화만 다룸); T-13↔S16 O4(운영 아티팩트 정합 검사 부재 계열, 대상 상이). 리뷰어가 '[기지 X 회귀]'로 표기한 항목 없음 → regression_of_known 0. [코드 1차 확인] 20건 전부 인용 라인 존재·설명과 코드 일치(HEAD b2a7bc4). production variant(codex_causal_rank_65.yaml) 기준 활성: name_risk_share_cap_enabled ON(T-03/05/06), allow_scs_on_ecos_exception false(T-02 구조적 0.0 확정), projection_fallback_mode 기본 target(T-07), enforce_score_gated_ow·mega funding ON(T-07 입력). [severity·impact 조정] T-06(래칫)·T-07(infeasible→bm 점프)은 라이브 활성 경로이나 발동 이력 0(97/97 수렴·optimizer_failure_rate 0.0)이라 dormant_path·medium으로 하향; T-08(JP T+1 정황)은 metrics.json 사실(13/13종 2014-01-07)은 확정이나 (a)/(b) 가설이 워크북 미적재로 미판별 → medium 유지·changes_production_numbers는 (a) 조건부; T-01은 기전(비강건 cs z + 레벨 median 임퓨트)·갭 존재(CSV VRT 393/VST 122)가 확정되어 high 유지, 단 패널 실제 값은 pkl 미적재로 미확인이라 production_impact 렌즈 필수. T-02 부수 확인: 운영 export(performance.json)는 optimizer_failure_rate를 기록하므로 사각은 arm 판정 스크립트·arm metrics.json에 한정. [미수행] pkl·워크북 적재, pytest, 백테스트, 리뷰어 합성 스크립트 재실행 없음 — empirical_check가 그 잔여를 규정. 결정 로그·레포 무변경. 저장: scratchpad/w1/triage.json(스키마·severity 순·merged_from 20/20 커버 검증 완료).",
+ "known": [],
+ "dropped": [],
+ "confirmed": [
+  {
+   "finding": {
+    "id": "T-01",
+    "merged_from": [
+     "F4_features_data_units-01"
+    ],
+    "status": "novel",
+    "file": "src/data_loader.py",
+    "line": 446,
+    "severity": "high",
+    "title": "_fill_missing 횡단면 median이 FactSet 목표주가의 상장 후 커버리지 갭(VRT 393BD·VST 122BD 등 10종)을 타 종목 가격 레벨로 채워 tg_upside를 +5 클립 상수로 만들고 같은 날 나머지 종목의 tg_upside z를 압축",
+    "problem": "`_fill_missing`(data_loader.py:444-450)은 ffill 후 남은 NaN(=시트별 커버리지 시작 전 선행 결측)을 `df.median(axis=1)` — 다른 종목의 목표주가 레벨 중앙값 — 으로 채운다. Factset_TG_Price는 현지통화 주당 가격 레벨이라 그 median(191/250 USD 종목 → ≈USD 100~200)은 갭 종목 자신의 주가와 무관하다. `sellside.py:369 upside = (tg / px) − 1`이 이 값을 그대로 나누므로 주가 $10~15인 SPAC/IPO 종목은 갭 기간 내내 upside ≈ +9~+16이 되고 cross_sectional_zscore(mean/std, 비강건) 후 ±5 클립 상수가 된다. 부수효과가 더 크다: 250종 횡단면 std(정상 ≈0.20)가 한 종목의 +15로 ≈1.0(×4.9)까지 부풀어 나머지 249종의 tg_upside z가 압축된다. 갭 종료 후 `tg_mom_63d = safe_pct_change(tg, 63)`이 (실제 TG − 임퓨트 median)/median ≈ −0.9로 63BD간 −5 클립. 상시 가드 `_check_target_price_unit_ratio`(:1422)는 tail(252)만 보므로 역사 에피소드를 감지하지 못한다. 같은 기간 Factset_EPS/Sales_Revision 갭은 유계 변수라 median 임퓨트가 ≈중립 — 발현 채널은 목표주가 하나다.",
+    "scenario": "outputs/ai_signal_data_stability/ticker_sheet_metrics.csv 실측: Factset_TG_Price VRT eligibility 2018-08-01 vs first_valid 2020-02-25(선행 결측 393BD, coverage 80.4%), VST 2016-10-05 vs 2017-03-31(122BD), PLTR·BE·RACE 16·CRWD·DDOG 15·KEYS 8·LITE 4·285A 1. VRT 2018-08~2020-02 주가 ≈ $10~15 → tg_upside ≈ +11~16 → z +5 상수 393BD; 그 393BD(1,260일 학습창의 ~31%) 동안 전 종목 tg_upside z 압축; 2020-02-25부터 63BD간 VRT tg_mom_63d ≈ −5. 이 셀들은 2019~2024 모든 모델의 학습창에 들어가며, tg_upside 상위 분할(z>3)은 사실상 이 아티팩트 행만 격리 → 향후 유니버스에 추가되는 IPO 종목의 FactSet 커버리지 개시 전 3~4주에 라이브 북에서 같은 규칙이 발화한다.",
+    "fix": "최소 수정(플래그 뒤): `preprocess_sheets`에서 Factset_TG_Price(및 주가 단위 레벨 시트)의 선행 결측은 횡단면 median 대신 NaN 유지 → tg_upside NaN → 패널 단계 per-date median(z 공간 ≈0)으로 떨어지게 한다. 대안: 임퓨트를 `local_px × median(TG/PX 비율)`로 단위 정합화. 가드 확장: `_check_target_price_unit_ratio`를 tail(252)가 아니라 티커별 63d 롤링 중앙값 전 구간으로 돌려 [0.2,5] 이탈 구간을 data_quality에 기록. §8 절차: 단일 플래그·페어드 측정·정확성 채택 기준.",
+    "production_impact": "changes_production_numbers",
+    "gating_flag": "always",
+    "triage_check": "코드 확인: _fill_missing(data_loader.py:444-450)은 ffill 후 잔여 NaN을 df.median(axis=1)(타 종목 레벨 중앙값)로 채우고 preprocess_sheets(:662-668)에서 mask_pre_listing 직후 호출됨(상장 후 갭은 2차 재마스킹 대상 아님). sellside.py:368-369 upside=(tg/local_px)−1이 그 값을 그대로 소비. features/utils.py:7-14 cross_sectional_zscore는 mean/std(비강건)라 1종 극단값이 std를 부풀리는 압축 기전 성립. _check_target_price_unit_ratio(data_loader.py:1422)는 tail(252)만 검사. ticker_sheet_metrics.csv 실측(07-26 200종 빈티지): Factset_TG_Price에서 first_valid > eligibility인 종목 10종, VRT longest_missing_run 393(trailing 0 = 선행 갭)·VST 122. 레지스트리 대조: S16 P1(LN GBp 단위)은 같은 피처의 다른 기전, S15 #25(short_interest median fill)는 다른 시트·피처 — 신규. 패널 실제 값(+5 상수·z 압축 폭)은 pkl 미적재로 미확인(기전·갭 존재만 확정).",
+    "verification_lenses": [
+     "code_trace",
+     "production_impact"
+    ],
+    "empirical_check": "backtest_result.pkl panel: panel.xs('VRT',level='ticker')['tg_upside'].loc['2018-08-01':'2020-02-24'] ≈ +5.0 상수 && 같은 날짜들의 타 249종 tg_upside |z| 95분위 ≈0.4 vs 2020-06 이후 ≈2 && panel.xs('VRT')['tg_mom_63d'].loc['2020-02-25':'2020-05-22'] ≈ −5; VST 2016-10-05~2017-03-30 동일 패턴. 250종 빈티지에서 ticker_sheet_metrics 재산출로 갭 종목 목록 갱신."
+   },
+   "votes": [
+    {
+     "lens": "code_trace",
+     "verdict": {
+      "refuted": false,
+      "confidence": 0.88,
+      "corrected_severity": "high",
+      "corrected_production_impact": "changes_production_numbers",
+      "corrected_detail": "반박 실패 — 기전이 코드 경로 끝까지 실재하고 production variant에서 활성이다.\n\n[경로 추적, 호출부→피호출부]\n1. `UniverseData.__init__` (src/data_loader.py:1154-1163) → `preprocess_sheets(..., listing_dates=self.listing_dates if config.listing_mask_enabled else None)`. `listing_mask_enabled` 기본 True (src/config.py:118), production yaml은 이를 덮어쓰지 않음 → ON.\n2. `preprocess_sheets` (data_loader.py:616-671): 시트별로 `pd.to_numeric(errors=\"coerce\")`(:657) → `mask_pre_listing(df, listing_dates, inclusive=False)`(:663, `index < listing_date`만 NaN) → `_fill_missing(df)`(:668). `_fill_missing`(:443-451)은 `df.ffill()` 후 잔여 NaN을 `df.median(axis=1)`(타 종목 레벨의 횡단면 median)로 채운다. 시트 종류 구분 없음 — `Factset_TG_Price`(현지통화 주당 가격 레벨)도 동일 처리. 상장일 이후 커버리지 개시 전 구간은 ffill 원천이 없어 전부 row median으로 채워진다.\n3. 2차 재마스킹(:1175-1184)은 `mask_pre_listing(..., inclusive=False)` = `index < listing_date`만 → 상장 후 갭은 재마스킹 대상 아님. `align_dates`(:812-822)도 같은 row-median 규칙. `optional_missing`(:1268-1273)은 컬럼 자체 부재만 다루므로 부분 갭에는 미적용. `absent_fundamental_nan_enabled`는 default False(config.py:124)이고 yaml에도 없음.\n4. `build_sellside_features` (src/features/sellside.py:363-369): `tg = data.get_sheet(\"Factset_TG_Price\")`(get_sheet는 :1709-1712 단순 dict 반환), `px = data.local_prices`, `upside = (tg / px) - 1` — 임퓨트값을 그대로 나눔. `tg_mom_63d = safe_pct_change(tg, 63)`(:375).\n5. `CORE_FEATURE_WHITELIST`(src/features/assembly.py:242)에 `\"tg_mom_63d\", \"tg_upside\"` 포함; production `feature_mode: core`. assembly.py:802-804에서 Sellside 그룹은 skip_zscore 밖이라 `cross_sectional_zscore`(features/utils.py:7-14, mean/std 비강건) 적용 → :817-818 `clip_outliers`(±5).\n6. 학습 타깃 마스크는 `mask_pre_listing(targets, listing_dates, inclusive=True)`(src/backtest.py:1872-1874) — 상장 전만 제외. VRT 2018-08~2020-02 행(SPAC 가격·유효 20d 타깃)은 학습 패널에 남는다.\n7. 상시 가드 `_check_target_price_unit_ratio`(data_loader.py:1405-1435)는 `target_prices.tail(252) / local.tail(252)`(:1422)의 티커별 median만 검사 → 역사 에피소드 불감지.\n\n[입력 분포에서의 발생 가능성]\n- VRT 상장일은 config.py:158-159 명시 `\"VRT\": \"2018-08-01\"`(주석: \"VRT keeps its genuine SPAC-predecessor history … GSAH unit trading start\") — 즉 GSAH SPAC 구간(~$10)을 의도적으로 보존. 감사 스크립트의 eligibility도 동일한 `resolve_listing_dates(meta, raw, DEFAULT_CONFIG)`(scripts/audit_ai_signal_data_stability.py:619)에서 나온다.\n- outputs/ai_signal_data_stability/ticker_sheet_metrics.csv(07-26, 200종 빈티지): `Factset_TG_Price` first_valid > eligibility 종목 10종 확인 — VRT 2018-08-01→2020-02-25(longest_missing_run 393, trailing 0, coverage 80.4%), VST 2016-10-05→2017-03-31(122), PLTR 16, BE 16, RACE 16, CRWD 15, DDOG 15, KEYS 8, LITE 4, 285A 1. PX_LAST는 같은 종목 전부 coverage 1.0. 발견의 종목 목록·갭 길이는 정확.\n- 결정 로그 1945행 부근은 TG_Price 합성 비중 0.10%를 \"커버리지 0% 0종·동결 꼬리 0종\"으로 무해 판정 — 선행 갭(레벨 단위 문제)은 분석되지 않았음. §S11.4(855행)의 TG 마스킹 정책은 상장 전만. §S16.1 P1(GBp)은 다른 기전 → 신규 판단 유지.\n\n[tests/ 고정 여부]\nTG 갭 자체를 고정하는 테스트 없음. `tests/test_data_loader.py:311 test_loader_fill_hides_missing_cells_from_consumers`가 `_fill_missing`의 선행 NaN row-median 채움 일반 동작을 회귀 고정(iv30_z 기준)하므로, 전역 변경은 이 테스트·S13.41 observed-mask 테스트(test_option_vol_cov.py:64)를 건드리고 시트 한정 변경은 건드리지 않는다.\n\n[합성 재현 결과로 확정된 수치 기전] 250종·현지통화 레벨 혼합·SPAC $10·393BD 갭: 임퓨트 TG≈148 → tg_upside 중앙값 +13.6 → z=+5 상수(393/393일) / 나머지 249종 CS std 0.200→0.872(×4.36), 95분위 |z| 1.95→0.46(×4.2), |z|>3 종목 수/일 0.58→0.00 / 갭 종료 후 63BD tg_mom_63d raw −0.92·z ≈ −3.2~−3.6 / tail(252) 가드 비율 1.16(정상 판정) / 라이브 유사(IPO $30·15BD 갭): z=+5, 가드 비율 3.04(<5, 무경고).\n\n[발견 진술의 소폭 과장 2건] (a) \"tg_mom_63d −5 클립\"은 실제 CS 분산에 의존 — 합성에서는 −3.2~−3.6(방향·크기 큼은 확정, 클립 도달은 미확인). (b) \"z>3 상위 분할은 사실상 아티팩트 행만\"은 과장 — 정상 일자에도 |z|>3 종목이 일 평균 ~0.6개 존재; 갭 일자에는 아티팩트만 남는 것이 정확한 서술.\n\n[심각도 근거] 핵심 피처(tg_upside — 제거 시 IR −0.48 기록, assembly.py:239) 값이 515일(VRT 393 + VST 122)간 전 횡단면에서 ×4 압축되고 해당 일자가 2019~2024 모델 학습창의 최대 31%·2019-07~2020-02 OOS 예측 입력에 포함되며, 신규 IPO마다 3~4주 라이브 재발 규칙. 피처값 변경은 LightGBM→예측→가중치를 비트 단위로 바꾸므로 changes_production_numbers. IR 방향·크기는 페어드 런 없이는 미정.",
+      "reproduction": "실행: cd ai_port; PYTHONPATH=. <PY> C:/Users/westl/AppData/Local/Temp/claude/C--Users-westl-PycharmProjects-pythonProject-venv-vf-new-machine-re-study-c2-ai-port/0caf960f-9660-4a4b-a91e-809a2f4ab53d/scratchpad/w1/repro_t01.py (레포 함수 `_fill_missing`·`mask_pre_listing`·`cross_sectional_zscore`·`clip_outliers`·`safe_pct_change` 직접 임포트, 250종×700BD 합성, 수 초·<100MB, 레포 쓰기 0). 결과: raw NaN 393→filled 0, 임퓨트 TG median 148.0(CS median 147.8, SPAC px 10.31); tg_upside 갭 median 13.57(min 12.41, max 14.99)·post 0.149; z 갭 min=max=+5.00(share==+5: 1.000); 타 종목 CS std 0.200→0.872(×4.36); 타 249종 95분위 |z| 갭 0.464 vs post 1.949(×4.20); |z|>3 종목 수/일 0.00 vs 0.58; tg_mom_63d 갭 종료 후 63BD raw −0.921·z median −3.21·min −3.58(갭 중 raw −0.008·z −0.15); tail(252) 가드 비율 1.162(무경고); 라이브 유사(IPO $30, 15BD 갭) tg_upside raw 3.78·z 5.00·가드 비율 3.040(무경고).",
+      "empirical_check": "실제 패널 확인(pkl 미적재라 본 검증에서는 미실행): backtest_result.pkl panel에서 panel.xs('VRT',level='ticker')['tg_upside'].loc['2018-08-01':'2020-02-24'] 가 +5.0 상수인지; 같은 일자 타 종목 tg_upside |z| 95분위가 ≈0.4~0.5(정상기 ≈2 대비 ×4 압축)인지; panel.xs('VRT')['tg_mom_63d'].loc['2020-02-25':'2020-05-22'] 의 z 부호 음·크기(−3~−5)인지; VST 2016-10-05~2017-03-30 동일 패턴. 추가: 250종 워크북(현 빈티지)으로 scripts/audit_ai_signal_data_stability.py 재실행해 Factset_TG_Price first_valid>eligibility 종목 목록 갱신(S14 추가 50종 포함 여부). 채택 판정은 §8 절차대로 단일 플래그(TG_Price 선행 결측 NaN 유지 → 패널 per-date median) 페어드 런에서 avg_ic·IR·TE·퇴화율 비교."
+     }
+    },
+    {
+     "lens": "production_impact",
+     "verdict": {
+      "refuted": false,
+      "confidence": 0.9,
+      "corrected_severity": "high",
+      "corrected_production_impact": "changes_production_numbers",
+      "corrected_detail": "반박 실패 — 기전·범위 모두 production 패널(outputs/codex_causal_rank_65/backtest_result.pkl, 09-01 빈티지 250종)에서 실측 확정.\n\n[코드 경로]\n- src/data_loader.py:443-451 `_fill_missing`: `df = df.ffill()` → `row_medians = df.median(axis=1)` → `df.loc[mask, col] = row_medians[mask]`. 시트 종류 구분 없음, 플래그 없음(무조건 실행).\n- src/data_loader.py:659-668 `preprocess_sheets`: `mask_pre_listing(df, listing_dates, inclusive=False)` 직후 `_fill_missing(df)`. 1차·2차 마스킹(:1175-1184) 모두 `listing_dates`(상장일)만 기준이라 **상장 후 커버리지 갭은 어느 패스에서도 재마스킹되지 않음**.\n- src/features/sellside.py:364-369 `px = data.local_prices`, `upside = (tg / px) - 1`; :379 `tg_mom_63d = safe_pct_change(tg, 63)`. 두 피처 모두 src/features/assembly.py:242 CORE_FEATURE_WHITELIST(`\"tg_mom_63d\", \"tg_upside\"`)에 포함 → :802-804 `cross_sectional_zscore`(src/features/utils.py:7-14, mean/std 비강건) → :817-818 `clip_outliers(±5)`.\n- 가드 src/data_loader.py:1421-1422 `ratio = target_prices.tail(252) / local.tail(252)` — data_quality[\"currency\"][\"tg_px_ratio_median\"] 실측 VRT 1.134·VST 1.471(정상)로 역사 에피소드 완전 불감지.\n- 오버레이 채널은 무관: src/backtest.py:386 `if tg_price is not None and px_last is not None and rev_tg_share > 0` — production `growth_tilt_rev_tg_share: 0.00`이라 inert. 발현 채널은 모델 피처 2개뿐.\n\n[게이트 플래그] 없음(always). `listing_mask_enabled`(src/config.py:118, default True)는 상장 전만 커버, `absent_fundamental_nan_enabled`(config.py:124, False)는 OPTIONAL_SHEETS 4시트만 대상. `raw_sheet_observed_mask`는 backtest.py:2103(S13.41 iv30 스케일)·export_operating_data.py:224만 소비 — TG 피처에는 미적용.\n\n[규모·실측 (production 패널 822,000행×65피처, 2014-01-24~2026-09-01)]\n- VRT `tg_upside` 2018-08-01~2020-02-24: **409/409 날짜 정확히 +5.000 상수**(uniq=1). 갭 종료 후 `tg_mom_63d` 2020-02-25~05-22: 60/64일 −5.000(평균 −4.93).\n- 같은 409일 동안 **나머지 249종 |tg_upside| 날짜별 p95 중앙값 0.767** vs 직전 2017-01~2018-07 1.846·직후 2020-06~2021-06 1.854·2022~24 1.898(×0.42 압축); |z|>2 비율 0.0355→0.0034(1/10).\n- VST 2016-10-05~2017-03-30: 127/127 +5.000; 타 종목 p95 1.21 vs 직전 1.90(×0.64); 이후 `tg_mom_63d` 63/66일 −5.\n- 마스크+LN 단위 스케일 반영 2시트 에뮬레이션(원본 워크북): VRT 갭 임퓨트 TG 중앙값 87.4 vs VRT 주가 10.04 → raw upside +7.74 → 클립 전 z +14.2; 횡단면 std 0.528(VRT 포함) vs 0.230(제외) = **×2.28 팽창**. VST: +4.22 → z +11.7, std ×1.50. 발견의 \"+9~+16\" 수치는 과대(실제 +7.7/+4.2)이나 결론(+5 클립 상수)은 불변.\n- 250 빈티지 선행 갭 전수(마스킹 후 first_valid > 상장일): 18종 — VRT 573행·VST 177행(장기), PLTR/BE/RACE/CRWD/DDOG/APP/NET/ZS/TEAM 20~22행, KEYS 10, LITE/RDDT 4, SNOW 2, 285A 1(+HPE/ZTS는 미등록 상장일·PX 존재라 비발현). 단기 갭도 동일 발화 확인: APP 15/16·NET 12/14·ZS 14/15·PLTR 16/16·CRWD 15/15 +5.\n- 학습 창 노출: 33모델 중 VRT 갭 포함 26, VST 갭 포함 14. EWMA 프루닝은 하위 3개만 제거(model_trainer.py:143-144, 65→62)인데 tg_upside는 65피처 완전모델 2개에서 gain 점유 2.2%·10위라 전 모델 잔존.\n- 압축 발현 날짜 536/3,288(16.3%)에서 250종 전부의 tg_upside 값이 왜곡되고, 파이프라인이 비트 결정적이므로 수정 시 피처→모델→예측→가중치→IR/TE 전부 변한다. ΔIR 부호·크기는 페어드 런 없이는 미지(읽기 전용 제약으로 미실행).\n\n[발견 대비 정정]\n1. \"tg_upside 상위 분할(z>3)은 사실상 아티팩트 행만 격리\"는 과장: z>3 셀 7,078 중 VRT/VST 갭은 536(7.6%). RIO 981·DELL 476·MO 455·BNP 402 등은 다른 원인(범위 밖).\n2. 라이브 북 위험은 유계: 유니버스 편입은 상장 후 수개월 뒤 확장 이벤트로 이뤄져(285A 갭 1일) 상장 4주 내 편입 시에만 1리밸 주기 발화.\n3. 갭 길이는 패널 정렬 기준 409일(원 시트 573행) — 1,260 학습창의 32%.\n\n[결정 로그 대조] 동일 기전 판정 이력 없음(신규). 인접: §S11.4(로그 872-873행) VRT 2018-08-01 등록 시 \"2018-08 이후 GSAH SPAC 실역사는 보존\" — 바로 이 결정이 갭(주가 실재·TG 부재)을 만듦; §S13.6(1943행)은 TG_Price를 합성 0.10%·커버리지 0% 0종 \"대조\" 시트로 취급해 선행 갭·가격 레벨 median 기전은 미검토; §S16.1 P1(7281행)은 같은 피처의 단위(GBp) 기전으로 별개이며 그 수정(price_unit_scaled 8종)은 본 기전과 무관.\n\n심각도 high 유지 근거: 코어 피처(gain 10위)의 값이 전 종목 기준 16% 날짜에서 정성적으로 틀리고(노이즈 아님) 26/33 모델 학습에 유입, 게이트 없음, S16.1 Tier-0와 같은 정확성 결함 부류. 단 IR 효과는 미측정이며 현재 라이브 가중치는 역사 에피소드라 직접 영향 없음.",
+      "reproduction": "합성 재현 대신 production 산출물·원본 워크북으로 읽기 전용 실측(레포 무변경, 스크립트는 scratchpad). 명령: `cd ai_port; PYTHONPATH=. <PY> <scratchpad>/probe_t01.py` (패널 실측), `probe_t01b.py`(클립 런·모델 창 중첩·워크북 raw), `probe_t01c.py`(BacktestResult 구조·raw std), `probe_t01d.py`(data_quality·마스크+스케일 에뮬레이션·선행 갭 전수), `probe_t01e.py`(HPE/ZTS/APP/NET/ZS/TEAM 갭·PX). 핵심 결과: VRT tg_upside 409/409 +5.000, 타 종목 p95 0.767 vs 1.846/1.854, tg_mom_63d −5 60/64; VST 127/127 +5.000, p95 1.21 vs 1.90, tg_mom −5 63/66; 에뮬레이션 std 비 2.28(VRT)/1.50(VST), raw upside +7.74/+4.22; 선행 갭 18종; 모델 창 중첩 26/33·14/33; tg_px_ratio_median VRT 1.134(가드 불감지). 페어드 백테스트(수정 플래그 ON/OFF)는 읽기 전용·27분 런 제약으로 미실행 — ΔIR은 미지.",
+      "empirical_check": "발견의 empirical_check 항목 전부 PASS: (1) panel.xs('VRT')['tg_upside'].loc['2018-08-01':'2020-02-24'] = +5.000 상수 409/409; (2) 같은 날짜 타 249종 |tg_upside| 날짜별 p95 중앙값 0.767 vs 2020-06 이후 1.854(발견의 \"≈0.4 vs ≈2\"와 같은 방향, 실측 ×0.42); (3) panel.xs('VRT')['tg_mom_63d'].loc['2020-02-25':'2020-05-22'] 60/64일 −5.000(평균 −4.93); (4) VST 2016-10-05~2017-03-30 127/127 +5.000, 이후 tg_mom_63d 63/66 −5; (5) 250 빈티지 갭 종목 재산출: VRT 573·VST 177·APP/PLTR/BE/RACE/CRWD/DDOG/NET/ZS/TEAM 20~22·KEYS 10·LITE/RDDT 4·SNOW 2·285A 1(단기 갭 APP 15/16·NET 12/14·ZS 14/15 +5 발화 확인). 추가: 워크북 원본에서 VRT 갭 TG 전부 NaN(573/573)·PX 존재(중앙값 10.04), 마스크+스케일 에뮬레이션 임퓨트 TG 87.4 → raw upside +7.74 → z +14.2, 횡단면 std ×2.28; data_quality currency.tg_px_ratio_median VRT 1.134(tail 252 가드 inert); listing_mask Factset_TG_Price 마스킹 60,360셀은 상장 전만."
+     }
+    }
+   ],
+   "tiebreak": null,
+   "survives": true
+  },
+  {
+   "finding": {
+    "id": "T-02",
+    "merged_from": [
+     "F1_diff_since_s16_6-03"
+    ],
+    "status": "novel",
+    "file": "scripts/eval_s16_7_arm.py",
+    "line": 183,
+    "severity": "medium",
+    "title": "arm 판정 스크립트 G2/E2의 'fallback 0' 게이트가 ECOS→SCS 솔버 폴백률만 읽어 bm-폴백에 구조적으로 눈멂(production은 SCS 비허용이라 항상 0.0) — metrics.json에 optimizer_failure_rate 부재",
+    "problem": "`evaluate_g2(..., arm_doc[\"optimizer_solver_fallback_rate\"], ...)`(eval_s16_8a_arm.py:122 동일)는 `solver_fallbacks/solver_solves`(backtest.py:1786-1790) — ECOS 예외 시 SCS로 넘어간 횟수다. production `allow_scs_on_ecos_exception: false`면 solvers=[ECOS]뿐이라 증가 자체가 불가능하고 항상 0.0. 실제 bm-폴백(`used_fallback`→`optimizer_failure_rate`, `optimizer_fallback_reason_counts`)은 metrics.json에 없고 pkl 속성에만 있다. 게다가 `_solve_problem`은 status 'infeasible'이어도 `diagnostics[\"solver\"]=\"ECOS\"`를 써서 solver_counts가 증가하므로 결정 로그의 'ECOS 194'도 optimal 해 수가 아니다.",
+    "scenario": "합성 A: μ 전종목 NaN + max_single_turnover 0.01·prev≠bm → status 'infeasible', solver 'ECOS', used_fallback True, solver_fallback False, 반환=bm 복사. 97 리밸 중 k회가 이렇게 bm으로 떨어져도 metrics.json은 {'ECOS':194}·fallback_rate 0.0 → `fallback_zero=True`, 결정 로그 'ECOS 194/fallback 0' 그대로. §2.5(무음 bm 붕괴 FAIL) 게이트가 스크립트 수준에서 작동하지 않는다. S16.7/S16.8a 판정은 active share 밴드(±3%p)·G1 오프라인 재계산으로 간접 방어돼 뒤집히지는 않음.",
+    "fix": "스크립트가 이미 로드하는 pkl에서 `getattr(arm_r, \"optimizer_failure_rate\", nan)`·`optimizer_fallback_reason_counts`를 G2/E2 fallback 항목으로 사용(0 요구, reason 병기); run_variant의 metrics.json에 `optimizer_failure_rate`·`optimizer_fallback_reason_counts` 병기하고 'ECOS n'은 optimal 상태 수로 재정의.",
+    "production_impact": "decision_integrity",
+    "gating_flag": "always",
+    "triage_check": "코드 확인: backtest.py:1693-1694 solver_fallbacks는 diag['solver_fallback']만 세고, portfolio_optimizer.py:263-264는 allow_scs_fallback=True일 때만 그 플래그를 세팅 → production(allow_scs_on_ecos_exception: false)에서 optimizer_solver_fallback_rate는 구조적으로 0.0. bm-폴백(used_fallback→optimizer_failures/optimizer_failure_rate, backtest.py:1780-1782)은 pkl 속성뿐이고 run_variant.py:561-583 metrics.json dump에 없음(s16_7 metrics.json 키 실측: optimizer_solver_counts·optimizer_solver_fallback_rate만). _solve_problem(:243-246)은 status와 무관하게 solver='ECOS'를 기록하므로 solver_counts는 optimal 수가 아님. eval_s16_7_arm.py:183·eval_s16_8a_arm.py:122가 arm_doc['optimizer_solver_fallback_rate']를 G2/E2에 전달. 단 운영 export(export_operating_data.py:1459)는 optimizer_failure_rate를 performance.json에 기록(현 production 0.0) — 사각은 arm 판정 경로에 한정. 레지스트리에 없음 — 신규.",
+    "verification_lenses": [
+     "code_trace"
+    ],
+    "empirical_check": "s16_2_revision_extension_cap / s16_7_name_risk_cap / s16_8_s0recert / s16_8a_opcf_level pkl의 optimizer_failure_rate·optimizer_fallback_reason_counts를 읽어 전부 0인지 확인(>0이면 해당 절 §2.5 재판정)."
+   },
+   "votes": [
+    {
+     "lens": "code_trace",
+     "verdict": {
+      "refuted": false,
+      "confidence": 0.93,
+      "corrected_severity": "medium",
+      "corrected_production_impact": "decision_integrity",
+      "corrected_detail": "반박 실패 — 발견 확정. 코드 경로 추적(호출부→피호출부):\n\n1) 게이트가 읽는 값의 정의: `scripts/eval_s16_7_arm.py:181-184` `evaluate_g2(..., arm_doc[\"optimizer_solver_fallback_rate\"], ...)` → `:85 \"fallback_zero\": bool(arm_fallback_rate == 0)`. `scripts/eval_s16_8a_arm.py:120-122` `evaluate_e2(..., arm_doc[\"optimizer_solver_fallback_rate\"])` 동일. (추가 동일 패턴: `scripts/eval_s16_3_arm.py:92`.)\n2) 그 값은 ECOS→SCS 전환률뿐: `src/backtest.py:1693-1694` `if diag.get(\"solver_fallback\", False): solver_fallbacks += 1`; `:1787-1790` `optimizer_solver_fallback_rate = solver_fallbacks / optimizer_solver_solves`. `solver_fallback`은 `src/portfolio_optimizer.py:264-265` `if solver_name == \"ECOS\" and allow_scs_fallback: diagnostics[\"solver_fallback\"] = True` — 즉 (a) `prob.solve`가 **예외**를 던지고 (b) `allow_scs_fallback=True`일 때만 세팅. production `variants/codex_causal_rank_65.yaml:121 allow_scs_on_ecos_exception: false`(`src/config.py:674` 기본값도 False) → `solvers=[ECOS]`(`:236-238`)이라 구조적으로 0.0. 게다가 infeasible 같은 비-optimal **status**는 예외가 아니므로 SCS 허용 시에도 `solver_fallback`은 False(합성 재현으로 확인).\n3) 실제 bm-폴백은 다른 카운터: `portfolio_optimizer.py:859-862` 비-optimal status → `diag[\"used_fallback\"]=True; return bm_weights.copy()`(`:841-843`, `:848-851`도 동일). `backtest.py:1695-1703` `used_fallback` → `fallback_reason_counts`·`optimizer_failures`; `:1779-1783,1791` → `result.optimizer_failure_rate`·`optimizer_fallback_reason_counts`. 이 값들은 `run_variant.py:561-583`의 metrics.json dump에 **없음**(`:571-574`는 `optimizer_solver_counts`·`optimizer_solver_fallback_rate`만). 실측: s16_2/s16_7/s16_8_s0recert/s16_8a/codex_causal_rank_65 metrics.json 최상위 키 = [label, tuning_mode, manifest_path, overrides, metrics, model_quality, data_quality, optimizer_solver_counts, optimizer_solver_fallback_rate, elapsed_sec, data_vintage] — `optimizer_failure_rate` 부재 확인. `metrics` 하위에도 fallback/fail 키 없음.\n4) 'ECOS 194'는 optimal 수가 아님: `portfolio_optimizer.py:240-246` `prob.solve(...)` 후 status와 무관하게 `diagnostics[\"solver\"]=solver_name` 기록, 예외 경로(`:260-262`)도 `solver=solver_name` 기록 → `backtest.py:1690-1692`가 그대로 집계. 리밸당 최적화+투영 2 solve(`:1689 for diag in (optimizer_diagnostics, projection_diagnostics)`) = 97×2 = 194는 bm-폴백 여부와 무관하게 동일.\n5) 앞단 가드 여부: `run_variant.py`는 `optimizer_failure_rate`를 검사·기록하지 않음(grep 결과 355·571-574뿐). `src/backtest.py:2291 validate_backtest`(Optimizer Fail Rate ≤ 0.10)는 호출부 0건(run_variant/scripts/src 어디서도 미호출). 운영 export만 기록(`scripts/export_operating_data.py:1459, 1835, 1963-1964`) — arm 판정 경로엔 미연결. 콘솔 로그 `backtest.py:1794-1795 \"Optimizer fallback: n/N\"`이 유일한 노출이며 사람이 읽어야 함.\n6) tests: `tests/test_eval_s16_7_arm.py:48-56`·`tests/test_eval_s16_8a_arm.py:6-10`·`tests/test_eval_s16_3_arm.py:7-17`은 순수 함수에 임의 rate를 넣어 판정 로직만 검사 — **어느 metric이 주입되는지 고정하는 테스트 없음**. `optimizer_failure_rate`를 참조하는 테스트 0건.\n7) 시나리오 실현 가능성(실제 입력 분포): 동일 코드 경로·동일 솔버 프로토콜의 실런에서 이미 발생 — `logs/scheduled_run_last.log:4300-4301`(2026-09-01, 챌린저 iter15_65tkr_reb21_vtg, 250종·97리밸): `Optimizer fallback: 4/97 (4.1%)` 직후 `Solver counts: {'ECOS': 194}, ECOS->SCS fallback rate: 0.0%`; 같은 로그 `:8617-8618` production은 0/97·ECOS 194. 결정 로그 `:6616`(08-19 운영 관측) `optimizer_failure_rate 5.15%(194 solve 전부 ECOS, fallback 0)`; `logs/manual_verify_2026-07-18.log:4208-4209` 7/95·ECOS 190·SCS 0.0%. 즉 \"bm-폴백 k회 & metrics.json {'ECOS':194}·fallback_rate 0.0\"은 가설이 아니라 관측된 조합.\n\n정정/보강 2건: (i) 발견의 \"G1 오프라인 재계산으로 간접 방어\"는 부정확 — bm-폴백 북은 active≈0이라 Euler share가 0(`eval_s16_7_arm.py:48-50` var≤1e-18 → zeros)이 되어 G1을 **더 쉽게 통과**하므로 방어가 아니라 오히려 통과 방향. 실질 간접 방어는 active share 밴드(±3%p)와 사람이 읽는 콘솔 라인뿐. (ii) 판정 뒤집힘 없음은 pkl 실측으로 확정(아래 empirical_check).\n\n심각도 medium 유지 근거: 게이트가 production 프로토콜에서 항상 True인 공허 게이트(CLAUDE.md §2.5 무음 bm 붕괴 FAIL의 스크립트 수준 구현 부재)이고 실런에서 4~7% bm-폴백이 관측된 바 있으나, S16.x 전 arm·기준선은 bm-폴백 0/97로 확인되어 기존 결정은 불변. 수정은 발견의 fix안대로 소규모(pkl `optimizer_failure_rate`·`optimizer_fallback_reason_counts`를 G2/E2 항목으로, run_variant metrics.json 병기).",
+      "reproduction": "합성 재현 수행(scratchpad/w1/repro_t02.py, PYTHONPATH=. 실행 ~5초, 메모리 소량): `PipelineConfig(max_single_turnover=0.01, allow_scs_on_ecos_exception=False)`, n=4, bm=[.4,.3,.2,.1], prev=[.1,.2,.3,.4], μ 전종목 NaN(→ `portfolio_optimizer.py:419-420` w_i==bm_i 핀) → `optimize_portfolio` + `project_portfolio_weights` 호출 후 `backtest.py:1689-1703/1779-1791` 집계를 그대로 에뮬레이션.\n결과: opt_diag={'mode':'mvo','solver':'ECOS','status':'infeasible','used_fallback':True,'solver_fallback':False,'fallback_reason':'infeasible'}, proj_diag 동일(mode 'projection_mvo'); 반환 target==bm True·실행 new_w==bm True; pkl-only 속성 optimizer_failure_rate=1.0·optimizer_fallback_reason_counts={'mvo:infeasible':1,'projection_mvo:infeasible':1}; metrics.json 뷰={'optimizer_solver_counts':{'ECOS':2},'optimizer_solver_fallback_rate':0.0}; `eval_s16_7_arm.evaluate_g2(...)['fallback_zero']=True`, `eval_s16_8a_arm.evaluate_e2(...)['fallback_zero']=True` → \"TRUE bm-fallback happened: True -> gate blind: True\". 반사실 `allow_scs_on_ecos_exception=True`로도 infeasible은 예외가 아니라 solver_fallback=False·rate 0.0 동일(SCS 허용 여부와 무관하게 status 폴백은 이 metric에 불가시).",
+      "empirical_check": "발견의 empirical_check 수행 — 단, pkl unpickle 금지 조건이라 mmap 바이트 탐색으로 pickle 스트림의 SHORT_BINUNICODE 키 뒤 BINFLOAT/BININT/EMPTY_DICT 값을 직접 디코드(scratchpad/w1/scan_pkl.py, 5개 pkl 합계 3.2초, RSS 소량). 결과 5/5 전부: optimizer_failures=0, optimizer_rebalances=97, optimizer_failure_rate=0.0, optimizer_solver_solves=194, optimizer_solver_fallbacks=0, optimizer_solver_fallback_rate=0.0, optimizer_fallback_reason_counts={} — s16_2_revision_extension_cap / s16_7_name_risk_cap / s16_8_s0recert / s16_8a_opcf_level / codex_causal_rank_65(현 production). 교차검증: 런 로그 outputs/s16_7_name_risk_cap_run.log:4252, s16_8a_opcf_level_run.log:4255, s16_8_s0recert_run.log:4252, s16_1_run.log:4256, s16_3_run.log:4256 모두 `Optimizer fallback: 0/97 (0.0%)`(s16_2_run.log는 0바이트라 pkl 스캔이 유일 근거); 운영 export outputs/operating_codex_causal_rank_65/performance.json optimizer_failure_rate=0.0. → §S16.2/S16.7/S16.8/S16.8a 절의 §2.5 재판정 불필요(bm-폴백 >0 아님). 반면 두 metric의 실제 괴리 사례는 실데이터에서 확인: logs/scheduled_run_last.log:4300-4301(09-01 챌린저 4/97 bm-폴백 & ECOS 194·SCS 0.0%), 결정 로그 :6616(08-19 production 운영 5.15% & \"fallback 0\"), logs/manual_verify_2026-07-18.log:4208-4209(7/95 & ECOS 190·0.0%)."
+     }
+    }
+   ],
+   "tiebreak": null,
+   "survives": true
+  },
+  {
+   "finding": {
+    "id": "T-03",
+    "merged_from": [
+     "F3_optimizer_execution-01",
+     "F1_diff_since_s16_6-04"
+    ],
+    "status": "novel",
+    "file": "src/portfolio_optimizer.py",
+    "line": 675,
+    "severity": "medium",
+    "title": "S16.7 name-share 캡 tol 0.01(≤0.36 허용)과 ops HOLD 가드(strict >0.35) 불일치 — '0/97 breach'는 0.36 기준이고 가드 기준으로는 5/97, 수렴 판정된 북이 production_gate HOLD를 낼 수 있음",
+    "problem": "`NAME_RISK_CAP_TOL = 0.01`(:675)이라 `_enforce_name_risk_share_cap`은 `shares > cap + TOL`(:719)일 때만 재해하고 `converged = max_share <= cap + tol`(:753)로 판정한다 — 옵티마이저가 보장하는 상한은 0.35가 아니라 0.36이다. 반면 production HOLD 게이트가 읽는 ops 가드는 `top_name_active_risk_share > max_name_risk`(export_operating_data.py:1710, tol 없음 strict 0.35, |contribution| 기준)이고 validate_portfolio_bundles.py:668 `name_active_risk_ok`가 그대로 HOLD를 결정한다. §S16.7 판정 스크립트(eval_s16_7_arm.py:38 TOL=0.01)는 옵티마이저 규칙으로 준수율을 세어 'breach 0/97'을 냈고, 결정 로그 flip 절은 'report-only 모니터와 옵티마이저 강제가 같은 상수를 공유'·'가드레일 breach 만성 상태가 구조적으로 해소'라고 기록했다. 두 규칙이 다르므로 이 서술은 성립하지 않는다. 부수: 가드는 부호 무관, 옵티마이저는 양(+) share만 캡.",
+    "scenario": "리밸일에 캡 루프가 max share 0.355~0.36에서 수렴(converged=True)하면 옵티마이저는 정상 종료하지만 그 북이 라이브 북이 되는 순간 ops 가드는 `top_name_active_risk_breached=True` → production 게이트 HOLD. 실제로 e1_summary.json g1.arm_worst5 = 2026-06-19 0.3594 · 2019-11-13 0.3579 · 2026-04-22 0.3577 · 2018-12-25 0.3564 · 2026-05-21 0.3559 — 5개 전부 가드 기준 breach인데 arm 집계는 0/97. 2026-06-19 리밸이 라이브였다면 flip 직후 HOLD가 떴을 것(현재 라이브 08-18 STX 0.3368이라 우연히 통과).",
+    "fix": "산출물 불변 최소 수정: export_operating_data.py:1710을 `> max_name_risk + NAME_RISK_CAP_TOL`(portfolio_optimizer에서 import)로 맞추고 결정 로그 §S16.7 flip 절에 '옵티마이저 보장 상한은 0.36(cap+tol)이며 가드 기준 strict 0.35로는 5/97'을 정정 기록. 음수 몫은 모니터에서 별도 항목으로 분리. strict 0.35를 원하면 옵티마이저 목표를 `cap − TOL`로 낮추는 것은 production 수치를 바꾸므로 §8 사전등록 arm으로 분리.",
+    "production_impact": "decision_integrity",
+    "gating_flag": "name_risk_share_cap_enabled (production ON)",
+    "triage_check": "코드 확인: NAME_RISK_CAP_TOL=0.01(:675), breach 판정 shares > cap+TOL(:719), converged = max_share <= cap+TOL(:753); export_operating_data.py:1710 top_name_active_risk_share > max_name_risk(tol 없음, |contribution| 기준); validate_portfolio_bundles.py:668 name_active_risk_ok가 HOLD 결정(_REPORT_ONLY_CHECKS=('live_model_age_ok',)뿐). eval_s16_7_arm.py:38 TOL=0.01로 G1 집계. outputs/s16_7_name_risk_cap/e1_summary.json g1.arm_worst5 실측: 5개 모두 (0.35, 0.36]. 라이브 08-18 STX 0.3368(risk.json)이라 현재 HOLD 미발동. 사전등록 G1은 '≤0.36(=cap+tol)'로 명시돼 측정 자체는 사전등록대로 — 결함은 flip 절 서술과 가드 규칙의 불일치. 두 렌즈(F1-04·F3-01) 동일 기전 병합. 신규.",
+    "verification_lenses": [
+     "code_trace"
+    ],
+    "empirical_check": "backtest_result.pkl의 portfolio_weights 97개에 대해 production cov(raw_returns 126d + optvol 대각)로 Euler share 재계산 → 0.35 < max_share ≤ 0.36 인 리밸 수를 세고(예상 5) export 가드 규칙(|share| strict 0.35)으로 breach 수를 병기; export를 as_of=2026-06-19로 실행해 name_active_risk_ok가 false가 되는지."
+   },
+   "votes": [
+    {
+     "lens": "code_trace",
+     "verdict": {
+      "refuted": false,
+      "confidence": 0.9,
+      "corrected_severity": "medium",
+      "corrected_production_impact": "decision_integrity",
+      "corrected_detail": "반박 실패 — 기전·범위 확정.\n\n[코드 경로] (1) src/portfolio_optimizer.py:675 `NAME_RISK_CAP_TOL = 0.01`; :719 `breach = np.flatnonzero(shares > cap + NAME_RISK_CAP_TOL)`; :753 `diag[\"name_risk_cap_converged\"] = bool(max_share <= cap + NAME_RISK_CAP_TOL)`. 호출부 :852-856(MVO 타깃)·:579-583(projection) 모두 `name_risk_share_cap_enabled` 게이트이며 production variant :205 `name_risk_share_cap_enabled: true`, :122 `max_name_active_risk_share: 0.35`로 활성. 옵티마이저 보장 상한은 0.36. (2) scripts/export_operating_data.py:1693 `abs(top_name[\"active_te_contribution\"]) / active_te`, :1708-1711 `top_name_active_risk_share > max_name_risk` — tol 없음·|기여| 기준 strict 0.35. (3) scripts/validate_portfolio_bundles.py:398/554-567이 risk.json `guardrails`를 `_risk_guardrails`로 적재 → :668 `\"name_active_risk_ok\": _not_breached(\"top_name_active_risk_breached\")` → :616 `_REPORT_ONLY_CHECKS = (\"live_model_age_ok\",)`뿐이므로 :691-693에서 False면 `status=\"HOLD\"` → :743-757 registry `production_gate` → streamlit_app.py:747-776 칩. 체인 완결.\n\n[방법론 동일성 — \"숫자가 비교 불가\"라는 반박 실패] scripts/eval_s16_7_arm.py:93-111은 export의 `_production_risk_source`·`_load_optvol_scale`·`_apply_optvol_scale`를 그대로 import하고 `risk_source.loc[index < d].tail(cov_lookback)` + `estimate_covariance(hist, bm_weights=bm_w, config=cfg)`를 쓴다 — export risk.json 블록(:1650-1653)과 문자 그대로 같은 계산. 백테스트 `_optimizer_fn`(src/backtest.py:2137-2143)도 동일 cov+optvol 대각. 따라서 G1이 계산한 리밸일 몫 = 그 날이 `last`였을 때 risk.json이 보고할 몫. 몫 공식도 양(+) 몫에 대해 옵티마이저와 export가 동일(합성 재현에서 전 사례 4자리 일치) — 차이는 오직 임계값(0.36 vs 0.35).\n\n[실측] outputs/s16_7_name_risk_cap/e1_summary.json(커밋 7fb4a42) `g1.arm_worst5` = 0.3594/0.3579/0.3577/0.3564/0.3559 — 5개 모두 (0.35, 0.36]. `evaluate_g1`(:67 `v <= cap + tol + 1e-9`)이라 0/97. strict 0.35 기준 breach는 **≥5/97**(6번째 값은 JSON에 없어 정확한 수는 전수 재계산 필요 — 발견의 \"5/97\"은 하한). 부수 발견: 결정 로그 :7949 \"arm 최악값 0.3564(≤0.36)\"는 JSON 최악값 0.3594의 전사 오류(e1_summary 10:10 생성, 로그 커밋 a613ec0 10:12).\n\n[결정 로그 서술 불일치 확정] :7976-7977 \"STX 0.344 ≤ 0.35 — report-only 모니터와 옵티마이저 강제가 같은 상수를 공유\" — `max_name_active_risk_share` 상수는 공유하나 옵티마이저는 +tol을 더하므로 판정 규칙은 다름. :7963-7964·:7969-7970 \"breach 31/97→0/97 구조적 해소\"는 0.36 기준 집계이며 가드 자체 기준으로는 ≥5/97 잔존. 단 사전등록 :7928은 \"≤0.36(=cap+tol)\"로 명시했고 결과표 :7949도 \"(≤0.36)\"을 병기 — 측정 자체는 사전등록대로. 결함은 flip 절 서술·가드 규칙 불일치이며 채택 결정 자체(리스크 규율 프레임: 바인딩+무손상)는 strict 기준으로도 뒤집히지 않음(≥5/97 vs base ≥31/97).\n\n[현 상태] risk.json(작업트리, as_of 08-18) STX 0.33678, registry(구 런) 0.3439 — 둘 다 <0.35라 현재 name 가드 HOLD 미발동. production 가중치·IR 불변(옵티마이저 무변경). 발견의 부수 지적(가드 부호 무관 vs 옵티마이저 양 몫만 캡)은 코드상 사실이나 production에서 |음 몫|>0.35 사례는 미관측.\n\n[테스트] tests/test_s16_7_name_risk_cap.py:92/121은 `<= CAP + NAME_RISK_CAP_TOL`로 옵티마이저만 핀. tests/test_validate_portfolio_bundles.py는 `top_name_active_risk_breached`를 입력으로 받을 뿐 export 가드 계산·두 규칙의 정합을 고정하는 테스트 없음.\n\n[심각도] medium 유지: 산출물 무변경·채택 결정 불변이나 (a) 결정 로그 flip 근거 서술이 다른 규칙의 집계를 가드 해소로 기록(불변식 6), (b) 옵티마이저가 정상 수렴한 북이 리밸일 ~5%에서 대시보드 production_gate HOLD를 낼 수 있음(evaluate_production은 :640 docstring대로 report-only — 파이프라인 차단은 아님).",
+      "reproduction": "합성 재현 2건(pkl·워크북 미로드, 수 초). 스크립트: C:/Users/westl/AppData/Local/Temp/claude/C--Users-westl-PycharmProjects-pythonProject-venv-vf-new-machine-re-study-c2-ai-port/0caf960f-9660-4a4b-a91e-809a2f4ab53d/scratchpad/w1/repro_t03.py, repro_t03_band.py (PYTHONPATH=. <PY> 실행).\n\n(1) repro_t03.py — tests/test_s16_7_name_risk_cap.py의 공식 6종목 픽스처에 cap ON으로 `optimize_portfolio` 실행 후 export_operating_data.py:1654-1710 가드 공식을 그대로 재현: 옵티마이저 `_name_risk_shares` max 0.3455 == 가드 share 0.3455(공식 동일 확인, 이 픽스처는 캡 아래 수렴). 이어 `evaluate_production`에 `top_name_active_risk_breached=True`(share 0.3594, 나머지 체크 전부 정상)를 주입 → status **HOLD**, `name_active_risk_ok=False`; 같은 0.3594를 옵티마이저 규칙(`> cap+tol`)으로 판정하면 → **PRODUCTION**. 두 규칙이 같은 북에서 반대 결론.\n\n(2) repro_t03_band.py — 8종목 랜덤 문제 60건(seed 0, 2팩터 상관 + 랜덤 vol/mu)에 cap ON: **20/60이 `name_risk_cap_converged=True`이면서 max share ∈ (0.35, 0.36]**(예: seed1 8회 반복 0.3563, seed18 2회 0.3583, seed7 0.3504) — 전부 export 가드 규칙으로 breach=True. 축소 스텝 `sqrt(cap/share)`(:725)가 정확히 cap을 겨냥하고 `≤cap+tol`이면 즉시 정지(:719-721)하므로 밴드 안착은 자연스러운 정지 영역이지 코너 케이스가 아님.\n\n미실행: pkl(274MB) 전수 Euler 재계산·export as_of=2026-06-19 실행 — 지시된 금지 항목(pkl·워크북 로드)이라 생략. 대신 e1_summary.json(7fb4a42 커밋본)과 eval/export 코드 동일성으로 대체 입증.",
+      "empirical_check": "발견의 empirical_check(pkl 97개 Euler 재계산·as_of=2026-06-19 export)는 이 검증에서 금지된 데이터원이라 미수행. 대체 검증 완료: (a) e1_summary.json `arm_worst5` 5건 전부 (0.35,0.36] — strict 0.35 breach ≥5/97 확정(정확한 수는 전수 재계산 시 확인 권장, 6번째 값 부재); (b) eval_s16_7_arm.py:93-111과 export_operating_data.py:1650-1653·1693이 동일 helper·동일 창·동일 공식임을 코드로 확인 → 2026-06-19가 라이브였다면 risk.json `top_name_active_risk_share`=0.3594 → `top_name_active_risk_breached=True` → validate_portfolio_bundles.py:668/691 HOLD; (c) 합성 20/60 수렴-밴드 사례로 시나리오 재현성 확인; (d) 현 라이브(as_of 08-18) STX 0.33678(risk.json)·0.3439(registry) <0.35라 현재는 미발동. 추가 확인 사항: 결정 로그 :7949 \"최악값 0.3564\"는 JSON 0.3594의 전사 오류. 후속 권고(발견의 fix에 동의, 산출물 불변): export_operating_data.py:1710을 `> max_name_risk + NAME_RISK_CAP_TOL`로 정렬 + 정합 테스트 1건 + 결정 로그 §S16.7 flip 절 정정(옵티마이저 보장 상한 0.36, strict 0.35 기준 ≥5/97, 최악값 0.3594)."
+     }
+    }
+   ],
+   "tiebreak": null,
+   "survives": true
+  },
+  {
+   "finding": {
+    "id": "T-04",
+    "merged_from": [
+     "F5_model_training_config-01"
+    ],
+    "status": "novel",
+    "file": "run_variant.py",
+    "line": 578,
+    "severity": "medium",
+    "title": "데이터 빈티지·git 프로베넌스가 데이터 적재 시점이 아니라 런 종료 시점에 stat됨 — 기록된 빈티지 ≠ 런이 소비한 빈티지(§S16.8 1차 런에서 실제 발현)",
+    "problem": "run_variant.run()은 `UniverseData(data_path, config=cfg)`(:482)에서 워크북·Index.xlsx를 전부 메모리로 읽는다(FX 변환은 `__init__` 시 즉시). 그 뒤 24분~13시간 동안 백테스트를 돌린 다음에야 `\"data_vintage\": data_vintage_fingerprint(cfg)`(:578)와 `dump_experiment_manifest(...)`(:588 → config.py:1496-1501에서 `_git_hash()`/`_git_dirty()`/`data_vintage_fingerprint()` 재평가)를 계산한다. 즉 metrics.json·manifest의 빈티지·git 해시는 '런 종료 순간의 파일/레포 상태'이지 '런이 읽은 상태'가 아니다. data_loader에는 mtime/stat 기록이 없다. §S13.47 이후의 핵심 규율 '동일 (워크북, Index.xlsx) mtime 쌍에서만 비교'가 이 지문에 의존한다. 부수: run_selection_bias.py:245 docstring은 manifest가 '런 시작 시' 쓰인다고 가정하지만 실제는 pkl dump 뒤라 ENOSPC/MemoryError 시 manifest 부재.",
+    "scenario": "실제 발현(§S16.8 '1차 런 무효'): 1차 arm A metrics의 fx_mtime 2026-09-01T02:15:42Z / size 0 (= 11:15:42 KST truncate 순간), elapsed 1426.6s → 시작 ≈10:52 KST → 로더는 리프레시 전의 완전한 08-25 Index.xlsx를 읽었다. 재실행 헤드라인이 1차와 동일(1.5821)인 사실이 이를 뒷받침. 역방향 타이밍(런 도중 리프레시 완료)에서는 metrics.json이 NEW 빈티지를 기록한 채 OLD 데이터 수치를 담아 '빈티지 쌍 일치' 검사를 거짓 통과. git 축도 동일: 평일 11:30 스케줄러의 `git add -A` 커밋이나 '측정 전 단독 커밋'이 장시간 런 도중 일어나면 manifest.git_hash는 런이 실행한 적 없는 HEAD를 가리킨다.",
+    "fix": "run()에서 t0 직후·UniverseData 생성 전에 `vintage_at_load = data_vintage_fingerprint(cfg)`, `git_at_start = (_git_hash(), _git_dirty())`를 캡처해 metrics.json·manifest의 `data_vintage`/`git_hash`로 기록(=소비 빈티지). 종료 시 재stat한 값을 `data_vintage_at_end`로 병기하고 두 지문이 다르면 `vintage_changed_during_run: true` + WARNING(또는 fail-fast). manifest는 시작 시 1회 선기록 후 종료 시 갱신.",
+    "production_impact": "decision_integrity",
+    "gating_flag": "always",
+    "triage_check": "코드 확인: run_variant.py:332 t0 → :482 UniverseData 적재 → :578 data_vintage_fingerprint(cfg) 런 종료 시 stat → :585 pkl → :588 dump_experiment_manifest(config.py:1496-1501에서 _git_hash/_git_dirty/data_vintage_fingerprint 재평가). config.py:1444-1450 _file_vintage는 호출 시점 stat. data_loader.py에 vintage|st_mtime|.stat() 0건(grep). 레지스트리 대조: S16 O7('빈티지 지문 미기록')의 후속 수정이 도입한 지문의 타이밍 결함 — O7 자체와 기전 다름, 신규. §S16.8 1차 런 기록(fx_mtime 02:15:42Z·size 0·elapsed 1426.6s)이 종료 시점 stat과 정합.",
+    "verification_lenses": [
+     "code_trace"
+    ],
+    "empirical_check": "완료 런의 (metrics.json mtime − elapsed_sec)로 런 시작 시각을 복원해 data_vintage.*_mtime보다 앞서면 '기록≠소비' 후보. §S16.8 1차 기록으로 계산: 종료∈[02:15:42Z,02:19:11Z) − 1426.6s → 시작 ≈01:52Z < 리프레시 시작 02:15:42Z; 재실행 pkl 예측 패널과 1차 헤드라인 동일(1.5821)로 교차 확인."
+   },
+   "votes": [
+    {
+     "lens": "code_trace",
+     "verdict": {
+      "refuted": false,
+      "confidence": 0.9,
+      "corrected_severity": "medium",
+      "corrected_production_impact": "decision_integrity",
+      "corrected_detail": "반박 실패 — 기전 확정. (1) 코드 경로: run_variant.py:332 t0 → :482 `UniverseData(data_path, config=cfg)` → data_loader.py:1107 `load_all_sheets` (워크북 전 시트 즉시 read_excel) → :1364 `self._apply_usd_conversion()`(__init__ 1104~1369 내부) → :1498 `build_fx_rates_usd_per_local` → :960 `load_external_fx_quotes(config.fx_source_path)` → :914/:927 `pd.read_excel(Index.xlsx)`. 즉 두 원천 파일은 모두 __init__ 시점에 소비된다. 반면 빈티지 stat은 :578 `data_vintage_fingerprint(cfg)`(metrics.json, 런 종료 후) 및 :588 `dump_experiment_manifest` → config.py:1498-1501 `_git_hash()/_git_dirty()/data_vintage_fingerprint()` 재평가(pkl dump :585 뒤). config.py:1444-1450 `_file_vintage`는 호출 시점 `Path(path).stat()`. data_loader.py에 vintage/st_mtime/.stat()/getmtime 0건(grep). 앞단 가드 없음(cache 분기·check_cached_universe는 무관), production bat은 `--no-cache` 전체 파이프라인 분기라 항상 활성. (2) 테스트: tests/test_config.py:158-187은 지문 값 의미만 검사, 타이밍 고정 없음; tests/test_eval_s16_7_arm.py:24-28은 G0 `vintage_equal`을 게이트로 쓰므로(scripts/eval_s16_7_arm.py:54-59, eval_s16_8a_arm.py:62) 결정 무결성이 이 지문에 실제 의존. (3) 실증 2건: [데이터 축] §S16.8 1차 런 기록 fx_mtime 02:15:42Z/size 0은 종료 시 stat이 리프레시 쓰기 창(02:15:42~02:19:11Z) 안에서 찍혔음을 뜻함 — 적재(시작+~6분, 로그상 워크북 로드 6분)가 truncate 이후였다면 size 0 파일에 read_excel이 실패했거나(런 사망) 완료 후 읽었다면 02:19:11Z/86441553이 기록됐을 것. 런 길이 ≥4분이면 어떤 elapsed에서도 적재는 truncate 이전 → 소비=08-25 Index.xlsx, 기록=찢어진 09-01 스탬프. 결정 로그 8058-8060의 자체 서술('완료된 새 파일을 읽었다')은 코드와 모순(정정 필요). [git 축] 커밋 92a15be의 outputs/codex_causal_rank_65/experiment_manifest.json: timestamp 03:28:52Z, elapsed 1496.0 → 시작 ≈03:03:5xZ(HEAD=c3b24b7), 그러나 git_hash=c13c6ae(03:23:39Z 커밋, 런 도중 착지). c13c6ae는 docs/outputs/variants/eval 스크립트만 변경이라 수치 무해하나 '런이 실행한 적 없는 HEAD' 기록이 실제 발생. 부수 지적도 확정: run_selection_bias.py:243-244 docstring '런 시작 시 manifest 기록'은 거짓(:588은 :585 pkl 뒤, ENOSPC 시 metrics만 남음), 게다가 run_variant.py:591-596 extra에 data_path 자체가 없어 폴백은 config.data_path로 감. (4) 발견의 증거 중 정정: '재실행 헤드라인 동일(1.5821)이 뒷받침'은 약함 — S0 재인증이 09-01 FX 리프레시가 소비 구간에 무영향임을 보였으므로 옛/새 파일 어느 쪽을 읽었어도 헤드라인은 동일, 판별력 없음. 또 '1차 런 elapsed 1426.6s'는 검증 불가(1차 산출물 덮어써짐·미커밋, 결정 로그 해당 절은 재실행 종료 후 c13c6ae에서 작성, 현 metrics.json elapsed_sec도 1426.6). 결론은 elapsed에 무관하게 성립. 심각도 medium 유지(수치 불변, 비교 가능성 판정만 오염; 절차 규칙으로 부분 완화되나 코드 가드 0).",
+      "reproduction": "scratchpad/w1/repro_t04.py (PYTHONPATH=., 실제 src.config 헬퍼 사용, 임시 파일·임시 git repo, <1초): 적재 시점 지문(미기록) 2026-09-02T02:12:38Z/3000 → 런 도중 truncate 시 지문 02:12:40Z/0(§S16.8 1차 런 기록과 동형) → 종료 시 지문(실제 기록되는 값) 02:12:41Z/3600; `recorded == consumed ? False`. git 축: 시작 HEAD 86b53558, 런 도중 docs 커밋 후 `_git_hash()` 기록 5f86088b, equal False. 추가로 scratchpad/w1/scan_vintage.py로 outputs/*/metrics.json 8건을 (mtime − elapsed_sec)로 시작 시각 복원 — 현존 8건은 모두 시작 후 원천 파일 변경 없음(1차 런 산출물은 덮어써져 부재).",
+      "empirical_check": "① 데이터 축(§S16.8 1차 런): 기록된 fx size 0/mtime 02:15:42Z는 쓰기 창 [02:15:42, 02:19:11)Z 내 종료 stat 증거; 재실행 로그(outputs/s16_8a_opcf_level_run.log)상 워크북 적재 ~6분(t0 02:51:45Z → 로더 경고 02:57:52Z)이므로 1차 런의 Index.xlsx 적재는 truncate 이전 → 소비 08-25(86308161B) vs 기록 09-01 찢어진 스탬프. ② git 축(신규 실증): `git show 92a15be:outputs/codex_causal_rank_65/experiment_manifest.json` → timestamp_utc 03:28:52Z·elapsed 1496.0(시작 ≈03:03:5xZ) 인데 git_hash=c13c6ae(03:23:39Z, 런 도중 커밋; 시작 시 HEAD는 c3b24b7). ③ 현존 8개 런은 시작 이후 원천 변경 없음(scan 결과 flag 0) — 즉 결함은 리프레시/커밋과 런이 겹칠 때만 발현하며, 09-01에 두 축 모두 실제로 겹쳤음."
+     }
+    }
+   ],
+   "tiebreak": null,
+   "survives": true
+  },
+  {
+   "finding": {
+    "id": "T-05",
+    "merged_from": [
+     "F1_diff_since_s16_6-01"
+    ],
+    "status": "novel",
+    "file": "src/portfolio_optimizer.py",
+    "line": 753,
+    "severity": "medium",
+    "title": "name-risk 캡 비수렴·재해 infeasible이 어디에도 집계되지 않음 — 캡이 무효인 리밸도 'ECOS 194 / fallback 0'으로 보고됨",
+    "problem": "`_enforce_name_risk_share_cap`는 재해가 실패하면(`_solve_problem(prob, None, ...)` False, status 비optimal, w.value None, 비유한) `break`로 직전 iterate를 반환하며 `used_fallback`·`solver_fallback`·`fallback_reason`을 건드리지 않고 `diag[\"name_risk_cap_iterations\"/\"name_risk_cap_max_share\"/\"name_risk_cap_converged\"]`만 쓴다. 그런데 `simulate_portfolio`는 `optimizer_diagnostics`/`projection_diagnostics`에서 `solver`·`solver_fallback`·`used_fallback`만 집계하고(backtest.py:1689-1699) dict를 버린다. metrics.json에는 name_risk_cap 키가 하나도 없다. 내부 재해는 `_solve_problem(prob, None, ...)`라 solver 카운트에도 잡히지 않는다.",
+    "scenario": "합성(B3, 6종목): primary 해 optimal·max share 0.97, max_single_turnover 0.04에 prev가 bm에서 먼 상태 → 첫 bounded 재해가 infeasible → 반환 북 = OFF와 동일(0.97 breach 유지), diag = {status:'optimal', used_fallback:False, name_risk_cap_converged:False, iterations:1}. 이 리밸은 metrics.json에 ECOS +2·fallback 0으로만 나타난다. production은 ‖bm−prev‖₁≈0.40 > max_single_turnover 0.15라 bm 방향 축소 재해의 feasibility가 일반적으로 보장되지 않고, turnover 예산이 소진되는 날 정확히 이 경로를 탄다.",
+    "fix": "backtest.py:1689 집계 루프에 `name_risk_cap_converged is False` 카운트(`name_risk_cap_nonconverged`)·max iterations·max_share 분포를 result에 추가하고 run_variant metrics.json에 병기; 재해 실패 시 `fallback_reason_counts[\"name_risk_cap:<status>\"]` 기록; export production_gate에 라이브 북 converged 플래그 병기.",
+    "production_impact": "ops_only",
+    "gating_flag": "name_risk_share_cap_enabled (production ON)",
+    "triage_check": "코드 확인: _enforce_name_risk_share_cap(:717-756)는 재해 실패(_solve_problem False·비optimal·w.value None·비유한) 시 break로 직전 iterate 반환, used_fallback/fallback_reason 미기록, diag['name_risk_cap_iterations'/'max_share'/'converged']만 기록. 내부 재해는 _solve_problem(prob, None)이라 solver 카운트 미포함(docstring 명시). backtest.py:1689-1699 집계는 solver·solver_fallback·used_fallback·mode·fallback_reason만 읽음. run_variant metrics.json에 name_risk_cap 키 0건(s16_7 metrics.json 실측). 역사 97/97 수렴은 eval_s16_7 오프라인 재계산(G1)으로만 확인. 신규.",
+    "verification_lenses": [
+     "code_trace"
+    ],
+    "empirical_check": "pkl portfolio_weights 97일에 대해 precheck_s16_5 방식(μ=predictions, Σ=production cov, prev=daily_weights 드리프트 북)으로 optimize_portfolio(diagnostics=diag)를 재해해 name_risk_cap_iterations 분포·converged False 건수·turnover 슬랙(0.15−‖w−prev‖₁) 최소값을 기록."
+   },
+   "votes": [
+    {
+     "lens": "code_trace",
+     "verdict": {
+      "refuted": false,
+      "confidence": 0.85,
+      "corrected_severity": "low",
+      "corrected_production_impact": "ops_only",
+      "corrected_detail": "핵심 주장(백테스트 집계·metrics.json에 name-risk 캡 비수렴이 전혀 남지 않음)은 코드·합성 재현으로 확정, 단 \"어디에도\"라는 범위와 \"turnover 소진일에 정확히 이 경로를 탄다\"는 시나리오는 과장이라 범위 정정.\n\n[확정 기전 — 코드 인용]\n1. src/portfolio_optimizer.py:717-748 `_enforce_name_risk_share_cap` 루프: 재해 `_solve_problem(prob, None, allow_scs_fallback=allow_scs)`가 False이거나 `prob.status not in (\"optimal\",\"optimal_inaccurate\")`이거나 `w.value is None`이면 `break`(:741-746), 비유한 cand도 `break`(:748-749) → `best`(직전 iterate) 반환. `bounds`가 더 안 줄면(`if not changed: break`, :731-732) 역시 직전 iterate 반환. 이 경로 어디에도 `diag[\"used_fallback\"]`/`solver_fallback`/`fallback_reason` 기록 없음. 기록은 :751-753의 `name_risk_cap_iterations / name_risk_cap_max_share / name_risk_cap_converged` 3키뿐. docstring(:704-709)이 이를 설계로 명시(\"keeps the last good iterate; this path never falls back to bm\").\n2. 재해는 `diagnostics=None`이라 `_solve_problem`(:224-270)이 `solver`/`status`를 어디에도 안 씀 → solver_counts 불포함(docstring :702 \"internal re-solves are not counted in solver stats\").\n3. src/backtest.py:1689-1700 집계는 `diag.get(\"solver\")`, `solver_fallback`, `used_fallback`, `mode`, `fallback_reason`만 읽음 → `name_risk_cap_*` 키는 dict와 함께 버려짐. result에는 `optimizer_solver_counts / optimizer_solver_fallbacks / optimizer_fallback_reason_counts`(:1784-1791)만 부착.\n4. run_variant.py:561-583 metrics.json 작성부는 `optimizer_solver_counts`, `optimizer_solver_fallback_rate`만 기록. outputs/s16_7_name_risk_cap/metrics.json 실측: name_risk 키는 overrides의 `name_risk_share_cap_enabled: true`(:108) 1건뿐, `optimizer_solver_counts {\"ECOS\": 194}`(:1444-1446), `optimizer_solver_fallback_rate 0.0`(:1447).\n5. production 활성 확인: variants/codex_causal_rank_65.yaml:205 `name_risk_share_cap_enabled: true`, :122 `max_name_active_risk_share: 0.35`, :68 `max_single_turnover: 0.15`, :75 `max_active_per_stock: 0.04`, :76 `use_score_based: false` → 최종 북은 project_portfolio_weights 경로(backtest.py:1652-1687)이며 :579-583 hook이 활성. optimize_portfolio 경로 hook(:852-856)도 활성.\n6. 테스트: tests/test_s16_7_name_risk_cap.py는 feasible 합성에서 `converged is True`(:94)만 고정. 재해 실패/바운드 스톨/집계 경로를 고정하는 테스트 없음(grep `optimizer_solver_counts|fallback_reason_counts` in tests → 0건).\n\n[범위 정정 — 반박 성공 부분]\nA. \"어디에도 집계되지 않음\"은 라이브(최신 리밸일) 북에 한해 틀림. scripts/export_operating_data.py:1477 `w = res.portfolio_weights[last]`, :1650-1653 production cov 레시피(`_production_risk_source` + `estimate_covariance` + `_apply_optvol_scale`)로 :1662-1678 `active_component = av*(cov@av)`, :1693 `top_name_active_risk_share = |active_te_contribution|/active_te` = `|a_i(Σa)_i|/(aΣa)` — `_name_risk_shares`(:680-687)와 동일한 Euler 몫. :1708-1711 `top_name_active_risk_breached = share > max_name_risk`(tol 없음 → 옵티마이저의 cap+0.01보다 엄격). risk.json/operations.json(:1849-1850)에 기록되고 scripts/validate_portfolio_bundles.py:668 `name_active_risk_ok = _not_breached(\"top_name_active_risk_breached\")`가 바인딩 HOLD 체크(`_REPORT_ONLY_CHECKS = (\"live_model_age_ok\",)` :616에 미포함, :691-693 fail-closed). 현재 outputs/operating_codex_causal_rank_65/risk.json:16-17 `0.33678 / breached false`. 따라서 라이브 북이 비수렴(share > cap+tol > cap)이면 PRODUCTION→HOLD로 전환된다. 잔존 사각은 (i) 백테스트 내부 역사 리밸(연구 arm·S0 재인증)의 비수렴 건수/반복 수, (ii) 원인 구분(재해 infeasible vs bound-floor 스톨 vs max_iter), (iii) eval_s16_8a_arm.py:141-144도 `live_max_share/cap_ok`만 봄.\nB. \"turnover 예산이 소진되는 날 정확히 이 경로를 탄다\"는 미입증. turnover는 전역 L1(`cp.norm1(w - prev_weights) <= 0.15`, :335/:398)이라 재해 시 다른 종목 거래를 되돌려 예산을 만들 수 있고, production 종목당 액티브 캡 0.04(:378-380, :422-424) 때문에 breach 종목의 필요 이동량은 ≤0.035. 재해 infeasible은 prev 자체가 새 cov의 TE 캡/섹터/floor를 위반하는 날과 겹쳐야 발생 가능 — 도달 가능하나 \"정확히\"는 아님. 역사 97/97 수렴(eval_s16_7_arm.py:90-120 `compute_shares_for_books` 오프라인 재계산)과 정합.\n\n[심각도] 반환 북은 로깅 여부와 무관하게 동일(직전 good iterate, OFF 북보다 나쁘지 않음, bm 폴백 없음)이라 production 수치 무영향. 라이브 북은 바인딩 HOLD 게이트로 가시. 잔존 사각은 백테스트 텔레메트리·원인 귀속뿐 → medium→low, ops_only 유지. 제안 fix(backtest.py:1689 루프에 `name_risk_cap_converged is False` 카운트·max iterations 집계, run_variant metrics.json 병기)는 타당하나 export gate에 converged 플래그 병기는 이미 breach 플래그가 동등 역할이므로 중복.",
+      "reproduction": "C:/Users/westl/AppData/Local/Temp/claude/C--Users-westl-PycharmProjects-pythonProject-venv-vf-new-machine-re-study-c2-ai-port/0caf960f-9660-4a4b-a91e-809a2f4ab53d/scratchpad/w1/repro_t05.py (ai_port에서 PYTHONPATH=. 실행, 수 초, pkl/워크북 미사용). tests/test_s16_7_name_risk_cap.py::_problem의 6종목 cov(고vol 클러스터)·max_single_turnover=0.04·prev = bm + [+0.25, −0.05×5]. `po._solve_problem`을 스파이로 감싸 숨은 재해를 기록.\n\n결과 — optimize_portfolio: OFF max_share 1.0842(turnover 0.04 바인딩); ON max_share 1.0842, ON==OFF 북 allclose(1e-12) True; ON diag {'mode':'mvo','solver':'ECOS','status':'optimal','used_fallback':False,'solver_fallback':False,'fallback_reason':None,'name_risk_cap_iterations':1,'name_risk_cap_max_share':1.0842,'name_risk_cap_converged':False}; 숨은 solve 로그 [(diag None=False, ok, 'optimal'), (diag None=True, ok, 'infeasible')].\nproject_portfolio_weights(production 최종 경로): 동일 — ON==OFF True, status 'optimal', used_fallback False, iterations 1, converged False, 숨은 재해 'infeasible'.\nbacktest.py:1689-1702 집계 로직을 그대로 옮겨 (optimizer diag, projection diag)에 적용: ({'ECOS': 2}, 0, {}, rebal_had_fallback=False) — 발견의 \"ECOS +2 / fallback 0\" 그대로.\nbound-floor 스톨 경로(mu NaN 핀으로 T0 단독 리스크 북): 숨은 solve 8회 전부 'optimal'(카운트 미포함), active T0 0.005(=NAME_RISK_CAP_MIN_BOUND)에서 정지, max_share 0.9336, converged False, used_fallback False.",
+      "empirical_check": "발견이 제안한 97일 pkl 재해(precheck_s16_5 방식)는 pkl 로드·97회 solve라 이 검증 제약(pkl 로드 금지)상 미수행. 대신 코드로 확인: 역사 97/97 수렴 근거는 scripts/eval_s16_7_arm.py:90-120 `compute_shares_for_books`(production cov 레시피로 Euler 몫 오프라인 재계산, G1)뿐이며 in-run 반복 수/원인은 어떤 산출물에도 없음(outputs/s16_7_name_risk_cap/metrics.json에 name_risk_cap 키 0건 실측). 라이브 북은 scripts/export_operating_data.py:1693-1711 + scripts/validate_portfolio_bundles.py:668의 바인딩 HOLD 체크로 breach가 가시(현재 0.33678/false). 제안된 pkl 기반 97일 재해 분포 측정(iterations·converged False 건수·turnover 슬랙 최소값)은 fix 전 유효한 후속 검증이며, 별도 승인 후 수행 권장."
+     }
+    }
+   ],
+   "tiebreak": null,
+   "survives": true
+  },
+  {
+   "finding": {
+    "id": "T-07",
+    "merged_from": [
+     "F3_optimizer_execution-02"
+    ],
+    "status": "novel",
+    "file": "src/backtest.py",
+    "line": 1650,
+    "severity": "medium",
+    "title": "게이트 강제 거래(μ≤0 OW 차단·mega funding set 재선택·NaN 핀)만으로 L1 > max_single_turnover 0.15가 되면 MVO·projection 모두 infeasible → 북이 캡을 무시하고 bm으로 통째 점프(폴백 0/97로 미발동)",
+    "problem": "`_build_mvo_constraints`의 `turnover <= single_turnover_limit`(0.15, two-way L1)은 알파 거래뿐 아니라 하드 게이트가 강제하는 거래도 함께 센다: score gate `w<=bm`(μ≤0, :435), 비펀딩 mega `w>=bm`(:405), 펀딩 mega `w<=bm`(:402), NaN μ `w==bm`(:420). 강제 L1이 0.15를 넘으면 `optimize_portfolio`는 status 'infeasible' → `bm_weights.copy()`(:862-865)를 반환하고, simulate_portfolio는 `projection_fallback = target_weights`(=bm, backtest.py:1650)로 `project_portfolio_weights`를 호출하는데 이 projection도 동일 제약 집합이라 다시 infeasible → fallback=bm 반환. 결과 new_weights = bm: 실제 turnover = L1(bm − prev) ≈ 0.35~0.45(캡의 2.3~3배)에 TC 전액 부과, 액티브 북이 21BD 동안 소멸. '턴오버 캡 위반이 불가능해서' 발동한 폴백이 캡을 3배 위반한다.",
+    "scenario": "레짐 전환기 리밸(§S13.49 실측: 10~29종목이 μ 0.0 가로지르기로 OW 차단)에서 직전 OW 종목들의 (prev−bm) 합 + funding set 이탈 mega의 |UW| 복구(최대 0.10) + 진입 mega의 OW 해소(최대 0.04)가 0.15를 넘는 입력 → 해당 리밸일 가중치 = bm, port_ret −= L1(bm−prev)×10bp. 근접 실측: monitoring.json turnover_two_way 최대 0.1483(2020-04-08, 캡의 99%). 97회 중 fallback 0이라 아직 미발동.",
+    "fix": "infeasible 시 bm 점프 대신 '제약 완화 순서'를 두는 최소안: (1) `projection_fallback_mode='prev'`(이미 존재, default-OFF)를 production에 검토 — 무거래 유지가 캡 3배 점프보다 불변식 5에 부합; 또는 (2) infeasible 판정 시 게이트 강제 거래만 실행하고 나머지는 prev 유지하는 2단계 폴백. 어느 쪽도 현 수치 불변(fallback 0/97)이며 §8 사전등록으로 다음 발동 전에 확정.",
+    "production_impact": "dormant_path",
+    "gating_flag": "always — infeasible 분기만 미발동(optimizer_failure_rate 0.0)",
+    "triage_check": "코드 확인: _build_mvo_constraints(:409-435) — turnover <= single_turnover_limit(0.15)와 함께 invalid_alpha w==bm(:420), 비펀딩 mega max_uw=0(:405 → w>=bm), 펀딩 mega max_ow=0(:402), score gate w<=bm(μ<=0, :435)이 같은 제약 집합에 있어 게이트 강제 거래도 L1 예산을 소비. optimize_portfolio 비optimal → bm.copy()(:862-865); backtest.py:1647-1650 projection_fallback_mode 기본 'target'(=bm); project_portfolio_weights(:545-570)가 동일 _build_mvo_constraints 사용 → 다시 infeasible → fallback(bm) 반환. 실측 monitoring.json turnover 최대 0.148291(2020-04-08, 97회), performance.json optimizer_failure_rate 0.0 → 미발동. 라이브 활성 경로이나 발동 이력 0이라 dormant_path·medium. 신규(기지 §S13.49 score-gate 간헐 바인딩은 입력 조건일 뿐).",
+    "verification_lenses": [
+     "code_trace"
+    ],
+    "empirical_check": "backtest_result.pkl의 predictions(lag 적용)·portfolio_weights·bm으로 리밸일별 '강제 L1' = Σ_{μ≤0∧prev>bm}(prev−bm) + mega funding set 변화분 + Σ_{NaN}|prev−bm| 을 계산해 0.15 대비 분포(최대·>0.12 회수)를 확인; 2020-04-08 값이 0.1483에 근접하는지 검증."
+   },
+   "votes": [
+    {
+     "lens": "code_trace",
+     "verdict": {
+      "refuted": false,
+      "confidence": 0.9,
+      "corrected_severity": "medium",
+      "corrected_production_impact": "dormant_path",
+      "corrected_detail": "반박 실패 — 발견은 확정이며, 발동 조건은 발견이 서술한 것보다 오히려 더 느슨(=더 쉽게 발동)하다.\n\n[코드 경로 추적 — 전부 production 활성]\n1. src/portfolio_optimizer.py `_build_mvo_constraints`(:315-453): `turnover = cp.norm1(w - prev_weights)`(:335) → `turnover <= single_turnover_limit`(:412, config.max_single_turnover=0.15). 같은 constraints 리스트에 게이트 강제 항이 들어간다: invalid μ `w[i] == bm_weights[i]`(:418-419), 펀딩 mega `max_ow_per[i]=0.0`(:402)→`w-bm<=0`(:423), 비펀딩 mega `max_uw_per[i]=0.0`(:405)→`bm-w<=0`(:424), score gate `if not isfinite or score_i <= threshold: w[i] <= bm[i]`(:426-435). variants/codex_causal_rank_65.yaml: enforce_score_gated_ow=true, score_threshold_for_ow=0.0, mega_cap_protection_enabled=true, mega_cap_funding_mode=true, funding_k=4, funding_score_max=0.0, max_single_turnover=0.15, projection_fallback_mode 미지정(=default \"target\", config.py:1311).\n2. `optimize_portfolio`(:757-887): `_solve_problem`은 ECOS 'infeasible'을 예외 없이 True로 반환(:243-247)하고, 호출부가 `prob.status not in (\"optimal\",\"optimal_inaccurate\")` → `diag[\"used_fallback\"]=True; fallback_reason=prob.status; return bm_weights.copy()`(:883-887).\n3. src/backtest.py: `projection_fallback = target_weights`(:1647-1650, 기본 \"target\" = bm 복사본) → `apply_dynamic_execution`(:1237-1272)로 candidate=prev+eta·(bm−prev) → `project_portfolio_weights`(:1670-1687)가 optimizer_diagnostics[\"cov_matrix\"]/[\"max_te_annual\"](:2159-2160)로 **동일 Σ·동일 캡·동일 `_build_mvo_constraints`**를 재구성(:543-553) → 다시 infeasible → `return fallback`(:566-569)=bm. `turnover = np.abs(new_weights - prev_weights).sum()`(:1701) = L1(bm−prev); `port_ret -= turnover*one_way_tc`(:1712).\n4. 완화·재시도 경로 없음: src 전체 grep 'infeasible|relax|retry' → 유일한 완화는 per-name max_weight를 bm_i까지 올리는 것(:340-355)으로 turnover와 무관.\n5. 테스트: tests/acceptance/test_execution_structural_fixes.py:184-232 는 \"projection infeasible → fallback_weights 그대로 반환\"을 계약으로 핀(즉 bm 점프가 고정된 현행 계약). test_optimizer_structural_fixes.py:170 도 infeasible→bm 폴백을 전제. 옵티마이저 테스트 7개 파일이 전부 `max_single_turnover=2.0`으로 설정해 게이트-강제 거래 × 0.15 캡 상호작용은 **어떤 테스트도 고정하지 않는다**.\n\n[정정 1 — 발동 임계는 더 낮다] sum(w)=sum(prev)=1이므로 L1 = 2·(총매도) = 2·(총매수). 강제 매도 S(μ≤0∧prev>bm의 prev−bm 합 + invalid μ 핀) 또는 강제 매수 B(비펀딩 mega의 bm−prev)가 **한쪽만 0.075를 넘으면** infeasible. 발견의 \"강제 L1 > 0.15\"(one-sided 합산)는 필요조건이 아니라 충분조건 — 합성 재현 D: 한쪽 합 0.078(<0.15)에서 이미 infeasible→bm 점프. mega 1종(bm 0.09)이 펀딩 set 이탈 시 UW 0.08 하나만으로도 발동(E).\n[정정 2 — 강제 거래원 3종이 매 리밸 ~115종목에 걸림] outputs/s13_49_score_gate_binding/summary.json: 게이트 대상 median 105/리밸(max 128), invalid μ median 9(max 22), OW 종목 median 28(max 52), mega 2~5. 라이브 북(expected_rebalance.json, 2026-09-01): μ≤0 157/250; 강제 매도 0.0038(OW 총 0.1735), mega 강제 매수 0 → 현재는 임계(0.075)에서 멀다. 단 상위 OW 4종(0.0252+0.0188+0.0178+0.0159=0.0777)이 같은 리밸에 μ≤0로 뒤집히면 발동.\n[영향] 97회 중 fallback 0(performance.json optimizer_failure_rate 0.0, ECOS 194/194)으로 dormant. 발동 시: 1회 리밸에서 북=bm(active share 0), TC ≈ L1(bm−prev) 0.35~0.45(holdings.json active_share_l1 0.3516, 사상 최대 one-way 0.225)×10bp ≈ 3.5~4.5bp, 이후 같은 0.15 캡 때문에 액티브 북 복원에 ≥3 리밸(~3개월) 소요. 불변식 5 위반이나 손실 규모는 한정적 → medium 유지.\n[fix 평가] projection_fallback_mode='prev'는 기계적으로 turnover 0을 만들지만(재현 F) 게이트 위반(μ≤0 OW·mega UW)을 북에 그대로 남기므로 \"무해\"가 아니라 정책 선택이며, §8 사전등록이 맞다.",
+      "reproduction": "합성 재현 완료: C:/Users/westl/AppData/Local/Temp/claude/C--Users-westl-PycharmProjects-pythonProject-venv-vf-new-machine-re-study-c2-ai-port/0caf960f-9660-4a4b-a91e-809a2f4ab53d/scratchpad/w1/repro_t07.py (PYTHONPATH=. 실행, 60종·수 초·pkl/워크북 미사용). config는 `src.harness.build_override_config(variant overrides)`로 production 그대로(max_single_turnover 0.15, max_active_per_stock 0.04, score gate ON, mega funding k=4, name_risk_cap ON, projection_fallback 'target'). bm: mega 3종(0.09/0.05/0.045)+감쇠, Σ=1팩터+idio(일간), 섹터 5.\n결과(optimize_portfolio → apply_dynamic_execution(conf 0.79) → project_portfolio_weights, backtest.py 체인과 동일 인자):\nA 강제매도 0.09(OW 3종 +0.03가 μ≤0로 전환): MVO status=infeasible used_fallback=True target==bm; PROJ status=infeasible used_fallback=True new==bm; 실현 two-way turnover 0.1800 = L1(bm−prev), active share 0.0000.\nB 대조(같은 prev, OW μ>0): optimal/optimal, turnover 0.0962.\nC 강제매도 0.06(<0.075): optimal, turnover 0.1318(강제분이 예산 대부분 소비).\nD 강제매도 0.078(one-sided <0.15): **infeasible→bm**, turnover 0.1560 — 임계는 2·max(S,B)>0.15.\nE mega(bm 0.09) 펀딩 set 이탈·UW 0.08: infeasible→bm, turnover 0.1600. E2 UW 0.06: optimal, 0.1321.\nF = A + projection_fallback_mode='prev': PROJ infeasible이나 new==prev, turnover 0.0000.",
+      "empirical_check": "발견의 empirical_check(pkl로 리밸일별 강제 L1 분포·2020-04-08 분해)는 274MB pkl 로드가 금지돼 **미실시**. 대체 실측: (1) performance.json optimizer_failure_rate 0.0, optimizer_solver_counts ECOS 194 = 97×2 → 97회 중 infeasible 0회, dormant 확인. (2) monitoring.json turnover_two_way 상위: 0.1483(2020-04-08), 0.1208(2024-03-19), 0.1012(2020-12-29); >0.10은 3회, >0.14는 1회 — 캡 근접은 단일 사례이며 그 날의 강제/알파 분해는 불가. (3) 라이브 북 expected_rebalance.json(2026-09-01, μ=post_overlay_post_lag): μ≤0 157/250, 강제 매도 Σ(μ≤0∧current>bm)=0.0038(OW 총 0.1735), mega NVDA/GOOGL/MSFT/AAPL 중 비펀딩(μ≥0) UW 0 → 강제 매수 0; 상위 OW 4종 합 0.0777이 동시 반전 시 임계 0.075 초과. (4) s13_49 summary.json: g_t(μ≤0 비율) median 0.569·range 0.49~0.66, n_ow median 28/max 52, n_invalid_mu median 9/max 22 — 강제 제약이 매 리밸 ~115종목에 걸리므로 시나리오의 입력 분포는 실제 존재. (5) holdings.json active_share_l1 0.3516, 사상 최대 one-way 0.225 → 발동 시 점프 turnover 0.35~0.45는 발견 수치와 일치."
+     }
+    }
+   ],
+   "tiebreak": null,
+   "survives": true
+  },
+  {
+   "finding": {
+    "id": "T-08",
+    "merged_from": [
+     "F4_features_data_units-03"
+    ],
+    "status": "novel",
+    "file": "src/data_loader.py",
+    "line": 543,
+    "severity": "medium",
+    "title": "일본 상장 13/13종의 PX_LAST 첫 가격 변화가 2014-01-07(TSE 첫 거래일은 01-06)이라 flat-run 상장 추론이 01-07을 산출 — JP 계열 1거래일 지연 스탬프 정황(가설, 워크북 실측 필요)",
+    "problem": "`_infer_eligibility_from_price`(:533-545)는 선행 상수 구간이 `min_flat_run=5` 이상이면 첫 변화일을 상장일로 잡는다. production metrics.json listing_mask.dates에서 JP 상장 13/13종(6857·8035·8306·7974·7203·6146·6981·9432·9433·8316·7011·6758·4063)이 px_last_inferred로 2014-01-07이고 KR 2종·EU·LN·CH·DK는 전부 2014-01-02다. PX_LAST 시트는 달력일 인덱스이므로 01-02~01-06 다섯 행이 동일값이어야 01-07이 나온다. TSE는 2014-01-06(월) 대발회에 정상 거래(닛케이 −2.35%)했으므로 무지연 데이터라면 첫 변화는 01-06(위치 4 < 5 → 추론 01-02)이어야 한다. 즉 워크북의 JP 01-06 행이 12-30 종가를 담고 있다 — (a) JP 계열만 T+1 스탬프, 또는 (b) 빌더가 전 종목을 +1일 시프트(US/EU/KR은 첫 변화 위치 1이라 추론으로 구분 불가). (a)면 `_apply_usd_conversion`이 r_loc(t−1)과 r_fx(t)를 곱하고 횡단면 z·모멘텀·타깃(20d fwd)이 JP 13종에서 하루 어긋난다. (b)면 '실행 시그널 lag 1일'이 실제 종가 기준 0일로 과장(누수 아님, 서술 부정확). 추론 자체의 현재 피해는 0(패널 시작 2014-01-24).",
+    "scenario": "(a)의 경우: 2024-08-05 닛케이 −12.4% 폭락일 — 워크북 7203 행 2024-08-05는 08-02 종가, 08-06 행이 폭락을 담음 → USD 변환은 USDJPY 08-05 급변(엔 +3%)과 JP −12%가 서로 다른 날에 곱해지고, 리밸 시그널은 JP 폭락을 하루 늦게 봄; JP 13종(벤치마크 ≈5.6%) 전부 동일.",
+    "fix": "우선 실측으로 (a)/(b)/무지연을 판별. (a)면 워크북 생성기에서 JP 계열 스탬프를 거래일 기준으로 정정(재생성 → 새 빈티지 S0 재인증, §8). (b)면 코드 무변경·결정 로그의 실행 지연 서술 정정. 부수: `_infer_eligibility_from_price`에 '선행 상수 구간이 거래소 휴장 연속(≤7 달력일)이면 무시' 가드(현재 피해 0이므로 문서화 수준).",
+    "production_impact": "changes_production_numbers",
+    "gating_flag": "always",
+    "triage_check": "실측 확인: outputs/s16_7_name_risk_cap/metrics.json data_quality.listing_mask.dates에서 2014-01-07 = 정확히 13종(JP 전부), source_counts px_last_inferred 213/config_override 37; KR(000660·005930)·EU·LN·CH·DK는 2014-01-02. 코드 확인: _infer_eligibility_from_price(:533-545) min_flat_run=5(config listing_flat_min_run 기본 5) — 01-02~01-06 5행 동일값일 때만 01-07 산출. TSE 2014-01-06 정상 거래이므로 무지연 데이터면 01-06에 변화가 있어야 함 → JP 01-06 행이 전일 종가일 정황은 실재. (a)/(b)/기타 원인은 워크북 미적재로 미판별(본 라운드 워크북 적재 금지). 추론 자체의 현재 피해 0. 레지스트리에 없음 — 신규. 가설 단계라 high 불가, production_impact는 (a) 조건부 — 실측 전까지 medium 유지.",
+    "verification_lenses": [
+     "code_trace"
+    ],
+    "empirical_check": "워크북 2열만 적재(PX_LAST['7203'], Factor_Returns['NKY']; 및 PX_LAST['AAPL'], Factor_Returns['SPX']): r_7203 = pct_change(PX_LAST 7203)에 대해 corr(r_7203[t], NKY[t]) vs corr(r_7203[t], NKY[t−1]) — 후자가 크면 (a) 확정; AAPL–SPX 동일 검정으로 (b) 판별; 직접 확인: PX_LAST 7203의 2014-01-06 == 2014-01-03 값이고 01-07에 −2%대 변화가 있는지, 2024-08-05 vs 08-06 행 중 어디에 −12%가 있는지."
+   },
+   "votes": [
+    {
+     "lens": "code_trace",
+     "verdict": {
+      "refuted": false,
+      "confidence": 0.7,
+      "corrected_severity": "medium",
+      "corrected_production_impact": "changes_production_numbers",
+      "corrected_detail": "반박 실패 — 관측·기전은 확정, 다만 하위가설 (b)는 반박됨·(a)는 미판별.\n\n[확정 1: 관측] outputs/s16_7_name_risk_cap/metrics.json data_quality.listing_mask.dates: 2014-01-07 = 정확히 13종(4063·6146·6758·6857·6981·7011·7203·7974·8035·8306·8316·9432·9433, 전부 JP), 2014-01-02 = 199종, KR 000660·005930 = 2014-01-02, source_counts px_last_inferred 213/config_override 37. 285A(JP)는 config_override 2024-12-18. outputs/ai_signal_data_stability/ticker_sheet_metrics.csv(07-24 빈티지)도 7203 eligibility 2014-01-07·eligible_business_rows 3154(=3157−3, 즉 01-02·01-03·01-06 3영업일 마스킹).\n\n[확정 2: 기전·활성] src/config.py:130 listing_auto_infer_enabled=True, :135 listing_flat_min_run=5, production variant는 이 값을 오버라이드하지 않음 → src/data_loader.py:564-580 resolve_listing_dates가 PX_LAST 원시 열마다 _infer_eligibility_from_price(:533-545)를 호출. :533 dropna → :538-542 첫값과 isclose(rtol 1e-10) 아닌 첫 위치 → :543 위치≥5면 그 날짜, 아니면 :545 첫 non-null. PX_LAST 시트는 달력일 인덱스(audit_results.json sheet_summary PX_LAST rows 4587 = 2014-01-02~2026-07-24 달력일 수 정확히 일치, business_rows 3157; data_loader.py:724-727 주석 \"Bloomberg PX_LAST can carry Friday prices onto Saturday/Sunday\" = Fill=P 달력 채움). 따라서 01-07이 나오려면 01-02·03·04·05·06 5행이 전부 non-null·동일값이어야 함(합성 재현으로 확인: 01-06에 실제 변화가 있으면 위치 4 → 01-02 산출). 보정 1건: :545 경로(01-02~01-06이 전부 NaN이면 첫 non-null 01-07)도 같은 결과를 내므로 '플랫'만이 유일 경로는 아니나, 어느 경로든 JP 13종의 01-06(대발회, 닛케이 −2.35%) 종가가 워크북 01-06 행에 없다는 결론은 동일.\n\n[반박됨: 하위가설 (b) 전 종목 +1일 시프트] outputs/operating_codex_causal_rank_65/returns.csv에서 250종 시총가중 벤치마크(PX_LAST→Daily_Returns 파생, S&P500.xlsx 원천)와 sp500_ret(Factor_Returns SPX, Index.xlsx 원천, backtest.py:1773/2052) 동일일 corr 0.9837, lag −1/+1은 −0.10/−0.14; benchmark_local도 0.9854. 이벤트일도 실제와 일치(2020-03-16 sp500 −11.98%·bm −10.1%, 2020-03-24 +9.38%, 2025-04-09 +9.52%, 2024-08-05 −3.00%). 즉 US 계열(bm 84%)은 실제 종가일에 스탬프되어 있고, \"실행 lag 1일이 실제 0일로 과장\" 서술 정정 branch는 폐기. apply_execution_signal_lag(backtest.py:1343-1365)는 행 shift(1)이며 US 기준 서술은 정확.\n\n[미판별: (a) JP만 T+1] 산출물에는 종목별 일별 수익률이 없어(currency.json daily는 포트폴리오 합산, contribution/by_ticker는 기간 합산) JP 사슬만의 지연 여부는 판별 불가. 워크북 미적재 제약으로 미확정. 대안 (c) \"2014-01-06 JP 첫 거래일만 결측/플랫(이후 정상)\"도 배제 못 함 — 이 경우 피해 0.\n\n[영향 경로 확인] (a)가 참이면 data_loader.py:1523-1537 _apply_usd_conversion이 local_returns와 fx_returns를 동일 인덱스로 곱함(lag 없음) → r_loc(t−1)×r_fx(t) 결합 실재. 노출 정정: 발견의 \"JP 벤치마크 ≈5.6%\"는 과대 — currency.json by_currency: JPY bm_w 0.0262(14종), target 0.0507, active +0.0245(가장 큰 통화 액티브). \n\n[현재 피해 0 확인] 백테스트 시작 2018-11-26, 추론 결과는 2014-01-02·03·06 3영업일 마스킹만 유발. tests/·결정 로그에 2014-01-07 핀·언급 없음(grep 0건) → 신규.",
+      "reproduction": "C:/Users/westl/AppData/Local/Temp/claude/C--Users-westl-PycharmProjects-pythonProject-venv-vf-new-machine-re-study-c2-ai-port/0caf960f-9660-4a4b-a91e-809a2f4ab53d/scratchpad/w1/t08_check.py (PYTHONPATH=. 실행, <1초, 워크북·pkl 미적재).\n(1) _infer_eligibility_from_price 합성(달력일 인덱스 2014-01-02~01-10, min_flat_run=5): US형(01-03 변화)→01-02; JP 무지연형(01-02~05 동일, 01-06 −2.4%)→01-02; JP 플랫 01-02~06 → 01-07(발견 재현); 01-02~06 전부 NaN → 01-07(:545 대안 경로); NaN 01-02~05+실제 01-06 → 01-06.\n(2) returns.csv(n=2027): corr(bm[t], spx[t])=0.9837, corr(bm[t], spx[t−1])=−0.1010, corr(bm[t], spx[t+1])=−0.1411; benchmark_local 기준 0.9854/−0.1144/−0.1444 → (b) 전 종목 시프트 반박.\n(3) metrics.json/audit_results.json/currency.json 수치 추출은 위 corrected_detail에 인용.",
+      "empirical_check": "수행: (i) production 산출물에서 13/13 JP=2014-01-07·199종=01-02·KR=01-02 재확인, (ii) PX_LAST 달력일 인덱스(4587행) 확증, (iii) bm vs SPX 동일일 정렬 검정으로 (b) 반박, (iv) JPY bm 2.62%/target 5.07%/active +2.45% 실측.\n잔여(워크북 2열 적재 필요, 본 라운드 금지): ① S&P500.xlsx 또는 ai_signal_data.xlsx PX_LAST['7203'] 2014-01-03 == 2014-01-06 값인지(플랫) vs 01-06 NaN인지(:545 경로), 01-07에 −2%대 변화가 있는지; ② 2024-08-05 vs 08-06 행 중 어디에 −12%대 낙폭이 있는지(무지연이면 08-05); ③ 결정적 판별자 — JP 단독 휴장·US 개장일(예 2024-05-03, 05-06, 2025-05-05/06, 2024-01-02/03)에 JP 13종 일수익률이 정확히 0인 행이 휴장일 당일이면 무지연, 익영업일이면 (a) T+1 확정; ④ corr(r_7203[t], NKY[t]) vs corr(r_7203[t], NKY[t−1]) — 후자가 크면 (a). 판별 결과 (a)면 워크북 생성기(S&P500.xlsx BDH 스탬프) 정정 후 새 빈티지 S0 재인증, (c)면 문서화만."
+     }
+    }
+   ],
+   "tiebreak": null,
+   "survives": true
+  }
+ ],
+ "refuted": [
+  {
+   "finding": {
+    "id": "T-06",
+    "merged_from": [
+     "F1_diff_since_s16_6-02"
+    ],
+    "status": "novel",
+    "file": "src/portfolio_optimizer.py",
+    "line": 747,
+    "severity": "medium",
+    "title": "캡 루프가 단조 래칫이라 비수렴 시 최악 iterate를 반환하고 북이 0.5% 바운드 바닥으로 붕괴할 수 있음(best-iterate 추적·붕괴 가드 없음) — 라이브 활성 경로이나 97/97 수렴으로 미발동",
+    "problem": "`bounds`는 breach 종목에 대해 축소만 되고 재확장이 없으며, 매 재해 결과를 `best = cand`로 무조건 채택한다(:747). max share가 개선됐는지, 액티브 분산·액티브 셰어가 보존되는지 검사하지 않는다. Euler 몫은 스케일 불변이라 재분배가 불가능한 북(양의 μ가 소수 종목에 집중, 또는 score gate로 OW 가능 종목이 적은 날)에서는 축소가 max share를 낮추지 못하고 breach 집합이 확대되며 전 종목이 NAME_RISK_CAP_MIN_BOUND(0.005)까지 잘린다 — docstring의 'this path never falls back to bm'과 달리 사실상 bm 붕괴.",
+    "scenario": "합성 trial 58(8종목): 초기 max share 0.61·ex-ante TE 36.9%·AS 0.30 → 반복 궤적 0.61→0.655→…→1.007→0.743→0.723(정체) → 11회 후 반환 북 max share 0.723(초기보다 악화), TE 0.54%·AS 0.005(§2.5가 금지하는 무음 bm 붕괴). 60회 무작위 breach 표본 중 21회가 max-iter/정체 종료, 3회는 초기보다 악화. production 97/97 수렴 + AS 0.2001 보존이라 역사 수치 영향 0 — 전망 리스크이며 T-05의 비집계와 결합 시 무음.",
+    "fix": "(1) 반복마다 max_share를 계산해 최소값 iterate를 `best`로 유지하고 2회 연속 비개선이면 종료; (2) 반환 전 aᵀΣa가 초기의 50% 미만이거나 max_share가 초기보다 크면 초기 solved_w로 되돌리고 diag['name_risk_cap_abort']=True; (3) tests/test_s16_7_name_risk_cap.py에 단일 리스크 테이커 북 케이스로 '반환 북 max share ≤ 초기 & AS 보존' 고정(현 6개 테스트는 수렴 케이스만 고정). 수렴일에는 마지막 iterate만 캡을 충족하므로 (1)은 역사 수치 불변, (2)의 임계는 사전등록 필요.",
+    "production_impact": "dormant_path",
+    "gating_flag": "name_risk_share_cap_enabled (production ON) — 비수렴 분기만 미발동",
+    "triage_check": "코드 확인: bounds는 축소만(:731-733, target < bounds[i]−1e-12일 때만 갱신), 재해 성공 시 best = cand 무조건 채택(:747) — max_share 개선·aᵀΣa·AS 검사 없음. docstring 'keeps the last good iterate'의 'good'은 solver status만 의미. tests/test_s16_7_name_risk_cap.py 6건(default_off·variant pin·off_no_diag·on_enforces·slack_inert·projection_enforces)은 수렴 케이스만 고정. production 97/97 수렴(e1_summary g1)·AS 0.2001 보존이라 해로운 분기 미발동 — 라이브 활성 경로이나 발동 이력 0이라 dormant_path·medium으로 조정. 수렴일에는 마지막 iterate만 캡 충족(중간 iterate는 전부 breach)이라 best-iterate 추적 수정은 역사 수치 불변. 합성 재현(리뷰어 synth_namecap2/3)은 미재실행.",
+    "verification_lenses": [
+     "code_trace"
+    ],
+    "empirical_check": "T-05의 재해에서 iterations==12 또는 converged False인 날짜의 (초기 max share, 최종 max share, 초기/최종 aᵀΣa, AS) 비교; 최종 aᵀΣa/초기 < 0.5인 날짜 수(0이어야 함). 합성: 단일 리스크 테이커 8종목 북으로 루프 궤적을 채취해 max share가 초기보다 커진 채 반환되는지."
+   },
+   "votes": [
+    {
+     "lens": "code_trace",
+     "verdict": {
+      "refuted": true,
+      "confidence": 0.72,
+      "corrected_severity": "low",
+      "corrected_production_impact": "dormant_path",
+      "corrected_detail": "코드 사실 자체는 맞다: `bounds`는 축소만 한다(src/portfolio_optimizer.py:727-728 `if target < bounds.get(i, np.inf) - 1e-12`), 재해 성공 시 `best = cand`를 무조건 채택한다(:747), max_share 개선·aᵀΣa·AS 검사는 없다. 그러나 발견의 헤드라인 결론(\"북이 0.5% 바운드 바닥으로 붕괴 → 사실상 bm 붕괴, §2.5 위반\")은 production 입력 분포·제약 집합에서 도달 불가하며, 잔존 부분(\"비수렴 시 초기보다 나쁜 iterate 반환 가능\")은 결과가 하드 제약으로 유계인 저위험 코드 품질 문제다.\n\n반박 근거(코드):\n1) 재해는 항상 `cp.Problem(objective, constraints + extra)`(:736)로 원 제약 전부를 유지하고 ECOS optimal일 때만 채택(:738-747)한다. 따라서 어떤 iterate도 sum=1·long-only·max_weight 0.15(:405-409)·액티브 분산 ≤ (0.035²/252)(:334, :337, :411)·turnover ≤ 0.15(:412)·bm 플로어 0.02·bm(:415-417)·±max_active_per_stock 0.04(:421-423)·score gate(:426-434)·‖w−bm‖₁ ≤ 0.45(:437)를 만족한다. \"최악\" 결과는 그날 캡이 미강제되는 것(=S16.7 이전 상태, base breach 31/97·최악 0.78)이며 diag `name_risk_cap_converged=False`(:753)로 기록된다 — 새로운 손상 경로가 아니다.\n2) 붕괴 불가: breach 판정은 Euler 몫 > 0.36(:719)인데 Euler 몫의 합은 1이므로 한 반복에 breach는 ~2-3종목 이하, 반복은 ≤12(:674, :717) → 250종 중 최대 ~36종만 바운드될 수 있고 나머지 210+종은 ±4% 밴드를 그대로 갖는다. μ는 z-score 스케일이고 risk_aversion 1.0×일 분산(~1e-4)이라 목적함수는 TE 캡까지 채우므로, 바운드로 풀린 TE 예산은 자유 종목으로 재배분되어 AS가 보존된다(합성 C/C2에서 AS 불변 실증). 발견의 붕괴 시나리오는 8종·무제약(max_active_per_stock 0.30·max_active_share 1.5·score gate OFF)에서 한 종목이 북 전체인 경우에만 성립한다.\n3) docstring \"never falls back to bm\"은 `bm_weights.copy()` 반환이 없다는 뜻이며(:713-754에 bm 반환 경로 없음) 문자 그대로 참이다.\n4) production 실측: e1_summary g1 arm breach 0/97(실행 북 오프라인 재계산)·라이브 북 STX 0.344·active_share 0.20007→0.20011·fallback 0 — 정체 분기 발동 이력 0.\n\n잔존(확정, 저위험): best-iterate 미추적은 사실이며 무제약 소형 북에서는 초기보다 나쁜 max share 반환이 가능(합성 B 2/60). tests/test_s16_7_name_risk_cap.py 6건은 수렴 케이스만 고정(정체 경로 테스트 부재)한 것도 사실. 다만 이는 \"그날 캡 비강제\"로 유계이며 T-05(diag 비집계) 해소로 가시화되는 운영 항목이다.\n\n제안 수정에 대한 주의: 수정 (2)의 \"aᵀΣa가 초기의 50% 미만이면 초기 solved_w로 되돌림\"은 잘못 설계됐다 — 캡이 정상 바인딩·수렴한 북에서도 액티브 분산은 당연히 크게 준다(합성 C 0.374·C2 0.383, C3 수렴 18건 중 5건이 <0.5). 이 임계는 캡이 가장 필요한 날에 캡을 되돌려 production 수치를 바꾼다. (1) best-iterate 추적만 수치-중립 하드닝으로 타당.",
+      "reproduction": "스크립트: C:/Users/westl/AppData/Local/Temp/claude/C--Users-westl-PycharmProjects-pythonProject-venv-vf-new-machine-re-study-c2-ai-port/0caf960f-9660-4a4b-a91e-809a2f4ab53d/scratchpad/w1/repro_t06.py (ai_port에서 PYTHONPATH=. 실행, ~25초, pkl·워크북 미로드). `src.portfolio_optimizer._name_risk_shares`를 래핑해 반복별 max share·aᵀΣa·AS·breach 수 궤적을 채취.\n결과:\nA) 8종 단일 리스크 테이커(vol 150%), 테스트 파일과 동일한 무제약 config: iters=8 converged=False, max_share 0.994→0.990, aᵀΣa 비율 ~0.000, AS 0.300→0.005 — 발견의 붕괴 재현(단, 초기 AS 0.30 = max_active_per_stock 0.30이 한 종목에 전부 실린 북).\nB) 무제약 8종 무작위 60회: 비수렴 12/60, 최종 max share > 초기 2/60, aᵀΣa<0.5 35/60 (발견 보고 21/60·3/60과 같은 성격).\nC) production 핀(max_active_per_stock 0.04·max_te_annual 0.035·max_active_share 0.45·bm_weight_floor 0.02·score gate ON·max_single_turnover 0.15) n=60, vol 200% 단일 리스크 테이커(μ 최상위): iters=2 converged=True, max_share 1.205→0.348, AS 0.075→0.075 불변, 바운드된 종목 수 ≤2.\nC2) 같은 핀에서 OW 가능 종목 3개뿐(나머지 μ<0): iters=6 converged=True, 0.752→0.355, AS 불변.\nC3) 같은 핀 무작위 20회(breach 18회): 비수렴 0, 최종>초기 0, aᵀΣa<0.5 5/18(전부 수렴 케이스 — 수정 (2) 임계의 오작동 증거).",
+      "empirical_check": "발견의 empirical_check 중 T-05 재해 기반(리밸일별 iterations==12·converged False 날짜의 초기/최종 비교)은 backtest_result.pkl 로드가 금지돼 미실행. 대신 outputs/s16_7_name_risk_cap/e1_summary.json으로 대체 확인: g1 arm n_breaches 0/97(실행 북 오프라인 재계산, 최악 0.3594 ≤ 0.36), 라이브 북 STX 0.5428→0.3439, companions active_share 0.20007→0.20011, te 0.0373→0.0371, fallback 0/0, avg_ic 비트 동일 — 정체/붕괴 분기 발동 0. 합성 재현은 위와 같이 production 제약 집합에서 붕괴·악화 0건, 무제약 소형 북에서만 재현. 현재 variant 활성 확인: variants/codex_causal_rank_65.yaml:205 `name_risk_share_cap_enabled: true`, 호출부 :852-856(MVO)·:579-583(projection)."
+     }
+    }
+   ],
+   "tiebreak": null,
+   "survives": false
+  }
+ ],
+ "unverified": [
+  {
+   "id": "T-09",
+   "merged_from": [
+    "F2_temporal_integrity-01",
+    "F3_optimizer_execution-03"
+   ],
+   "status": "novel",
+   "file": "src/backtest.py",
+   "line": 1293,
+   "severity": "low",
+   "title": "리밸 그리드가 미국 휴장일 행에 떨어지면(4/97) 미국 종목은 전일 종가에 전일 시그널로 체결 — execution_signal_lag 1일 계약이 해당 리밸에서 사실상 0일(누수 아님)",
+   "problem": "`apply_execution_signal_lag`는 `predictions.shift(lag_days)`(:1359)로 `all_dates` 행 단위 shift를 하고, `_default_rebal_check`는 `(t_idx − start_idx) % 21 == 0`(:1293)으로 행 그리드에서 무조건 발화한다. `all_dates`는 `align_dates`가 만든 순수 평일 인덱스(data_loader.py:729)라 미국 휴장일 행이 남아 있다(returns.csv SPX NaN 행 77). 휴장일 행 h에서 미국 종목은 PX[h]=PX[h−1](수익률 0)이므로 행 h의 리밸런싱은 'close h−1 시그널을 close h−1 가격으로 체결'하는 셈이 되어 미국 종목(191/250, BM 비중 ~76~80%)에는 lag가 0거래일이다. variant description의 'one-trading-day execution signal lag' 계약과 어긋난다. 비미국 종목은 h가 실거래일이라 정상.",
+   "scenario": "production 21행 그리드에서 리밸이 미 휴장일 행에 떨어진 날짜: 2018-12-25, 2024-02-19, 2025-12-25, 2026-06-19. 예: 2026-06-19 리밸은 06-18 종가 시그널을 06-18 종가(=06-19 필값)로 체결하고 PnL은 06-22부터 귀속 — 4회 리밸(4.1%)에서 시그널 신선도가 1일 유리하게 계산된다.",
+   "fix": "최소 수정(default-OFF 플래그 뒤): `_default_rebal_check`에 US 거래일 판정(예: `spx_factor.reindex(all_dates).notna()`)을 넣어 리밸 행이 미 휴장일이면 다음 행으로 1행 연기(그리드 앵커 유지). 4/97 리밸이 바뀌어 S0′ 바이트가 변하므로 §2.1 OFF-default + 페어드 재인증(예상 |ΔIR| ≪ 0.36). 근본 치료는 S16 O5 캘린더 정합과 동일 축.",
+   "production_impact": "changes_production_numbers",
+   "gating_flag": "always",
+   "triage_check": "코드 확인: _default_rebal_check(:1288-1293) (t_idx−start_idx)%21==0 행 그리드; apply_execution_signal_lag(:1343-1365) predictions.shift(1) 행 단위; align_dates(data_loader.py:728-729) 주말만 제거(미 휴장일 잔존); run_backtest(:2019-2027) lag 적용. 리뷰어 실측(returns.csv sp500_ret NaN 77행·리밸 97 중 4회 교집합)은 산출물 기준 정합(미재계산). 레지스트리 대조: S16 O5(평일 인덱스 260.9행/년·연율화 불일치)와 같은 캘린더 사실이나 O5는 연율화 결과만 다룸 — 실행 lag 계약 위반은 신규 결과. 누수 아님(동일 종가 체결 가정으로의 퇴행). 두 렌즈(F2-01·F3-03) 동일 기전 병합.",
+   "verification_lenses": [],
+   "empirical_check": "backtest_result.pkl에서 h∈{2018-12-25, 2024-02-19, 2025-12-25, 2026-06-19}에 대해 (a) US 티커 전부 data.returns.loc[h]==0, (b) result.predictions.loc[h] ≡ result.pre_execution_predictions.loc[h−1]을 확인하고, (c) 해당 4회 리밸을 h+1 행으로 미룬 재시뮬(simulate_portfolio에 rebal_check_fn 주입)로 ΔIR·Δturnover 측정."
+  },
+  {
+   "id": "T-10",
+   "merged_from": [
+    "F4_features_data_units-02"
+   ],
+   "status": "novel",
+   "file": "src/features/assembly.py",
+   "line": 554,
+   "severity": "low",
+   "title": "코어 65피처 중 2쌍이 바이트 동일 중복 — fin_roe_level_z ≡ best_roe_level_z, fin_pb_level_z ≡ best_px_bps_ratio_level_z (실질 63개 신호)",
+   "problem": "`build_financials_features`(assembly.py:554) `fin_roe_level_z = cross_sectional_zscore(roe)`는 accounting.py:82의 `best_roe_level_z = cross_sectional_zscore(raw)`와 같은 시트·같은 열·같은 변환이고, assembly.py:565 `fin_pb_level_z = cross_sectional_zscore(rolling_tsz(pb,756,252))`는 accounting.py:104-105의 `best_px_bps_ratio_level_z`와 동일 식이다. 이후 assembly의 공통 CS z(:804)는 z에 대해 항등이고 clip도 동일하므로 두 열은 같다. 네 이름 모두 CORE_FEATURE_WHITELIST에 있고 33모델 SHAP이 모두 존재한다. 결과: `colsample_bytree=0.8`에서 중복 신호는 트리당 채택 확률 0.96 vs 0.80으로 과표집되고, EWMA gain이 두 이름에 분할돼 프루닝 확률이 왜곡된다. 문서상 '스타일 균형 65'는 실제 63.",
+   "scenario": "LightGBM 학습 시 tree k에서 best_roe_level_z가 colsample에서 빠져도 fin_roe_level_z로 같은 분할이 가능 → ROE 레벨·P/B 레벨 신호가 다른 61개 신호 대비 구조적으로 더 자주 분할 후보가 됨; EWMA importance 리포트는 같은 신호의 기여를 둘로 쪼개 과소 표시.",
+   "fix": "default-OFF 플래그로 whitelist에서 `fin_roe_level_z`·`fin_pb_level_z`(또는 best_* 쪽) 2개를 제외하는 단일 arm(65→63). 파리티: OFF 바이트 동일. 채택 기준은 정확성(중복 제거)이나 모델 열 공간이 바뀌므로 페어드 측정 필수(§S13.13 '열 공간 변경 민감' 선례).",
+   "production_impact": "changes_production_numbers",
+   "gating_flag": "always",
+   "triage_check": "코드 확인: assembly.py:541-547 _get('BEST_ROE').reindex(columns=tickers) → :554 cross_sectional_zscore(roe); accounting.py:82 BEST_ROE는 LEVEL_SKIP_SHEETS(:25)·CURRENCY_LEVEL_SHEETS(:32 = FCF·CAPEX)에 없어 else 분기 cross_sectional_zscore(raw) — 동일 식. assembly.py:564-565 fin_pb_level_z = cs_z(rolling_tsz(pb,756,252)) vs accounting.py:104-105 VALUATION_SHEETS(BEST_PX_BPS_RATIO 포함) cs_z(rolling_tsz(raw,756,252)) — 동일 식. sheets는 로더 _filter_tickers(:454-461)로 유니버스 열만 유지하므로 reindex는 no-op. 4개 이름 모두 CORE_FEATURE_WHITELIST(:209·:224·:268·:269). assembly 공통 cs_z(:804)는 z에 멱등, clip 동일. 레지스트리 대조: S16 P4 '이중 z 중복 4'는 MacroCross — 다른 항목. 신규. 패널 바이트 동일성은 pkl 미적재로 미확인.",
+   "verification_lenses": [],
+   "empirical_check": "backtest_result.pkl panel: np.array_equal(panel['fin_roe_level_z'].to_numpy(), panel['best_roe_level_z'].to_numpy(), equal_nan=True) and np.array_equal(panel['fin_pb_level_z'].to_numpy(), panel['best_px_bps_ratio_level_z'].to_numpy(), equal_nan=True) → True; models[*].feature_name()에 4개 이름 공존."
+  },
+  {
+   "id": "T-11",
+   "merged_from": [
+    "F1_diff_since_s16_6-05"
+   ],
+   "status": "novel",
+   "file": "scripts/eval_s16_8a_arm.py",
+   "line": 162,
+   "severity": "low",
+   "title": "outputs/s16_8a_opcf_level/e1_summary.json이 scripts/eval_s16_8a_arm.py의 출력 스키마와 다름 — 기록된 판정 아티팩트가 스크립트로 재생산되지 않음(3분할 델타 산출 코드 부재)",
+   "problem": "스크립트는 `vintage{base_pkl_mtime,arm_pkl_mtime,data_vintage_equal}`·`subperiods`·`name_risk_cap{live_book_date,live_max_share,live_top_name,cap_ok}`·`e2_pass`·`companions{te_base,…,degenerate{base,arm},solver_counts_arm}` 스키마를 쓰는데, 커밋된(c13c6ae) 파일은 `base`·`note`(자유 텍스트 'name-cap live 0.285/6857/OK measured on identical arm book')·`split_deltas`[−0.3247,−0.495,0.2483]·`companions.degenerate_arm` 등 다른 스키마다. split_deltas를 산출한 코드는 레포에 없다. 결정 로그는 '경량 판정'이라고만 적었고 스크립트 docstring·§S16.8 로그('재실행 가능한 판정 스크립트')와 어긋난다.",
+   "scenario": "재현 시도: PYTHONPATH=. python scripts/eval_s16_8a_arm.py 실행 결과는 키 구조부터 커밋 파일과 다르며, 3분할 델타의 출처를 코드로 추적할 수 없다. 판정(E1 FAIL)은 metrics.json의 ΔIR −0.1775 < +0.36만으로 성립하므로 뒤집히지 않음.",
+   "fix": "스크립트로 e1_summary.json 재생성 후 재커밋(워크북 로드가 부담이면 `--skip-namecap` 옵션 추가로 경량 모드 명시); 불가능하면 결정 로그에 '스크립트 미실행·수기 집계'와 산출 방법을 명기.",
+   "production_impact": "decision_integrity",
+   "gating_flag": "always",
+   "triage_check": "실측 확인: 스크립트 출력 스키마(:124-158) = vintage{…,data_vintage_equal}·subperiods·name_risk_cap{…}·companions{te_base,…,degenerate{base,arm},fallback_arm,solver_counts_arm}; 커밋 c13c6ae의 outputs/s16_8a_opcf_level/e1_summary.json은 base·note(자유 텍스트)·split_deltas[−0.3247,−0.495,0.2483]·companions.degenerate_arm 스키마 — 불일치 확정. git log 해당 파일 커밋 1건(c13c6ae; 같은 커밋의 스크립트 변경은 BASE_DIR 4줄). 판정(E1 FAIL: ΔIR −0.1775)은 metrics.json만으로 성립 — 결론 불변. 신규.",
+   "verification_lenses": [],
+   "empirical_check": "PYTHONPATH=. python scripts/eval_s16_8a_arm.py 재실행 → subperiods delta가 [−0.3247, −0.495, +0.2483]과 일치하는지, name_risk_cap.live_max_share가 0.285(top 6857)인지."
+  },
+  {
+   "id": "T-12",
+   "merged_from": [
+    "F6_metrics_evaluation_ops-02"
+   ],
+   "status": "novel",
+   "file": "src/utils.py",
+   "line": 62,
+   "severity": "low",
+   "title": "헤드라인 IR 분자는 일간 산술 액티브차의 복리(prod(1+p−b))인데 서브기간·E1 3분할·DSR·롤링 IR은 전부 산술 — 같은 시계열에 IR 정의 3종(1.705/1.673/1.976) 공존",
+   "problem": "`compute_performance_metrics`는 `active = port − bm; active_ret = annualise_return(active)` = prod(1+a)^(252/n)−1 로 IR 분자를 만든다. 이는 CAGR(port)−CAGR(bm)도, 산술 mean×252도 아니다. 반면 `src/harness.py:46`(sub_period_irs), `scripts/eval_s13_46_arm.py:_ir`(E1 3분할), `run_selection_bias.py:158`(DSR Observed SR), export의 rolling IR은 mean/std×√252(산술)이다. 결정 로그가 'full IR 1.76 vs P1/P2/P3 IR' 또는 'DSR Observed SR'을 나란히 읽을 때 정의가 섞인다.",
+   "scenario": "현 production returns.csv(2027행): CAGR port 26.62%, CAGR bm 19.42% → 차 7.20%; 코드 active_return 6.21%; 산술 6.09%. IR: 1.705(metrics 헤드라인) vs 1.673(harness/eval/DSR 산술) vs 1.976(CAGR 차/TE). 모든 arm이 동일 정의라 ΔIR>0.36 게이트 판정은 불변.",
+   "fix": "정의 1종으로 통일하거나 병기: compute_metrics에 `active_return_arith = a.mean()*252`, `information_ratio_arith = a.mean()/a.std()*sqrt(252)`를 추가하고 summary()/결정 로그의 서브기간·DSR 비교는 arith 키를 쓰도록 명시. 헤드라인 변경은 §8 절차(전 역사 수치 이동).",
+   "production_impact": "decision_integrity",
+   "gating_flag": "always",
+   "triage_check": "코드 확인: utils.py:15-21 annualise_return = 기하(CAGR), :61-63 active_ret = annualise_return(port−bm)/active_vol → 헤드라인 IR은 '일간 산술 액티브차의 복리'; harness.py:44-46 sub_ir은 mean/std×√252(산술). 리뷰어의 returns.csv 수치(1.705/1.673/1.976)는 미재계산. 모든 arm 동일 정의라 ΔIR 게이트 불변. 레지스트리 O5(252 상수)와 별개. 신규.",
+   "verification_lenses": [],
+   "empirical_check": "pkl: a=port−bm; ((1+a).prod()**(252/len(a))−1)/(a.std()*sqrt(252)) == metrics.information_ratio (1e-12), a.mean()/a.std()*sqrt(252) == harness 전체기간 sub_ir; 차이 ≈ 0.03."
+  },
+  {
+   "id": "T-13",
+   "merged_from": [
+    "F6_metrics_evaluation_ops-05"
+   ],
+   "status": "novel",
+   "file": "streamlit_app.py",
+   "line": 747,
+   "severity": "low",
+   "title": "레지스트리 production_gate와 번들 risk.json 가드레일이 무검증으로 갈라질 수 있음 — 현재 작업트리에서 실제 발생(레지스트리 PRODUCTION vs 번들 섹터 0.882 breached)",
+   "problem": "대시보드는 `data['registry'].get('production_gate')`(outputs/portfolio_registry.json)와 번들의 risk.json/monitoring.json을 독립적으로 읽는다. 레지스트리는 validate_portfolio_bundles.py(별도 단계)가 만들고, export_operating_data.py는 레지스트리를 갱신하지 않는다. `load_operating_bundle` 어디에도 레지스트리 항목의 exported_at_utc와 번들 portfolio.json의 exported_at_utc를 대조하는 검사가 없다. 스케줄 경로(run_and_upload.bat 39→43행)는 둘을 연속 실행하지만 수동 export 후에는 불일치가 조용히 남는다.",
+   "scenario": "현 상태: portfolio_registry.json generated 2026-09-01T03:35Z(data_as_of 08-25, production_gate PRODUCTION, sector_active_risk_ok True) vs operating_codex_causal_rank_65/portfolio.json exported 07:24Z(data_as_of 09-01) & risk.json top_sector_active_risk_share 0.8816 → breached True. 대시보드는 'Prod gate PRODUCTION' 칩과 Risk 탭의 섹터 breach를 동시에 표시한다.",
+   "fix": "load_operating_bundle에서 registry meta['exported_at_utc'] ≠ bundle portfolio.json['exported_at_utc']이면 production_gate 상태를 'STALE'로 강등·경고 표시. 또는 export_operating_data.py 말미에서 validate_portfolio_bundles.build_registry를 호출해 레지스트리를 항상 동반 갱신.",
+   "production_impact": "ops_only",
+   "gating_flag": "always",
+   "triage_check": "실측 확인: outputs/portfolio_registry.json generated 2026-09-01T03:35:40Z·production exported_at 03:35:37Z·data_as_of 08-25·gate PRODUCTION·checks.sector_active_risk_ok True vs outputs/operating_codex_causal_rank_65/portfolio.json exported 07:24:19Z·data_as_of 09-01, risk.json top_sector Technology 0.881606 breached True(name STX 0.33678 False). streamlit_app.py:747 registry production_gate 독립 판독, load_operating_bundle(:233-268)에 exported_at 대조 없음(grep 0). run_and_upload.bat 39행 export → 43행 validate 순차(스케줄 경로는 정합, 수동 export 후 불일치 잔존). 레지스트리 대조: S16 O4(번들이 은퇴 런 판독)와 유사한 '운영 아티팩트 정합 검사 부재' 계열이나 검사 대상이 다름(registry↔bundle 시각) — 신규.",
+   "verification_lenses": [],
+   "empirical_check": "registry.portfolios[production].exported_at_utc(03:35:37Z) vs operating_codex_causal_rank_65/portfolio.json.exported_at_utc(07:24:19Z) 불일치; risk.json top_sector_active_risk_breached True vs registry checks.sector_active_risk_ok True."
+  },
+  {
+   "id": "T-14",
+   "merged_from": [
+    "F6_metrics_evaluation_ops-01"
+   ],
+   "status": "novel",
+   "file": "scripts/export_operating_data.py",
+   "line": 1455,
+   "severity": "low",
+   "title": "performance.json의 sp500.sub_period_ir가 항상 NaN — sub_ir에 NaN 가드가 없고 SPX 시계열이 미 휴장일 77행에서 NaN",
+   "problem": "`sub_period_irs(port, sp500)`에서 `sp500 = res.spx_returns.reindex(port.index)`는 Factor_Returns(미 거래일 달력)에 없는 US 휴장일 행이 NaN이다(현 번들 77행). `src/harness.py:44-45`의 `active = pp.values − bb.values; if active.std(ddof=1) == 0`은 NaN을 처리하지 않아 numpy std가 NaN → `NaN == 0` False → `mean/NaN` = NaN을 반환한다. P1·P2·P3·P4 창 모두 휴장일을 포함하므로 4개 키 전부 NaN이고 json.dump는 비표준 `NaN` 리터럴을 쓴다.",
+   "scenario": "입력: port 2027행(weekday 달력), sp500 1950행 유효+77 NaN → 출력 performance.json['sp500']['sub_period_ir'] = {P1_ir: nan, P2_ir: nan, P3_ir: nan, P4_tail_ir: nan}. 같은 파일의 cum_sp500은 fillna(0)을 쓰므로 total_return은 정상 — 한 블록 안에서 정렬 규약이 갈린다. 대시보드는 이 키를 표시하지 않아 사용자 노출은 없음.",
+   "fix": "export_operating_data.py:1455를 `sub_period_irs(port, sp500.fillna(0.0))`로(cum_sp500과 동일 규약). 또는 harness.sub_ir에서 `finite = np.isfinite(active); active = active[finite]` 후 길이 재검사.",
+   "production_impact": "ops_only",
+   "gating_flag": "always (sp500_benchmark_enabled default True)",
+   "triage_check": "실측 확인: outputs/operating_codex_causal_rank_65/performance.json sp500.sub_period_ir = {P1_ir: NaN, P2_ir: NaN, P3_ir: NaN, P4_tail_ir: NaN}. 코드 확인: export :1454-1456 sub_period_irs(port, sp500)(sp500은 reindex 후 휴장일 NaN, 같은 블록 cum_sp500은 fillna(0)); harness.py:44-46 active=pp−bb 후 std==0 검사만 있어 NaN 전파. 신규.",
+   "verification_lenses": [],
+   "empirical_check": "수정 후 performance.json sp500.sub_period_ir 4키 유한값; pkl에서 (port − spx.reindex(port.index).fillna(0))으로 P1~P3 창 arithmetic IR 재계산과 1e-9 일치."
+  },
+  {
+   "id": "T-15",
+   "merged_from": [
+    "F6_metrics_evaluation_ops-04"
+   ],
+   "status": "novel",
+   "file": "scripts/validate_portfolio_bundles.py",
+   "line": 683,
+   "severity": "low",
+   "title": "production HOLD 게이트의 TE 축이 구조적으로 무발동 — realized 가드는 2018년부터의 전표본 TE, ex-ante 검사는 최적화기가 캡으로 강제한 값",
+   "problem": "`realized_te_within_guard = tracking_error <= 0.045`의 tracking_error는 performance.tracking_error(전표본, 7.8년). `estimated_te_ok`는 마지막 리밸의 ex-ante TE인데 max_te_annual=0.035가 MVO·투영 양쪽 하드 제약이라 정의상 캡을 넘지 못한다(monitoring: max_rebalance_estimated_te = 0.035 정확히, breach 0/97). 따라서 실현 TE 레짐 전환은 수년간 지속돼야 게이트에 도달한다.",
+   "scenario": "returns.csv 실측(리뷰어): 252d 롤링 TE는 2025-01-27 최대 4.68%로 97행 동안 4.5%를 초과했으나 전표본 TE는 3.6~3.7%에 머물러 게이트는 내내 PASS. 현재 252d TE 4.04%도 게이트 값(3.64%)에 반영되지 않는다.",
+   "fix": "evaluate_production에 report-only 항목 `rolling_te_252d_within_guard`(monitoring.rolling.tracking_error_252d_ann 최신값 ≤ 0.045)를 checks/values에 추가(_REPORT_ONLY_CHECKS에 등록해 status 불변). 바인딩 전환은 사전등록 후.",
+   "production_impact": "ops_only",
+   "gating_flag": "always",
+   "triage_check": "코드 확인: validate_portfolio_bundles.py:683 realized_te_within_guard = tracking_error <= 0.045(perf.tracking_error = 전표본); estimated_te_ok는 export estimated_te_breached(active_te > te_limit+1e-6)인데 MVO·투영 모두 risk <= max_daily_te_var 하드 제약(portfolio_optimizer.py:411)이라 정의상 초과 불가 — monitoring.json 실측 max_rebalance_estimated_te 0.035·te_constraint_breach_count 0. 롤링 252d TE 4.68% 초과 97행은 리뷰어 계산(미재계산). 설계 관찰 성격이나 가드가 무발동 축임은 코드상 확정. 신규.",
+   "verification_lenses": [],
+   "empirical_check": "pkl: te252=(port−bm).rolling(252).std()*sqrt(252); te252.max()≈0.0468, (te252>0.045).sum()≈97, 전표본 TE 0.037."
+  },
+  {
+   "id": "T-16",
+   "merged_from": [
+    "F5_model_training_config-02"
+   ],
+   "status": "novel",
+   "file": "src/model_trainer.py",
+   "line": 844,
+   "severity": "low",
+   "title": "첫 재훈련 슬롯이 퇴화(<min_model_trees)하면 경고 없이 채택되고 EWMA 트래커가 그 importance로 시드됨 — events 레코드도 fallback='reuse_prev'로 오기록",
+   "problem": "재사용 분기는 `if not adopt_new and prev_model is not None:`(:844)뿐이라, 첫 슬롯(`prev_model is None`)의 퇴화 모델은 else(:852-862)로 떨어져 `current_model = new_model`, `unique_models += 1`, `live_fit_date` 갱신, `ewma_tracker.update(...)`까지 수행한다. WARNING print는 재사용 분기(:845-846)에만 있어 로그에 경고가 없고, `degenerate_events`(:836-843)에는 `\"reused_prev_model\": False`, `\"fallback\": \"reuse_prev\"`(:820 선설정)로 남아 사후 감사가 오독한다. 1~9그루 모델의 split importance가 uniform 초기값에 α=0.3으로 섞여 이후 모든 슬롯의 pruning 순서에 0.7^k 감쇠로 잔류한다.",
+   "scenario": "train_window 단축·유니버스 교체 등으로 첫 재훈련(현 production 캘린더 2018-11-23)이 ndcg@20 조기종료 1~2그루 → 63BD 동안 사실상 상수 예측으로 리밸 3회 진행, 콘솔 무경고, model_quality.events[0] = {reused_prev_model: False, fallback: 'reuse_prev'}. fresh_fixed 모드는 재적합하므로 reuse_prev(production 기본) 전용 결함.",
+   "fix": "`if is_degenerate and prev_model is None:` 분기 신설 — WARNING 출력(`Degenerate FIRST model adopted`) + `fallback = \"adopted_degenerate_no_prev\"`; 선택적으로 첫 슬롯만 fixed_trees 재적합.",
+   "production_impact": "dormant_path",
+   "gating_flag": "degenerate_fallback_mode == 'reuse_prev' (production 기본) 이면서 첫 재훈련 슬롯 퇴화 시",
+   "triage_check": "코드 확인: :820 fallback='reuse_prev' 선설정, :836-843 events에 reused_prev_model=(not adopt_new) and prev_model is not None, :844 재사용 분기 조건에 prev_model is not None → 첫 슬롯 퇴화 시 else(:852-862)로 채택·unique_models+1·live_fit 갱신·ewma_tracker.update 수행, WARNING은 재사용 분기(:845)에만. production 기준선 events 첫 퇴화 2020-08-03(슬롯 ~8)·전부 reused True(리뷰어 확인) → 미발현. 신규.",
+   "verification_lenses": [],
+   "empirical_check": "backtest_result.pkl models의 첫 키(2018-11-23) 모델 n_estimators_ >= 10 확인, model_quality.events[0].date > 첫 예측일(2018-11-23)이면 미발현 재확인."
+  },
+  {
+   "id": "T-17",
+   "merged_from": [
+    "F5_model_training_config-03"
+   ],
+   "status": "novel",
+   "file": "src/config.py",
+   "line": 1120,
+   "severity": "low",
+   "title": "__post_init__가 prediction_ema_alpha·forward_horizon·pead_decay_days·ewma_drop_pct·창/주기 양수성을 검증하지 않아 '조용히 무의미한' 런이 정상 완료됨",
+   "problem": "검증 블록(:1136-1244)에 `prediction_ema_alpha ∈ (0,1]`, `forward_horizon ≥ 1`, `pead_decay_days > 0`, `ewma_drop_pct ∈ [0,1]`, `retrain_freq/rebalance_freq/train_window/val_window/cov_lookback ≥ 1` 검증이 없다. 각각 예외 없이 틀린 결과를 낸다: alpha=0.0 → model_trainer.py:906-909 `blended = 0·pred + 1·prev_pred` → 첫날 예측이 전 기간 동결; forward_horizon=0 → 전 타깃 0 → rank(method='first')가 티커 순으로 relevance 부여; pead_decay_days=0 → exp(−days/0) NaN/0 → PEAD 무음 비활성. run_variant.load_manifest는 키 존재만 검사.",
+   "scenario": "사전등록 arm yaml 오타 `prediction_ema_alpha: 0.0`(0.5 의도) 또는 `pead_decay_days: 0` → run 성공·metrics.json 정상 생성·E1 판정까지 진행되어 '가설 기각'으로 오기록.",
+   "fix": "__post_init__에 ValueError 6건 추가: `0 < prediction_ema_alpha <= 1`, `forward_horizon >= 1`, `pead_decay_days > 0`, `0 <= ewma_drop_pct <= 1`, `min(train_window, val_window, retrain_freq, rebalance_freq, cov_lookback) >= 1`.",
+   "production_impact": "dormant_path",
+   "gating_flag": "always",
+   "triage_check": "코드 확인: config.py __post_init__ ValueError 목록(:1136-1244) grep — prediction_ema_alpha·forward_horizon·pead_decay_days·ewma_drop_pct·train/val/retrain/rebalance/cov_lookback 양수성 검증 0건. 소비처(model_trainer.py:906-909 alpha 블렌드 확인; target_engine·backtest PEAD는 리뷰어 인용). production variant 값은 전부 유효(0.5/20/7.0/0.05) → 미발현 가드 부재. 신규.",
+   "verification_lenses": [],
+   "empirical_check": "단위테스트: PipelineConfig(prediction_ema_alpha=0.0) / (forward_horizon=0) / (pead_decay_days=0.0) 각각 ValueError 발생 여부(현재는 전부 통과)."
+  },
+  {
+   "id": "T-18",
+   "merged_from": [
+    "F6_metrics_evaluation_ops-03"
+   ],
+   "status": "novel",
+   "file": "src/backtest.py",
+   "line": 983,
+   "severity": "low",
+   "title": "realized_beta는 전표본 OLS인데 운영 계약서 CLAUDE.md §4.1은 '실현 252d OLS 회귀 beta'로 기술 — P2 게이트 판정 지표의 정의 불일치",
+   "problem": "`result[\"realized_beta\"] = compute_beta(port, _bm)`는 2018-11-26~현재 전 행의 cov/var(ddof=1)이며 코드 주석(review L1)이 'NOT a trailing-252d window'라고 명시한다. CLAUDE.md:90은 '헤드라인 진단은 실현 252d OLS 회귀 beta(metrics.realized_beta)'라고 쓴다. §3의 P2 shelve 게이트(~1.0이면 shelve)는 전표본값(1.055)으로 판정됐다.",
+   "scenario": "현 번들: 전표본 realized_beta 1.050(09-01 빈티지)/1.055(08-25), monitoring.rolling beta_252d 최신 1.078. 계약서대로 252d를 계산하는 리뷰어는 다른 수치를 얻는다. 코드 오류 아님 — 계약-코드 정의 불일치.",
+   "fix": "CLAUDE.md §4.1 문구를 '전표본 OLS'로 정정하거나, compute_metrics에 `realized_beta_252d = compute_beta(port.tail(252), _bm.tail(252))`를 추가해 둘 다 노출.",
+   "production_impact": "docs_or_tests",
+   "gating_flag": "always",
+   "triage_check": "코드 확인: backtest.py:976-984 주석 'full-sample OLS beta … NOT a trailing-252d window' + compute_beta(port, _bm) 전표본(utils.py:74-89 ddof=1); CLAUDE.md §4.1(:90) '헤드라인 진단은 실현 252d OLS 회귀 beta(metrics.realized_beta)'. 계약-코드 정의 불일치 확정, 코드 오류 아님. 신규.",
+   "verification_lenses": [],
+   "empirical_check": "pkl: compute_beta(port.tail(252), bm.tail(252)) ≈ 1.08 vs metrics.realized_beta 1.055."
+  }
+ ]
+}

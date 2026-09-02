@@ -1,0 +1,935 @@
+[
+ {
+  "angle": "G1_accuracy_first",
+  "generated": {
+   "angle_id": "G1_accuracy_first",
+   "candidates": [
+    {
+     "id": "ANGLE-01",
+     "title": "주당 추정치 피처 입력 계약 팩: T-01 목표주가 커버리지 갭 median 임퓨트 제거 + M1 배당조정 PX → 명목가(PE×EPS 재구성)로 tg_upside·cash_conversion_z 분모 교체",
+     "axis": "정확성",
+     "mechanism": "채널 = accuracy(기존 정보 복원, §S13.12 전달 상한 비적용). 두 결함 모두 tg_upside(코어, 제거 시 IR −0.48 기록, 라이브 gain 1.83%)와 cash_conversion_z(1.38%)의 입력을 의도와 다른 레벨/단위로 공급한다. T-01: 상장 후 FactSet 커버리지 개시 전 구간을 _fill_missing이 타 종목 목표주가 레벨의 횡단면 median으로 채워 갭 종목 upside≈+9~16 → z +5 상수, 동시에 249종 z 압축. 감사 팩 cs_std_by_date.csv 실측: tg_upside 일별 CS std(z·±5클립 후, 정상 ≈1.0) 중앙값이 VRT 갭창(2018-08~2020-02) 0.522, VST 갭창(2016-10~2017-03) 0.703 vs 2020-06 이후 0.95~0.99, 2014-16 0.928 — 393BD(학습창 1,260일의 31%) 동안 나머지 종목의 tg_upside 진폭이 절반. M1: PX_LAST가 배당 재투자 소급조정 총수익 지수(Daily_Returns ≡ pct_change 4,625일 정확 일치)라 upside = TG_명목/PX_조정 − 1은 t 이후 배당 누적분(미래 정보)만큼 부풀고, 고배당군 median(TG/PX) 2014 1.91→2026 1.09 단조 하락 vs 무배당군 1.1~1.3 평탄(MO 2.13→1.00, RIO 2.85→1.02). 인출 시점으로 갈수록 0에 수렴 → 학습기(2014~19) 대비 라이브 분포 이동 + 리프레시마다 전 이력 재조정(빈티지 불안정의 숨은 원천). cash_conversion_z(§S16.1 P3)는 shares = mktcap/PX_조정이라 고배당주 과거 주식수 2배 과대.",
+     "prior_evidence": "W1 T-01(high·changes_production_numbers·2렌즈 반박 실패, data_loader.py:443-451·sellside.py:368-369, w1_summary_for_agents.json); main_observed_leads.md M1 증거 1~3; 감사 팩 cs_std_by_date.csv(위 0.522/0.703), tg_ratio_probe.json(MO/BNP/RIO 연도별, TSLA 평탄), px_adjustment_probe.json(yr_hi 1.906→1.095, yr_lo 1.122→1.318); outputs/ai_signal_data_stability/ticker_sheet_metrics.csv Factset_TG_Price 선행 갭 VRT 573일·VST 177일·BE/PLTR/RACE 22·CRWD/DDOG 21·KEYS 10·LITE 4·285A 1; features.json tg_upside 1.83%·cash_conversion_z 1.38%; 결정 로그 §S16.1 P1(7319~·7562~: tg_upside LN 단위 수정 → E1 확증·ΔIR +0.160 정확성 채택 선례), §S15 fix-pack(6984~7107: 8건 단일 플래그·avg_ic 불변 프레임), §S13.6(2006~: 네이티브 NaN 유해 → median-of-z 경로 정당화).",
+     "why_not_closed": "§S16.1 P1은 LN 8종 GBp/GBP(×100)만 고쳤고, W1 triage는 T-01을 '같은 피처·다른 기전(단위 vs 임퓨트)·novel'로 분류. 결정 로그 전문 grep '배당|dividend|total return' 처리 기록 0건(M1은 미개척). §S15 #25 median-fill 부활 항목은 SI 시트 대상. 종결된 것은 tg 관련 *알파 피처 추가*(tg_mom 등)이지 입력 계약이 아님.",
+     "single_parameter": "플래그 1개 `per_share_input_contract_enabled`(default False, OFF 바이트 동일). 하위 (a) 가격 레벨 시트(Factset_TG_Price, 휴면 Factset_Fwd_OpCashflow)의 커버리지 개시 전 선행 결측은 횡단면 median 대신 NaN 유지 → tg_upside/tg_mom NaN → 패널 per_date_median(z≈0) — §S13.6 교훈대로 네이티브 NaN 경로가 아님. (b) `data.nominal_local_prices` = PX_LAST_조정 / f̂, f̂_i(t) = 티커별 21d 롤링 중앙값[PX_LAST_조정/(BEST_PE_RATIO×BEST_EPS)]를 로더 임퓨트 이전 원시 시트(§S15.2 pre-impute 관측 마스크 인프라 재사용)로 계산, EPS≤0·비유한 구간 ffill, 이력 없으면 1.0(무배당주는 f≡1이라 프록시 결측 구간과 보정 불요 구간이 일치 — 자기정합). 소비처: tg_upside(sellside.py:368), cash_conversion_z shares(accounting.py:160), fwd_opcf_yield(:431). 도출 근거: 21d = 기존 tg_mom_21d 창 재사용(신규 자유도 0); f̂ 범위 가드 [0.3, 1.05]는 관측 최저 0.373(T, 2014-06). 경로 비교: 워크북 명목 PX 재인출(Bloomberg DPDF 미조정)은 정확도 최상이나 사용자 Bloomberg 작업·새 빈티지·S0 재인증이 필요하고 PX_LAST를 바꾸면 Daily_Returns≡pct_change 정합 검사(data_loader.py:1548)와 ma_cross/dist_52w_high까지 바뀌므로 반드시 *별도 시트*(PX_LAST_NOMINAL)로 넣어야 함 → 권고: 프록시로 사전점검·1차 구현(코드-only, 빈티지 불변), 워크북 명목 시트는 P0 앵커 게이트 실패 시 또는 후속 빈티지의 골드 검증용. tg_upside와 cash_conversion_z는 같은 분모 계약(명목 주당가)이라 같은 플래그.",
+     "precheck": {
+      "data_source": "워크북 원시 시트 5장만 적재(PX_LAST, BEST_PE_RATIO, BEST_EPS, Factset_TG_Price, CUR_MKT_CAP; pd.read_excel(sheet_name=[...]) 후 set_index(pd.to_datetime(df['date'])) — main_observed_leads 무효화 리드의 epoch-ns 정렬 함정 주의) + outputs/s16_7_name_risk_cap/backtest_result.pkl의 targets·panel['tg_upside','cash_conversion_z']·predictions(잔차화용). production 런 종료 후 실행(RAM 2GB 제약).",
+      "computation": "P0 프록시 앵커: 최종 21영업일 |PE×EPS/PX_조정 − 1| 티커별 중앙값(표본 마지막에는 미래 배당 0 → f=1이어야 함) + EPS≤0 결측 셀 비율. P1 규모: f̂<0.9 셀 비율 연도별·고배당 12종(MO,T,VZ,PFE,KO,XOM,TTE,BNP,RIO,SHEL,ENEL,IBM). P2 아티팩트 알파: a = cs_z(tg_upside_현행) − cs_z(tg_upside_명목)을 tg_upside_명목·executable score에 날짜별 OLS 잔차화 후 vs targets 일별 rank IC, NW(lag20) t — scripts/precheck_s16_8.py의 daily_rank_ic/residualize_on/nw_tstat 그대로 재사용. P3 분포 이동: f̂ 최저 25종의 tg_upside z 평균 2014-19 vs 2025-26(현행 vs 명목). P4 T-01 재현: VRT/VST 갭창 tg_upside CS std(현행 0.522/0.703) 및 갭 셀 값(+5) 확인, NaN 경로 시뮬레이션으로 std 복원치 산출.",
+      "gate": "P0: ≥95% 티커에서 앵커 오차 <2% → 프록시 채택; 미달 → 워크북 명목 시트 경로로 전환(팩 유지, T-01은 코드 단독 선행). P4: 갭창 std가 ≥0.90으로 복원돼야 (a) 구현 확정. P2는 채택 게이트가 아니라 ΔIR 부호 사전 예측: t ≥ +2면 '아티팩트가 in-sample 알파'로 등록하고 arm ΔIR<0을 예상치로 사전등록(정확성 채택 기준이라 채택에는 무관). arm 게이트: E0 OFF 바이트 파리티 단위테스트(tests/test_per_share_input_contract.py, 전체 스위트 0 failed) → E1 정확성 확증 4항목 [① VRT/VST 갭창 tg_upside CS std ≥0.90 ② 고배당 12종 연도별 median(TG/PX_명목) 전 연도 [0.95,1.35] ③ 갭 종목 갭 기간 tg_upside |z| <0.5(상수 +5 소멸) ④ 고배당 25종 학습기-라이브 z 평균 차 ≤0.1σ] → E2 do-no-harm(TE ≤4.5%·Pictet active share 20.0%±3%p·turnover ≤1.25×·ECOS fallback 0, W1 T-02에 따라 pkl optimizer_failure_rate 0 병기). 비교 기준 S0′ 1.7596(outputs/s16_7_name_risk_cap, 08-25 워크북/09-01 Index 빈티지 쌍 일치 필수).",
+      "expected_if_true": "P0 통과(오차 <1%, EPS≤0 결측 <10%); 고배당군 f̂ 2014 0.4~0.6, 2020 0.7~0.8; P2 t 양(+)일 가능성 높음(배당 삭감 룩어헤드 + 고배당 dummy) → arm ΔIR −0.05~−0.15 예상(tg 1.83%+cash_conv 1.38% gain 규모, §S16.1 P1 반대 방향), avg_ic 변화; E1 4/4 PASS면 정확성 채택 상신; 리프레시 안정성은 개선(명목가는 재조정 안 됨 → 빈티지 포크 민감도 축소).",
+      "expected_if_false": "P0 실패(BEST_PE 블렌드 ≠ BEST_EPS 블렌드 → 앵커 오차 >2% 다수) → 프록시 폐기·사용자에게 PX_LAST_NOMINAL 시트 인출 요청(§9 원칙: 추정으로 메우지 않음); T-01은 코드 단독으로 선행 측정. P4 재현 실패면 T-01 서술 정정·팩에서 제외.",
+      "cost": "백테스트 0. 워크북 5시트 + pkl 1회 적재 ~10분(production 런 종료 후). 팩 채택 시 arm 1회(~20분, schtasks .bat 패턴, 11:15-11:30 창 회피·빈티지 쌍 기동 직전 재확인)."
+     },
+     "adoption_basis": "accuracy",
+     "risks": "룩어헤드 제거로 ΔIR 음 가능(정확성 트랙이라 채택 무관하나 새 S0′ 하향 — 사전에 P2로 부호 예측·등록). 프록시 블렌드 불일치 시 잘못된 명목가 → P0 앵커 게이트로 차단. cash_conversion_z를 §S16.1 P3 위에서 재정의 → 3분할 부호 비일관 가능. tg_upside 분포 이동은 EWMA cold-start·열 공간 민감(§S13.13)과 상호작용. 캐릭터: 고배당 UW/OW 구조 변화(active share 밴드·섹터 노출 관찰). DSR 비계수(정확성 트랙, §S15 선례).",
+     "effort": "M",
+     "self_priority": 1,
+     "confidence": 0.8
+    },
+    {
+     "id": "ANGLE-02",
+     "title": "자본 실질성 가드 + 비율 피처 robust z: 음(−)/≈0 자본의 ROE·P/B 정의 불능 셀 중립화(사인 불일치·P/B>50)와 ROE/capex/cash_conversion 1/99 winsor",
+     "axis": "정확성",
+     "mechanism": "채널 = accuracy(정의 불능 값·비정보 극단이 지배하는 cs z 복원 — §S16.1 P2 '통화 스케일이 z 지배'와 동형). 자사주 매입으로 자본 ≤0/≈0인 프랜차이즈의 ROE·P/B는 정의 불능인데 cs_z(raw)·cs_rank로 12년 상수 극단(CL +4.32, MCD/HCA/MSCI/VRSN/PM 최하위, fin_roe_pb_gap HCA −3.34·MCD −3.21 고정) → 랭커가 종목 더미로 소비. 본 세션 감사 팩 계산(ticker_median/std ÷ feature_audit std) between-ticker 분산 비중: best_roe_level_z 0.295(극단 10종 제외 시 0.054 — 정체성이 극단 소수에서 옴), fin_roe_pb_gap 0.571(→0.227), fin_roe_pe_gap 0.681, capex_intensity_z 0.930(→0.293; NEE −5 클립 12년, cs std 2014-16 0.485), cash_conversion_z 0.329(→0.067). 대조군 vol 피처는 제외 후에도 0.24~0.37(진짜 지속성). §S13.10이 세운 '신규 피처 between >30% = 정체성 누출 금지' 규칙을 기존 코어 5피처(gain 합 9.2%)가 위반. 추가로 best_roe_level_z는 §S13.32 vol-quality 틸트의 품질 키(1/99 winsor z)라 RBLX(ROE −95%·EPS>0 61%)·PLTR(ROE −3.4·사인 불일치 64%)의 'junk' 판정이 정의 불능 ROE에 의존했을 가능성.",
+     "prior_evidence": "감사 팩 negative_equity_probe.csv(사인 불일치 8종 PLTR·MCD·PM·SBUX·VRSN·MSCI·HCA·RDDT; P/B>50 50%↑ 11종 HD·MCD·LOW·SBUX·ABNB·MSI·ORLY·RBLX·MSCI·HCA·CL; |ROE|>100 50%↑ 14종), pinned_tickers.json(best_roe_level_z CL 4.324, std<0.15 157종), 본 세션 identity-share 표(ticker_median.csv·ticker_std.csv·feature_audit.csv), features.json(best_roe 1.79%·fin_roe_pb_gap 2.48%·capex_intensity 2.27%·cash_conv 1.38%·fin_roe_pe_gap 1.28%); main_observed_leads M3·M5; 결정 로그 §S13.10 2398~2476(between 54% 정체성 누출·30% 규칙 제안), §S13.6 2006~2073(네이티브 NaN 유해·median-of-z 사후 정당화), §S16.1 P2 7319(z 지배 극단 제거 채택 선례), backtest.py:484 _vol_quality_winsor_z(1/99 상수).",
+     "why_not_closed": "§S13.6은 시트 전체 부재를 네이티브 NaN으로 넘긴 반대 방향 실험(본 안은 per-date median ≈ z 0 경로로 §S13.6 교훈을 따름); §S13.7은 그룹별 z(η² 무바인딩)로 다른 기전; §S13.30/31은 ROE의 소비처(틸트) 설계. 'ROE/PB 정의 불능·winsor·음의 자본'은 결정 로그 grep 0건. §S13.10의 30% 규칙은 신규 피처 admit용이었고 기존 코어에 소급 적용된 적 없음.",
+     "single_parameter": "플래그 `book_equity_guard_enabled`(default False) + 임계 1개 `book_equity_min_bm_ratio: 0.02`(자본 < 시가총액 2% ⇔ P/B > 50 → 자본 비실질). 규칙: (R1, 파라미터 0) sign(BEST_ROE) ≠ sign(BEST_EPS) → 그 (티커,날짜)의 ROE·P/B NaN(자본 음수 시그니처; 손실기업의 ROE<0·EPS<0는 사인 일치라 보존). (R2) P/B > 1/0.02 → ROE·P/B NaN. (R3) cs_z(raw 비율) 3종 best_roe_level_z(=fin_roe_level_z)·capex_intensity_z·cash_conversion_z는 z 전 1/99 winsor(§S13.31 _vol_quality_winsor_z 상수 재사용, 신규 자유도 0). NaN 셀은 assembly per_date_median(z≈0)으로 떨어짐(apply_absent_fundamental_nan은 열 전체 부재만 재NaN하므로 §S13.6 실패 모드 미발동). 0.02 도출: 감사 팩 프로브가 측정 전 고정한 진단 상수(pb_gt_50)와 동일 — 스윕 금지. 소비처: accounting.py:82 best_roe_level_z·:169 capex_intensity_z·:159 cash_conversion_z, assembly.py:554/565/585/588 fin_roe_*/fin_pb_*/fin_roe_pb_gap/fin_roe_pe_gap, backtest.py:527 틸트 q_panel.",
+     "precheck": {
+      "data_source": "감사 팩(ticker_median.csv·ticker_std.csv·feature_audit.csv·negative_equity_probe.csv — identity share·플래그 집계는 본 세션에서 이미 계산 완료) + 워크북 3시트(BEST_ROE, BEST_EPS, BEST_PX_BPS_RATIO) + pkl targets·panel·predictions. 런 종료 후.",
+      "computation": "P0(완료): identity share 위 표. P1: R1/R2 발화 셀 비율(전체·티커별; 50%↑ 발화 티커 목록). P2: 가드+winsor 적용 재구성 5피처(best_roe_level_z, fin_roe_pb_gap, fin_roe_pe_gap, capex_intensity_z, cash_conversion_z)의 identity share·티커 중앙값 |·|>2 수 재계산(cs_z는 utils.cross_sectional_zscore 그대로). P3: 현행 vs 재구성 일별 rank IC vs targets + Δ피처 잔차 IC NW t(precheck_s16_8 헬퍼). P4 틸트 영향: 재구성 z_q로 상위 idio-vol 터실 내 quality 부호가 바뀌는 (날짜,종목) 비율과 RBLX/PLTR/HCA/RDDT의 틸트 부호 변화 일수.",
+      "gate": "P2: best_roe_level_z identity <0.10 AND fin_roe_pb_gap <0.30 AND capex_intensity_z <0.50 AND 피처당 |티커 중앙값|>3 티커 0 → arm 사전등록. capex만 미달이면 R3에서 capex 제외(섹터 지속성이 본질) 후 나머지로 진행 — 규칙 재설계(rank 변환 등) 없음(스윕 금지). arm 게이트: E0 OFF 바이트 파리티(tests/test_accounting.py·test_assembly.py 추가, 전체 0 failed) → E1 정확성 확증 [① 사인 불일치 8종 best_roe_level_z 중앙값 |·|<0.5(현행 CL +4.32·MCD/HCA/MSCI/VRSN/PM ≤−2) ② identity share P2 임계 재현 ③ fin_roe_pb_gap 12년 고정 종목(HCA/MCD/MSCI/SBUX/VRSN/MSI/LYV/MAR) |중앙값|<1] → E2 do-no-harm(TE·active share ±3%p·turnover ≤1.25×·fallback 0·퇴화율 병기) + 관측: Δ예측 z가 가드 집합 15종에 국지화되는지(§S13.6형 마스크 추종 효과 감시).",
+      "expected_if_true": "P1 발화 ~15종(전체 셀 ~4%); P2 통과(ex10 값 0.054/0.227/0.293이 예측); P3 IC 변화 ±0.002 내(정보 유지·더미만 제거), Δ잔차 IC |t|<2; P4 부호 전환 셀 <5%, RBLX/PLTR 일부 날짜 junk→중립. arm ΔIR 노이즈~소폭 양(§S16.1 유형), avg_ic 변화(알파 경로).",
+      "expected_if_false": "winsor 후에도 capex identity >0.5(유틸리티/반도체 구조적 capex) → capex는 설계 관찰로 격하·팩 제외; best_roe identity가 0.10 미달 실패면 극단 외 지속성이 원인 → 가드만 채택 후보로 축소.",
+      "cost": "백테스트 0. 팩 부분 즉시(완료), 워크북 3시트+pkl ~5분(런 종료 후). arm 1회 ~20분."
+     },
+     "adoption_basis": "accuracy",
+     "risks": "틸트 품질 키 변화로 RBLX 등 고vol 종목 OW 부활 가능 → §S13.32 채택 사례가 뒤집힐 수 있음(캐릭터·정직 보고 의무). 15종의 12년 고정 dummy 제거 = 해당 종목 예측 평균 이동(구조적 UW 해소 여부 관측). capex(M5)의 정확성 근거는 '정의 오류'가 아니라 '헤비테일 z 아티팩트'라 팩 내 가장 약함 — E1 ③ 별도 표기. avg_ic 변화라 E1은 §S16.1 프레임(정확성 확증)으로만 판정.",
+     "effort": "S",
+     "self_priority": 2,
+     "confidence": 0.7
+    },
+    {
+     "id": "ANGLE-03",
+     "title": "비동기 거래 보정(피처 계층 우선): beta_63d·idio_vol_63d를 Dimson(lag 1) 시장모델 잔차로 — 아시아 16종의 국가 더미화 해소",
+     "axis": "정확성",
+     "mechanism": "채널 = accuracy(피처가 의도한 '고유 변동성'을 담게 복원) + 틸트 게이트 정합. price.py:167-180 beta_63d = 동시(lag 0) rolling cov/var vs EW 시장, idio_vol_63d = 그 잔차 std. 도쿄·서울 마감이 뉴욕 마감 이전이라 아시아 16종의 수익률은 US_{t−1}에 반응: 감사 팩 async_probe ASIA 동시 corr 0.125 < lag1 0.220, β0 0.211 vs β(lag1) 0.376, Dimson 비율 3.12(EUROPE 1.13, US 0.82) → 아시아 β 과소·잔차 과대 → idio_vol_63d z 티커 중앙값 KR/JP +0.44 vs 나머지 −0.25(0.69σ 지역 오프셋 = §S16 P1형 국가 더미; §S13.7도 idio_vol이 최대 η² 피처). idio_vol_63d는 33모델 gain 1위(17.36%)·§S13.32 vol-quality 틸트의 터실 게이트, beta_63d 3.67% — 합 21% gain이 아시아에서 정보 대신 지역 식별자를 담음. 피처 → Σ → 타깃 순서 근거: 피처는 소비 규모 최대·구현 최소(가법 회귀항 1개)·정확성 E1이 명확; Σ(ANGLE-04)는 알파 비트 불변이나 §S16.4 집계 무편향으로 사전확률 낮음; 타깃(PCA)은 라벨 공간 변경이라 §S12.5/§S13.29(−0.499) 전례상 최후.",
+     "prior_evidence": "main_observed_leads M2; 감사 팩 raw_probe.json async_by_region·async_probe.csv(JP 13종 lag1 0.10~0.29 vs lag0 0.02~0.15 vs lead1 ≤0.06, KR 2종 동일 구조), features.json(idio_vol_63d 17.36%·realized_vol_126d 9.73%·beta_63d 3.67%), 본 세션 identity 표(idio_vol 0.386/ex10 0.240, beta 0.480/0.372); 결정 로그 §S13.7 2073~2144(idio_vol 그룹 오프셋 −0.51 최대 η²), §S13.33 4191~(⑤ idio_vol_capm_63d 틸트 키 교체 불채택), §S13.45-B 5366~(lead-lag *알파* 축 종결), §S13.27~29(vol 선호 4중 증거), price.py:30 rolling_market_model_idio_vol(벡터화 OLS 자산 — 회귀항 확장 기반).",
+     "why_not_closed": "§S13.45-B는 lead-lag를 알파(피어 잔차 모멘텀)로 쓴 축; §S13.33 ⑤는 시장 정의(cap-weighted·t−1 캡 가중)를 바꿨을 뿐 회귀에 시차항이 없어 비동기 미수정. 결정 로그 grep 'dimson|비동기|async|시차' 0건. W1 T-08(JP T+1 스탬프)은 팩으로 반박(rejected 목록) → 워크북 수정 선행 불요.",
+     "single_parameter": "`market_model_dimson_lags: 1`(default 0 = 현행 바이트 동일). 전 종목 동일식(지역 더미 없음): r_i,t = α + β0·m_t + β1·m_{t−1} + ε(트레일링 63d, min_periods 63, m = EW 시장 현행 정의 유지), beta_63d := β0+β1, idio_vol_63d := std(ε)·√252. L=1 도출: 시차는 달력일 1일(아시아 마감 → 뉴욕 마감 전)이라 원리상 1; 실측 lead1은 ASIA 0.027로 0 → lead 항 불포함(인과성 보존). 구현은 price.py rolling_market_model_idio_vol의 2-회귀항 확장(sum_xz 항 추가) 또는 기존 cov/var 관용구에 m_{t−1} 항 추가.",
+     "precheck": {
+      "data_source": "UniverseData(config=production)(data.returns USD·dates) + pkl panel['idio_vol_63d','beta_63d']·targets. 런 종료 후(워크북 전체 적재 ~1.2GB).",
+      "computation": "G1(모델-프리 비동기 검정): 종목별 [idio_현행(일간 lag0)/총 vol] vs [idio_주간(5일 합산 수익률, 63주 창 시장모델)/총 vol] — 주간은 비동기 면역; 비율 R = (일간 비)/(주간 비)를 아시아 16 vs 비아시아 234로 비교. G2(정체성): 지역 η²·KR/JP-vs-rest z 중앙값 갭(현행 0.69σ) 현행 vs Dimson. G3(정보, 비게이트): 두 버전의 일별 rank IC vs targets + Δ피처 잔차 IC NW t(precheck_s16_8 헬퍼). G4(틸트): 상위 vol 터실 멤버십 변화율·아시아 종목 편입 빈도 현행 vs Dimson.",
+      "gate": "G1: 아시아 R 중앙값 ≥ 1.15 AND 비아시아 R 중앙값 < 1.05(비동기 편향 확정) AND G2 갭 ≥50% 축소(0.69σ → ≤0.35σ) → arm 사전등록. G1 실패(아시아가 주간에서도 고 idio = 진짜 정보) → SHELVE. arm 게이트: E0 OFF 파리티(tests/test_price.py) → E1 정확성 [① KR/JP idio_vol_63d z 중앙값 갭 ≤0.35σ ② 아시아 β 중앙값 0.2→≥0.5(Dimson 실측 0.65 방향) ③ 비아시아 피처 변화 |Δz| 중앙값 <0.05] → E2 do-no-harm(TE·active share·turnover·fallback) + 관측: 아시아 종목 OW/UW 합 변화·FX 노출.",
+      "expected_if_true": "아시아 R ≈ 1.15~1.30, 비아시아 ≈ 1.0; Dimson 후 갭 ≤0.3σ; IC 변화 ±0.002 내; 터실 멤버십 아시아 편입 빈도 감소. arm |ΔIR| <0.36 예상, avg_ic 변화(알파 경로) → 정확성 채택 상신.",
+      "expected_if_false": "아시아 R ≈ 1.0(주간에서도 잔차 과대) → 현행 피처가 진짜 고유 위험을 담음 → SHELVE·M2 피처 축 종결(Σ/타깃 후보만 잔존).",
+      "cost": "백테스트 0. UniverseData 1회 + pkl ~10분(런 종료 후). arm 1회 ~20분."
+     },
+     "adoption_basis": "accuracy",
+     "risks": "gain 1위 피처·틸트 게이트의 분포 변화 → 모델·북 변동 큼(캐릭터 ±3%p 관찰 필수); vol 선호(§S13.27~29)와 상호작용 — 아시아 OW 증가 시 FX·TE 변화; 라벨(PCA specific)은 미수정이라 피처/라벨 정의 불일치 잔존(트리에 무해하나 후속 이연 항목); 실현 beta 1.055 변화 가능성.",
+     "effort": "M",
+     "self_priority": 3,
+     "confidence": 0.6
+    },
+    {
+     "id": "ANGLE-04",
+     "title": "비동기 보정(Σ 계층): Newey-West lag-1 교차공분산으로 아시아×미국 블록 과소 공분산 정정 — 알파 비트 불변 리스크 규율",
+     "axis": "리스크Σ",
+     "mechanism": "채널 = risk(avg_ic 비트 동일 증명 가능, §S13.41/§S16.7 G0 프레임). 126d 일간 pairwise Σ(portfolio_optimizer.estimate_covariance)는 아시아×미국 공분산을 동시 상관(0.125)으로만 잡아 lag-1 성분(0.22)을 누락 → 아시아 액티브 포지션(§S16.7 북에서 285A +0.28%p·000660 +0.28%p OW)의 ex-ante TE 기여·Euler name share 과소 → TE 캡 3.5%·name-risk 캡 0.35가 아시아 종목에 구조적으로 느슨. 채택 프레임은 §S16.7과 동일(바인딩 + 무손상 + ΔIR > −0.36).",
+     "prior_evidence": "감사 팩 raw_probe.json(ASIA corr_same_day 0.179 vs corr(ASIA_t, US_{t−1}) 0.328 지역 EW), async_probe.csv; 결정 로그 §S16.4 7376~7430(집계 실현/ex-ante 보정 무편향 t +0.15 — 아시아 국지 편향은 미검정), §S13.46 5481~(implied corr 비대각 스칼라 arm FAIL·'다른 소비 지점' 재도전 조건), §S13.48-B 5881(RMT SHELVE), §S16.7 7897~7966(오프라인 Euler share 재계산 방법론 eval_s16_7_arm.py = 재사용 자산), §S16.5-P 8099~(오프라인 재해 표본 프레임).",
+     "why_not_closed": "종결된 Σ 축은 전부 *추정기*(수축·RMT·implied corr 스칼라·비대각 배율)였고, 비동기라는 *정의* 보정(시차 교차공분산)은 미검정. 다만 §S16.4의 집계 무편향이 사전확률을 크게 낮추므로 결정 게이트를 '아시아 블록·실제 북' 국지 검정으로 둠 — 통과 못 하면 실행 0.",
+     "single_parameter": "`cov_newey_west_lags: 1`(default 0 = 바이트 동일). Σ_NW = Σ0 + ½(Σ1 + Σ1ᵀ)(Bartlett 가중, PSD 보장), Σ1 = lag-1 pairwise 교차공분산(동일 126d 창·동일 min_periods). 대각은 optvol 스케일 후 기존 규칙 유지(§S13.41 채널 불변). L=1 도출: 달력일 1일 시차(ANGLE-03과 동일 원리, 스윕 금지).",
+     "precheck": {
+      "data_source": "pkl portfolio_weights 97 + daily_weights(직전 실행북) + UniverseData raw_returns + optvol 스케일(eval_s16_7_arm.py의 production cov 재구성 함수 재사용). 런 종료 후.",
+      "computation": "리밸일별 실행북 액티브 a: ratio_t = aᵀΣ_NW a / aᵀΣ0 a; 아시아 블록 분해(2·a_asiaᵀ Σ1,asia×US a_US 항의 기여); Euler name share 상위 5의 Σ_NW 하 변화(아시아 종목 share 증가폭); 조건부 보정 검정 = §S16.4 페어 검정(실현 21d 액티브 분산 / ex-ante)을 아시아 액티브 노출 |a_asia|₁ 상위 1/3 리밸일 vs 하위 1/3로 분할.",
+      "gate": "median ratio ≥ 1.05 OR 아시아-노출 상위 리밸일 실현/ex-ante 비율 중앙값 ≥ 1.10(하위 그룹 <1.05) → arm 사전등록(채택 프레임 §S16.7: G0 avg_ic 비트 동일·G1 바인딩·G2 무손상·ΔIR > −0.36). 둘 다 미달 → SHELVE·M2 Σ 축 종결.",
+      "expected_if_true": "ratio 1.03~1.08, 아시아 OW 리밸에서 실현/ex-ante 1.1~1.2; arm은 TE 캡 바인딩 소폭 증가·아시아 OW 축소·name-cap 재해 횟수 증가, ΔIR 노이즈.",
+      "expected_if_false": "ratio <1.02(아시아 bm 비중·액티브 노출 소규모라 집계 효과 미미 — §S16.4 t +0.15와 정합) → SHELVE.",
+      "cost": "백테스트 0. ~10분(런 종료 후). arm 1회 ~25분(재해 비용)."
+     },
+     "adoption_basis": "risk_discipline",
+     "risks": "사전확률 낮음(§S16.4). Σ 변경은 name-risk 캡 순차 재해와 상호작용(비수렴·재해 실패 경로 W1 T-05 미집계 문제 동반 — arm 판정 시 pkl name_risk_cap_converged 병기 필수). 아시아 OW 축소 시 캐릭터 소폭 변화.",
+     "effort": "S",
+     "self_priority": 4,
+     "confidence": 0.35
+    },
+    {
+     "id": "ANGLE-05",
+     "title": "코어 whitelist 위생: 정보 0인 bcast 7종 + 완전 중복 2종 제거(65→56) 및 ewma_min_features 56 동반 고정",
+     "axis": "모델/라벨",
+     "mechanism": "채널 = accuracy/governance(설정이 서술하는 모델 = 실제 학습된 모델). rank_xendcg 날짜 그룹 쿼리에서 날짜 내 상수(bcast) 피처는 그래디언트 합 0 → cal_is_Q1·regime_mkt_ret_21d·fac_F_Quality/Growth/Value_mom_63d·fac_value_growth_63d·fac_yield_slope 7종이 33/33 모델에서 split 0·gain 0(감사 팩 zero_gain_by_model.json). fin_roe_level_z≡best_roe_level_z, fin_pb_level_z≡best_px_bps_ratio_level_z(corr 1.000, 코드상 동일식). 결과: (a) colsample_bytree 0.8에서 중복 신호 트리당 채택 확률 0.96 vs 0.80 과표집·EWMA gain 분할, (b) EWMA drop 예산 int(65×0.05)=3이 전부 죽은 피처에 소진 → 피처 선택층 사실상 inert(62피처 모델에도 zero-gain 4 잔존), (c) §S15 fix-pack #2(fac_* 캘린더 ffill)는 모델에 no-op였음, (d) 문서 'Macro/Factor 5'가 허위. IR 기대값 ≈ 0(정보 변화 없음); 값은 위생·해석 정합.",
+     "prior_evidence": "감사 팩 zero_gain_by_model.json(7종 33/33 split 0), high_corr_pairs.json(1.000 ×2), models_summary.json(n_zero_gain 4~7), features.json(Factor 0.0%); W1 T-10; main_observed_leads M4; 결정 로그 §S13.18 2916~(bcast gain 정확히 0 기전), §S13.21 3088~(재확증·EWMA 63→60 드랍이 zero-gain 제거와 정합), §S13.23 3345, §S7 A4 400~450(시드 운 ±0.19), assembly.py:190~ CORE_FEATURE_WHITELIST 주석('56-feature local optimum').",
+     "why_not_closed": "bcast *추가* 축은 §S13.18/21로 종결됐지만 기존 whitelist에서 죽은 bcast·중복을 *제거*하는 arm은 0건(whitelist 축소 arm 이력은 iter21 tg_upside 제거뿐). T-10은 W1 novel.",
+     "single_parameter": "`core_whitelist_prune_dead_enabled`(default False): 제외 집합 9개 고정(팩 실측 gain 0 33/33·corr 1.000으로 결정, 재량 0) → 56피처; `ewma_min_features: 56` 동반(현행도 사실상 inert이므로 행동 등가 = 신규 자유도 0; 하향으로 EWMA를 '살리는' 안은 스윕성이라 배제).",
+     "precheck": {
+      "data_source": "감사 팩(완료) + pkl models[*].feature_name()(4개 중복 이름 공존 확인, 런 종료 후 1분).",
+      "computation": "zero_gain 집합 ≡ 7 bcast 33/33(완료), 중복 ≡ 2쌍 corr 1.000(완료), models feature_name 공존 확인.",
+      "gate": "구조 사실이라 사전점검 게이트 없음 — 실행은 메인 판단(ANGLE-02 후 권고: ROE 중복이 M3와 얽힘). arm 게이트: E0 OFF 파리티 → E1 [n_features 56, 33모델 zero-gain 0, EWMA drop 0(선언 inert)] → E2 do-no-harm; ΔIR은 관측 기록(colsample RNG 재배열 노이즈).",
+      "expected_if_true": "arm n_features 56·zero-gain 0; avg_ic·IR 변화 ±0.19 노이즈(§S7 시드 운 규모); 퇴화율 변화 가능.",
+      "expected_if_false": "n/a(구조 사실).",
+      "cost": "0(팩 완료). arm 1회 ~20분."
+     },
+     "adoption_basis": "governance",
+     "risks": "열 공간 변경 = §S13.13 민감성·시드 운 ±0.19 → ΔIR 해석 불가(관측 기록으로만); 정확성 근거가 '가짜 신호 제거'가 아니라 '무효 열 제거'라 §S15/§S16.1보다 약함 → 사용자 판단 회부; 인벤토리 계수 여부 메인 판단.",
+     "effort": "S",
+     "self_priority": 5,
+     "confidence": 0.5
+    }
+   ],
+   "rejected_on_own_review": [
+    "T-08 JP T+1 스탬프 가설(a): 감사 팩 async_probe로 반박 — JP 13종 lag0 corr 0.02~0.15 ≫ lead1 ≤0.06(T+1 스탬프였다면 워크북 lag0 = 진짜 lead 상관 ≈0.01~0.03이어야 함)이고 lag1 0.10~0.29·구조가 KR 2종과 동일 → JP·KR 모두 정상 스탬프. 워크북 재생성·새 빈티지 불요; 2014-01-06 1일 글리치는 패널 시작(01-24) 이전이라 피해 0 → 문서화만. 직접 확인 원하면 PX_LAST['7203'] vs Index PX_LAST NKY 2열 corr lag0/lag1 5분.",
+    "M2-타깃(PCA specific return의 lead-lag 보정): 라벨 공간 변경은 §S12.5/§S13.29(−0.499)·§S11.9 전례상 최대 위험 → ANGLE-03 결과 + '아시아 specific return vs lagged US 팩터 20d 회귀 t' 검정 후 별도 사전등록으로 이연.",
+    "T-09 미 휴장일 행 리밸 4/97(US lag 0일): §S16 O5 캘린더 축과 동일·규모 극소·누수 아님 → 캘린더 정합 팩으로 이연.",
+    "T-12 IR 정의 3종 공존: 산출물 정의 문제(헤드라인 이동)·성과 무관 → §8 문서 항목, 이번 라운드 제외. T-03(tol 0.01 vs strict 0.35)·T-04(빈티지 stat 시점)·T-02(fallback 게이트 사각)·T-05는 산출물 불변 ops 수정 트랙(O-트랙)으로 분리 — 정확성 팩 아님.",
+    "M1 워크북 명목 PX 재인출을 1차 경로로: 사용자 Bloomberg 작업+새 빈티지+S0 재인증+가격-수익률 정합 검사(data_loader.py:1548) 우회(별도 시트 필수)가 필요 → 프록시(PE×EPS 앵커 검증) 1차, 워크북 명목 시트는 P0 실패 시 승격·골드 검증용으로 강등.",
+    "M1과 T-01의 2팩 분리: 같은 피처의 입력 계약(분자 임퓨트·분모 조정)이고 E1이 같은 피처 통계로 판정되므로 §S16.1(P1~P4 상이 기전 단일 플래그) 선례대로 단일 플래그 유지. 단 M1이 워크북 경로로 전환되면 T-01(코드)만 선행 분리 실행.",
+    "M3 대안 '금융/섹터 내 재정규화·그룹 z': §S13.7 η² 0.011 무바인딩·§S13.6 옵션 b 사용자 기각 — 재론 안 함. 'ROE 네이티브 NaN 보존' 변형도 §S13.6 실패 모드라 배제(per-date median 경로만).",
+    "M4의 ewma_min_features 하향(예 50)으로 EWMA를 활성화하는 안: 새 행동(실제 피처 드롭)이자 스윕성 자유도 → 배제; 56 등가 고정만.",
+    "M2를 '아시아 종목만' 보정하는 지역 더미 규칙: 조건부 규칙은 자유도 증가·§S13.7 취지(그룹 처리 금지)에 어긋남 → 전 종목 동일식(L=1)만."
+   ]
+  },
+  "screened": {
+   "angle_id": "G1_accuracy_first",
+   "screened": [
+    {
+     "id": "ANGLE-01",
+     "title": "주당 추정치 피처 입력 계약 팩: T-01 목표주가 커버리지 갭 median 임퓨트 제거 + M1 배당조정 PX → 명목가(PE×EPS 재구성)로 tg_upside·cash_conversion_z 분모 교체",
+     "verdict": "proceed_to_precheck",
+     "decision_log_hits": "grep -n -i '배당|dividend|total return|총수익|재투자' → 유관 0건(L1241 '예측 vs 총수익률', L1613 '지배당함', L3618 'MaxDD(총수익)'는 무관). grep 'tg_upside' → §S16.1 P1 L7281/7352/7593(LN GBp/GBP ×100 단위 수정, E1 PASS, 채택) · §S13.7 L2132(peer_rel_tg_upside 대안, 미실행) · §S13.4 L1840(fwd_opcf_yield 동일 단위 계약). grep '_fill_missing|임퓨트|impute|median' → §S13.6 L1945(\"무제한 ffill → per-date 횡단면 median, look-ahead 없음\" — 부분열 동결 꼬리만 지적) · §S13.6 결과 L2006-2073(네이티브 NaN 유해 −0.388, median-of-z 경로 사후 정당화 — 본 안은 이 교훈을 따르는 per_date_median 경로) · §S11.4 L858(이중 마스킹은 상장 전 유령만 _fill_missing에서 차단, 상장 후 커버리지 갭은 미처리) · §S15.2 L7174-7185(pre-impute 관측 마스크 인프라). 커버리지 갭 임퓨트·배당조정 분모 두 기전 모두 선행 시도 0건 → 미종결.",
+     "invariant_check": "단일 플래그 per_share_input_contract_enabled(default False) 하위 2수정 — §S16.1(4수정 1플래그) 선례 정합. 스윕 없음: f̂ 창 21d는 tg_mom_21d 재사용, 가드 [0.3,1.05]는 관측 최저 0.373(T) 파생. OFF 바이트 동일 단위테스트 선행 요구. 룩어헤드 도입 없음(오히려 배당 재투자 소급조정에 내재한 미래 배당 정보를 제거; f̂는 t 이하 값만 사용, EPS≤0 구간 ffill도 인과). 캐릭터: 고배당 12종+의 tg_upside z가 12년 구조적 +에서 중립으로 이동 → 액티브 비중 이동 가능, E2 active share ±3%p·TE≤4.5% 밴드로 관측. 사전점검 백테스트 0(워크북 5시트 + pkl 1회). 정확성 트랙 → DSR 비계수(§S15/§S16.1 선례).",
+     "precheck_feasibility": "데이터 존재 확인: Factset_TG_Price·BEST_PE_RATIO·BEST_EPS·CUR_MKT_CAP·PX_LAST 전부 ESSENTIAL_SHEETS(data_loader.py:1227-1235); 임퓨트 전 원시값은 UniverseData.raw + raw_sheet_observed_mask(data_loader.py:1601) 재사용 가능; pkl outputs/s16_7_name_risk_cap/backtest_result.pkl 존재(274MB, 09-01 10:02) — panel/targets/predictions 보유; 헬퍼 daily_rank_ic/residualize_on/nw_tstat는 scripts/precheck_s16_8.py:33-61 실재. 감사 팩 주장 독립 재검증: cs_std_by_date.csv tg_upside 일별 CS std 중앙값 = 2014-16 0.926 / VST 갭창 0.703 / 2017-04~2018-07 0.941 / VRT 갭창 0.522 / 2020-06+ 0.982(후보 수치와 일치); outputs/ai_signal_data_stability/ticker_sheet_metrics.csv L4333 Factset_TG_Price VRT eligibility 2018-08-01·first_valid 2020-02-25·longest_missing_run 393, L4401 VST 2016-10-05·2017-03-31·122(갭이 상장 후 구간임 확정 — 리스팅 마스크 미적용); tg_ratio_probe.json MO 2.13→1.00·RIO 2.85→1.02·TSLA 평탄; raw_probe.json tg top12 전부 고배당(MO 0.669, BNP 0.661, TTE 0.658…). cross_sectional_zscore는 mean/std 비강건(utils.py:12-14) → 단일 +15 이상치의 std 부풀림·249종 압축 기전 성립. 게이트 유효성 — 결함 1건: P0 앵커를 '최종 21BD'에서만 보면 BEST_PE_RATIO 이력 자체가 배당조정되어 있을 경우(f̂≡1) 무조건 통과하고 M1 수정이 no-op인 채 arm이 돌아감 → 반드시 역사 앵커 추가(2014-06-30 PE×EPS vs M1 증거 1 명목종가 MO 41.94·T 35.36·VZ 48.93·PFE 29.68·XOM 100.68, 허용오차 3%)하고 P1(고배당 12종 2014 f̂ 중앙값 < 0.7)을 결정 게이트로 승격해야 실제로 탈락 가능한 게이트가 된다. P4(갭창 std ≥0.90 복원)는 유효한 게이트. P2는 비게이트 부호 예측으로 적절.",
+     "corrected_priority": 1,
+     "expected_value_note": "정확성 채택 전례 5/5(§S13.33 +0.032, §S15 +0.166, §S15.2 −0.011, §S16.1 +0.160, §S16.2 +0.020) — 이 프로젝트에서 성공률이 가장 높은 채널이며 §S13.12 전달 상한 비적용. 피해 규모: tg_upside는 코어(제거 시 −0.48 기록, 라이브 gain 1.83%)이고 T-01만으로도 2019~2024 모델 학습창의 ~31%(393BD)에서 249종 z 진폭이 절반, M1은 고배당 12종+의 z가 12년 구조적 +(MO/BNP/RIO 중앙값 1.7~2.1σ) + 라이브 분포 이동 + 리프레시 빈티지 불안정 원천. ΔIR 부호는 불확실(룩어헤드 제거로 음 가능: −0.05~−0.15 예상치 사전등록) — 채택은 정확성 기준이라 무관하나 새 S0′ 하향 가능성을 사용자에게 사전 고지. 부수 이득: 명목가는 리프레시마다 재조정되지 않아 빈티지 포크 민감도 축소.",
+     "reason": "두 결함 모두 코드 경로(data_loader.py:443-451 _fill_missing → sellside.py:368 upside=tg/px−1; accounting.py:160 shares=mktcap/prices)와 감사 팩 실측(cs std 0.522/0.703, VRT 393BD, MO 2.13→1.00)이 독립 재검증되었고 결정 로그에 선행 시도가 없다. 단일 플래그·스윕 0·백테스트 0 사전점검·정확성 채택 기준까지 §S16.1 선례와 동형. 조건: (1) P0에 역사 앵커(2014-06-30 명목종가) 추가·P1 게이트화 — 프록시가 실제로 명목가를 복원함을 증명하지 못하면 §9 원칙대로 사용자에게 PX_LAST_NOMINAL 별도 시트 인출을 요청하고 T-01만 코드 단독 선행; (2) 가드 R: fin_roe 등 다른 소비처 없음 확인(tg_upside·cash_conversion_z·휴면 fwd_opcf_yield 3곳만); (3) production 런 종료 후·11:15-11:30 창 회피·빈티지 쌍(08-25 워크북, Index) 기동 직전 재확인. ANGLE-02보다 먼저 실행(cash_conversion_z 분모가 겹침 — 새 기준선 위에서 ANGLE-02 측정)."
+    },
+    {
+     "id": "ANGLE-02",
+     "title": "자본 실질성 가드 + 비율 피처 robust z: 음(−)/≈0 자본의 ROE·P/B 정의 불능 셀 중립화(사인 불일치·P/B>50)와 ROE/capex/cash_conversion 1/99 winsor",
+     "verdict": "proceed_to_precheck",
+     "decision_log_hits": "grep -n -i 'winsor|음의 자본|negative equity|정의 불능|P/B|px_bps|best_roe|roe_pb' → §S13.7 L2109/2114(fin_pb_level_z 그룹 오프셋 +0.169, '밸류에이션 스케일은 rolling_tsz로 이미 해소' — ROE는 미언급·raw cs_z 그대로) · §S13.28 L3653(QUALITY 팩터 = best_roe_level_z) · §S13.30/31/32 L3894-4090(best_roe_level_z가 vol-quality 틸트 품질 키, 1/99 winsor z = backtest.py:484 _vol_quality_winsor_z) · §S13.6 L2006-2073(네이티브 NaN 유해, median-of-z 경로 정당화 — 본 안은 per_date_median 경로) · §S13.10 L2426-2465(between-ticker 54% 정체성 누출 → 신규 피처 admit 전 >30% 금지 규칙 '제안', 기존 코어 소급 적용 이력 0) · §S16.1 L7328('BEST_ROE(%)는 무변경'). grep 'capex_intensity|cash_conversion' → §S13.6 L2052(NaN arm에서 cash_conversion gain +11) · §S16.1 P3 L7284/7354/7595(주식수 프록시 수정 PASS). 음자본 ROE/P/B 가드·winsor 선행 시도 0건 → 미종결. 단 §S13.7 교훈('지속 오프셋 ≠ 아티팩트')이 R3(winsor)에는 반대 근거로 작용.",
+     "invariant_check": "플래그 book_equity_guard_enabled(default False) + 임계 1개(0.02 = pb_gt_50 프로브 상수 선고정) + winsor 상수 1/99 재사용. 위반 아님이나 경계 사례: 규칙 3개(R1 사인 불일치·R2 P/B>50·R3 winsor 3피처)를 한 플래그에 묶음 — R1·R2는 '정의 불능 셀 중립화'라는 같은 기전이지만 R3(winsor)는 결함 수정이 아닌 모델링 선택(§S13.7이 '지속 오프셋은 실제 정보'로 판정한 것과 충돌)이고 대상 capex_intensity_z(gain 2.27%)의 '결함'은 후보 스스로 '헤비테일 z 아티팩트'로 가장 약하다고 인정 → 정확성 팩의 채택 근거를 희석. 권고: R3를 팩에서 분리(별도 arm 또는 폐기), R1+R2만 정확성 팩. 스윕 없음. 룩어헤드 없음. 캐릭터: 15종 12년 더미 제거 → 구조적 UW/OW 이동, 틸트 키 변화로 RBLX·PLTR 등 고vol OW 부활 가능(§S13.32 채택 사례 역전 가능성 정직 보고). 사전점검 백테스트 0.",
+     "precheck_feasibility": "감사 팩 독립 재검증: ticker_median.csv best_roe_level_z CL +4.32(|med|>2 1종), 최하 PM −1.29/MCD −1.13/HCA −1.05/MSCI −0.93/VRSN −0.83; fin_roe_pb_gap HCA −3.34/MCD −3.21/MSCI −3.16/SBUX −2.99/VRSN −2.98(|med|>2 8종); capex_intensity_z NEE −5.0/C −4.16/UBSG −3.30/SO −3.18/TSM −2.83(9종); negative_equity_probe.csv에 flag_roe_neg_eps_pos·pb_gt_50_pct·eps_pos_pct 열 실재(PLTR roe_neg 64.2%·eps_pos 100% → R1 발화, AAPL |ROE|>100 51%). 소비처 코드 확인: accounting.py:82 best_roe_level_z=cs_z(raw)·:162 cash_conversion_z·:169 capex_intensity_z; assembly.py:554 fin_roe_level_z=cs_z(roe)(동일식 중복)·:565 fin_pb·:585/589 gap; backtest.py:527 q_panel=panel['best_roe_level_z']. 데이터: BEST_ROE·BEST_EPS ESSENTIAL, BEST_PX_BPS_RATIO는 OPTIONAL(data_loader.py:1244 — PM 등 결측은 per-date median 임퓨트) → R2를 임퓨트 후 시트로 계산하면 PM(P/B 100% NaN)은 '중앙값 P/B'라 영원히 미발화: R2는 raw_sheet_observed_mask로 관측 셀에만 적용해야 함(구현 주의). 게이트 유효성 — 결함: P2 임계(identity <0.10/<0.30/<0.50)는 이미 계산된 ex10 값(0.054/0.227/0.293)이 통과를 사실상 보장(가드 NaN→0 ≈ 극단 10종 제외과 동치) → 판별력 없는 게이트. 실제로 탈락 가능한 검정은 P3(Δ잔차 IC NW |t|<2 = 정보 보존)·P4(틸트 부호 전환 셀 <5%)·P1 발화율 상한(전체 셀 <8%)이므로 이 셋을 결정 게이트로 승격해야 p-hacking 외관을 피한다. 구현 시 가드는 시트 레벨(BEST_ROE 마스킹)에 걸어 best_roe_level_z와 fin_roe_level_z(중복 사본)가 함께 바뀌게 해야 함 — 한쪽만 고치면 더미가 사본에 잔존.",
+     "corrected_priority": 2,
+     "expected_value_note": "정확성 채널이나 근거 강도는 §S16.1(단위·통화 = 벤더 데이터 대비 명백 오류)보다 한 단계 약한 '의미론 결함'(음자본 ROE는 벤더 값 자체는 참, 품질 해석이 불능). 대상 5피처 gain 합 9.2%, between-ticker 정체성 비중 0.30~0.93(대조 vol 0.24~0.37). 기대 ΔIR 노이즈~소폭 양(§S16.1 유형; §S13.6 마스크 추종 효과의 반대 방향 위험 병존). R3 제거 시 corrected_priority 2, R3 유지 시 3. ANGLE-01 뒤에 새 기준선 위에서 측정.",
+     "reason": "결정 로그에 음자본 가드·winsor 선행 시도가 없고 감사 팩 수치가 재검증되며 소비처 코드가 명확하다. 그러나 (a) 사전점검 P2 게이트가 사전 계산으로 통과가 예정돼 있어 판별력이 없으므로 P3·P4·P1상한을 결정 게이트로 재설계해야 하고, (b) R3(winsor)는 §S13.7 판정('지속 오프셋은 정보')과 충돌하는 모델링 변경이라 정확성 팩에서 분리해야 채택 기준의 순도가 유지되며, (c) BEST_PX_BPS_RATIO 임퓨트(PM 100% NaN)와 fin_roe_level_z 중복 사본 때문에 가드는 원시 시트 관측 마스크 레벨에서 적용해야 한다. 위 3조건 반영 시 사전점검 진행."
+    },
+    {
+     "id": "ANGLE-03",
+     "title": "비동기 거래 보정(피처 계층 우선): beta_63d·idio_vol_63d를 Dimson(lag 1) 시장모델 잔차로 — 아시아 16종의 국가 더미화 해소",
+     "verdict": "proceed_to_precheck",
+     "decision_log_hits": "grep -n -i 'dimson|비동기|async|non-synchron|시차 거래' → 0건. grep 'lead-lag|아시아' → §S13.45-B L5366-5380·L5452(피어 잔차 모멘텀: 가격 lead-lag 스필오버 raw IC 0 → '관계형 가격 축 종결' — 알파 축, 본 안의 리스크 피처 정의와 별개). grep 'idio_vol_63d|idio_vol_capm|market_model' → §S13.7 L2104(idio_vol이 최대 η² 0.043, 금융 오프셋 −0.51은 '실제 정보'로 판정) · §S13.13 L2653(idio_vol btv 0.554 — 1위 피처의 과반이 종목 정체성, 비액션 기록) · §S13.33 L4196/4219/4243(GPT 지적 (d) 'idio_vol_63d 정의 비표준(EW 시장·drifting beta)' → idio_vol_capm_63d 생성 코드만 채택, ⑤ 모델 admission+⑥ 틸트 키 교체는 ΔIR −0.075·P2 −0.28로 불채택, 판정문 '구조 오류 아님(legacy는 일관된 proxy·rank 학습에 유효)', 재도전은 '새 기준선 위 단일 사전등록 arm으로만') · §S13.27 L3770-3826(vol 캡 arm B −0.62: vol은 알파 서식지) · §S13.28/29(vol 틸트는 어느 계층에서도 싸게 제거 불가). → 'idio_vol_63d 정의 교정' 축은 1회 시도(§S13.33 ⑤⑥) FAIL·미종결이나 사전확률 음, 그리고 결정 로그가 legacy 정의를 '구조 오류 아님'으로 이미 판정해 정확성 프레임의 근거가 약함.",
+     "invariant_check": "단일 파라미터 market_model_dimson_lags: 1(default 0 = 현행 바이트 동일), L=1은 달력일 시차 원리 도출·lead 항 미포함(인과 보존), 전 종목 동일식(지역 더미 없음), 스윕 없음, 사전점검 백테스트 0. 설계 모호점 1건(사전등록 전 확정 필요): beta_63d := β0+β1로 정의하면 US 191종도 β1<0(Dimson 비율 0.82, per-ticker −0.03~−0.26 편차)이라 비아시아 beta_63d z가 재랭크되어 E1 ③('비아시아 |Δz| 중앙값 <0.05')이 구조적으로 실패할 수 있음 → ③은 idio_vol_63d에 한정하거나 beta_63d는 β0 유지(잔차 계산에만 Dimson 합 사용)로 명시. 캐릭터: gain 1위(17.4%)+틸트 게이트 피처 변경이라 북 변동 폭이 큼 — E2 ±3%p·TE·FX 노출 관찰 필수. 룩어헤드 없음.",
+     "precheck_feasibility": "감사 팩 독립 재검증: raw_probe.json async_by_region ASIA corr lag0 0.1254 / lag1 0.2198 / lead1 0.0267, β0 0.2108·β_lag1 0.3762·Dimson 비율 3.12(EUROPE 1.13, US 0.82), 지역 EW ASIA same-day 0.179 vs lag1 0.328; async_probe.csv 종목별 열 실재; ticker_median.csv beta_63d 최하 5종 전부 JP(9432 −1.60, 9433 −1.54, 7011 −1.33, 7203 −1.26) — 국가 오프셋 실증. 코드: price.py:167-180 beta_63d = 동시 rolling cov/var vs EW 시장(returns.mean), idio_vol = 잔차 std; price.py:30 rolling_market_model_idio_vol 벡터화 OLS(회귀항 확장 기반) 실재; 입력은 data.returns_masked(price.py:78). 데이터: UniverseData 적재(워크북 ~1.2GB, 런 종료 후) + pkl panel/targets. 게이트 유효성: G1(일간 vs 5일 합산 주간 잔차 비율 R, 아시아 ≥1.15 AND 비아시아 <1.05)은 모델-프리·실제 탈락 가능(아시아가 주간에서도 고 idio면 SHELVE), G2(KR/JP 갭 0.69σ → ≤0.35σ)도 탈락 가능 — 유효.",
+     "corrected_priority": 3,
+     "expected_value_note": "같은 피처 정의 교정의 유일 전례 §S13.33 ⑤⑥ = ΔIR −0.075·P2 −0.28(틸트 키 교체가 tercile 재편 비용 유발). Dimson은 원리 있는 편향 보정이나 IR 전달 기대는 노이즈 밴드(|ΔIR|<0.36); 가치는 gain 1위 피처·틸트 게이트에서 0.69σ 지역 더미 제거와 아시아 tercile 편입 정상화. 아시아 16종 bm 비중이 작아 북 수준 효과는 국지적. 채택은 정확성 프레임이나 결정 로그의 '구조 오류 아님' 판정을 G1 실측(모델-프리 비동기 편향 증명)으로 뒤집어야 하므로 §S16.1보다 사용자 판단 의존도가 높다.",
+     "reason": "비동기(Dimson) 기전 자체는 결정 로그 grep 0건으로 미개척이고 감사 팩의 lag 구조(lag1 0.22 ≫ lead1 0.03)가 재검증되며, G1 주간-면역 검정은 실제로 탈락 가능한 좋은 게이트다. 다만 §S13.33이 idio_vol_63d 정의 교정 arm을 이미 1회 FAIL 처리하고 legacy를 '구조 오류 아님'으로 판정했으므로 사전확률은 음이고, beta_63d 정의(β0+β1 vs β0)와 E1 ③의 모순을 사전등록 전에 해소해야 한다. ANGLE-01/02 새 기준선 확정 후 G1·G2 사전점검 → 통과 시 단일 arm."
+    },
+    {
+     "id": "ANGLE-04",
+     "title": "비동기 보정(Σ 계층): Newey-West lag-1 교차공분산으로 아시아×미국 블록 과소 공분산 정정 — 알파 비트 불변 리스크 규율",
+     "verdict": "closed_axis",
+     "decision_log_hits": "grep -n -i 'newey|교차공분산|비대각|off-diag|수축|shrink|estimate_covariance' → §S13.45-C L5381-5400·L5456(implied corr → Σ 비대각 사전점검 PASS t +8.43·OOS +11.6%) · §S13.46 L5481-5640(비대각 arm E1 FAIL ΔIR −0.0093·3분할 비일관·avg_ic 비트 동일 — '상관 예측력 실재에도 IR 전달 0', '옵션 IV의 Σ 채널 중 비대각 축은 이번으로 종결, 재도전은 다른 소비 지점으로만') · §S13.48-B L5881-5913(RMT 고유공간 정제 SHELVE, floor 방향 액티브분산 점유 0) · §S16.4 L7376-7430(pairwise Σ 실현/ex-ante 보정 t +0.15 무편향·3분할 비일관 → SHELVE, '추정기 수축은 이 제약집합에서 소진', Σ 재도전은 '다른 소비 지점'이거나 '새 정보를 대각에') · §S16.6 L7883(메가캡 수축 21종 포함 상태로 보정 검정 통과) · §S13.22 L3154(TE-캡 조건화 실패). grep '아시아|async' → Σ 문맥 0건. → NW lag-1은 '비대각 원소만 바꾸는 추정기 변경을 같은 소비 지점(MVO TE 캡·name-risk 캡)에 넣는 것'이라 §S13.46(비대각 종결)과 §S16.4(추정기 소진·무편향) 두 독립 종결의 교집합에 정확히 해당.",
+     "invariant_check": "단일 파라미터 cov_newey_west_lags: 1(default 0 바이트 동일), Bartlett 가중 PSD 보장, 대각은 기존 규칙 유지 → 순수 비대각 변경. 스윕 없음·룩어헤드 없음·캐릭터 소폭. 불변식 위반은 없으나 §S16.7 프레임(G0 avg_ic 비트 동일·G1 바인딩·G2 무손상)을 만족해도 §S13.46이 '더 정확한 상관 → IR 전달 0'을 이미 실증.",
+     "precheck_feasibility": "계산 자체는 가능: pkl에 portfolio_weights·daily_weights 필드 실재(backtest.py:808-809, 1767-1768), scripts/eval_s16_7_arm.py compute_shares_for_books(:90-116)가 estimate_covariance(portfolio_optimizer.py:73) + 워크북으로 production Σ 재구성 자산, raw_probe.json region_ew_xcorr ASIA 0.179/0.328 실재. 게이트(median ratio ≥1.05 또는 아시아 노출 상위 리밸 실현/ex-ante ≥1.10)는 형식상 탈락 가능하나 규모 추정상 아시아 블록 lag-1 교차공분산 항(corr ~0.2, bm 비중 ~5~6%)의 aᵀΣa 기여는 1~3% 수준 → 거의 확실히 SHELVE. 후보 스스로 사전확률 0.35·'§S16.4 무편향과 정합'을 인정.",
+     "corrected_priority": 5,
+     "expected_value_note": "§S13.46: t +8.43·OOS +11.6%의 강한 상관 정보도 ΔIR −0.009·전달 0. lag-1 교차공분산은 그보다 훨씬 약한 정보(국지 블록)이므로 기대 ΔIR ≈ 0, 리스크 규율 이득도 §S16.7 name-risk 캡이 이미 아시아 OW(285A·000660 +0.28%p)를 몫 기준으로 제약 중이라 한계적. arm 비용 ~25분 + 인벤토리 1건 대비 기대값 최저.",
+     "reason": "기전(비대각 Σ 정밀화 → MVO 리스크 제약 정확도)이 §S13.46에서 종결됐고, '추정 편향이 실재해야 한다'는 전제는 §S16.4가 집계 수준에서 반증했다. 후보는 '정의 보정 ≠ 추정기'로 구분하지만 소비 지점과 전달 경로가 동일하며 결정 로그의 재도전 조건('다른 소비 지점' 또는 '대각에 새 정보')을 충족하지 않는다. 메인이 아시아 국지 보정 진단을 원하면 read-only 비액션 기록(백테스트 0·인벤토리 비계수)으로만 수행하고 arm은 열지 않는다."
+    },
+    {
+     "id": "ANGLE-05",
+     "title": "코어 whitelist 위생: 정보 0인 bcast 7종 + 완전 중복 2종 제거(65→56) 및 ewma_min_features 56 동반 고정",
+     "verdict": "reject_weak",
+     "decision_log_hits": "grep -n -i 'whitelist|zero.?gain|gain 정확히 0|bcast|ewma_min_features|중복|colsample|시드 운' → §S13.18 L2916-2951(bcast gain 정확히 0 기전 확정, '기존 화이트리스트의 fac_* bcast 5종이 만성 저중요도인 이유도 동일 기제') · §S13.21 L3088-3117(gain 0 재확증, EWMA 63→60 드랍이 zero-gain 제거와 정합, ΔIR +0.048은 '컬럼 공간 섭동 노이즈') · §S13.23 L3272-3273(bcast 형태 3차 반복 금지) · §S12.3 L1376-1431((i) EWMA 스케일링 '실증 no-op' 제거 파리티 런 → IR −0.060·P2 1.218→0.749·퇴화 18→16으로 불일치, 판정 \"제거는 결과 불변이 아니라 기준선 교체이며 기대 이득 없는 재인증 비용만 발생 → 청소 없음\"; (ii) refresh arm FAIL, whitelist 포화 floor 60) · §S7 A4 L417-423/501(시드 운 ±0.19, colsample이 시드 구동) · §S13.13 L2913(colsample 희석). assembly.py:255-264 주석 '56-feature local optimum'은 2026-04 시점 65 이전 기록. 죽은 피처 제거 arm 이력은 0건이나 §S12.3(i)가 '무효 성분 위생 제거 = 기준선 교체·청소 없음'을 직접 판정한 선례.",
+     "invariant_check": "플래그 default OFF·제외 집합 9개 고정·스윕 없음은 충족. 그러나 채택 근거 'governance'는 §8의 채택 기준(정확성·IR 바·리스크 규율) 어디에도 없고, 후보 스스로 'ΔIR 해석 불가(열 공간 RNG 노이즈)'를 인정 → 게이트가 없는 arm(구조 사실이라 사전점검 게이트 없음)은 판정 가능한 합격기준이 부재. ewma_min_features 56 동반은 '행동 등가'라 해도 두 번째 파라미터.",
+     "precheck_feasibility": "팩 실측 재검증 완료: zero_gain_by_model.json 전 모델 Column_37~43 = cal_is_Q1·regime_mkt_ret_21d·fac_F_Quality/Growth/Value_mom_63d·fac_value_growth_63d·fac_yield_slope 7종 split 0; high_corr_pairs.json corr 1.000 ×2(assembly.py:554 fin_roe_level_z ≡ accounting.py:82 best_roe_level_z, assembly.py:565 fin_pb_level_z ≡ accounting.py:105); model_trainer.py:143-144 n_drop=int(65×0.05)=3·floor ewma_min_features 60(config.py:405-406). 사전점검은 완료 상태이나 탈락 가능한 게이트가 없다 — arm의 유일 산출은 노이즈 밴드 기준선 교체.",
+     "corrected_priority": 5,
+     "expected_value_note": "정보 변화 0 → 기대 ΔIR = 열 공간 섭동 노이즈(§S12.3(i) −0.060, §S7 ±0.19, §S13.18/21 +0.013/+0.048). 채택되면 새 S0′가 노이즈만큼 이동해 이후 모든 arm의 비교 기준이 바뀌는 비용(재인증)만 발생. 무비용 대안: (a) whitelist 주석·metrics.json에 n_zero_gain_features·duplicate_pairs report-only 필드(O-트랙, 산출물 불변), (b) 중복 2쌍은 ANGLE-02 구현 시 시트 레벨 가드로 두 사본이 함께 바뀌게 처리(별도 제거 불요), (c) §S16 P8 subsample 선례대로 '# inert' 문서화.",
+     "reason": "§S12.3(i)가 동일 논리('실증 no-op 성분 제거')의 파리티 런을 실행해 '기준선 교체·기대 이득 0·청소 없음'을 이미 판정했고, 본 안은 그보다 더 큰 열 공간 변경(9열)이라 노이즈 폭이 더 클 뿐 정보 이득이 0이다. 판정 가능한 합격기준이 없고 채택 근거(governance)가 §8 기준 밖이므로 arm 1건·인벤토리 1건을 쓸 가치가 없다. 문서화 O-트랙으로 강등."
+    }
+   ],
+   "screen_notes": "검증 방법: 결정 로그 grep(후보당 키워드 3~6개) + 코드 직접 확인(data_loader/sellside/accounting/price/portfolio_optimizer/assembly/backtest/model_trainer/config) + 감사 팩 CSV/JSON 독립 재계산(cs_std_by_date·ticker_median·negative_equity_probe·raw_probe·zero_gain·high_corr·ticker_sheet_metrics) — 후보가 인용한 수치는 전부 재현됨(오류 0). 레포·pkl·워크북 무접촉. 기준선: S0′ IR 1.7596(outputs/s16_7_name_risk_cap, 08-25 워크북; §S16.8 재인증으로 09-01 Index 빈티지에서도 1.75962 비트 재현 — 비교쌍 내 빈티지 일치만 필수), 인벤토리 471. 순서 권고: ANGLE-01(사전점검 → 팩 arm, 정확성) → 새 S0′ 위에서 ANGLE-02(R3 분리, P3/P4/P1상한 게이트화, 시트 레벨 가드) → ANGLE-03 G1/G2 사전점검(beta_63d 정의 확정 후). ANGLE-04는 축 종결, ANGLE-05는 O-트랙 문서화로 강등. 공통 주의: 사전점검은 production 런 종료 후(RAM), 백테스트는 평일 11:15-11:30 창 회피·기동 직전 (워크북, Index.xlsx) mtime 쌍 재확인(§S16.8 사고). ANGLE-01 P0 앵커의 '최종 21BD 단독' 설계는 BEST_PE_RATIO 이력 자체가 조정돼 있을 경우 무조건 통과하는 허점이 있어 역사 앵커(2014-06-30 명목종가)와 P1 게이트화가 필수 — 이 점을 반영하지 않으면 proceed 판정을 철회한다. 결과 파일: C:/Users/westl/AppData/Local/Temp/claude/C--Users-westl-PycharmProjects-pythonProject-venv-vf-new-machine-re-study-c2-ai-port/0caf960f-9660-4a4b-a91e-809a2f4ab53d/scratchpad/w2/screen_G1_accuracy_first.json"
+  }
+ },
+ {
+  "angle": "G2_execution_path",
+  "generated": {
+   "angle_id": "G2_execution_path",
+   "candidates": [
+    {
+     "id": "ANGLE-01",
+     "title": "동적 실행(REDESIGN K) trailing-IC 신뢰도 채널 정적화 — eta 0.5·no-trade band 0.003 고정 (250종 확장 후 상수 0.04 미재조정으로 채널이 노이즈 스로틀로 변질)",
+     "axis": "실행",
+     "mechanism": "채널: execution(무작위 스로틀 제거) + 부수 risk. production 은 리밸마다 conf = spread_score(상시 1.0 포화, §S7.A2) × ic_score = clip((직전6리밸 IC평균+0.01)/0.04, 0.2, 1.0) 로 eta = 0.5·√conf ∈ [0.224, 0.5] 와 no-trade band = 0.003/conf ∈ [0.003, 0.015] 를 정한다(backtest.py:1211~1272). 감사 팩 ic_series·turnover 실측(97리밸): 리밸의 33%가 바닥(conf 0.2 → eta 0.224·band 1.5% = 종목 액티브 한도 4%의 38%), 45%가 포화(1.0). 채널 입력의 당일 IC 예측력은 0: Pearson −0.163(p 0.12)·Spearman −0.088(p 0.40)·반분 부호 비일관(−0.32/+0.11)·IC lag1 자기상관 −0.14. 그런데 이 무정보 채널이 turnover 를 지배한다 — corr(turnover, eta) +0.63, 바닥일 평균 two-way 0.035 vs 포화일 0.069(2배). 즉 리밸의 1/3에서 사실상 동전던지기로 거래를 절반 억제하며, 바닥일의 실현 IC(0.037, 3분할 중 2분할에서 우위)가 포화일(0.012)보다 오히려 높다(t 0.86, 비유의 — '역방향'이 아니라 '무정보'로만 주장). 정적화하면 §S16.5-P 갭₁(실행북이 등리스크 달성가능 알파의 2/3만 실현, 원인 = eta·band 드래그)의 노이즈 기인분이 회수된다. 65종 시절엔 median trailing IC 0.040(§S7.A2 D0)이라 ic_score 가 상시 포화 → 채널 inert 였고, 유니버스 250 확장으로 IC 수준이 0.018·리밸당 std 0.148(6개 평균 SE ≈0.06)로 내려오며 같은 상수가 채널을 노이즈 발생기로 바꿨다(§S7.A2 spread_scale 18× 미조정과 동형, 이번엔 IC 축).",
+     "prior_evidence": "§S7.A2(결정 로그 316~356): spread 채널 상시 1.0 포화 실측, conf 분포(65종) min 0.2/median 1.0/mean 0.75 — 채널 사실상 inert; 재보정 arm ΔIR +0.002 노이즈. §S13.50 diagnostics.conf(200종): min 0.2/p10 0.2/median 0.737/mean 0.62 — 채널이 활성화된 상태. §S13.11(2500: eta_eff = base·√conf 정의; 2522~2577: eta 1.0 균일 상향 ΔIR −0.22·turnover ×1.57·avg_ic 불변 = 순수 집행 노브 확인). §S16.5-P(8138~8161): 갭₁ +33.3%(38일) '전부 실행 경로(eta 0.5·no-trade band) 드래그'. 감사 팩(w3/pack ic_series.csv·turnover.csv) 본 라운드 실측: 바닥 33%/중간 22%/포화 45%, corr(trailing6 prior IC, IC_t) −0.163(n 94), 바닥일 turnover 0.0351 vs 포화 0.0694, 정적화 시 함의 turnover +0.148/yr(0.687→0.83, 1.22×).",
+     "why_not_closed": "§S7.A2 는 spread 채널을 '살리는' 재보정, §S7.A3 는 예측 EMA α의 trailing-IC 적응(예측층), §S13.45-A 는 confidence 에 rank_stab 를 '추가'(t 1.06 SHELVE), §S13.11 은 eta 균일 상향 — 전부 채널을 더 쓰는 방향이었고 채널 입력의 예측 타당성 자체를 검정·제거한 arm 은 0건. §S13.11 의 손실은 이미 0.5 인 포화일까지 1.0 으로 올린 결과(turnover 1.57×)이고 본 후보는 바닥일 0.224→0.5 복원만(예상 1.22×). §S16.5-P 종결문이 명시적으로 '실행 경로(eta) 축 미개척·재도전 시 새 사전등록'을 남겼다.",
+     "single_parameter": "`static_execution_enabled: true`(PipelineConfig 신설, default False). ON 이면 simulate_portfolio 에서 compute_signal_confidence 결과를 1.0 으로 대체 → apply_dynamic_execution 이 eta = partial_rebalance_eta(0.5)·band = no_trade_band(0.003) 고정으로 동작. 값 도출: 자유 파라미터 0 — config.py:1201~1208 주석의 'Replaces the static eta=0.5 execution' 이전 정적 설계 복원. 대안(ic 상수 0.04 를 현 IC 스케일로 재보정)은 값 선택이 스윕이라 배제, 채널 역방향 이용(contrarian)은 t −1.58 데이터마이닝이라 배제.",
+     "precheck": {
+      "data_source": "P0: 감사 팩 w3/pack/ic_series.csv·turnover.csv(계산 완료). P1~P3: 최신 production pkl(outputs/codex_causal_rank_65/backtest_result.pkl — 09-02 스케줄 런 완료 후; data_vintage 쌍(워크북·Index.xlsx mtime)이 pkl 과 일치해야 함, T-04 주의) 의 predictions·raw_predictions·ic_series·daily_weights·portfolio_weights + UniverseData(raw_returns=Σ 입력, returns_masked=드리프트·전진수익, 옵션 IV 시트=S13.41 대각) + variants/codex_causal_rank_65.yaml.",
+      "computation": "P0(완료·재검용): tr_t = 직전 ≤6개 성숙 IC 평균(≥2개, 아니면 0.0 — backtest.py:1621~1632 축자) 과 IC_t 의 Pearson/Spearman·NW(lag1) t, 반분·E1 3분할 부호, 바닥/중간/포화 리밸의 실현 IC·turnover 평균. P1~P3(오프라인 페어드 리플레이, scripts/precheck_s13_50 골격 재사용, 리밸일 97 전수): ① w⁻=_drift_weights(daily_weights[t_prev], returns_masked.loc[t]) ② target=optimize_portfolio(pred_row, Σ=estimate_covariance(raw_returns 126d)+optvol 대각, prev=w⁻, cfg — S16.7 캡 포함) ③ conf_prod=compute_signal_confidence(pred_row, raw_row, tr_t) → cand_0=apply_dynamic_execution(w⁻,target,conf_prod,cfg) → w_0=project_portfolio_weights(cand_0, …, cfg) [E0: L1(w_0, portfolio_weights[t])] ④ cand_cf=apply_dynamic_execution(w⁻,target,1.0,cfg) → w_cf=project_portfolio_weights(cand_cf, …, cfg) (production 함수 원본 그대로, 제약 수술 없음) ⑤ gain_t=(w_cf−w_0)·fwdex21_t(t+1..t+21 종목 누적수익 − bm buy&hold), dTO_t=‖w_cf−w⁻‖₁−‖w_0−w⁻‖₁, dev_t=½‖w_cf−w_0‖₁, dα_t=μ·(w_cf−w_0), dTE_t=√252(√aᵀΣa) 차, 진단: band 억제 L1 몫 Σ|δ_i|·1[|δ_i|<ntb]/Σ|δ_i| (바닥 vs 포화일) ⑥ 집계: Σgain, E1 3분할(2021-06-01/2024-01-01 경계) 부호, gain/yr = Σgain/years, net = gain/yr − 12·mean(dTO)·0.001 − 0.033·mean(dev). ANGLE-02 반사실과 같은 루프에서 동시 산출 가능.",
+      "gate": "P0: NW |t| < 2(채널 무정보) → 진행 — 측정치 t −1.58·반분 부호 비일관으로 통과; t ≥ +2 면 채널 유효 → SHELVE(제거 부당). E0(하드): median L1(w_0,w⁺) ≤ 1e-6 AND ≥90% ≤ 1e-5(§S13.50 바) 미달 시 ABORT(빈티지 포크 의심). P1: Σgain > 0 AND 3분할 3/3 양. P2: net ≥ +0.0010/yr(§S13.48-A·§S13.50 기존 바; 캐리 계수 3.3%/yr per unit L1/2 는 §S13.13). P3(캐릭터): mean dTO ≤ +0.02/리밸(연 turnover ≤ 1.25×, §S12·§S16.7 E2 관행), 전 solve optimal·bm 폴백 0(pkl 속성 optimizer_failure_rate 로 확인 — T-02), Pictet active share 드리프트 ±3%p. P1∧P2∧P3 → arm(플래그 1개) 사전등록 상신, 아니면 SHELVE·축 종결.",
+      "expected_if_true": "gain 이 바닥일(31/94)에 집중, Σgain/yr ≈ +0.10~+0.30%; dTO 바닥일 ≈ +0.03(평균 +0.010~0.012 → 연 two-way 0.687→≈0.83); dev 평균 ≈0.005 → 캐리 비용 ≈0.017%/yr, TC +1.2bp/yr; ex-ante TE 중앙값 +0.05~0.1%p(캡 3.5% 내); 3분할 전부 양.",
+      "expected_if_false": "Σgain ≈ 0 또는 음(추가 거래가 §S13.11 패턴대로 회수분을 TE 로 전액 지불) 또는 3분할 비일관; 혹은 P0 재검(NW t, 성숙 IC 정의)에서 t ≥ +2.",
+      "cost": "백테스트 0. P0 0초(완료). P1~P3 pkl 1회 로드 + 리밸당 MVO 1회·투영 2회(+name-risk 캡 재해) ≈ 10~15분(§S13.50 567s 참조), RAM 2GB 제약 해제 후 단일 foreground/schtasks 실행."
+     },
+     "adoption_basis": "accuracy",
+     "risks": "채택 프레임 조건: '정확성'은 P0 가 채널 입력의 무정보성을 확정할 때만(제어 입력이 docstring 의 전제 '모델이 불확실할 때 덜 거래'를 측정하지 못함 = 250종 스케일 미조정 결함, S16.1 단위 스케일과 동형); 리뷰어가 이 프레임을 거부하면 ir_bar 로 강등해 §2.4 적용. 캐릭터: turnover 1.22×(1.25× 경계 근접), TE 소폭↑(캡 내), active share 불변(0.225 캡 15/97 바인딩). 경로 의존: 1-step 리플레이는 누적 효과를 과소/과대할 수 있음(§S13.50 과 동일 한계, arm 백테스트가 최종). §S13.11 반례(eta↑ −0.22)가 바닥일에도 성립할 위험 → P1 3분할이 방어. 룩어헤드 0(성숙 IC 필터·lag 1 동일). DSR: arm 실행 시 인벤토리 471→472(정확성 채택이면 비계수, §S15 선례).",
+     "effort": "S",
+     "self_priority": 1,
+     "confidence": 0.45
+    },
+    {
+     "id": "ANGLE-02",
+     "title": "게이트 강제거래(score gate w≤bm·mega funding 핀)의 투영(projection) 재적용 해제 — 강제 청산·복구도 eta 로 평활(북에서 유일한 eta=1 거래 제거)",
+     "axis": "실행",
+     "mechanism": "채널: execution(whipsaw turnover) + risk(T-07 꼬리) + §S13.12 캐리 보존. _build_mvo_constraints(portfolio_optimizer.py:402~405, 412~435)는 μ≤0 종목의 w≤bm, mega funding set 이탈의 w≥bm·진입의 w≤bm 을 MVO 타깃과 실행 후 투영 '양쪽'에 하드 제약으로 건다. 타깃은 eta 0.5·band 로 평활되지만 투영이 게이트를 재적용하므로 직전 OW 종목의 μ가 0.0 을 가로지르는 순간 (prev−bm) 전액(최대 4%)이 한 리밸에 청산되고, mega 는 최대 10% UW 가 한 번에 복구된다 — 북에서 유일하게 eta=1 로 집행되는 거래이며 트리거는 노이즈 임계(μ 절대 0.0, 21d 랭크 자기상관 ~0.9 인 z-score)다. §S13.48-C: 실제 churn 구동원은 μ 부호 가로지르기(리밸 70%에서 발생), flip 종목 |δ| 는 비flip 의 2.0배; §S13.49: 게이트 대상의 6.4%가 경계(bm−w⁺ p10 2.6e-11)에 핀, 레짐 전환일 10~29 종목 OW 차단; §S13.50: 투영 변위(북의 1.84%)의 80%가 제약 강제·알파 불가시, gain 상위일이 2020-04-09·2025-04-07 등 반등일(강제 청산이 비쌌던 날과 정합). 강제거래를 eta 평활로 바꾸면 ① 임계 왕복(청산→재진입) turnover 감소 ② 북 괴리 ∝ 캐리 손실(§S13.13 ~3.3%/yr per L1/2) 축 보존 ③ T-07 infeasible→bm 점프의 원천(강제 L1 > 0.15) 절반 감소.",
+     "prior_evidence": "§S13.48-C(5914~5941 사전등록, 6040~6080 결과: '실제 flip 구동원은 μ 절대 임계 0.0 가로지르기', P1(ii) 2.014배 PASS, '후속 리드 미회수'), §S13.49(6247~6307: G0 0.0638 PASS·released OW 최대 29·간헐 바인딩, 진단 n_ow 중앙 28), §S13.50(6403~6470: 변위 0.01837·계량 자유도 0.1965 — '변위의 80%는 제약이 정한 유일해', 종결문 '재도전은 제약 집합 자체를 바꾸는 새 사전등록'), W1 T-07/F3-02(확정: 강제 L1 이 turnover 캡을 소비, 2020-04-08 0.1483 = 캡 99%), §S13.12(2577~2633: 전달률 9%·캐리 41%), §S13.13(2679~2718: 캐리 손실 ≈ 3.3%/yr × 북괴리).",
+     "why_not_closed": "§S13.49 는 게이트 '임계'(절대 0.0→단면 분위수)를 MVO 타깃에서 바꿔 재-MVO L1 로 판정(중앙값 0 → SHELVE·축 종결), §S13.48-C 는 mega '슬롯 배정' 히스테리시스(표적 오류 SHELVE). 둘 다 '게이트가 어디서 걸리나'였고 '게이트 강제거래의 집행 속도(투영 재적용)'는 어느 절에서도 측정되지 않았다(§S13.11 2×2 에서도 상수). §S13.50 종결문이 요구한 '제약 집합을 바꾸는 새 사전등록'의 구체형이며, 캐릭터 게이트(§2.5) 대상임을 인정하고 P3 로 계량한다.",
+     "single_parameter": "`gate_bounds_target_only: true`(PipelineConfig 신설, default False). ON 이면 project_portfolio_weights 에서만 score-gate 상한을 w_i ≤ max(bm_i, candidate_i), mega funding 하한/상한을 w_i ≥ min(bm_i, candidate_i) / w_i ≤ max(bm_i, candidate_i) 로 대체(MVO 타깃 쪽 게이트는 불변). candidate = prev+eta·(target−prev) 이고 target 은 게이트를 지키므로 강제거래가 자동으로 eta 속도로 집행됨. NaN-μ 핀(w==bm, 데이터 유효성)·TE 캡·섹터 밴드·액티브셰어·turnover 캡·name-risk 캡·bm floor 전부 불변. 신규 수치 0(eta 재사용); eta=1 이거나 강제거래가 없는 리밸에서는 OFF 와 동일 → parity 자연 성립.",
+     "precheck": {
+      "data_source": "최신 production pkl(outputs/codex_causal_rank_65/backtest_result.pkl, 빈티지 쌍 일치) predictions·daily_weights·portfolio_weights·raw_predictions·ic_series + UniverseData(raw_returns·returns_masked·CUR_MKT_CAP bm·옵션 IV 시트) + variants/codex_causal_rank_65.yaml; §S13.49 summary.json(n_ow·binding 분포 교차확인).",
+      "computation": "P0(규모, 재해 없음, 97 전수): funding_t 를 _build_mvo_constraints 규칙 미러(bm≥0.04, μ<0.0 오름차순 k=4)로 재구성; F_t = {i: μ_i≤0 ∧ w⁻_i > bm_i+1e-6} ∪ {i∉funding_t ∧ mega ∧ w⁻_i < bm_i−1e-6} ∪ {i∈funding_t ∧ w⁻_i > bm_i+1e-6}; forced_L1_t = Σ_{F_t}|w⁻_i−bm_i|(one-way), share_t = forced_L1_t / (½‖w⁺−w⁻‖₁), n_forced_t, whipsaw_t = F_t 중 다음 1~2 리밸에서 같은 방향 액티브로 재진입한 비율, max forced_L1 vs 0.15 헤드룸. P1~P3(리플레이, ANGLE-01 과 같은 루프): E0 재현 후 project_portfolio_weights 본체를 복제해 F_t 종목의 게이트 경계만 max/min(bm, cand) 로 치환한 제약 리스트로 재해(+ _enforce_name_risk_share_cap 을 동일 인자로 호출해 캡 재해가 치환 제약을 상속) → w_cf; gain_t=(w_cf−w_0)·fwdex21_t, dTO_t, dev_t=½‖w_cf−w_0‖₁, dα_t=μ·(w_cf−w_0)(음 기대), dTE_t, μ≤0 OW 잔존 비중 Σ_{μ≤0}max(w_cf−bm,0); 집계는 ANGLE-01 과 동일 정의.",
+      "gate": "P0: median forced_L1 ≥ 0.005(§S13.41·§S13.48-B·§S13.49 가 공유한 '실질 L1' 바 — 독립 유도) 미달 = 강제거래가 미미(MVO 가 이미 점진 청산) → SHELVE. E0: §S13.50 바(median ≤1e-6, 90% ≤1e-5). P1: Σgain > 0 AND 3분할 3/3 양. P2: net = gain/yr + 12·mean(−dTO)·0.001 − 0.033·mean(dev) ≥ +0.0010/yr. P3(캐릭터, §2.5): 전 solve optimal·폴백 0, Pictet active share 드리프트 ±3%p, ex-ante TE 캡 내(구조상 보장·확인), μ≤0 OW 잔존 비중 합 중앙값 ≤ 0.01(게이트 의도 보존), max forced_L1 헤드룸 개선 병기. P0∧P1∧P2∧P3 → arm 사전등록 상신.",
+      "expected_if_true": "median forced_L1 0.01~0.02(one-way turnover 0.03 의 30~60%), n_forced 중앙 2~4, whipsaw ≥ 25%; gain 이 레짐 전환·반등일(2020-03/04·2022-03/12·2025-04)에 집중, dTO 중앙값 −0.005~−0.02(turnover 감소·TC 절감), net ≥ +0.10%/yr, dα 음(ex-ante)이나 실현 양.",
+      "expected_if_false": "median forced_L1 < 0.005(게이트 청산이 드물거나 이미 작게 쪼개져 있음 — 타깃이 μ 하락을 따라 미리 줄여 놓음) 또는 Σgain 음·비일관(μ≤0 종목은 실제로 이후 언더퍼폼 → 즉시 청산이 옳음).",
+      "cost": "백테스트 0. P0 ≈1분(pkl+bm 재구성). P1~P3 리밸당 투영 1회 추가(+캡 재해) ≈ 8~12분 — ANGLE-01 과 같은 스크립트·같은 루프에서 동시 산출 권장(합계 ≈15~20분)."
+     },
+     "adoption_basis": "ir_bar",
+     "risks": "캐릭터: μ≤0 종목 OW 가 1 리밸 더 잔존 → score gate 의도 약화(§2.5, P3 로 계량) 및 ex-ante α 감소 확정(μ<0 보유); 급락 레짐(2020-03·2022)에서 느린 청산이 손실을 키울 수 있음 → P1 3분할 게이트; mega UW 복구 지연은 bm 대비 −10% UW 를 1 리밸 더 유지(TE 기여↑, 캡 내); 대안 프레임: §S16.7 식 리스크 규율(G1 = 강제 L1 헤드룸 개선, ΔIR > −0.36)도 가능하나 ex-ante α 가 줄어드는 개입이라 ir_bar 로 등록; 경로 의존 동일 한계; DSR 471→472.",
+     "effort": "M",
+     "self_priority": 2,
+     "confidence": 0.35
+    },
+    {
+     "id": "ANGLE-03",
+     "title": "투영 infeasible 폴백을 bm 점프에서 prev(무거래)로 — 기존 스위치 `projection_fallback_mode: prev` 활성화(T-07 휴면 경로 봉쇄, 현 97/97 바이트 불변)",
+     "axis": "실행",
+     "mechanism": "채널: risk(꼬리) — IR 불변. 감사 팩 meta 실측 optimizer_failure_rate 0.0·fallback_reason_counts {} (97/97) 이므로 flip 은 역사 수치를 1비트도 바꾸지 않는다. 미래 발동 조건(W1 T-07 확정): 게이트 강제 L1 > max_single_turnover 0.15 → MVO·투영 동시 infeasible → 현행은 new_weights = bm(액티브 21BD 소멸 + TC ‖bm−prev‖₁×10bp ≈ 35~45bp, 캡 3배 위반 — 불변식 5 위반). 'prev' 는 무거래 유지 = turnover 캡을 확실히 만족하는 유일한 해. 2020-04-08 turnover 0.1483(캡 99%)이 근접 사례.",
+     "prior_evidence": "W1 T-07/F3-02(확정, dormant_path): backtest.py:1647~1650 분기·portfolio_optimizer.py:862~865 bm.copy; config.py:1311 `projection_fallback_mode` (2026-07-02 구조 리뷰 도입, default 'target', production 미검토); 감사 팩 meta.json optimizer_failure_rate 0.0·optimizer_fallback_reason_counts {}; §S13.49(레짐 전환일 10~29 종목 강제 차단 → 강제 L1 급증 조건).",
+     "why_not_closed": "스위치는 존재하나 production 검토·사전등록 0건; 발동 이력 0 이라 바이트 동일 flip 이 가능하고(§8 체크리스트만) DSR 비계수. ANGLE-02 가 채택되면 강제 L1 이 줄어 발동 확률도 낮아지지만 봉쇄 자체는 독립.",
+     "single_parameter": "`projection_fallback_mode: prev`(기존 config, 허용값 {'target','prev'}). 원리: infeasible 의 유일 원천이 turnover 캡(F3 coverage 분석)이므로 '거래 0' 만이 캡을 반드시 만족한다; bm 점프는 캡 위반+액티브 소멸. T-07 대안(2) '강제거래만 실행·나머지 prev' 가 더 정합하나 신규 코드라 2차.",
+     "precheck": {
+      "data_source": "최신 production pkl 속성 optimizer_failure_rate·optimizer_fallback_reason_counts·optimizer_failures(metrics.json 에는 부재 — T-02, pkl 로 확인); ANGLE-02 P0 의 forced_L1_t 분포; 합성 단위테스트.",
+      "computation": "(i) pkl 속성 3종이 전부 0/{} 인지 확인 → 97 리밸 전부 `used_fallback=False` 경로 → ON/OFF 동일(분기 backtest.py:1647 은 폴백 시에만 의미). (ii) 합성 6종 케이스: prev 가 bm 에서 L1 0.4 떨어지고 μ 전종목 ≤0(강제 L1 0.2 > 0.15) → OFF: 반환=bm·turnover ≈0.4 / ON: 반환=prev·turnover 0 을 tests/ 에 고정. (iii) forced_L1 헤드룸: max_t forced_L1_t, forced_L1_t > 0.12 회수, 2020-04-08 값.",
+      "gate": "(i) 0/97 확정 AND (ii) 테스트 PASS → 산출물 불변 governance flip 상신(§8 체크리스트: variant 1줄+핀 테스트 allowlist+결정 로그). (i) 에서 fallback > 0 이면 해당 리밸의 §2.5 재판정이 선행되어야 하며 flip 은 페어드 재인증(24분 백테스트 1회) 후.",
+      "expected_if_true": "0/97·parity 동일·max forced_L1 ≈ 0.10~0.15(헤드룸 얇음 → 봉쇄 가치 실재).",
+      "expected_if_false": "과거 fallback > 0 (T-02 사각으로 미보고되었을 가능성) → 해당 절 재판정 트랙으로 이관.",
+      "cost": "백테스트 0. pkl 속성 확인 + 테스트 작성 ≈ 10분."
+     },
+     "adoption_basis": "governance",
+     "risks": "prev 유지도 게이트 위반 상태(μ≤0 OW·mega 핀 미이행)를 21BD 연장 — 단 bm 점프보다 불변식 5 에 부합; 다음 리밸에서 강제 L1 이 여전히 >0.15 면 반복 무거래(교착) 가능 → 발동 시 WARNING·ops 게이트 항목 추가 권고(T-05/T-02 계열 계측 보강과 함께); 산출물 불변이라 DSR 비계수.",
+     "effort": "S",
+     "self_priority": 3,
+     "confidence": 0.7
+    },
+    {
+     "id": "ANGLE-04",
+     "title": "종목별 √-law 유동성 비용으로 손익분기 AUM 산출 — 균일 10bp 가정의 유효 범위(capacity 게이트 진단, IR 후보 아님; T2-8)",
+     "axis": "실행",
+     "mechanism": "채널: 없음(거버넌스 진단, IR 불변). 현 TC 모델은 편도 10bp 균일·AUM 무관(one_way_tc, backtest.py:1716). §S12.6: 비율 비용 50bp 에서도 ΔIR −0.08 이라 '비율' 민감도는 낮지만, 시장충격은 √(거래액/ADV) 로 AUM 에 비례 증가하므로 유효 범위가 미정이다. 리밸당 종목별 |Δw_i|(pkl)와 ADV_usd_i(PX_VOLUME×PX_LAST×FX, 직전 252d median), σ_i(21d 일변동성)로 c_i(AUM) = Y·σ_i·√(AUM·|Δw_i|/ADV_i) 를 계산해 AUM_10bp(가중 평균 비용이 10bp 를 넘는 AUM)와 AUM_1SE(연 비용 = 0.36×TE ≈ 1.33%/yr = IR 1 SE 에 해당하는 AUM)를 보고한다. §S13.12 의 '비용 7bp 무시 가능' 전제가 성립하는 AUM 상한을 처음으로 계량.",
+     "prior_evidence": "§S12.6(1621~1651: 10/25/50bp 해석적 재계산, ΔIR −0.03/−0.08), §S13.26 사전점검(3543~3548: 연 TC 6.9bp·손익분기 ΔIR +0.019), §S16 리뷰 T2-8('성과 후보가 아니라 capacity 게이트'), §S13.35(PX_VOLUME·Amihud 배선 이력 — 시트 존재 확인), 감사 팩 turnover.csv(리밸당 two-way 중앙 0.059, max 0.15).",
+     "why_not_closed": "T2-8 미실행; §S12.6 은 AUM 무관 비율 비용만 스윕. 데이터(PX_VOLUME·PX_LAST·FX) 전부 워크북에 있어 즉시 계산 가능.",
+     "single_parameter": "Y = 1.0(√-law 계수; Grinold–Kahn·Almgren 계열 실증 범위 0.5~1.0 의 보수 상단 — 진단이므로 보수값 1개 고정, 스윕 금지). AUM 은 파라미터가 아니라 출력(손익분기 값)이며, 곡선 표기용 대수 격자는 선택이 아니라 보고 형식.",
+     "precheck": {
+      "data_source": "최신 production pkl portfolio_weights·daily_weights(w⁻ 재구성) + 워크북 PX_VOLUME·PX_LAST(배당조정 — 직전 252d 창에서는 영향 무시 가능, M1 참조)·CUR_MKT_CAP + Index.xlsx FX(USD 환산).",
+      "computation": "리밸 97 × 250: |Δw_i,t| = |w⁺−w⁻|; ADV_i,t = median_252(PX_VOLUME×PX_LAST)×FX_t; σ_i,t = std_21(raw_returns); cost_t(AUM) = Σ_i |Δw_i|·Y·σ_i·√(AUM·|Δw_i|/ADV_i); 연환산 drag(AUM) = Σ_t cost_t / years; AUM_10bp = drag(AUM)/turnover_two_way = 0.0010 인 해, AUM_1SE = drag(AUM) = 0.36×TE(0.0371) 인 해(단조라 이분법); 집중도: 비용 상위 10종 점유·비US(KR/JP/EU)·소형(BE·285A·SNDK 계열) 몫.",
+      "gate": "report-only: AUM_10bp·AUM_1SE 를 결정 로그 capacity 항목으로 기록. 후속 트리거: 사용자 운용 예정 AUM ≥ AUM_10bp 이면 균일 10bp 가정 갱신을 '정확성' 트랙 사전등록(one_way_tc 는 P&L 차감 전용이라 가중치 불변·해석적 재계산 가능, §S12.6 방식)으로 진행.",
+      "expected_if_true": "대형주 250 이라 AUM_10bp ≥ 수십억 USD·AUM_1SE ≥ 백억 USD — 현 가정 유효 범위 넓음.",
+      "expected_if_false": "비용이 소수 저유동 종목(SPAC/IPO·KR/JP 중형)에 집중되어 AUM_10bp 가 10억 USD 미만 — 종목별 비용 모델 갱신 필요(정확성 트랙).",
+      "cost": "백테스트 0. 워크북 1회 로드 + 벡터 연산 ≈ 3~5분."
+     },
+     "adoption_basis": "governance",
+     "risks": "PX_LAST 배당조정(M1)으로 과거 ADV_usd 소폭 과소(최근 창은 무시 가능); AUM 은 외생 입력; √-law 는 소액·단일 리밸 가정(21BD 분할 집행이면 비용 과대) — 보수 상단 보고로 일관; IR 개선 후보가 아니므로 우선순위 최하.",
+     "effort": "S",
+     "self_priority": 4,
+     "confidence": 0.6
+    }
+   ],
+   "rejected_on_own_review": [
+    "(a) 신호 변화량 비례 적응 eta: §S13.45-A 가 '예측 안정성(rank_stab)'을 confidence 입력으로 검정해 P0 t 1.06·P1(trailing IC 통제) t 0.91 로 SHELVE — 조건부 eta 가 필요로 하는 'eta-이득 예측자'가 부재; §S7.A3(trailing-IC 시변 α) 도 레짐 셔플만(P2 −0.43); §S13.11 은 균일 eta↑ 손실. 예측 21d 랭크 자기상관 ~0.9·일간 0.995 라 '큰 변화일' 자체가 희소.",
+    "(b) no-trade band 수준·형태 변경: 종목 액티브 한도가 균일 0.04 라 '한도 비례' ≡ 절대값; 수준 변경은 REDESIGN O-d(0.007 → P3 붕괴·롤백) 선례와 스윕 위험; band 의 실질 변동(0.003→0.015)은 confidence 스케일링에서 나오므로 ANGLE-01 이 흡수(진단으로 band 억제 L1 몫 병기).",
+    "(c) turnover 캡 0.15·penalty 0.03 이중 제약 정리: 캡은 97 리밸 중 1회(2020-04-08 = 0.150)만 바인딩, penalty 는 §S16.5-P 갭₂ +0.024%(하드 제약만의 등리스크 프런티어 대비)로 inert 실증 → 제거는 no-op, 캡 하향은 스윕이며 T-07 경로를 오히려 넓힘.",
+    "(d) 리밸 21BD 유지 + 중간 부분 리밸 트리거: §S13.40 D3(10일차 신선 스코어 IC 이득 +0.004·paired t 0.88·3분할 비일관, rank corr 0.915)로 수확할 정보 부재, §S13.26 사전점검(IC 가 지평에 단조 증가 = 느린 알파)와 §S13.12 캐리 채널로 비용만 확정; 이벤트 트리거형은 PEAD 오버레이(이미 ON) 영역.",
+    "리트레인 경계 스코어 점프 평활(`signal_stability_lambda` 기존 인프라): 감사 팩 실측 — 신선 재훈련 직후 첫 리밸 turnover 0.0543 vs 그 외 0.0582(Welch t −0.64), 재사용 모델 경계와도 차이 없음 → 전제(경계 turnover 스파이크) 자체가 없음; §S16.3 도 모델 신선도의 IR 가치 0.",
+    "eta 수준 변경(GP 유도 0.35 등 또는 0.65): §S13.11(1.0: −0.22·서브 전부 음)·iter17(0.65 롤백 재현)로 상향 종결; Garleanu–Pedersen 폐형식은 2차 거래비용·리스크 페널티 전제(현 TC 선형·λ inert)라 원리 값 도출 불가; 하향값은 스윕이며 1-step 리플레이로 경로 의존을 잴 수 없음.",
+    "confidence 역방향(contrarian, 낮은 trailing IC 일수록 더 거래): t −1.58·반분 부호 비일관(−0.32/+0.11)이라 데이터마이닝 — ANGLE-01 은 '무정보' 주장에 한정하고 제거만 제안.",
+    "ic_score 상수(0.04·+0.01) 재보정: 값 선택이 스윕(§S7.A2 spread_scale 재보정도 노이즈 결과) — 채널 제거(자유 파라미터 0)가 원리적.",
+    "리밸 주기 42BD: §S13.40 D2(스코어 IC 전반10일 0.0695 vs 후반 0.0288)의 빠른 성분을 포기하고 라벨 지평 20·eta·TE 캘리브레이션 전제가 깨져 베이스라인 포크.",
+    "투영 목적함수에 L1 turnover 항 추가(원리적 dead-zone): μ 없는 L2 투영에서 λ 스케일 근거 부재(§S11.5 λ 스케일 불일치 선례) 및 §S13.50 투영 계량 축 종결.",
+    "미국 휴장일 리밸 행 이월(T-09, 4/97): W1 정확성 트랙 소관(실행 정책이 아니라 캘린더 정합), 예상 |ΔIR| 미미."
+   ]
+  },
+  "screened": {
+   "angle_id": "G2_execution_path",
+   "screened": [
+    {
+     "id": "ANGLE-01",
+     "title": "동적 실행(REDESIGN K) trailing-IC 신뢰도 채널 정적화 — eta 0.5·no-trade band 0.003 고정",
+     "verdict": "proceed_to_precheck",
+     "decision_log_hits": "§S7.A2 L316~357: spread 채널 상시 포화 실측·재보정 arm ΔIR +0.0022 노이즈·turnover −3.7%p, 'ic_score 상수 재보정은 별도 arm'으로 이관(L357·L509) — 채널 '제거'는 미시도. 65종 시절 conf 분포 min 0.2/median 1.0/mean 0.75·eta mean 0.42(L345) → 채널은 65종 시절에도 약 1/4 리밸에서 활성이었음(후보의 '65종 시절 inert' 서술은 과장). §S13.11 L2476~2577: eta 0.5→1.0 균일 상향 ΔIR −0.22·turnover ×1.57·avg_ic 불변(순수 집행 노브), iter17 0.65 롤백 정당 — '상향' 종결이지 채널 입력 검정 아님. §S13.45-A L5348~5366·L5444 + outputs/s13_45a_meta_gate/summary.json: P1 회귀 fwd_ic ~ trailing_ic6 + rank_stab에서 trailing_ic6 계수 −0.19·t −0.53(n 95, 08-19 pkl) — 채널 입력의 무예측성이 이미 부산물로 관측됨(후보 P0와 독립 정의로 정합). §S16.5-P L8138~8161: 갭₁ +33.3%(38일) '전부 실행 경로(eta 0.5·no-trade band) 드래그', '실행 경로(eta) 축은 §S13.40 이후 미개척 — 재도전 시 새 사전등록 필요' 명시 개방. §S13.50 L6403~6470: E0 PASS(median L1 1.1e-09) 오프라인 리플레이 자산 + P1/P2/P3 바(3분할·+0.0010/yr·dTO)의 FAIL 선례. L261: 'IC는 진단 전용' 정정 — trailing IC→confidence→eta 경로로 가중치에 피드백(REDESIGN K) 확인. → 동일 기전(채널 무정보 → 정적화) 종결 절 없음.",
+     "invariant_check": "단일 플래그(값 자유도 0, config.py:1201~1208 주석의 pre-REDESIGN K 정적 설계 복원) OK; 스윕 없음 OK(ic 상수 재보정 대안을 스윕으로 배제한 판단 타당); OFF-default+parity는 conf 대체만이라 자연 성립 OK; 룩어헤드 0(성숙 IC·lag 동일) OK; 사전점검 백테스트 0 OK. 캐릭터: turnover 1.22×(후보) — 내 조야 재계산(리밸별 eta 비례 스케일링)은 1.30×로 1.25× 경계 초과 가능 → P3로 반드시 계량; TE 소폭↑·active share 불변 예상, 붕괴 방향 아님. 결함 2건: (1) P0는 이미 감사 팩으로 계산된 '사전 관측' → §S13.48 '사전 관측 기록(정직 고지)' 형식으로 등록하고 게이트가 아닌 동기 기록으로 격하해야 함. (2) adoption_basis 'accuracy' 불인정 — 채널은 docstring대로 작동(최근 IC 낮으면 덜 거래)하며 'trailing IC가 다음 IC를 예측하는가'는 경험 가설이지 단위 오류(S16.1 GBp/GBP 동형)가 아님, 65종 시절도 활성이었음. 정직한 프레임 = §S16.7식 설계 정합/do-no-harm(G1 기전 + G2 무손상 + ΔIR > −0.36 & 3분할) 또는 §S13.48 오버라이드 정책 — 측정 전 사용자 비준 필수.",
+     "precheck_feasibility": "감사 팩 w3/pack/ic_series.csv(96)·turnover.csv(97) 존재 — P0 재계산 완료(내 재현): Pearson −0.163(p 0.117)·Spearman −0.088(p 0.40)·NW(lag1) t −1.52(수동 HAC, statsmodels 파손)·반분 −0.32/+0.11·바닥 32%/중간 24%/포화 44%·corr(turnover,eta) +0.64·바닥 turnover 0.035 vs 포화 0.069·바닥 IC 0.037 vs 포화 0.012(Welch t 0.70, p 0.48)·3분할 바닥>포화 2/3·IC lag1 자기상관 −0.14·연 two-way turnover 0.682 — 후보 수치 재현(t −1.58→−1.52, t 0.86→0.70 소차). pkl: outputs/codex_causal_rank_65/backtest_result.pkl(09-01 16:17)·outputs/s16_7_name_risk_cap(09-01 10:02) 존재, 속성 daily_weights/portfolio_weights/raw_predictions/ic_series/optimizer_failure_rate 확인(backtest.py:808~833). 리플레이 골격 scripts/precheck_s13_50_alpha_weighted_projection.py가 _drift_weights·compute_signal_confidence·apply_dynamic_execution·optimize_portfolio·estimate_covariance·optvol 대각·fwdex21·3분할·빈티지 3중 가드를 전부 보유 — conf→1.0 치환 1줄이면 P1~P3 산출(≈10~15분, 백테스트 0). 게이트 실효성: P1(3분할 3/3)·P2(net ≥ +0.0010/yr)·P3(dTO·폴백 0·AS ±3%p)는 §S13.50에서 실제 FAIL을 낸 바 → 탈락 가능(p-hacking 아님). 한계: 1-step 리플레이는 eta 변경의 경로 누적 효과를 못 잡음(후보 인정); 09-02 11:15~11:30 리프레시 창 회피·빈티지 쌍 확인 필수.",
+     "corrected_priority": 2,
+     "expected_value_note": "실행층 선례 = §S7.A2 +0.002(채널 활성화 무효과)·§S13.11 −0.22(turnover ×1.57)·§S13.50 +0.028%/yr·§S13.26/§S13.40 부정·iter17 롤백 — IR 레버리지가 낮은 축. 방향이 '더 거래'(turnover +22~30%)라 §S13.11 부호와 반대 위험; 회수 가능 상금 = 바닥/중간일(56%)의 억제분만(§S16.5-P 갭₁ 33%의 일부). 기대 ΔIR ≈ 0 ± 0.1, E1 형식 바(+0.36) 도달 확률 ≈ 0 → 채택은 사용자 사전 비준 프레임에서만. 비용: 사전점검 백테스트 0·인벤토리 0, arm 시 +1(471→472). 순위 근거: 사전점검이 싸고(ANGLE-02와 동일 루프) 채널 무정보성이 이미 2개 독립 정의(감사 팩·s13_45a)로 확인돼 구조 지식 가치가 있음.",
+     "reason": "동일 기전 종결 없음(§S16.5-P가 축을 명시 개방). 불변식 위반 없음. 사전점검 데이터·골격 전부 존재하고 P1~P3는 실제 탈락 가능한 게이트. 단 'accuracy' 채택 프레임은 부정 — do-no-harm/설계 정합 프레임을 측정 전 사용자 비준으로 등록하고, P0 사전 관측을 정직 고지할 것. 실행층 IR 기대치가 낮아 1이 아닌 2."
+    },
+    {
+     "id": "ANGLE-02",
+     "title": "게이트 강제거래(score gate w≤bm·mega funding 핀)의 투영 재적용 해제 — 강제 청산·복구도 eta로 평활",
+     "verdict": "proceed_to_precheck",
+     "decision_log_hits": "§S13.48-C L5914~5941·L6035~6080: mega funding top-k 절단 inert(k=4=mega 수), '실제 flip 구동원은 μ 절대 임계 0.0 가로지르기'(리밸 70%), flip |δ| 중앙값 0.000158(비flip 0.0000786)·flip 귀속 회전 점유 3.9% — mega 채널 상금 미미 실증; 후속 리드는 200종 전체 score-gate로 이관, '이 절 수치로 바 정하지 말 것'. §S13.49 L6145~6307: score-gate 절대 0.0→분위수 전제 검정 SHELVE·축 종결(G1 재-MVO L1 중앙값 0.00000, 간헐 바인딩 — 2020-03/2022-03·12/2025-04/2026-03에만 10~29종목), 진단: 게이트 대상 105·OW 28·경계 핀 6.4%, '재도전은 |L1|≥τ 빈도 통계로 새 사전등록, 단 이 절 수치로 바 유도 금지'. §S13.50 L6403~6571: 투영 계량 축 종결·변위 80% 제약 강제·'재도전은 제약 집합 자체를 바꾸는 새 사전등록(리스크 캐릭터 변경이라 §2.5 대상)' — 본 후보가 그 구체형. §S13.11 L2522~2577: 느린 알파에서 집행 가속은 순비용 — 강제거래(eta=1)를 eta 0.5로 늦추는 방향과 정합. §S13.12/§S13.13 L2577~2718: 캐리 손실 ∝ 북 괴리 3.3%/yr per L1/2 — P2 비용 계수 출처. §S16.7 L7897~7990: _enforce_name_risk_share_cap이 constraints 리스트를 인자로 받아 치환 제약 상속 가능. → 게이트 '임계'와 투영 '계량'은 종결됐으나 게이트 강제거래의 '집행 속도(투영 재적용)'는 어느 절에서도 미측정 — closed_axis 아님.",
+     "invariant_check": "단일 플래그(신규 수치 0, eta 재사용) OK; 스윕 없음 OK; OFF-default parity: 강제거래 없는 리밸에서 동일 → parity 단위테스트 가능 OK; 룩어헤드 0 OK; 백테스트 0 OK. 캐릭터 변경 인정: score gate 의도(μ≤0 OW 금지) 약화·ex-ante α 감소·μ≤0 OW 잔존 — §2.5 대상이며 후보가 P3로 계량(적절). 코드 검증: 게이트(portfolio_optimizer.py:428~435)·mega 핀(:395~405, :423~424)은 _build_mvo_constraints에서 MVO·투영이 공유 → 투영이 게이트를 재적용해 candidate(prev+0.5·Δ)를 bm까지 추가 청산하는 기전 실재 확인. 단 후보 서술 '(prev−bm) 전액 최대 4%가 한 리밸에 청산'은 타깃+투영 합산이고 투영 귀속분은 eta 후 잔여(최대 2%)로 절반 — 규모 과장. no-trade band(바닥일 0.015)와 결합하면 기하 청산이 ~1% OW에서 정체할 수 있어 P3 'μ≤0 OW 잔존 합 ≤ 0.01' 실패 위험.",
+     "precheck_feasibility": "데이터: pkl 속성(daily_weights·portfolio_weights·predictions·raw_predictions) + bm(get_benchmark_fn, 워크북 CUR_MKT_CAP) + raw_returns·returns_masked — s13_50 골격이 전부 로드. P0(forced_L1)는 재해 없이 ≈1분. P1~P3: _build_mvo_constraints가 442줄(portfolio_optimizer.py:315~757)이라 복제·치환은 후보 'M' 추정보다 무겁고 E0 재현 위험 — 대안은 투영 호출 시 F_t 종목의 μ만 부호 마스킹(+ε/−ε)해 게이트·funding 판정을 우회(투영에서 μ는 invalid_alpha·게이트·funding에만 쓰임), E0 가드로 검증. 게이트 실효성: P1~P3는 §S13.50에서 실제 FAIL 전례 → 탈락 가능. 그러나 P0 'median forced_L1 ≥ 0.005'는 §S13.49 G1과 같은 간헐성 함정 — OW 28종·21d 랭크 자기상관 0.915라 OW→μ≤0 교차는 레짐 전환기 집중, mega flip |δ| 0.000158은 이미 미미 → 중앙값 0 근처로 P0 SHELVE가 최빈 기대. 이 경우 §S13.49 규칙상 빈도 통계로의 사후 전환 금지이므로, 이론 유도 통계(예: forced one-way L1의 turnover 점유 평균 ≥ 10%)를 측정 전에 병기 등록해야 함. F_t의 1e-6 임계는 드리프트 노이즈 포함 — 0.005 등 액티브 임계 분리 권고.",
+     "corrected_priority": 3,
+     "expected_value_note": "방향(덜·느리게 거래)은 §S13.11·iter17·§S13.26·§S13.40의 일관 교훈과 정합 — 실행층 후보 중 유일하게 '비용 절감' 부호. 그러나 상금 상한 = 강제거래의 whipsaw 몫(mega 3.9%는 실증 미미, score-gate 몫 미측정)·TC 절감은 ΔTO×10bp(§S13.50 산술: 리밸당 L1 0.001 ≈ 0.1bp/yr — 사실상 0)·캐리 보존 채널은 §S13.12 진단 수준. μ≤0 보유 연장의 ex-ante α 손실은 확정. 기대 ΔIR ≈ 0 ± 0.1, E1 바 도달 확률 ≈ 0, §2.5 캐릭터 게이트 추가 부담. ANGLE-01과 같은 루프에서 한계비용 ≈5~10분이라 P0만이라도 동반 산출 가치 있음(P0 FAIL이면 그 자리에서 종결·인벤토리 불변).",
+     "reason": "§S13.50 종결문이 요구한 '제약 집합 변경' 재도전의 구체형이고 기전(투영의 게이트 재적용 = 북 유일 eta=1 거래)은 코드로 확인됨. 불변식 위반 없음. 단 P0가 간헐성으로 죽을 확률이 높고 상금 상한이 작으며 ex-ante α 감소가 확정적이라 3. ANGLE-01 루프에 P0를 동반 산출하고, P0 PASS 시에만 P1~P3 진행."
+    },
+    {
+     "id": "ANGLE-03",
+     "title": "투영 infeasible 폴백을 bm 점프에서 prev(무거래)로 — 기존 스위치 projection_fallback_mode: prev 활성화",
+     "verdict": "proceed_needs_data",
+     "decision_log_hits": "'projection_fallback_mode' 문자열 결정 로그 0건(grep) — 2026-07-02 구조 리뷰 7건(L222~223 '#1~#7 default 바이트동일 parity 증명')의 일부로 config에만 존재, §8 검토·사전등록 이력 없음(후보 서술 정합). L223·L534: 65종 시절 fallback 6/94(mvo:infeasible 6)·arm 7/94 — infeasible 경로가 역사적으로 실제 발동한 기록(후보의 'dormant'는 250종 이후에 한정 정확); L356 'optimizer TE-relax fallback 5/94'. L6616(08-19 운영 점검): 'optimizer_failure_rate 5.15%(194 solve 전부 ECOS, fallback 0)' — 정의 불일치 의심(T-02 계열), 09-01 감사 팩 meta.json은 optimizer_failure_rate 0.0·optimizer_fallback_reason_counts {}(내가 확인). §S16.7 L7910: name-risk 캡 재해 'stall 시 마지막 유효 iterate 유지(bm 폴백 절대 금지)' — bm 점프 금지 원칙의 선례. §S13.49 L6263~6290: 레짐 전환일 10~29종목 게이트 바인딩 — 강제 L1 급증 조건 실재. 후보가 인용한 'W1 T-07/F3-02'는 결정 로그·레지스트리(S16 보고서)에 부재 — 검증 불가 인용이나, 코드 경로(backtest.py:1647~1650 분기, portfolio_optimizer.py:843/851/866 bm.copy, 투영 fallback=target_weights)는 직접 확인해 기전 서술은 정확.",
+     "invariant_check": "기존 config 허용값 {'target','prev'} 중 1개 선택 — 스윕 아님 OK; 산출물 바이트 불변(0/97) → parity·DSR 비계수 OK; 캐릭터: 발동 시 오히려 §2.5 보호 방향. 결함: 'prev'의 교착 위험 미분석 — infeasible 원인(강제 L1 > max_single_turnover 0.15)이 다음 리밸에도 지속되면 무거래 반복·TE 캡/게이트 위반 상태 연장, 반면 bm 점프는 다음 리밸이 반드시 feasible(w=bm은 turnover 외 전 제약 만족). 두 정책 모두 결함이 있고 'prev' 우월의 근거는 후보 논증뿐. 게이트 (i)(ii)는 탈락 불가능(0/97은 meta.json으로 이미 확정, 합성 테스트는 설계상 PASS) — 연구 사전점검이 아니라 거버넌스 결정 항목.",
+     "precheck_feasibility": "pkl 속성 optimizer_failure_rate·optimizer_fallback_reason_counts·optimizer_failures 존재(backtest.py:826~833, 1779~1791) — 09-01 감사 팩에서 0/97·{} 확인 완료. tests/acceptance/test_execution_structural_fixes.py에 (C-2a/b) config 검증 테스트 존재, 분기 실행 테스트 여부는 docstring 언급만. 봉쇄 가치의 정량화(max forced_L1 vs 0.15 헤드룸, >0.12 회수, 2020-04-08 값)는 ANGLE-02 P0 산출물에 의존 — 이 데이터 없이는 발동 확률을 말할 수 없음. 플립 시 §8 체크리스트(variant 1줄·acceptance allowlist·핀 테스트·결정 로그) 적용, 백테스트 0.",
+     "corrected_priority": 4,
+     "expected_value_note": "IR 기대 0(역사 불변). 가치 = 라이브 꼬리 사고 1회 회피(bm 점프 ≈ TC 35~45bp + 액티브 21BD 소멸) × 발동 확률(250종 이후 0/97, 65종 시절 6/94). 비용 ≈10분·인벤토리 0. 그러나 정책 선택('prev' vs 'target' vs T-07 대안 2 '강제거래만 캡 내 집행') 자체가 미검증이라, ANGLE-02 P0의 forced_L1 헤드룸 분포 + 교착 시나리오(연속 infeasible 시 'prev'가 몇 리밸 갇히는지) 분석 후 사용자 결정 안건으로 상신하는 것이 맞음.",
+     "reason": "코드 기전은 정확하고 바이트 불변 governance flip이 가능하나, 게이트가 비반증적이고 'prev' 정책의 교착 부작용이 미분석. 필요 데이터(강제 L1 헤드룸)는 ANGLE-02 P0에서 무료로 나오므로 그 뒤 거버넌스 안건으로 승격."
+    },
+    {
+     "id": "ANGLE-04",
+     "title": "종목별 √-law 유동성 비용으로 손익분기 AUM 산출 — 균일 10bp 가정의 유효 범위(capacity 진단, T2-8)",
+     "verdict": "reject_weak",
+     "decision_log_hits": "§S12.6 L1621~1651: 비율 비용 10/25/50bp 해석적 재계산 ΔIR −0.03/−0.08, '스프레드·임팩트의 비선형 비용은 범위 외(데이터 부재) — 모델링 필요 시 별도 설계'. §S13.26 L3543~3548: 연 TC 6.9bp·손익분기 ΔIR +0.019 — 비용 비병목. §S13.35 L4462~4509: PX_VOLUME 200/200 배선·amihud/share_turnover 피처(arm E1 FAIL), CUR_MKT_CAP 백만 단위 주의; §S14.1 L6719~6764: 250 재생성 56시트 — PX_VOLUME은 data_loader.py CALENDAR_EXEMPT_SHEETS·BLOOMBERG_EQUITY_SHEETS 등록(로드 가능). S16 보고서 T2-8: '성과 후보가 아니라 capacity 게이트, k 1값' — 결정 로그에 T2-8·AUM·capacity·√-law 등재 0건(미시도 맞음). M1 리드(PX_LAST 총수익 조정): 과거 ADV_usd 과소.",
+     "invariant_check": "스윕 없음(Y=1.0 고정)이나 AUM_10bp ∝ 1/Y²라 실증 범위 Y∈[0.5,1.0]만으로 4배 폭 — 출력이 자릿수 진단에 그침; IR·가중치 불변이라 §2 불변식 무관; 백테스트 0 OK. 게이트 없음(report-only) — 후보를 탈락시킬 수도 채택시킬 수도 없고, 후속 트리거(사용자 AUM ≥ AUM_10bp)는 외생 입력 부재로 현재 결정 불가.",
+     "precheck_feasibility": "계산 자체는 가능(pkl daily/portfolio_weights + 워크북 PX_VOLUME·PX_LAST·CUR_MKT_CAP + Index.xlsx FX, ≈5분). 그러나 결정에 연결되지 않음: one_way_tc는 P&L 차감 전용(backtest.py:1716, 가중치 불변)이라 결과가 나와도 §S12.6 방식 해석적 재계산 이상의 액션이 없고, 스프레드 데이터 부재(§S12.6)로 T2-8 원형(spread/2 + k·σ·√참여율)도 불완전. '항상 통과하는 게이트'의 극단형 = 게이트 부재.",
+     "corrected_priority": 5,
+     "expected_value_note": "IR 기대 0(후보 자인). 거버넌스 가치는 사용자 운용 AUM이 주어질 때만 발생 — 그때 'AUM_target ≥ AUM_10bp → 비용 모델 정확성 트랙(§S12.6 방식)' 게이트가 결정 가능해지므로 1회성 ops 진단으로 되살릴 것. 현 시점 실행은 인벤토리 0이나 결정 로그에 결정 불가 수치만 추가.",
+     "reason": "개선 후보가 아니고 게이트가 없으며 외생 입력(AUM) 없이는 어떤 결정도 유도하지 못함. 사용자가 운용 AUM을 제시하면 그때 5분 진단으로 재개."
+    }
+   ],
+   "screen_notes": "G2(실행 경로) 각도 총평: 실행층은 이 프로젝트에서 IR 레버리지가 가장 낮게 실증된 축(§S7.A2 +0.002·§S13.11 −0.22·§S13.50 +0.028%/yr·§S13.26/40 부정). 4건 중 E1 형식 바(+0.36)에 도달할 후보는 없고, 채택 가능 경로는 사용자 사전 비준 프레임(§S16.7 do-no-harm/리스크 규율 또는 §S13.48 오버라이드 정책)뿐이므로 측정 전에 프레임을 비준받아야 함. 권고 실행: ANGLE-01·ANGLE-02를 scripts/precheck_s13_50 골격 하나의 리플레이 루프(97 리밸, E0 가드, 빈티지 3중 가드)에서 동시 산출 — 합계 ≈15~20분·백테스트 0·인벤토리 0; ANGLE-02는 P0(≈1분)를 먼저 보고 PASS일 때만 P1~P3 재해. ANGLE-03은 ANGLE-02 P0의 forced_L1 헤드룸을 받은 뒤 교착 분석과 함께 거버넌스 안건으로, ANGLE-04는 사용자 AUM 입력 시에만. 사실 정정 3건: (a) ANGLE-01 P0는 사전 관측(감사 팩)이며 s13_45a summary(t_trailing_ic6 −0.53)로 독립 확인됨 — 정직 고지 필요; (b) '65종 시절 채널 inert'는 과장(§S7.A2 L345: conf mean 0.75·eta min 0.2236); (c) ANGLE-02 '투영에서 최대 4% 청산'은 타깃+투영 합산이며 투영 귀속분은 최대 2%. 운영 주의: statsmodels 파손(NW는 수동), 09-02 11:15~11:30 워크북 리프레시 창 기동 금지·pkl(09-01 16:17)과 워크북·Index.xlsx mtime 쌍 재확인, 장기 런은 schtasks 패턴. 내 재계산(감사 팩): NW t −1.52·바닥 32%/중간 24%/포화 44%·corr(turnover,eta) +0.64·바닥 turnover 0.035 vs 포화 0.069·연 two-way 0.682·조야 정적화 함의 1.30×. 결과 파일: C:/Users/westl/AppData/Local/Temp/claude/C--Users-westl-PycharmProjects-pythonProject-venv-vf-new-machine-re-study-c2-ai-port/0caf960f-9660-4a4b-a91e-809a2f4ab53d/scratchpad/w2/screen_G2_execution_path.json"
+  }
+ },
+ {
+  "angle": "G3_construction_constraints_carry",
+  "generated": {
+   "angle_id": "G3_construction_constraints_carry",
+   "candidates": [
+    {
+     "id": "ANGLE-01",
+     "title": "TE 캡 그림자가격이 만드는 '모델 top-k 역베팅(피어 헤지)' 금지 — top-20 UW 보호 제약 (k = rank_eval_at 20)",
+     "axis": "구성/제약",
+     "mechanism": "structural_transmission. MVO는 μ·a 를 TE 캡(3.5%) 위에서 최대화하는데 리스크항이 1e-5 스케일이라 해는 항상 캡 위의 코너다(§S16.5-P). 캡 위에서 라그랑지안은 μ_i − 2λ_TE(Σa)_i 이므로, 상위 OW 군집(STX·MU·6857)과 상관이 높은 종목은 μ_i 가 유니버스 2위(WDC 3.27)여도 (Σa)_i 가 커서 bm 이하(0)로 팔린다 — 최적화기가 STX 롱을 WDC 숏으로 '헤지'하는 페어 구조. 09-01 what-if 타깃에서 μ>0 인데 UW 인 종목 50개, 희생 ex-ante 알파 Σμ(bm−w)=0.097 = 타깃 μ·a 0.378 의 26%. 섹터 밴드(+5.2%<10%)·AS 캡(0.191<0.225)·turnover 캡 전부 슬랙이므로 이 UW 를 강제하는 제약은 TE 캡 하나다. §S13.45-D 가 실측한 'gross UW 의 30.1%가 μ 바닥-100 밖'이 이 기전의 전 구간 상시성 증거다. 채널: (1) 랭커의 인증 구간(ndcg@20 = top-20)을 최적화기가 역베팅하는 만큼 spec 포획(§S13.12 관문③)이 새고, (2) 페어 헤지는 §S13.12 가 알파의 41%로 지목한 common-factor 캐리(고변동·성장 틸트)를 정확히 상쇄하는 방향이다(§S13.28 스타일 노출이 액티브 79% 운반, §S13.27-B vol 헤지 강제 시 −0.62). 두 채널 모두 IC(전종목 순위상관)에는 보이지 않으므로 12연속 피처 arm 이 놓친 구조다. 제약 {w_i ≥ bm_i : i ∈ top-20(μ)} 은 헤지 펀딩을 μ<0 종목으로 되돌려 TC(0.309, §S13.12)를 직접 올린다.",
+     "prior_evidence": "§S13.12 (2577~2632): TC(spearman)=0.309, S0 액티브의 41%가 IC 불가시 캐리, 새 정보 가중치 전달률 ~9% — 헤지 구조가 TC 를 낮추는 기전은 미규명. §S13.45-D (5460~5480): gross UW 의 30.1%가 μ 바닥-100 밖(바닥-5 집중도 8.4%) — 'mu 중위 메가캡 펀딩'으로 해석하고 top-k UW 는 미검사. §S16.5-P (8138~8160): 타깃은 TE 캡을 거의 항상 채움, 리스크항 부재(w(λ=1)≡w(λ=0)), 갭₂ 0.024% = 타깃은 캡 위 코너해. §S13.50 (6403~): 변위 80%가 제약 유일해, 재도전은 '제약 집합 자체를 바꾸는 새 사전등록'(§2.5 게이트). §S13.28 (3636~): 스타일 노출이 액티브 수익 72~79% 운반. §S13.27-B (3770~3825): vol 노출 캡 = 팩터 헤지 강제 → ΔIR −0.62 (헤지 방향이 알파를 죽인 실증). 감사 팩/라이브: outputs/operating_codex_causal_rank_65/expected_rebalance.json(09-01) by_ticker 에서 μ>0∧target<bm 50종(WDC μ3.27→0, BE 2.49→0, TER 2.02→0, 6981 1.97→0, DDOG 1.80→0, LRCX 2.15→0.0005, 005930 3.04: 1.50%→1.07%, TSM 0.60: 2.93%→2.39%), Σμ(bm−target)=0.0973 / Σμ·a=0.3783 = 25.7%; holdings.json 08-18 Tech 액티브 +5.20%(밴드 10% 슬랙), AS 0.176; 명목 ±4% 도달 종목 0(STX 2.75%, name-risk cap 이 먼저 바인딩).",
+     "why_not_closed": "종결된 축은 (a) 투영 계량(§S13.48-A/§S13.50: 같은 제약집합 안에서 변위를 알파 방향으로 재배분 — 자유도 20%), (b) score-gate OW 측 절대 0.0→분위수(§S13.49: μ≤0 종목의 OW 허용 폭), (c) 메가 펀딩셋 히스테리시스(§S13.48-C), (d) vol 캡·bmprop 캡(§S13.27: 헤지를 '강화'하는 방향), (e) risk_aversion(§S16.5-P). 본 후보는 UW 측 상위-μ 종목에 대한 제약으로 어느 절도 다루지 않았고, §S13.50 결론이 명시적으로 열어 둔 '제약 집합 변경' 경로다. §S13.27 과는 정반대 방향(헤지 완화)이며 §S13.45-D 의 미회수 관측을 직접 겨냥한다. T2-7(UW μ 평탄화)은 μ≤0 종목의 헤지 '선택'을 바꾸는 것이라 다른 대상이다.",
+     "single_parameter": "신규 플래그 `protect_top_k_from_uw_enabled: true` 1개, k 는 기존 production 파라미터 `rank_eval_at[0]` = 20 을 그대로 참조(신규 자유도 0). 원리: 랭커의 조기종료·학습 목적함수(rank_xendcg, ndcg@20)가 인증하는 순위 구간은 top-20 뿐이므로 최적화기가 그 구간을 역베팅(UW)하는 것은 objective–북 정합 위반이다(§S13.47 이 k=20 으로 objective 를 북에 맞춘 계보의 구성층 대응). 구현: `_build_mvo_constraints` 에서 executable μ 내림차순 top-k 종목에 `w_i ≥ bm_i` 추가(선형, MVO·투영 양쪽 동일 적용 — max_te_annual·name-risk cap 과 같은 패턴). μ NaN 종목은 top-k 산정 제외. OFF 시 제약 0건 추가로 바이트 동일. 임계 τ 형(μ>0 전부 보호)은 펀딩 풀 반감으로 §2.5 위험이 커 채택하지 않음.",
+     "precheck": {
+      "data_source": "outputs/s16_7_name_risk_cap/backtest_result.pkl (portfolio_weights 97, predictions=executable post-lag μ, raw_predictions, targets=spec20, ic_series, data.returns 총수익) + 워크북 1회 로드(production Σ: `_production_risk_source` raw_returns 126d + `_load_optvol_scale` 대각, `get_benchmark_fn` cap-weighted bm) — scripts/precheck_s16_5.py 의 P0 루프(covs/bms/mus/prevs/execs 사전 구성)와 scripts/precheck_s13_50 의 E0 재현 코드를 그대로 재사용. 메인이 production 런 종료 후 실행.",
+      "computation": "스크립트 scripts/precheck_g3_01_topk_uw.py (단일 foreground, 백테스트 0). (0) 97 리밸일 타깃 재해 w_T(d)=optimize_portfolio(production cfg, μ=predictions, Σ=production cov, prev=직전 실행북, bm) — E0 sanity: 실행북 재현 median L1 ≤ 1e-6 병기(§S13.50 자산). 같은 solve 에서 `constraints[j].dual_value` 를 구성 순서로 태깅(TE·turnover·floor·NaN핀·per-name OW/UW·score gate·AS L1·sector)해 제약군별 [바인딩 빈도(dual>1e-8), dual 중앙값, 한계 alpha = dual × 자원 단위(TE 0.1%p, per-name 1%p, AS 1%p, sector 1%p)] 표를 outputs/g3_shadow_prices.json 으로 저장(ANGLE-03/04 공유 자산). (1) P0 기전: 매 리밸 top-20(μ 내림차순, NaN 제외) 중 w_T,i < bm_i − 1e-4 인 종목 수 n_t, ex-ante 희생 몫 s_t = Σ_{i∈top20,UW} μ_i(bm_i−w_T,i) / Σ_i μ_i(w_T,i−bm_i). (2) P1 실현: R_t = Σ_{i∈top20,UW} (w_T,i−bm_i)·r_i(t+1..t+21) (총수익, spec20 병기; 실행북 w_exec 기준도 병기) ×12 연환산, NW(lag1) t, 3분할(§harness SUB_PERIODS) 부호. (3) P2 반사실(짝수 인덱스 49일 고정 표본): 제약 {w_i ≥ bm_i, i∈top20} 추가 재해 w_C → Δα_ex = μ·(a_C−a_T)(음수 기록), ΔR_t = (w_C−w_T)·r_fwd21 ×12, 3분할, 전 해 optimal 여부. (4) P3 캐릭터: w_C 의 Pictet AS 중앙값, ex-ante TE(=캡 유지 확인), Σ|w_C−prev| / Σ|w_T−prev|, name-risk cap 루프 수렴률.",
+      "gate": "P0: median n_t ≥ 5 AND median s_t ≥ 10% (미달 = 09-01 이 꼬리, §S13.49 1일 관측 규칙). P1: mean R_t < 0 AND NW t ≤ −2.0 AND 3분할 3/3 음(즉 UW 된 top-20 이 이후 21BD 초과수익을 냄). P2: ΔR 연환산 ≥ +0.50%p/yr AND 3분할 3/3 양 AND 49/49 optimal. P3: AS 중앙값 ∈ [0.17, 0.23] AND TE 캡 바인딩 유지 AND turnover 배율 ≤ 1.25 AND name-cap 수렴 ≥ 90%. 전부 PASS → arm(플래그 1개) 사전등록·사용자 승인 후 1회 실행; 하나라도 FAIL → SHELVE. E1 채택 바는 표준(+0.36·3분할)이며, ΔIR 이 노이즈 밴드 양수 + 3분할 일관이면 §S16.7 프레임(리스크 규율: 모델 인증 구간 역베팅 금지, avg_ic 비트 동일 확인)으로 사용자 상신 가능.",
+      "expected_if_true": "P0 n_t 중앙 10~20, s_t 중앙 15~25%(09-01 26%, §S13.45-D 30.1% 정합). P1 top-20 UW 종목의 21BD 초과수익 +0.5~1.0%(총수익; spec20 은 그 절반 — 차이가 캐리 몫), t ≤ −2. P2 +0.5~1.0%p/yr(TE 3.7% 기준 ΔIR +0.13~0.27 상당), STX/MU 단일 OW 축소·펀딩이 Financials/Staples 로 이동, AS 소폭 하락(0.20→0.18~0.19).",
+      "expected_if_false": "P1 t ∈ (−2, 2): top-20 내부 순위 정보가 없어(IC 0.018) 상위 종목 간 헤지가 무비용 — 최적화기의 헤지가 옳았음 → SHELVE. 또는 P2 ≤ 0: 헤지 해제로 팩터 노출이 늘어 같은 TE 에서 OW 총량이 줄고(AS 0.15 대) 알파도 줄어듦 → §S13.27-B 의 거울상 실증, 축 종결. P3 AS < 0.17 이면 §2.5 위반으로 arm 불가.",
+      "cost": "백테스트 0. 97 타깃 재해 + 49 반사실 재해 ≈ 150 ECOS solve + 97 cov 재구성 ≈ 10~15분(§S13.50 285 solve 567s, §S16.5-P 동급 전례). 워크북 1회 로드(RAM ~2GB, production 런 종료 후 schtasks 단일 인스턴스). 단위테스트: 제약 추가 함수 plain 테스트 3건(OFF 바이트 동일·top-k 선정·NaN 제외)."
+     },
+     "adoption_basis": "ir_bar",
+     "risks": "캐릭터: 펀딩이 저변동 금융/필수소비재로 이동하면 단위 액티브당 TE 상승 → 캡에서 OW 총량 축소, AS 하락 가능(P3 게이트). 캐리: 헤지 해제로 고변동·성장 팩터 노출 증가 — 2022 같은 팩터 역풍기 손실 확대(3분할 2 구간 부호가 관문). TE: 캡 하드라 ex-ante 불변, 실현 TE 는 팩터 집중으로 소폭↑ 가능(≤4.5% 가드). turnover: top-20 멤버십 교체 시 w≥bm 핀이 풀리며 추가 회전(≤1.25× 게이트). name-risk cap 과의 상호작용: 헤지 소멸로 STX Euler 몫↑ → 캡 루프가 더 자주 재해(수렴률 병기). 룩어헤드: predictions 는 lag 적용 executable 패널, r_fwd 는 t+1 부터 — 정합. 다중성: 구성층 arm 1건(인벤토리 +1).",
+     "effort": "M",
+     "self_priority": 1,
+     "confidence": 0.35
+    },
+    {
+     "id": "ANGLE-02",
+     "title": "실행층 confidence 변조 제거 — eta·no-trade band 를 문서값(0.50 / 0.003)으로 고정 (형성 규칙 단일 플래그)",
+     "axis": "실행",
+     "mechanism": "execution / structural_transmission. `apply_dynamic_execution` 은 eta_eff = 0.5·√conf, ntb = clip(0.003/max(conf,0.15), 0.003, 0.018) 로 confidence 에 따라 실행 강도를 바꾼다. confidence 의 spread 채널은 z-score 입력에서 항상 1.0 포화(§S7.A2 실증)이므로 confidence = clip((trailing-6 IC + 0.01)/0.04, 0.2, 1.0) 뿐이다. 감사 팩 ic_series.csv 로 재구성하면 96 리밸 중 conf ≤ 0.5 가 38.5%, 하한 0.2(eta 0.224·ntb 1.5%) 가 33.3% — 2019H2, 2021 중반, 2024-09~2025-07(연속 10회) 이 통째로 '동결 모드'다. 그런데 변조 신호의 예측력이 없다: corr(trailing-6 IC, 다음 IC) = −0.16 (t −1.57), IC lag-1 자기상관 −0.14; 저신뢰기 다음 IC 평균 0.024 vs 고신뢰기 0.014, 21BD 액티브 수익 0.51% vs 0.56% (동일) — 반면 turnover 는 0.037 vs 0.069 로 반감(corr 0.61). 즉 6표본 IC 평균(표준오차 ≈0.06, 신호 폭 0.04)이라는 잡음이 실행층을 무작위로 잠그며, 잠긴 구간에서 ntb 1.5% 는 신규 OW 형성(§S13.14 '메가위너 언더는 형성 문제')을 원천 차단하고 eta 0.22 는 허용된 진입도 1/4 크기로 줄인다. §S16.5-P 가 λ 로 접근 불가라 분리해 둔 '갭₁ 33% 실행 드래그'의 절반 이상이 이 변조에서 온다는 가설. 플래그는 confidence:=1.0 으로 yaml 에 적힌 eta 0.50·ntb 0.003 을 실제 실행값으로 복원한다(신규 자유도 0).",
+     "prior_evidence": "§S7.A2 (314~357): spread_scale 0.20 vs raw_spread 중앙 3.58 → spread 채널 상시 1.0 포화, confidence 는 ic_score 로 붕괴 실증; 재보정 arm ΔIR +0.002(eta 중앙 0.50→0.45, 소폭 감속은 무영향). §S13.11 (2476~2576): eta 1.0(2배) 은 느린 신호에 −0.22, 상호작용 +0.24 — eta 값 변경은 소진되었으나 변조 제거는 미측정. §S13.12 (2611~2617): EMA+turnover penalty+eta 사슬이 저역통과, 새 정보 전달률 9%, 11b(eta 1.0)가 spec 포획 75% 복원. §S16.5-P (8146, 8158): 갭₁ +33.3% 는 실행 경로 드래그, '실행 경로(eta) 축은 §S13.40 이후 미개척'. §S13.40 (4865~4900): 주기 단축은 부정(신호가 느림) — 본 후보는 주기 불변. src/backtest.py:1211~1275 (compute_signal_confidence / apply_dynamic_execution, ntb 최대 6×), src/config.py:1292~1304 (trailing_ic_window 6, confidence_spread_scale 0.20). 감사 팩 자체 계산(ic_series.csv·turnover.csv·daily_returns.csv, 본 라운드): conf≤0.5 38.5% / 하한 33.3%, corr(trail6, IC_next) −0.160 (n 95, t −1.57), AC1 −0.137, IC|저 0.0241(n36) vs 고 0.0142(n59), act21 0.0051 vs 0.0056, turnover 0.0373 vs 0.0689; 연도별 평균 conf 2023 1.00 / 2025 0.47 / 2019 0.52.",
+     "why_not_closed": "§S7.A2 는 spread 채널을 '살리는' 방향(confidence↓, eta↓)이었고 §S7.A3 는 EMA α 적응(모델층), §S13.11 은 base eta 2배 — 셋 다 변조 함수를 유지한 채 값을 움직였다. 변조 자체를 끄는 arm 은 0건이며 ntb 의 6× 증폭(1.5%)은 어느 절에서도 측정되지 않았다. §S13.39 진입 게이트(옵션 신호 컷)는 별개 신호이고 SHELVE 사유(발화 1.6%)가 여기 적용되지 않는다(본 변조는 33% 리밸에서 발화). §S13.48-A/§S13.50 투영 계량 종결은 투영 단계(eta 이후)의 재배분이며 eta·ntb 단계는 그 사전등록에서 '축자 재현 대상'으로만 취급했다.",
+     "single_parameter": "신규 플래그 `fixed_execution_confidence: true` 1개 (default False = 현행 바이트 동일). True 면 simulate_portfolio 에서 compute_signal_confidence 결과를 1.0 으로 치환 → eta_eff = partial_rebalance_eta 0.50, ntb = no_trade_band 0.003 (yaml 명시값 그대로, 값 변경 없음). 원리: 변조 신호의 표본 외 예측력이 0/음이면 변조는 잡음 주입이며, 문서화된 실행 파라미터를 실제 실행값으로 되돌리는 것이 유일한 무자유도 선택이다. eta 값 자체(0.65 등)는 §S13.11·iter17 롤백·스윕 금지로 건드리지 않음. ntb 만 고정하는 변형은 사전점검 분해 정보로만 기록하고 arm 선택 근거로 쓰지 않는다(선택 편향 방지).",
+     "precheck": {
+      "data_source": "outputs/s16_7_name_risk_cap/backtest_result.pkl (portfolio_weights, predictions, raw_predictions, ic_series, data.returns, targets) + 워크북 1회(production Σ·bm) — scripts/precheck_s13_50_alpha_weighted_projection.py 의 E0 경로 재현 코드(drift→MVO→confidence/eta/ntb→L2 투영, median L1 1.1e-09) 를 그대로 사용하고 confidence 입력만 치환. 감사 팩 ic_series.csv 로 P0 는 이미 산출(본 라운드).",
+      "computation": "스크립트 scripts/precheck_g3_02_fixed_confidence.py. (0) P0(팩, 완료): conf 분포·예측력·저/고신뢰기 IC·act21·turnover 대조 — 결정 로그에 기재. (1) E0 sanity: 원 confidence 로 97 리밸 실행북 재현 median L1 ≤ 1e-6 (실패 시 중단). (2) P1: 각 리밸 w_fix = project_portfolio_weights(prev + 0.5·Δ[|Δ|≥0.003]) 재구성 → ΔR_t = (w_fix − w_exec)·r_fwd21 (총수익, spec20 병기) ×12 연환산; 비용 = 12×0.0010×mean(Σ|w_fix−prev| − Σ|w_exec−prev|) 차감; NW t, 3분할; 하한기(conf=0.2, 32일)·비하한기 부분합 병기. (3) 분해(정보성): ntb 만 0.003 고정·eta 변조 유지한 w_ntb 로 동일 계산. (4) P2 캐릭터: w_fix 의 AS 중앙값, ex-ante TE(투영이 캡 보장), two-way turnover 배율(Σ|w_fix−prev| 평균 / 실측 0.0568), name-risk cap 수렴, 전 해 optimal. (5) 보유 지속성 병기: w_fix 북의 21BD 자기상관 vs 실행북(§S13.9 0.850→0.615 붕괴 패턴 사전 감시).",
+      "gate": "P0: corr(trail6, IC_next) ≤ 0 (PASS 확정, 예측력 부재). P1: 순(비용 차감) ΔR 연환산 ≥ +0.50%p/yr AND 3분할 3/3 양 AND 하한기 부분합 > 0. P2: AS 중앙값 ∈ [0.17, 0.23] AND turnover 배율 ≤ 1.25 AND 97/97 optimal AND name-cap 수렴 ≥ 90%. P1∧P2 → arm 사전등록(플래그 1개)·사용자 승인; 미달 → SHELVE(실행 경로 축 종결, §S16.5-P 부수 관찰 회수). E1 표준 바.",
+      "expected_if_true": "P1 +0.5~1.0%p/yr, 이득의 대부분이 하한기 32일(특히 2024-09~2025-07 연속 동결기·2019H2)에 집중, 비하한기 ≈0; turnover 0.0568 → ~0.068(배율 ~1.2), TE +0.05~0.1%p; 21BD 지속성 0.85 유지(신호가 느려 eta 0.5 로도 붕괴 없음 — §S13.11a 는 1.0 에서 붕괴).",
+      "expected_if_false": "P1 ≈ 0 ± 0.3%p (§S7.A2 처럼 실행 강도 소폭 변화에 IR 둔감) 또는 음(§S13.11 방향: 느린 신호에 실행 가속은 캐리 훼손·TE 상승만) → SHELVE. 분해에서 ntb 고정만 양이고 eta 복원이 음이면 '변조 제거' 가설 부분 기각으로 기록(별도 사전등록 없이는 ntb-only arm 금지).",
+      "cost": "백테스트 0. 97 투영 재해(+분해 97) ≈ 200 ECOS solve + cov 97회 ≈ 8~12분. 워크북 1회 로드(production 런 종료 후). 단위테스트 2건(플래그 OFF 바이트 동일, ON 시 eta/ntb == config 값)."
+     },
+     "adoption_basis": "ir_bar",
+     "risks": "turnover +20~30%(TC 는 §S12.6 상 무시 가능하나 §S13.11 의 캐리 훼손 채널이 실재 — 단 규모는 eta 2배 대비 1/4). TE 소폭 상승(11a 3.73→3.81). 다중성: 실행층 3번째 arm(§S7.A2·§S13.11 이후), 인벤토리 +1. 캐릭터: AS 불변 예상(TE 캡·투영 동일). 룩어헤드 없음(예측·IC 성숙 필터 동일). 정합 위험: E0 재현 코드가 confidence 를 축자 재현해야 하므로 재현 실패 시 즉시 중단. 판정 프레임 주의: 이는 정확성 수정이 아니라 설계 변경이므로 §S15/§S16.1 정확성 채택 경로는 주장하지 않음(정확성 프레임 가능성은 사용자 판단 사항으로만 기재).",
+     "effort": "S",
+     "self_priority": 2,
+     "confidence": 0.3
+    },
+    {
+     "id": "ANGLE-03",
+     "title": "제약 그림자가격 표(97 리밸 dual value) + 이중 예산 정리: 액티브셰어 캡 0.45→0.50 (satellite_budget 0.25)",
+     "axis": "구성/제약",
+     "mechanism": "structural_transmission (제약 재정의). 북에는 리스크 예산이 둘이다 — TE 캡 3.5%(하드, 타깃에서 거의 항상 바인딩)와 액티브셰어 L1 캡 0.45(= 2×satellite_budget, derive_max_active_share SSOT). 감사 팩 active_share.csv: 97 리밸 중 15 회가 0.2250 캡에 정확히 걸렸고 그중 9 회가 2023(저변동 레짐: 실현 TE 3.26%, rolling-252 3.35% vs 2024-25 3.8~3.9%). 저변동기에는 같은 TE 로 더 많은 액티브를 살 수 있는데 두 번째 예산(AS)이 먼저 잠근다 — 그 15일의 TE 캡 슬랙 × AS 캡 dual 이 '알파를 비싸게 사는' 양이다. 어느 제약이 μ·a 를 가장 비싸게 사는지는 지금까지 추정만 있었고(§S13.48-B '제약이 먼저 바인딩하는 것으로 보임', §S13.50 '변위 80%는 제약 유일해') dual 을 뽑은 적이 없다. ECOS 해의 constraints[j].dual_value 로 제약군별 [바인딩 빈도 × dual 중앙값 × 자원 단위] 표를 만들면 (i) 캐릭터 제약(TE 캡·name-risk cap)과 (ii) 잉여 제약(AS 캡·섹터 밴드·per-name·mega 핀·floor·turnover)의 그림자가격이 분리되고, 잉여 제약 중 완화해도 캐릭터(AS 평균 ~0.20 ±3%p, TE 캡 불변)가 유지되는 유일 후보가 AS 캡 소폭 상향이다.",
+     "prior_evidence": "감사 팩 active_share.csv (본 라운드 계산): 캡 도달 15/97(≥0.2249), 중앙 0.2078, 평균 0.2001, 연도별 캡 도달 2020:1·2021:2·2022:1·2023:9·2024:2; 캡일 21BD 실현 TE 중앙 3.17% vs 비캡일 3.30%. daily_returns.csv 연도별 실현 TE: 2023 3.26% / 2024 4.42% / 2025 3.43%. §S16.5-P (8138~8160): 실행북 TE 캡 바인딩 24.7%, 타깃은 거의 항상 바인딩, 리스크항 부재 → 코너해. §S13.48-B (5970~): floor 방향 액티브 분산 0.0% — '제약 집합이 먼저 바인딩' 추정만. §S13.50 (6403~): 계량 자유도 0.1965, 제약 집합 변경은 새 사전등록·§2.5 대상. §S13.22 (3118~3192): TE 캡을 캐리 신호로 스케일(±25%)하는 조건화는 양 arm FAIL — 본 후보는 캡 조건화가 아니라 잉여 예산 제거(TE 캡 불변). §S13.16-B: 잔차용 리스크 10% 예약이 +0.029 (예산 재배분 둔감 선례). src/config.py:1101~1131 derive_max_active_share(core_satellite: L1 캡 = 2×satellite_budget, per-stock 은 satellite_max_per_stock 0.04 로 별도 고정).",
+     "why_not_closed": "AS 캡(satellite_budget) 값은 iter9 baseline(0.225) 이후 어떤 arm 에서도 움직인 적이 없다. 종결된 것은 TE 캡의 신호 조건화(§S13.22)·투영 계량(§S13.48-A/§S13.50)·per-name 캡 형태(§S13.27-A)·vol 캡(§S13.27-B)·risk_aversion(§S16.5-P)이며, 이들은 모두 '어느 제약이 바인딩하는가'를 dual 없이 추정했다. dual 표 자체가 미보유 자산이고, §S13.50 이 명시적으로 남긴 재도전 경로(제약 집합 변경)의 첫 단계다.",
+     "single_parameter": "`satellite_budget: 0.25` (0.225→0.25; L1 캡 0.45→0.50, per-stock 0.04 불변). 값 도출: 채택 캐릭터 게이트(§S16.7 G2·§S16.5-P P3)는 전 구간 평균 AS 가 기준 대비 ±3%p 이내다. 캡을 0.25 로 두면 캡 도달 15일이 전부 새 캡까지 올라가도 평균 이동 상한 = (15/97)×0.025 = +0.39%p 로 밴드 안에 구조적으로 갇힌다(0.30 등 더 큰 값은 core-satellite 캐릭터 정의 변경이라 §2.5 탈락). 이중성 정리: max_active_share 는 derive 로 자동 도출되므로 yaml 1줄.",
+     "precheck": {
+      "data_source": "ANGLE-01 (0) 단계가 저장하는 outputs/g3_shadow_prices.json (97 리밸 제약군별 dual 표) + 동일 pkl/워크북 자산(precheck_s16_5.py 루프). AS 캡 도달 15일 목록은 감사 팩 active_share.csv 로 사전 고정(2020-06-05, 2021-10-19, 2021-11-17, 2022-10-06, 2023-03-02 … 2024-02-19).",
+      "computation": "(1) 표: 제약군별 바인딩 빈도·dual 중앙값·한계 alpha(dual×단위)·μ·a 대비 비율 — TE 캡 / AS L1 / per-name OW / per-name UW / mega 핀·wide UW / score gate / sector band / turnover / floor / NaN 핀. 병기: 캡일 15일에서 TE 제약 dual(슬랙이면 0)과 AS L1 dual. (2) P1 반사실(15 캡일 전수 + 대조 비캡일 15일 짝수 인덱스): satellite_budget 0.25 로 타깃 재해 w_C → ΔAS, ex-ante TE(≤캡 확인), Δα_ex=μ·(a_C−a_T), 실현 ΔR_t=(w_C−w_T)·r_fwd21 ×12(전 구간 연환산은 비캡일 0 으로 채움), 캡일 부호 개수, 3분할 부호(캡일이 없는 분할은 0 으로 표기). (3) P2 캐릭터: w_C 평균 AS(전 구간 환산) 기준 대비 ≤ +3%p, ex-ante TE 캡 유지, turnover 배율 ≤ 1.25, name-cap 수렴, 전 해 optimal.",
+      "gate": "G0(표): AS L1 제약의 한계 alpha 가 잉여 제약군(AS·sector·per-name·mega·turnover·floor) 중 1위 AND 캡일 15일 중 TE dual = 0 인 날 ≥ 10 (AS 가 유일 바인딩 예산) — 아니면 AS 캡 후보 SHELVE(표는 자산으로 보존, 1위 제약을 다음 라운드 후보로 넘김). P1: 전 구간 연환산 ΔR ≥ +0.30%p/yr AND 캡일 15일 중 ≥ 10일 양 AND 캡일이 있는 모든 분할 양. P2 전항 PASS. G0∧P1∧P2 → arm(yaml 1줄) 상신; 미달 → SHELVE.",
+      "expected_if_true": "캡일 15일에서 TE 캡 슬랙 0.3~0.8%p, AS 0.225→0.24~0.25, Δα_ex +5~10%, 실현 ΔR +0.3~0.6%p/yr(ΔIR +0.08~0.16 상당) — E1 바 미달 가능성이 크므로 정직한 기대치는 '표 자산 + 노이즈 밴드 양수'. 표에서는 TE 캡 dual 이 압도적 1위(캐릭터), 잉여군 1위는 AS L1 또는 per-name OW 로 예상.",
+      "expected_if_false": "캡일에도 TE 캡이 동시에 바인딩(dual>0) → AS 완화가 무의미(SHELVE, 이중 예산은 사실상 하나). 또는 표에서 잉여군 1위가 sector band/per-name 이면 AS 후보 탈락·해당 제약을 새 사전등록 대상으로 이관(본 절 수치로 바를 정하지 않음).",
+      "cost": "백테스트 0. 표는 ANGLE-01 (0) 의 부산물(추가 비용 0), 반사실 30 solve ≈ 3분. 워크북 로드 공유."
+     },
+     "adoption_basis": "ir_bar",
+     "risks": "캐릭터: 캡일에 AS 0.25 까지 상승(평균 ≤ +0.4%p 구조 보장, 단 리밸 단위로는 +2.5%p). 상금 상한이 작아(15/97) E1 바 도달 불가에 가까움 — 후보의 1차 가치는 dual 표. dual 수치 해석 주의: cvxpy dual 은 스케일된 문제 기준이므로 자원 단위 환산 시 부호·스케일 검증(재해로 유한차분 1일 교차검증 의무). 다중성: arm 실행 시 인벤토리 +1. 룩어헤드 없음.",
+     "effort": "S",
+     "self_priority": 3,
+     "confidence": 0.2
+    },
+    {
+     "id": "ANGLE-04",
+     "title": "섹터 리스크 몫 캡 0.85 강제 — 가중치 밴드(±10%, 슬랙)와 리스크 가드(0.85, breach)의 이중성 해소, §S16.7 순차 볼록 재해의 그룹 확장 (거버넌스)",
+     "axis": "리스크Σ",
+     "mechanism": "risk (거버넌스 레버, IR 후보 아님). 라이브 북(08-18) risk.json: top_sector Technology 리스크 몫 0.8816 > 0.85 breach 이면서 holdings.json 의 Tech 액티브 가중치는 +5.20% 로 ±10% 밴드의 절반 — 가중치 밴드는 슬랙인데 리스크 가드는 위반. 즉 현 섹터 통제(가중치)는 리스크 점유를 제어하지 못하는 잘못된 계기이며(T1-4 논지), 가드는 report-only 라 production HOLD 만 낸다. §S16.7 이 name 몫 0.35 를 순차 볼록 재해로 강제해 breach 31/97→0 을 IR 무비용(+0.045, 3분할 양)으로 달성했으므로 같은 루프를 '최상위 섹터 종목 집합'에 적용(breach 섹터 종목의 대칭 액티브 바운드를 √(cap/share) 배로 축소, MVO·투영 양쪽)하면 캡 값 0.85 는 기존 가드 상수 재사용으로 신규 자유도 0 이다. 기전상 리스크는 동일 섹터 내 재배분이 아니라 섹터 밖 고-μ 종목(GEV·BE·RHM 등 Industrials)으로 이동하므로 §S16.7 보다 알파 비용 가능성이 크다 — 그래서 채택 근거는 IR 이 아니라 거버넌스이고 IR 은 무손상 확인용.",
+     "prior_evidence": "§S10.1 (671~688): 섹터 한도 0.75→0.85 재캘리브레이션(전기간 P90), 만성 위반 시에만 조치 원칙. §S11.5 (900~960): λ=5 soft penalty inert(λ*≈26k), 발동 조건 사전등록 = '최근 24회 위반율 ≥50% 만성화' 시 단일 arm 착수. S16 구조 리뷰 T1-4 (registry 2026-08-31 §Tier 1 line 285): Technology 94.4% HOLD, '가중치 밴드는 리스크 점유를 제어 못함', SOC 제안, 'IR 후보가 아니라 거버넌스 레버', 실행 순서 6번 '위반 만성화 실측 후 결정'. §S16.7 (7897~7990): 순차 볼록 재해 인프라·G1/G2 게이트·IR 무비용 실증·flip. W1 T-03: 옵티마이저 tol 0.01(≤0.36) vs ops 가드 strict — 섹터 캡도 동일 상수 공유 의무. 라이브: outputs/operating_codex_causal_rank_65/risk.json(08-18) top_sector_active_risk_share 0.881606 breached / holdings.json Tech 액티브 +0.0520(밴드 슬랙) / Financials −3.95%.",
+     "why_not_closed": "§S11.5 arm A 는 soft penalty(λ 스케일 불일치로 inert)였고 하드/순차 강제는 0건. 종결이 아니라 '발동 조건 실측 대기'로 명시 보류된 항목이며, §S16.7 로 강제 인프라가 생긴 뒤 아직 섹터에 적용되지 않았다. 섹터 가중치 밴드 축소(§S13.27 계열 헤지 강제)와는 다른 계기(리스크 몫)다.",
+     "single_parameter": "신규 플래그 `sector_risk_share_cap_enabled: true` 1개, 캡 = 기존 `max_sector_active_risk_share` 0.85 재사용(값 변경 없음). 구현: `_enforce_name_risk_share_cap` 를 그룹 일반화(Euler 몫을 섹터 합으로 집계, breach 섹터 종목 전체의 대칭 바운드를 √(cap/share)·(최소 0.95) 배 축소, 최대 12회·tol 0.01·플로어 0.005 상수 공유, name 캡과 한 루프에서 동시 처리해 두 루프 상호작용 제거). OFF 바이트 동일. 가드 tol 정합(T-03)을 같은 커밋에서 처리.",
+     "precheck": {
+      "data_source": "outputs/s16_7_name_risk_cap/backtest_result.pkl portfolio_weights 97 + 워크북(production Σ, eval_s16_7_arm.py compute_shares_for_books 방법론 그대로) + ANGLE-01 (0) dual 표의 sector band 행.",
+      "computation": "(1) 97 리밸 실행북의 섹터 Euler 몫 top_sector 시계열 → 전기간·최근 24회 위반율(>0.85+0.01 tol 및 strict 0.85 병기), 위반일 Tech 액티브 가중치(밴드 대비 슬랙). (2) 짝수 인덱스 49일 반사실: 섹터 캡 루프로 타깃 재해 w_C → 수렴률, 반복수, ΔAS, Δμ·a, Δturnover, 실현 ΔR_t=(w_C−w_T)·r_fwd21 ×12, 3분할, 리스크 이동 귀속(어느 섹터/종목으로 갔는지 상위 5). (3) 라이브 북(08-18) 캡 적용 시 Tech 몫·STX 몫·AS.",
+      "gate": "P0 발동 조건(§S11.5 사전등록 그대로): 최근 24회 위반율 ≥ 50% — 미달이면 SHELVE(report-only 경보 유지, endpoint 꼬리). P1 계기 불일치: 위반일 중 Tech 밴드 슬랙 ≥ 2%p 인 날 ≥ 80%(가중치 밴드가 계기로 무력함을 실증). P2 무손상: 반사실 ΔR ≥ −0.50%p/yr AND 3분할 중 −1.0%p/yr 미만 없음 AND 수렴률 ≥ 90% AND ΔAS ≤ ±3%p AND turnover ≤ 1.2×. P0∧P1∧P2 → arm 사전등록(§S16.7 G0 avg_ic 비트 동일·G1 준수율 ≥90%·G2 캐릭터·E1 ΔIR > −0.36 프레임)·사용자 승인 후 실행.",
+      "expected_if_true": "최근 24회 위반율 55~75%(라이브 0.88, S16 0.944), 위반일 Tech 밴드 슬랙 3~5%p, 반사실 ΔR −0.3~+0.2%p/yr(§S16.7 처럼 동일 신호 군집 내 재배분이면 무비용, 섹터 밖 이동이면 소폭 음), 수렴 95%+, STX 몫 동반 감소.",
+      "expected_if_false": "최근 24회 위반율 < 50%(§S11.5 2026-07 실측 20.8% 패턴 반복) → SHELVE. 또는 ΔR ≤ −0.5%p/yr → §S13.27-B(알파 서식지 해체) 재현 → 거버넌스 결정으로 사용자 회부(자동 채택 없음).",
+      "cost": "백테스트 0. 몫 재계산 97회 + 반사실 49일(루프당 최대 12 solve, 실제 2~4) ≈ 150~200 solve ≈ 10~15분. 코드: 그룹 일반화 + 테스트 5건(OFF parity·단일 섹터 breach 축소·수렴·name 캡 동시·tol 공유)."
+     },
+     "adoption_basis": "governance",
+     "risks": "IR 비용 가능(§S13.27-B 방향; Tech 가 알파 서식지, §S13.28 스타일 79%) — 채택은 거버넌스 결정이며 무손상(> −0.36) 만 요구. 캐릭터: 섹터 밖 재배분으로 AS 소폭↓ 가능. name 캡과 이중 루프 시 비수렴·stall(T-05 미집계 결함 — 집계 신설 필수). tol 0.01 로 옵티마이저 상한 0.86 vs 가드 strict 0.85 불일치(T-03) 를 같은 커밋에서 정합하지 않으면 HOLD 재발. DSR 비계수(리스크 규율 트랙, §S16.7 선례). 룩어헤드 없음.",
+     "effort": "M",
+     "self_priority": 4,
+     "confidence": 0.4
+    }
+   ],
+   "rejected_on_own_review": [
+    "bm_weight_floor 0.02×bm 재정의 — 250종에서 floor = 0.02×bm_i ≈ 1e-5~3e-4 로 어떤 종목도 근처에 없음(라이브 하한 근접 5종은 상장 전 bm=0 종목); UW 하한은 floor 가 아니라 TE 캡이 정함 → dual 0, inert. dual 표에 행으로만 보고.",
+    "max_active_per_stock ±4% 완화/축소 — 라이브 북 ±4% 도달 종목 0(최대 STX 2.75%): 고변동 종목은 name-risk cap 0.35(§S16.7)가 먼저 바인딩해 완화가 무효, 축소 방향은 §S13.27-A(bmprop 캡 −0.10, '누가는 바꿔도 얼마나는 못 바꿈')로 소진. mega-cap 비대칭(bm 대비 상대 OW)도 선형 μ 목적에서는 절대 캡이 옳아 재정의 근거 없음.",
+    "mega_cap_wide_uw_cap 0.10 대칭화(0.04) — 라이브 mega UW 최대 AAPL −1.14% ≪ 10%(MSFT −0.07, GOOGL 0, NVDA +1.75 OW) 로 비바인딩; §S13.48-C 펀딩셋 churn 3.9% SHELVE·top-k 절단 inert. dual 표 행으로만 보고.",
+    "turnover_penalty 0.03 제거/변경 — §S16.5-P P0 실측 리턴항의 0.3% 로 inert; 제거는 parity 급 no-op, 상향은 §S13.11 저역통과 강화(전달률 9% 악화) 방향.",
+    "max_single_turnover 0.15 완화 — 바인딩 1/97(2020-04-08) → dual ≈0; T-07(강제거래 infeasible→bm 점프)은 W1 운영 결함이며 성능 후보 아님.",
+    "T2-7 UW 측 μ 평탄화 — '최선 헤지' 선택은 리스크항이 작동해야 하는데 §S16.5-P 가 리스크항 부재(1e-5 스케일)를 실측; μ:=0 이면 UW 선택이 퇴화 LP 정점(turnover 최소화)으로 붕괴. T1-3 종결과 함께 사망.",
+    "대칭 score gate τ=0 (μ>0 → w≥bm 전부 보호) — ANGLE-01 의 극단형: 펀딩 풀이 μ<0 종목(bm 합 ~50%)으로 반감돼 같은 TE 에서 OW 총량·AS 붕괴 위험(§2.5). objective 정합이 있는 k=20 만 채택.",
+    "eta 값 변경(0.65·0.8 등)·no_trade_band 값 스윕 — §S13.11(1.0: −0.22)·iter17 롤백·스윕 금지; ANGLE-02 는 값이 아니라 변조 제거로 한정.",
+    "AS 캡 완전 제거 또는 satellite_budget 0.30+ — core-satellite 캐릭터 정의 변경(§2.5 탈락); 0.25 만 ±3%p 밴드 안에서 구조적으로 갇힘.",
+    "TE 캡 3.5% 변경·신호 조건화 — 캐릭터 불변식(TE ~3.7%) 및 §S13.22 양 arm FAIL(캐리 타이밍은 TE 캡 스케일로 환전 불가).",
+    "리밸 주기 10BD — §S13.40 부정(rank corr 0.915, 이득 비유의).",
+    "투영 계량·균일 클로백(n_trades 250, −1bp 균등) 재배분 — §S13.48-A(+0.054%p)·§S13.50(+0.028%p, 자유도 20%) 종결; 비용 측면도 ~1bp/yr 로 무의미.",
+    "섹터 가중치 밴드 ±10% 완화 — 라이브 Tech +5.2% 로 비바인딩(dual 0 예상), 완화 무의미; 축소는 §S13.27 계열 헤지 강제라 알파 비용만 → ANGLE-04(리스크 몫 계기)로 대체.",
+    "메가위너 '형성' 유도 오버레이(장기 모멘텀 μ 블렌드·위너 오버레이) — §S13.14 가 필요조건으로 지목했으나 §S11.9 mh 블렌드·§S8 계열 소진 축과 겹치는 알파층 개입(G3 밖); 구성층에서 남은 형성 규칙은 ANGLE-02(ntb 증폭 해제)뿐."
+   ]
+  },
+  "screened": {
+   "angle_id": "G3_construction_constraints_carry",
+   "screened": [
+    {
+     "id": "ANGLE-01",
+     "title": "TE 캡 그림자가격이 만드는 '모델 top-k 역베팅(피어 헤지)' 금지 — top-20 UW 보호 제약 (k = rank_eval_at 20)",
+     "verdict": "proceed_to_precheck",
+     "decision_log_hits": "grep(top-?k|top-?20|역베팅|헤지|w ≥ bm|UW 보호): 직접 선행 arm 0건. 인접: §S13.45-D 5401~5480 — UW 진단 'gross UW 30.1%가 바닥-100 밖(mu 중위 메가캡 펀딩)'으로만 해석, top-μ 종목의 UW는 미검사; §S13.48-C 5919/6054/6076 — mega 비펀딩 종목에 'w ≥ bm 강제 핀'(max_uw_per=0)이 이미 코드 패턴으로 존재(mega 한정, 축 종결은 히스테리시스 설계만); §S13.50 6403~6470 — 변위 80%가 제약 유일해, 재도전은 '제약 집합 변경' 새 사전등록으로 명시 개방; §S16.5-P 8138~8160 — 타깃은 캡 위 코너해·리스크항 부재(w(λ=1)≡w(λ=0)) → UW 선택은 TE 캡 단독 산물; §S13.27 3770~3825 — 헤지 '강제' 방향(vol cap) ΔIR −0.62, bmprop −0.10(반대 방향 실증); §S13.12 2577~2632 — TC 0.309·캐리 41%; §S13.49 6247~6306 — score-gate(OW측) 축 종결(본 후보는 UW측). 종결 아님.",
+     "invariant_check": "단일 플래그 1개(k는 production rank_eval_at[0]=20 재사용, 신규 자유도 0) PASS · 스윕 없음 PASS · OFF 시 제약 0건 추가 → 바이트 동일 parity 구현 용이 PASS · 룩어헤드 없음(predictions=executable lag 패널, r_fwd t+1~) PASS · 캐릭터 P3(AS [0.17,0.23]·TE 캡·turnover ≤1.25×·name-cap 수렴) 등재 PASS · 사전점검 백테스트 0(97+49 오프라인 재해) PASS. 결함 1: 채택 근거는 ir_bar여야 하는데 '노이즈 밴드 양수+3분할 일관이면 §S16.7 프레임으로 상신' 문구는 프레임 쇼핑 — 기존 report-only 가드 상수 재사용이 아닌 성능 arm이므로 §S16.7 리스크 규율 트랙 적용 불가. 사전등록에서 삭제 요구.",
+     "precheck_feasibility": "자산 확인: outputs/s16_7_name_risk_cap/backtest_result.pkl 존재(273.9MB, 09-01 10:02) · scripts/precheck_s16_5.py:106~160이 covs/bms/mus/prevs/execs 사전 구성 + optimize_portfolio/_build_mvo_constraints 직접 호출(재사용 가능) · precheck_s13_50 E0 재현(median L1 1.1e-9) 존재 · cvxpy 제약 객체 dual_value는 ECOS solve 후 접근 가능(단 name_risk_cap 루프가 재해하므로 dual은 마지막 문제 기준 — 기본 constraints 리스트+extra 태깅 필요). 09-01 expected_rebalance.json 직접 재계산: μ>0∧target<bm 61종(후보 기재 50), Σμ(bm−t)/Σμ·a = 25.8% 일치 — 그러나 top-20 한정은 9/20 UW·희생 몫 12.8%(0.0485/0.3783)로 헤드라인 26%의 절반. top-20 UW 9종(WDC·005930·LRCX·KLAC·AMAT·MRVL·TER·6981·BE)이 전부 STX/MU/000660/6857 상관 반도체 = 페어 헤지 패턴은 스냅샷에서 실재. 게이트 유효성: P0 median s_t ≥10%는 1일 12.8%라 실패 가능(§S13.49 1일 관측 규칙 적용) · P1(top-20 UW 종목의 이후 초과수익 t ≤ −2)은 §S13.45-D P1(랭크 6–50 기여 +0.304, 3/3)이 이미 top 버킷 알파를 보여 사실상 통과 예상 — 결정 게이트로 부적합, 정보성으로 격하 · P2(반사실 ΔR ≥ +0.5%p/yr·3/3·49/49 optimal)만이 실제 탈락 가능한 결정 게이트. 비용 ~150 solve 10~15분, 백테스트 0.",
+     "corrected_priority": 1,
+     "expected_value_note": "제약 집합 변경 전례: §S16.7 +0.045(무비용·헤지 무관), §S13.27-A −0.10, §S13.27-B −0.62(헤지 강제), §S13.22 −0.17/+0.11. 본 후보는 헤지 '해제' 방향이라 §S13.27-B의 거울상 — 팩터 노출 증가로 같은 TE에서 OW 총량 축소(AS↓)가 최빈 실패 모드. 후보 자체 기대치 P2 +0.5~1.0%p/yr ≈ ΔIR +0.13~0.27 < 0.36 바 → 성공해도 E1 형식 FAIL 가능성 높음. 사전확률: P0/P2 SHELVE 55%, arm 진행 후 E1 FAIL 35%, 채택 ≤10%. 가치는 'Σ⁻¹μ 페어헤지가 알파를 소비하는가'의 구조 지식 + (0) 단계 dual 표(ANGLE-03/04 공유 자산).",
+     "reason": "G3 4후보 중 유일하게 선행 절이 다루지 않은 대상(UW측 상위-μ 종목)·직접 반사실 측정 가능(§S13.50 E0 자산)·단일 플래그·백테스트 0을 모두 충족. 스냅샷 재계산으로 기전 실재 확인(단 top-20 몫은 12.8%로 헤드라인의 절반). 조건: (a) P1을 정보성으로 격하하고 P2를 단독 결정 게이트로, (b) §S16.7 프레임 상신 문구 삭제(채택은 ir_bar만), (c) 1일 관측치를 바 근거로 쓰지 말 것. 사전등록은 측정 전 단독 커밋."
+    },
+    {
+     "id": "ANGLE-02",
+     "title": "실행층 confidence 변조 제거 — eta·no-trade band 를 문서값(0.50 / 0.003)으로 고정 (형성 규칙 단일 플래그)",
+     "verdict": "proceed_to_precheck",
+     "decision_log_hits": "grep(confidence|no_trade_band|ntb|apply_dynamic_execution|trailing_ic|eta_eff): §S7.A2 314~357 — spread 채널 재보정(confidence 중앙 1.0→0.826, eta 0.50→0.45가 52% 리밸에서 변동) ΔIR +0.002 노이즈·OFF 유지·'실행 강도 소폭 변화에 IR 둔감' 실증; §S7.A3 359~ — adaptive EMA(모델층); §S13.11 2476~2576 — eta 1.0(2×) 느린 신호 −0.220·turnover +57%·'iter17 0.65 롤백 정당' 확인(config.py:541~543); §S13.12 2611~2617 — eta 사슬 저역통과, 11b가 spec 75% 복원하나 TE로 전액 지불; §S13.48-A 5847 — ntb 컷 후 재정규화 없는 클로백(투영 계량 축 종결, §S13.50); §S13.40 4865~4900 — 주기 단축 부정; §S16.5-P 8146/8158 — 갭₁ +33%는 eta·ntb 실행 드래그, 'eta 축은 §S13.40 이후 미개척, 재도전 시 새 사전등록 필요'로 명시 개방; §S13.14 2769~2776 — '형성 문제'는 μ 랭킹 수준(모델층)이라 ntb 연결은 확장 해석. 변조 제거 arm 0건 — 종결 아님, 단 인접 2건이 null/음.",
+     "invariant_check": "단일 플래그(confidence:=1.0, yaml 명시값 eta 0.50·ntb 0.003 복원, 값 변경 0) PASS · 스윕 없음(ntb-only 변형은 분해 정보로만, arm 금지 명시) PASS · OFF 바이트 동일 PASS · 룩어헤드 없음 PASS · 캐릭터 P2 등재 PASS · 백테스트 0 PASS. 결함 1: P0(corr ≤ 0)는 감사 팩으로 이미 산출된 값(−0.163)이라 '항상 통과하는 게이트' — 게이트가 아니라 동기 기록으로 격하해야 함. 결함 2: P1 반사실이 1-스텝(prev=실제 실행북)이라 경로 의존성(§S13.22 실증) 무시 — 누적 이득·비용 모두 과소, 한계로 명기 필요. 결함 3: 이는 정확성 수정이 아니라 설계 변경(후보도 인정) — §S15/§S16.1 채택 경로 주장 금지.",
+     "precheck_feasibility": "팩 CSV(ic_series/turnover/active_share)로 P0 독립 재계산: conf≤0.5 39.6%(후보 38.5) · 하한 0.2 32.3%(33.3) · corr(trail6, IC_next) −0.163(n 94) · AC1 −0.137 · IC|저 0.0241 vs 고 0.0129 · turnover 0.0373 vs 0.0694 · corr(conf,turnover) 0.63 — 후보 수치 재현. 주의: production은 s15_fixpack ON으로 _matured_trailing_ic_mean(backtest.py:1368·1625) 경로 — 21BD≥horizon 20이라 동일하나 재현 스크립트는 이 경로를 축자 사용해야 함(precheck_s13_50:431~434가 이미 그렇게 함). 자산: pkl(portfolio_weights·predictions·raw_predictions·ic_series·targets) + precheck_s13_50 E0 코드(confidence 입력만 1.0으로 치환) → w_fix 재구성 가능, ~200 solve 8~12분. P1(순 ΔR ≥ +0.5%p/yr ∧ 3/3 양 ∧ 하한기 부분합 >0)은 실제 탈락 가능한 결정 게이트 — 하한기 32일 중 2024-09~2025-07 연속 10회가 단일 레짐이라 3분할 검정이 유효.",
+     "corrected_priority": 3,
+     "expected_value_note": "실행층 전례: §S7.A2(강도↓ 52% 리밸) ΔIR +0.002, §S13.11a(eta 2×) −0.220. 본 후보는 리밸의 1/3에서 eta ×2.2(0.22→0.5)·ntb 1/5(1.5%→0.3%) = 느린 신호에 실행 가속 — §S13.11 방향상 비용(turnover +20~30%·TE↑) 우세. 반대 근거(저신뢰기 다음 IC 0.024 > 고신뢰기 0.013)는 n 36·SE ~0.06 수준의 약한 신호. 기대 ΔIR ≈ 0 ± 0.1, 바 0.36 도달 사전확률 <10%. 정직한 기대치는 '갭₁ 33% 실행 드래그의 귀속 분해'라는 진단 소득.",
+     "reason": "§S16.5-P가 명시적으로 개방한 유일한 실행 경로 재도전이고 사전점검이 싸다(8~12분·백테스트 0). 그러나 인접 2 arm 결과(null·음)와 §S13.11의 '느린 신호에 실행 가속=순비용' 실증이 사전확률을 낮춘다. 진행 조건: P0를 게이트에서 제외(동기 기록), P1을 단독 결정 게이트로, 1-스텝 반사실 한계 명기, turnover 배율 ≤1.25 미달 시 즉시 SHELVE. 우선순위는 ANGLE-01·04 뒤."
+    },
+    {
+     "id": "ANGLE-03",
+     "title": "제약 그림자가격 표(97 리밸 dual value) + 이중 예산 정리: 액티브셰어 캡 0.45→0.50 (satellite_budget 0.25)",
+     "verdict": "reject_weak",
+     "decision_log_hits": "grep(satellite_budget|max_active_share|dual|그림자|0.225|L1 캡|액티브셰어 캡): 결정 로그 내 satellite_budget·dual·그림자가격 언급 0건 — 미개척 축 맞음. 인접: §S13.48-B 6021 — '제약 집합(active share L1 ≤ 0.45, per-stock…)이 먼저 바인딩' 추정; §S13.50 6326/6399 — norm1(w−bm) ≤ 0.45 제약 열거, '통과하려면 제약 성분(TE 캡·액티브셰어…) 필요'; §S13.22 3154~3192 — TE 캡 조건화 양 arm FAIL(다른 계기); §S16.5-P 8138~ — 타깃은 프런티어 위. 코드 역사: config.py:495~497 iter10 satellite_budget 0.30 시도 → 무효과·롤백(65종 시절, 캡 비바인딩). 축 종결은 아님.",
+     "invariant_check": "단일 파라미터 PASS · 스윕 없음 PASS · 캐릭터(±3%p 밴드 구조 보장) PASS · 룩어헤드 없음 PASS · 백테스트 0 PASS. **치명 결함(구현 무효)**: 'max_active_share는 derive로 자동 도출되므로 yaml 1줄' 주장이 틀림 — production variant는 `max_active_share: 0.45`를 명시 핀(codex_causal_rank_65.yaml:72)하고 `PipelineConfig.__post_init__`(config.py:1119~1128)은 TIGHTEN-ONLY(`if self.max_active_share > cs_l1`)이며 harness.build_override_config(harness.py:145~155)가 이 __post_init__을 재실행한다. 따라서 `satellite_budget: 0.25`만 바꾸면 cs_l1=0.50 > 0.45 → 캡 0.45 불변 = **§S11.5 λ=5 형 무음 no-op arm**(S16 보고서 D군 'harness.py:152 satellite 완화 무시' 항목과 동일). 정정하려면 2줄(max_active_share 0.50 동반) 필요.",
+     "precheck_feasibility": "팩 active_share.csv 재계산: 캡 도달 15/97(≥0.2249)·중앙 0.2078·평균 0.2001·연도 2020:1/2021:2/2022:1/2023:9/2024:2 — 후보 수치 재현. dual 표는 ANGLE-01 (0) 단계 부산물로 산출 가능(cvxpy ECOS dual 접근 가능; norm1 제약은 canonicalization 후에도 제약 객체에 dual 부착). 그러나 arm의 상금 상한이 구조적으로 작다: 15/97일 × 리밸당 AS ≤ +2.5%p → 후보 자체 기대 ΔIR +0.08~0.16, 스스로 'E1 바 미달 가능성이 크다'고 인정 — 도달 불가능한 바를 향해 인벤토리 +1·~30분 백테스트를 쓰는 것은 규칙상 낭비. 캡 '완화'는 리스크 규율이 아니므로 §S16.7 거버넌스 프레임도 적용 불가 → 어떤 채택 경로도 없음. G0(AS L1 한계 alpha 1위 ∧ 캡일 TE dual=0 ≥10/15)는 유효한 게이트이나 통과해도 상금이 바 아래.",
+     "corrected_priority": 5,
+     "expected_value_note": "상금 상한(15일·+2.5%p AS)이 시드 밴드 ±0.19 IR(§S7.A4) 안. 유일 전례(iter10 0.30 시도)는 무효과. arm 기대 ΔIR < +0.16, 채택 바 0.36 도달 확률 ≈0, 거버넌스 프레임 없음 → 기대값 음(인벤토리·시간 소모). dual 표(0 비용 부산물)만 ANGLE-01 (0) 단계에 흡수해 진단 자산으로 보존.",
+     "reason": "두 가지로 탈락: (1) 제안된 yaml 1줄 arm이 production 핀+tighten-only __post_init__ 때문에 무음 no-op(구현 오류) — 정정 가능하나 (2) 정정해도 상금 상한이 채택 바 아래이고 완화 방향이라 거버넌스 채택 경로도 없어 arm 실행 자체가 무의미. dual 표는 ANGLE-01 사전점검 (0) 단계의 무비용 부산물로 산출·보존하고, G0가 'AS L1이 잉여 제약군 중 한계 alpha 1위'를 보이면 그때 새 사전등록(2줄 변경 명시)으로만 재고."
+    },
+    {
+     "id": "ANGLE-04",
+     "title": "섹터 리스크 몫 캡 0.85 강제 — 가중치 밴드(±10%, 슬랙)와 리스크 가드(0.85, breach)의 이중성 해소, §S16.7 순차 볼록 재해의 그룹 확장 (거버넌스)",
+     "verdict": "proceed_to_precheck",
+     "decision_log_hits": "grep(max_sector_active_risk_share|섹터 한도|위반율|만성|섹터 penalty|top_sector|0.85): §S9.2 638 — 0.787>0.75 ex-post; §S10.1 671~688 — 0.75→0.85 재캘리브레이션(당시 최근 24회 위반율 58.3% 만성), '만성일 때만 조치' 원칙; §S11.5 900~960 — arm A soft penalty λ=5 inert(λ*≈26,000), 07-20 실측 전기간 6.3%·최근 24회 20.8%(endpoint 꼬리), **발동 조건 사전등록 '최근 24회 위반율 ≥50% → λ≈26,000 단일 사전약정 arm'**; §S11.7 1054 — 0.840 해소; 비선형 2차 라운드 종료 6609~6615 — 08-19 Tech 90.6% 재위반, 메모리 반도체 5종=OW 예산 60%; §S16.7 7897~7990 — name 몫 캡 순차 재해 인프라·G0/G1/G2·+0.045 무비용·flip; S16 보고서 T1-4/실행순서 6 — '위반 만성화 실측 후 결정, 거버넌스 레버'. 라이브 risk.json(08-18) top_sector 0.8816 breached·STX 0.3368 ok(S16.7 후). 하드/순차 섹터 강제 arm 0건 — 종결 아님, 명시적 보류 항목.",
+     "invariant_check": "단일 플래그(캡 0.85 기존 가드 상수 재사용) PASS · 스윕 없음 PASS · OFF 바이트 동일 PASS · 캐릭터 P2(ΔAS ±3%p·turnover ≤1.2×·수렴 ≥90%) PASS · 룩어헤드 없음 PASS · 백테스트 0 PASS · 채택 근거 governance(IR은 do-no-harm > −0.36) = §S16.7 선례 정합 PASS. 주의 1: §S11.5가 사전등록한 발동 시 arm은 'λ≈26,000 soft penalty'였고 본 후보는 하드 순차 캡 — 기전 교체를 사전등록에서 명시적으로 supersede(근거: λ 스케일 불일치 원천 제거·§S16.7 인프라)해야 사후 교체로 보이지 않음. 주의 2: T-03 tol 정합(옵티마이저 0.86 vs 가드 strict 0.85)을 같은 커밋에 포함.",
+     "precheck_feasibility": "자산: pkl portfolio_weights 97 + 워크북 Σ(eval_s16_7_arm.compute_shares_for_books:90~121, _production_risk_source·_load_optvol_scale·get_benchmark_fn) + get_sector_map(backtest.py:1034) → 섹터 Euler 몫 시계열 산출 가능(export 가드 수식 export_operating_data.py:1690~1697과 동일). P0(최근 24회 위반율 ≥50%)는 진정 불확실한 결정 게이트 — 07-20 실측 20.8% vs 08-18/08-19 라이브 0.88~0.94, 24회 창≈2024-09~2026-08 → 결과 예단 불가, 탈락 가능. 반사실(2)는 그룹 일반화 코드가 선행 필요(M 노력) — P0 통과 전 작성 금지 권고(P0 실패 시 코드 낭비). 구조 위험: Tech가 액티브 리스크 88~94%면 Tech 종목 대칭 바운드를 비례 축소해도 몫은 스케일 불변에 가까움(§S16.7 공개 실패 모드의 섹터판) — 12회×0.95 하한 = 최대 0.54× 축소로 0.94→0.85 도달 못할 수 있어 수렴 게이트 ≥90% 실패 가능; 몫을 낮추려면 비-Tech 액티브 리스크를 '추가'해야 하므로 알파가 Tech 밖(GEV·BE·VRT 등 소수)으로 강제 이동 = §S13.27-B 방향 비용.",
+     "corrected_priority": 2,
+     "expected_value_note": "IR 기대 ≤ 0(후보 −0.3~+0.2%p/yr; §S13.27-B 방향 위험이 §S16.7보다 큼 — name 캡은 동일 신호 군집 내 재배분이었으나 섹터 캡은 군집 밖 이동 강제). 가치는 거버넌스: production 게이트가 현재 이 항목으로 HOLD(Tech 0.88~0.94)이고 §S11.5 사전등록 발동 조건의 실측 자체가 미이행. P0 단독 측정 비용 ~5분·코드 0 → 정보 기대값 높음. 전례 §S16.7(리스크 규율 트랙, DSR 비계수)이 채택 프레임 제공. 사전확률: P0 PASS 50%, PASS 시 수렴/무손상 통과 40%.",
+     "reason": "결정 로그가 명시적으로 '발동 조건 실측 대기'로 보류한 항목이며 §S16.7로 강제 인프라가 생긴 뒤 미적용 — 종결 아님. 단일 플래그·기존 상수·백테스트 0·거버넌스 프레임 모두 규칙 정합. 진행 조건: (a) P0(최근 24회 위반율)를 **코드 작성 전 단독 측정**해 미달이면 즉시 SHELVE(그룹 일반화 코드 미작성), (b) §S11.5 사전약정(λ≈26,000)을 supersede하는 근거를 사전등록에 명기, (c) 스케일 불변 실패 모드·최대 축소 0.54×를 사전 고지하고 수렴 게이트를 결정 게이트로 유지, (d) T-03 tol 정합 동반."
+    }
+   ],
+   "screen_notes": "G3(구성/제약/캐리) 4후보 심사 요약 — 결정 로그 grep·코드·감사 팩·운영 JSON으로 교차검증(pkl/워크북/백테스트 미로드). 권고 실행 순서: ① ANGLE-04 P0(최근 24회 섹터 위반율, 코드 0·~5분) → ② ANGLE-01 사전점검(97 타깃 재해 + dual 표 + 49 반사실, 10~15분; dual 표는 ANGLE-03/04 공유 진단 자산) → ③ 여력 시 ANGLE-02 사전점검(8~12분). ANGLE-03 arm은 reject_weak: production yaml이 max_active_share 0.45를 명시 핀하고 __post_init__이 tighten-only라 satellite_budget 1줄 변경은 무음 no-op(§S11.5 λ=5 형), 정정해도 상금 상한(15/97일)이 채택 바 아래이며 완화 방향이라 거버넌스 프레임도 없음. 공통 정정 요구: (i) ANGLE-01의 '§S16.7 프레임 상신' 문구 삭제(성능 arm은 ir_bar만), (ii) ANGLE-02의 P0는 이미 산출된 값이라 게이트가 아님(동기 기록으로 격하), (iii) 1일 what-if(09-01) 수치는 후보 존재 발견용으로만(§S13.49 규칙) — 특히 ANGLE-01 top-20 한정 희생 몫은 12.8%로 헤드라인 26%의 절반임을 사전등록에 정직 기재, (iv) 전부 사전등록은 측정 전 단독 커밋. 기대값 총평: 네 후보 모두 ΔIR 바 0.36 도달 사전확률 ≤10%; 구성층 성공 전례(§S16.7 +0.045)는 '무비용 리스크 규율'이었지 IR 채택이 아니었다. G3에서 인벤토리를 쓸 가치가 있는 arm은 ANGLE-01(P2 통과 시)·ANGLE-04(P0·수렴 통과 시) 최대 2건. 저장: C:/Users/westl/AppData/Local/Temp/claude/C--Users-westl-PycharmProjects-pythonProject-venv-vf-new-machine-re-study-c2-ai-port/0caf960f-9660-4a4b-a91e-809a2f4ab53d/scratchpad/w2/screen_G3_construction_constraints_carry.json"
+  }
+ },
+ {
+  "angle": "G4_model_label_training",
+  "generated": {
+   "angle_id": "G4_model_label_training",
+   "candidates": [
+    {
+     "id": "ANGLE-01",
+     "title": "순수 63BD 라벨 (forward_horizon 20 -> 63) — 라벨 지평을 보유 지평에 정합",
+     "axis": "모델/라벨",
+     "mechanism": "채널: structural_transmission(회전·캐리) + avg_ic(조건부). 라벨 지평 20BD는 실제 액티브 보유(≈144BD = active share 0.20 ÷ one-way turnover 0.35)·리밸 21BD·eta 0.5 실행 사슬보다 7배 짧다. §S11.8 실측으로 현 신호의 IC는 h20 0.053 → h63 0.080으로 단조 증가하고 보유 종료 후(21–63d)에도 0.069가 남는다 — 모델이 예측한 알파의 상당분이 보유창 안에서 실현되지 않은 채 21BD마다 재배열된다. 63d 라벨은 (i) 학습 목표를 실현 지평에 맞춰 예측 순위의 lag21 자기상관을 높여 turnover와 캐리 교란(§S13.12: 북 괴리 ∝ 캐리 손실, 새 정보 전달률 9%)을 줄이고, (ii) 저역통과 실행 사슬(EMA α0.5·eta·no-trade band)과 신호 속도를 정합시킨다(§S13.11: 느린 신호+eta 0.5 조합이 최적, 상호작용 +0.24). IR 이득은 IC가 아니라 회전·캐리 안정에서 나와야 하며, 보유지평(20d) 라벨에 대한 IC 비악화가 전제다.",
+     "prior_evidence": "§S11.8 (L1075–1117): IC h05 0.048 / h20 0.053 / h40 0.068 / h63 0.080(t 3.6), post21_63 0.069(t 3.4, 전·후반 +0.025/+0.113 부호 일관), challenger(regression)는 감쇠. §S11.9 (L1119–1177): 블렌드 {20:0.7, 63:0.3} E1 −0.311·E2 turnover 72.6% vs 74.6% 불변·P1/P2 −0.877/−0.704·P3 +0.301, 퇴화율 56→50%. §S13.40 (L4865–4899): rank corr(score_d0, score_d10) 0.915, 보유 후반 IC 감쇠(0.0695→0.0288)는 '알파 지평 구조'. §S13.12 (L2577–2631): 전달률 9%, gap 2.27%/yr. §S13.11 (L2522–2575): eta×신호속도 상호작용. §S16 보고서 T2-1(보유 144BD, '기대값 최대'). 감사 팩: predictions lag1 순위 자기상관 0.995, targets(spec20) cs_std 0.066, last_valid 2026-07-28.",
+     "why_not_closed": "§S11.9는 연율화 블렌드였고 산술상 63d 성분의 라벨 분산 몫이 ~5%에 불과했다(0.7×√(252/20)=2.49 vs 0.3×√(252/63)=0.60 → 0.60²/(2.49²+0.60²)≈5.5%). 즉 랭크 라벨은 사실상 20d 순위 + 소량 노이즈였고, E2(turnover 불변)는 5% 혼입이 예측하는 그대로다 — '63d로 랭크된 라벨'은 한 번도 학습된 적 없다. 결정 로그·§S16 보고서 모두 '순수 63d 단일 라벨은 잔존 후보'로 명시. §S13.26/§S13.40(10BD 리밸)은 반대 방향(더 빠르게)이라 별개 축. variants·결정 로그에 forward_horizon 단독 변경 arm 0건(grep 확인).",
+     "single_parameter": "forward_horizon: 63 (기존 config 필드, 코드 무변경 — effective_label_horizon()이 embargo 63을 자동 적용하고 _matured_trailing_ic_mean이 성숙 IC만 소비: §S11.8(b)·§S15 선결 수정 재사용). 63의 도출: (a) §S11.8이 측정한 최장 지평이자 IC 최대점, (b) retrain_freq 63과 동일 — 한 모델이 정확히 한 라벨창을 서빙, (c) causal split 기하(val 126 + embargo H)에서 학습 데이터 종단이 t−251BD로 남는 최대 지평(H=126이면 t−377로 스테일 과대). 40·126 등 스윕 금지, 블렌드 재시도 금지.",
+     "precheck": {
+      "data_source": "outputs/s16_7_name_risk_cap/backtest_result.pkl (S0′ 인증 런, 08-25 빈티지): targets(=spec20, 3283×250), panel(820,750×65), predictions(lag 적용·옵티마이저 입력), pre_execution_predictions, models(고유 19, _active_features/_active_fw), model_quality.split_audit, data_quality.listing_mask.dates. 워크북 불요.",
+      "computation": "스크립트 scripts/precheck_g4_label63.py(+단위테스트: 라벨 재구성·split 기하). (A) 라벨 재구성: spec63*(t) = spec20(t)+spec20(t+20)+spec20(t+40), 세 셀 전부 유효 시만(근사 — 창별 PCA 적합이 다름을 명시). (B) 현 신호의 느린 성분을 spec 공간에서 재측정: 97 리밸일에 Spearman IC(predictions_t, spec20_t) / IC(·, spec63*_t) / IC(·, spec20(t+20)+spec20(t+40)) — NW(lag 3) t, 시간순 3분할. (C) 라벨 지속성: 횡단면 순위 자기상관 ρ21(spec20) vs ρ21(spec63*)(보고). (D) 오프라인 단일 창 적합 3슬롯(사전 고정, 각 3분할에서 production이 비퇴화 적합한 슬롯: 2019-11-12·2022-10-05·2025-03-05): 슬롯마다 production lgbm_params·rank_eval_at [20]·early_stopping 100·해당 모델의 _active_features/_active_fw 그대로, build_walk_forward_split(H=20, 라벨 spec20) vs build_walk_forward_split(H=63, 라벨 spec63*)로 LGBMRanker 2회 적합 → 슬롯 서빙 63BD 전 일자에 predict_cross_sectional → 일별 Spearman IC vs spec20(보유지평 라벨) 및 vs spec63*, 두 모델 예측의 순위상관, 예측 lag21 순위 자기상관.",
+      "gate": "G-B(필요조건): IC(spec63*) − IC(spec20) > 0이 3분할 3/3. G-D(결정): 3슬롯 pooled 189일 paired ΔIC_spec20 = IC(63d모델) − IC(20d모델) ≥ 0 AND NW(20) t ≥ 2 AND 3슬롯 부호 3/3 — 63d 모델이 보유지평 라벨에서도 열등하지 않아야 함. G-D2(기전, 보조): 63d 모델 예측 lag21 순위 자기상관 ≥ 20d 모델 +0.02. G-B 또는 G-D FAIL → SHELVE, '라벨 지평' 축 종결(블렌드+순수 2회).",
+      "expected_if_true": "G-B 3/3(§S11.8 재현), ΔIC_spec20 ≥ 0(t ≥ 2), IC(63d모델, spec63*) ≫ IC(20d모델, spec63*), 예측 자기상관 +0.03~0.05 → arm 실행: E1 ΔIR > +0.36 & 3분할 부호 일관, E2 avg_annual_turnover ≤ 0.9×(§S11.9 E2 정의 재사용, 상대 −10%), 병기: 퇴화율·unique_models·avg_ic(63d 타깃 정의로 바뀜 — 비교 불가 명시)·TE·beta·active share·optimizer_failure_rate.",
+      "expected_if_false": "ΔIC_spec20 < 0 또는 t < 2 — 63d 라벨의 후반 43BD 노이즈가 20d 성분을 희석(§S11.9 P1/P2 급락과 동형) → SHELVE. 인벤토리 불변.",
+      "cost": "pkl 로드 1회(RAM ~1.5GB, production 런 종료 후) + LGBM 적합 6회(각 1–3분) ≈ 15–20분. 백테스트 0. 단위테스트 ~4건."
+     },
+     "adoption_basis": "ir_bar",
+     "risks": "캐릭터: 느린 신호로 turnover↓·TE 소폭↓ 기대이나 라벨 노이즈로 예측 분산·회전↑ 가능(§2.5 밴드 판정). 스테일: 학습 데이터 종단 t−165 → t−251BD, 타깃 꼬리 NaN 43BD 확대(라이브 모델이 더 오래된 라벨로 학습), val 126BD에 독립 라벨창 2개 → 조기종료 노이즈·퇴화율 악화 가능(§S16.3상 IR 무비용이나 병기 의무). 정의 변경: ic_series/avg_ic가 63d 타깃 기준으로 바뀌고 trailing-IC 성숙 필터가 3리밸 이전 IC만 사용 → confidence(집행) 경로가 동반 변화 — 귀속 시 '집행 노브 변화'를 분리 서술. DSR 인벤토리 +1. 사전확률: §S11.9 P1/P2 훼손 전례로 낮음. 사전점검 (D)의 spec63* 근사·189일 중첩 표본 검정력 한계 → t ≥ 2로 보수화. 룩어헤드: 63d 라벨은 embargo 63 자동 적용(split audit causal_ok 확인 의무).",
+     "effort": "M",
+     "self_priority": 1,
+     "confidence": 0.3
+    },
+    {
+     "id": "ANGLE-02",
+     "title": "시간 감쇠 표본 가중 (sample_weight halflife, 학습창 내 최근 관측 가중)",
+     "axis": "모델/라벨",
+     "mechanism": "채널: avg_ic. 5년(1,260BD) 균등창은 2019년 관측과 2025년 관측을 동일 무게로 학습한다. 피처-라벨 관계가 표류한다면 오래된 관측이 현재 랭킹을 오염하므로 최근 가중이 라이브 IC를 올린다. 단 IC→IR 전달률 9%(§S13.12)라 IR 채널은 약하고, 채택은 IR 바로만. 이 후보의 진짜 가치는 사전점검이 '표류 실재/부재'를 실측해 ANGLE-03(확장창)과 양자택일을 결정한다는 데 있다 — 퇴화율 42%가 '검증창에 신호가 없다'는 정직한 답이라면(§S13.8·§S16.3), 모델 축에서 남는 것은 신선도가 아니라 학습 분포(어느 시점의 데이터를 얼마나 쓰는가)뿐이다.",
+     "prior_evidence": "감사 팩 ic_series(96 리밸): 연도별 IC 2019 −0.012 / 2020 +0.048 / 2021 −0.016 / 2022 +0.024 / 2023 +0.080(t 3.2) / 2024 +0.004 / 2025 −0.004 / 2026 +0.001; 3분할 0.0125 / 0.0419 / 0.0002; 선형 추세 slope −2.4e-05/리밸, p=0.96(단조 감쇠 아님, 후반 IC 소멸은 사실). §S13.47 (L5680): 이득 2024+ 집중. §S13.23 (L3345–3376): 후반 IC 감쇠 서술. 반대 증거(표류 부재): §S11.10 부기(L1240 부근): 재사용 스테일 모델 IC +0.037 vs 신선 +0.003(p 0.29, 양 반기 동일 방향); §S16.3 (L7739–7794): fresh_fixed 12/12 발동·avg_ic +14.1%·ΔIR +0.016 노이즈; §S16 O1 라이브 모델 354일 스테일 무비용. §S7 A4 (L423): 시드 IR std 0.187 — 랭커 추정 분산이 큼(표본 축소는 분산 확대). config.py L341–345 REDESIGN D: 756→1260 확대가 '안정성' 근거.",
+     "why_not_closed": "표본 가중 arm 0건(variants/·결정 로그 grep 0). 금지된 하이퍼파라미터 스윕 5종(lr·min_child·val_window·ES 지표·eval_at)은 전부 '같은 분포에서 용량/규제'를 바꿨고, 학습 *분포*(시점 가중)를 바꾼 arm은 없다. 단 §S16.3·§S11.10의 스테일-무비용 증거가 표류 부재를 시사하므로 사전점검 없이는 arm 금지.",
+     "single_parameter": "sample_weight_halflife (신규 config, default 0 = OFF 파리티; ON이면 LGBMRanker.fit(sample_weight = 0.5^((t_train_end − t)/h)) — lightgbm 4.6.0 RankingObjective가 행 가중을 그래디언트에 곱하므로 rank_xendcg에 그대로 작동, 쿼리 내 상대 손실이라 날짜 간 가중만 의미). 값은 사전점검 (3)의 age-IC 감쇠 곡선에서 도출: 날짜 고정효과 제거 IC가 age 0 대비 절반이 되는 age를 63BD 배수로 반올림. §S16 보고서의 504는 관측 근거가 없으므로 곡선이 없으면 arm도 없다. 스윕 금지.",
+     "precheck": {
+      "data_source": "outputs/s16_7_name_risk_cap/backtest_result.pkl: models(고유 19, 각 _active_features/_active_fw), panel, targets(spec20), data_quality.listing_mask.dates(예측 시 상장 전 제외), model_quality.events(서빙 스케줄), ic_series. 워크북 불요.",
+      "computation": "스크립트 scripts/precheck_g4_model_age.py(ANGLE-03·ANGLE-06과 공유). (1) 서빙 스케줄 복원: 고유 모델 j(적합일 d_j, obj id 기준 19개). (2) 모든 리밸일 t ≥ d_j(97×19 중 유효 ~900쌍)에 predict_cross_sectional(model_j, panel, feature_names=_active_features, feature_scale=_active_fw, t, listing_dates) → Spearman IC_j(t) vs spec20(t). 학습 라벨 종단이 d_j−165BD라 t ≥ d_j는 전부 OOS. (3) 날짜 고정효과 제거: IC~_j(t) = IC_j(t) − mean_j IC_j(t); age = (t − d_j)/252. 회귀 IC~ = a + b·age, NW(lag 3) t; age 버킷(0–1y / 1–2y / 2–4y / 4y+) 평균·3분할. (4) 모델 간 예측 순위상관 vs 적합일 간격(표류의 직접 측정). (5) 재훈련 채택일마다 신·구 모델 예측 순위상관(모델 교체 불연속, ANGLE-03 게이트용).",
+      "gate": "표류 실재 = b < 0 AND NW t ≤ −2 AND 4y+ 버킷 IC < 0–1y 버킷 IC가 3분할 2/3 → PROCEED, halflife = IC~가 age0 대비 절반이 되는 age(63 배수). 그 외(|t| < 2 또는 버킷 평평) → SHELVE, 결과는 ANGLE-03 분기로 이관. ANGLE-02·03은 상호배타(다중성 2 사전 선언, 둘 중 최대 1 arm).",
+      "expected_if_true": "b ≤ −0.01/yr, 0–1y 버킷 IC ≈ +0.02 vs 4y+ ≈ 0, 모델 간 순위상관이 2년 간격에서 < 0.6 → arm: E1 ΔIR > +0.36 & 3분할 부호 일관, 병기 avg_ic·퇴화율·turnover·TE·beta.",
+      "expected_if_false": "b ≈ 0(|t| < 2), 버킷 평평(§S11.10·§S16.3 정합), 2년 간격 순위상관 > 0.8 → 표류 부재, SHELVE(시간 감쇠 축 종결) → ANGLE-03 게이트 판정으로 이행.",
+      "cost": "pkl 로드 + 예측 ~900×250행 + 19×19 상관 ≈ 5분. 백테스트 0."
+     },
+     "adoption_basis": "ir_bar",
+     "risks": "유효 표본 축소 → 추정 분산↑(시드 밴드 ±0.19 확대)·퇴화율↑ 가능. 결정적 섭동만으로 ΔIR 카오스 대역 이동(§S12.3(i) 실증) — 사전점검 통과 없이는 arm 금지. 가중 정규화(합=1 여부)는 LightGBM 내부 스케일 불변이나 min_child_samples·min_sum_hessian 해석이 바뀔 수 있음(순수 함수 단위테스트로 파리티 h=0 확인). ANGLE-03과 동시 실행 금지.",
+     "effort": "M",
+     "self_priority": 3,
+     "confidence": 0.2
+    },
+    {
+     "id": "ANGLE-03",
+     "title": "확장(expanding) 학습창 — 첫 예측일 고정, train_start=0",
+     "axis": "모델/라벨",
+     "mechanism": "채널: avg_ic + structural_transmission(모델 교체 불연속 완화). 표류가 없다면(§S11.10·§S16.3 스테일 무비용) 5년 창 절단은 순수 정보 폐기다. 랭커의 추정 분산은 크고(§S7 시드 IR std 0.187, 2024-12-06 슬롯은 10그루·idio_vol_63d gain 0.468의 불안정 적합) 63BD마다 모델이 교체될 때 예측 순위가 불연속으로 바뀌어 회전을 만든다. 2014년부터 전 이력(최대 2.5배 데이터)으로 학습하면 적합 간 일관성↑·추정 분산↓ → 예측 순위 안정(turnover↓)·IC 소폭↑. REDESIGN D(756→1260, '안정성')의 원리적 연장선이며, '재훈련 신선도' 축이 종결된 뒤 남는 학습-분포 축의 반대 분기.",
+     "prior_evidence": "config.py L341–345 REDESIGN D(3y→5y 확대 근거: 퇴화·안정성). §S11.10 부기(L1240 부근): 스테일 모델 IC 우위. §S16.3 (L7739–7794): 신선 재적합 IR +0.016 노이즈. 감사 팩 models_summary: 고유 19/33, 재사용 그룹 6(2021-01-26 적합본 5회 서빙), 2024-12-06 모델 10그루(min_model_trees 경계)·top gain 0.468 단일 피처 집중. §S7 A4 (L400–447): 시드 분산·쌍상관 0.836. §S11.4·§S14 PIT 마스킹: 2014–2018 유효 종목 수 적음(확장창 이질성). 감사 팩 feature_audit: 252d 피처 zero_exact 7.6%(워밍업 행).",
+     "why_not_closed": "train_window 변경 arm 0건(§S11.5b는 val_window 252, §S10.2/§S11.10은 규제 파라미터). 코드상 train_window 증가는 첫 예측일을 밀어내므로(`for t_idx in range(train_window, …)`, model_trainer.py:737) 단순 값 변경으로는 실행된 적도 없고 실행할 수도 없다 → 신규 플래그 필요.",
+     "single_parameter": "train_window_expanding: true (신규 flag, default False = 파리티; ON이면 walk_forward_train·build_walk_forward_split에서 train_start = 0 고정, 첫 예측일(idx 1260 = 2018-11-23)·val 126·embargo 20 기하 불변 → 첫 모델은 현행과 바이트 동일, 2번째 재훈련(2019-02-20)부터 발산). 값 자유도 0(전 이력 사용).",
+     "precheck": {
+      "data_source": "ANGLE-02와 동일(outputs/s16_7_name_risk_cap/backtest_result.pkl: models·panel·targets·listing dates·events).",
+      "computation": "scripts/precheck_g4_model_age.py 공유 — (3) age-IC 회귀·버킷, (5) 재훈련 채택일(고유 모델 전환 18회)마다 신 모델 vs 구 모델의 같은 날 예측 순위상관 중앙값(모델 교체 불연속), 추가 (6) 리밸일 turnover(pkl turnover 97) 중 재훈련 직후 리밸 vs 그 외 리밸의 평균 차(교체가 회전에 기여하는지, Welch t).",
+      "gate": "표류 부재 = |b| NW t < 2 AND 4y+ 버킷 IC ≥ 0–1y 버킷 IC − 0.005 AND (5) 교체 순위상관 중앙값 < 0.85(안정화 여지 실재) → PROCEED. ANGLE-02가 PROCEED(표류 실재)면 본 후보 SHELVE. 교체 순위상관 ≥ 0.9(교체가 이미 연속적)면 기전 부재 → SHELVE.",
+      "expected_if_true": "버킷 평평(차 < 0.005), 교체 순위상관 0.6–0.8, 재훈련 직후 리밸 turnover가 평균보다 높음(t ≥ 2) → arm: E1 ΔIR > +0.36 & 3분할 부호 일관, E2 turnover 비악화(≤ 1.0×)·TE ≤ 4.5%·active share 밴드, 병기 퇴화율·unique_models·학습시간.",
+      "expected_if_false": "표류 실재(ANGLE-02 PROCEED) 또는 교체 순위상관 ≥ 0.9 또는 재훈련 직후 turnover 무차이 → SHELVE.",
+      "cost": "ANGLE-02와 공유(추가 ~1분). 백테스트 0. arm 실행 시 학습시간 ~2.5×(250종 런 19분 → ~35–45분) 사전 고지."
+     },
+     "adoption_basis": "ir_bar",
+     "risks": "2014–2018 구간은 유니버스 조성·커버리지가 다르고(late entrants 마스킹·252d 워밍업) 라벨 PCA 기저도 다른 레짐 → 이질 표본이 최근 관계를 희석할 수 있음(사전점검 4y+ 버킷이 이를 대리). 카오스 대역 ΔIR(열 공간 불변이나 행 집합 변경 = RNG 스트림 변경). 학습시간 증가. ANGLE-02와 상호배타. 퇴화율은 오히려 하락 기대(표본↑)이나 병기만.",
+     "effort": "M",
+     "self_priority": 2,
+     "confidence": 0.3
+    },
+    {
+     "id": "ANGLE-04",
+     "title": "UW측 μ 평탄화 — μ≤0 종목의 목적함수 μ를 0으로 (T2-7)",
+     "axis": "구성/제약",
+     "mechanism": "채널: structural_transmission(회전·TE 효율). rank_xendcg는 지수 이득 2^rel로 상위에 집중해 하위 순위 품질은 학습 목표 밖이다(§S12.2 지적). 그런데 MVO 목적함수 ret = μ·w(portfolio_optimizer.py:812)는 μ<0 종목의 *상대 순서*를 UW 선택에 그대로 쓴다 → 학습되지 않은 노이즈 순서가 펀딩 UW를 결정하고 21BD마다 재배열되어 회전을 만든다. score gate(μ≤0 → w≤bm)는 그대로 두고 목적함수의 μ만 0으로 평탄화하면 UW 선택이 리스크항·turnover 페널티·mega funding·제약만으로 결정된다 — '가장 낮은 μ'가 아니라 '최소 회전·최적 헤지'. §S16.5-P 갭₁ 33%(실행북이 등리스크 달성가능 알파의 2/3만 실현)의 일부가 UW측 순서 재배열이라는 가설.",
+     "prior_evidence": "§S13.45-D 실측(L5433–5479): gross UW의 바닥-5 집중 8.4%(OW top-5 30.7% 대비), 바닥100 밖 30.1% — UW는 이미 μ 순위와 느슨하게 결합. §S12.2 (L1323–1374): rank objective가 하위 순위·UW 품질을 직접 최적화하지 않음. §S13.49 (L6247–6305): score gate는 레짐 전환기에만 10–29종 바인딩. §S13.12 (L2577): TC spearman 0.309·전달률 9%. §S16.5-P (L8138–8160): 갭₁ +33.3%는 실행 경로 드래그, 'eta 축 미개척'. variants/codex_causal_rank_65.yaml: enforce_score_gated_ow true·score_threshold_for_ow 0.0·mega_cap_funding_mode true(funding_k 4·score_max 0.0).",
+     "why_not_closed": "UW측 목적함수 변경 arm 0건 — §S13.27(vol cap)·§S13.48-C(mega 히스테리시스)·§S13.50(투영 계량)·§S16.5-P(risk_aversion)는 다른 항. §S16 보고서 T2-7 미실행 확인(결정 로그 grep 0).",
+     "single_parameter": "uw_mu_flatten_enabled: true (신규 flag, default False = 파리티; ON이면 optimize_portfolio에서 objective의 mu_obj = where(mu ≤ score_threshold_for_ow, 0.0, mu) — 제약·score gate·투영·turnover 페널티 불변, 값 자유도 0). 임계는 기존 score_threshold_for_ow(0.0) 재사용.",
+     "precheck": {
+      "data_source": "outputs/s16_7_name_risk_cap/backtest_result.pkl: predictions(lag 적용·오버레이 후 = 옵티마이저 입력 μ), targets(spec20), portfolio_weights(97), daily_weights. 선택(2단계): E0 자산 scripts/precheck_s13_50_alpha_weighted_projection.py 경로로 bm 가중치·21BD 전진 수익(워크북 1회 로드).",
+      "computation": "scripts/precheck_g4_uw_mu.py. (1) 97 리밸일마다 μ≤0 부분집합 내 Spearman IC(μ, spec20), μ>0 부분집합 내 IC, 전체 IC — NW(lag 3) t·3분할. (2) μ≤0 집합 내 십분위 라벨 스프레드: μ 최하위 십분위 spec20 평균 − μ≤0 내 최상위 십분위 평균(부호·t). (3) 실제 UW 종목(w<bm, portfolio_weights)의 μ 순위 분포 및 리밸 간 UW 집합 교체율(Jaccard). (4) 선택: E0 경로로 리밸일별 Σ_{UW}(w−bm)×fwdex21을 μ 버킷(바닥 1–20 / 21–50 / 51–100 / 100+)별 집계·3분할.",
+      "gate": "P1: μ≤0 내 IC의 NW t < 2 AND 3분할 중 |t| ≥ 2 구간 없음(하위 순서 무정보) AND μ>0 내 IC t ≥ 2(상위는 유정보 — 대조군) → PROCEED. μ≤0 내 IC t ≥ 2 또는 (2) 십분위 스프레드 t ≥ 2(하위 순서에 알파 존재)면 SHELVE(평탄화 = 알파 폐기). (4) 실행 시 바닥 1–20 버킷 UW 기여가 3분할 3/3 양이면 역시 SHELVE.",
+      "expected_if_true": "μ≤0 내 IC ≈ 0.00±0.01(t < 1), μ>0 내 IC ≈ +0.03(t ≥ 2), 스프레드 ≈ 0, UW Jaccard 교체율 높음 → arm: E1 ΔIR > +0.36 & 3분할 부호 일관, E2 avg_annual_turnover ≤ 기준(감소 기대)·TE ≤ 4.5%·beta·active share 밴드·mega funding 준수, G0 avg_ic 비트 동일(옵티마이저 전용 변경 증명, §S16.7 방식), bm 폴백 0은 optimizer_failure_rate로 판정(W1 T-02 지적).",
+      "expected_if_false": "μ≤0 내 IC t ≥ 2 → 하위 랭킹도 알파 → SHELVE(하위 순서는 정보).",
+      "cost": "(1)–(3) pkl 로드 후 수 초. (4) 워크북 1회 로드 ~5–10분, 재해 없음. 백테스트 0."
+     },
+     "adoption_basis": "ir_bar",
+     "risks": "UW 집합 변경 → 실현 beta·섹터 리스크 점유(Technology 90%대 HOLD 이력) 이동 가능. μ=0 동률 종목 다수 → ECOS 해가 degenerate 방향에서 optimal_inaccurate/불안정 증가 가능(솔버 상태·name-risk 캡 수렴 병기). 하위 IC가 0이 아니면 알파 손실. score gate가 레짐 전환기에만 바인딩(§S13.49)이라 효과가 특정 구간에 집중될 위험(3분할 일관성 게이트가 방어). 캐릭터: active share가 UW측에서 축소될 수 있음(§2.5 밴드).",
+     "effort": "S",
+     "self_priority": 3,
+     "confidence": 0.25
+    },
+    {
+     "id": "ANGLE-05",
+     "title": "죽은 브로드캐스트 피처 7 + 바이트 중복 2 제거 (코어 65 → 56) — M4/T-10",
+     "axis": "모델/라벨",
+     "mechanism": "채널: 없음(정보 전달 채널 부재를 정직하게 명시). 7개 bcast 피처(cal_is_Q1·regime_mkt_ret_21d·fac_F_Quality/Growth/Value_mom_63d·fac_value_growth_63d·fac_yield_slope)는 날짜 쿼리 내 상수라 rank_xendcg 그래디언트가 0 → 33모델 전부 split 0(§S13.18 기전). 2개(fin_roe_level_z≡best_roe_level_z, fin_pb_level_z≡best_px_bps_ratio_level_z)는 동일 식. 제거 효과: (a) colsample_bytree 0.8 추첨에서 중복 신호의 선택 확률 0.96 vs 0.80 편향 제거, (b) EWMA 드롭 예산 int(65×0.05)=3이 죽은 열에 소진되어 선택층이 inert였던 상태를 명시화(56 < ewma_min_features 60 → 드롭 0 확정), (c) 설계 문서의 '스타일 균형 65(Factor 11%·Conditioning 7%)'가 실제 0%임을 정정 — §S15 fix-pack #2(fac 달력 수정)가 모델에 no-op였음을 공식화. 기대 ΔIR은 카오스 대역(열 공간 변경 = colsample RNG 스트림 변경, §S12.3(i)).",
+     "prior_evidence": "registry/main_observed_leads.md M4; w1 T-10(low). 감사 팩 zero_gain_by_model.json: 65피처 모델 2슬롯에서 위 7개 split 0·gain 0, 62피처 모델에서 Column_37–40(cal_is_Q1·regime_mkt_ret_21d·fac_F_Quality/Growth) 4개 잔존 0 → EWMA가 드롭한 3개는 fac_F_Value·fac_value_growth·fac_yield_slope로 추정. high_corr_pairs.json: corr 1.000 ×2. feature_audit.csv: 7개 bcast의 median_cs_std 0.0·dates_cs_std_eq_0 100%. §S13.18 (L2916): bcast gain 정확히 0 기전; §S13.21 (L3088): 재확증(EWMA 63→60 드롭 정합). §S12.3(i) (L1376–1430): 열 공간 불변·스케일만 바꿔도 ΔIR −0.060·퇴화율 56→50% = 카오스 감도 실증.",
+     "why_not_closed": "피처 *제거* arm 0건(§S13.x arm 전부 추가 방향; whitelist 축소 이력은 2026-04 REDESIGN뿐). §S13.13의 '열 공간 변경 민감' 선례는 제거의 기대 이득이 아니라 기준선 이동 비용을 뜻함.",
+     "single_parameter": "core_feature_prune_dead_enabled: true (신규 flag, default False = 파리티; ON이면 filter_to_core의 CORE_FEATURE_WHITELIST에서 위 9개 제거 — best_* 쪽 보존, fin_* 중복 제거). 값 자유도 0. 권고: 단독 런 대신 다음 정확성 팩(W1 T-01 tg_upside 커버리지 갭 임퓨트 수정)과 동일 플래그·동일 페어드 런에 동봉(§S15·§S16.1 fix-pack 선례) — 카오스 대역 ΔIR에 백테스트 1회를 단독 지출하지 않기 위함.",
+     "precheck": {
+      "data_source": "감사 팩(zero_gain_by_model.json·high_corr_pairs.json·feature_audit.csv) + outputs/s16_7_name_risk_cap/backtest_result.pkl(models[*]._active_features, booster feature_importance('split'), panel 2쌍 열).",
+      "computation": "scripts/precheck_g4_dead_features.py. (1) 고유 19모델 전부에서 7개 bcast 이름의 split 수 == 0(이름 매핑은 _active_features 순서). (2) np.array_equal(panel['fin_roe_level_z'], panel['best_roe_level_z'], equal_nan=True) 및 pb 쌍. (3) 62피처 모델들의 드롭 3개 이름 확인. (4) 순수 함수 단위테스트: 56피처에서 EWMAFeatureTracker.get_active_features가 n_keep = max(56−2, 60) = 56 → 드롭 0.",
+      "gate": "(1)(2) 전부 참 → 구조 확정 → arm(정확성 팩 동봉). 하나라도 거짓(어느 모델에서 bcast split > 0, 또는 중복 쌍 불일치) → M4 정정·SHELVE.",
+      "expected_if_true": "전부 참(감사 팩과 일치). arm: E0 OFF 바이트 동일, E1 페어드 동일 빈티지 ΔIR/ΔTE/Δbeta/Δ퇴화율/Δturnover 관측 기록(채택 기준은 위생·ΔIR 부호 무관 — 결정 로그에 'IR 무관' 명시로 p-hacking 오해 방지), E2 do-no-harm(TE ≤ 4.5%·active share 밴드·ECOS fallback 0).",
+      "expected_if_false": "일부 모델에서 bcast split > 0 → §S13.18 기전 재검토(가능 원인: 달짜 쿼리에 상장 전 NaN 행이 섞여 쿼리 내 비상수).",
+      "cost": "수 초(pkl 로드 제외). 백테스트 0. arm은 페어드 런 1회(~20분) — 동봉 권고."
+     },
+     "adoption_basis": "governance",
+     "risks": "ΔIR·퇴화율이 카오스 대역(±0.19)으로 이동 — 정보 이득 0이고 기준선 교체 비용만 발생(반대로 우연히 큰 양의 ΔIR이 나와도 IR 근거로 서술 금지). 'Factor 채널 부재'가 공식화되면 향후 매핑형 재설계(§S13.23 방법론)는 별도 사전등록 대상. ewma_min_features 60 > 56 상수 정합(플래그 ON 시 EWMA 드롭 자동 inert, 문서화 필요). 수치 불변 대안(문서화만·§S16 P8 처방)도 존재 — 사용자 결정.",
+     "effort": "S",
+     "self_priority": 4,
+     "confidence": 0.5
+    },
+    {
+     "id": "ANGLE-06",
+     "title": "재훈련 빈티지 k=3 예측 평균 — 시드 앙상블과 다른 축인지 P0 상관 게이트로 판정",
+     "axis": "모델/라벨",
+     "mechanism": "채널: structural_transmission(모델 교체 불연속 완화)·avg_ic(분산 축소). 단일 슬롯 모델 대신 최근 채택된 3개 적합본(63BD 간격)의 z 평균을 μ로 쓴다. 시드 앙상블(§S7 A4)과의 차이: 다양성 원천이 RNG(피처 부표본)가 아니라 학습창 이동·조기종료 지점·EWMA 피처셋이다. 단 학습창 중첩이 95%(1260 중 63 이동)라 빈티지 간 상관이 시드 상관 0.836 이상일 가능성이 크며, 그 경우 '같은 축'으로 판정하고 종결한다 — 퇴화율 42%가 '검증창에 신호가 없다'는 답이라면 재사용 정책(production)은 사실상 1-빈티지 유지이고, 남는 유일한 모델-축 질문은 '여러 빈티지를 함께 쓰면 분산이 주는가'다.",
+     "prior_evidence": "§S7 A4 (L400–447): 시드 앙상블 쌍상관 0.8355·ΔIR −0.164·P1/P2 음(재표준화 후 CS 분산 축소 0). §S16.3 (L7739): 신선 재적합 IR 무비용 → 신선도 축 종결. §S11.10 부기: 스테일 모델 IC 우위(과거 모델도 유효 신호). 감사 팩 models_summary: 고유 19/33·재사용 그룹 6 — production은 이미 사실상 단일 빈티지 유지. 결정 로그 L6601(라운드 종료): '21BD 예측평균'은 EMA α0.5 기표현·raw_predictions lag 이중지연 함정으로 저가치 — 본 후보는 시간 평균이 아니라 모델 평균이라 별개.",
+     "why_not_closed": "빈티지 평균 arm 0건. 시드 앙상블(A4)과 동축 여부가 미판정 — P0 상관 게이트가 이를 실측으로 결정한다(SHELVE가 기본 기대치).",
+     "single_parameter": "vintage_ensemble_k: 3 (신규 config, default 1 = 파리티; k=3은 retrain 63×3 = 189BD ≈ MAX_LIVE_MODEL_AGE_RETRAINS 3 — 라이브 모델 나이 게이트가 허용하는 최대 나이의 적합본까지만 평균, 퇴화 슬롯은 production처럼 이전 적합본 유지). 결합 규칙 파라미터-프리(§S7 A4 STEP1–3 관용구: 셀 유한값 평균 → per-date CS 재표준화 → 표준 EMA α0.5). 스윕 금지.",
+     "precheck": {
+      "data_source": "ANGLE-02와 동일 pkl(models 19·panel·targets·listing dates·events).",
+      "computation": "scripts/precheck_g4_model_age.py 확장. (1) 서빙 스케줄 복원 후 각 리밸일 t에 '최근 k=3 고유 적합본'(적합일 ≤ t) 확정. (2) 97 리밸일에 각 빈티지 예측 z → 쌍 순위상관 평균(P0). (3) k=3 평균 → per-date 재-z → Spearman IC vs spec20을 라이브 단일 모델 IC와 paired 비교(NW t, 3분할); lag21 순위 자기상관 비교(회전 대리).",
+      "gate": "P0: 평균 쌍 순위상관 ≤ 0.80(시드 0.836 미만 = 실질 다양성) AND P1: ΔIC ≥ 0 3분할 3/3·NW t ≥ 2 → PROCEED. P0 > 0.80 → 시드 앙상블과 동축 판정·SHELVE(앙상블 축 종결). P1 FAIL → SHELVE.",
+      "expected_if_true": "쌍상관 0.6–0.75, ΔIC +0.005~+0.01, 자기상관 +0.01 → arm: E1 바·E2 turnover ≤ 기준·캐릭터 보존, 병기 avg_ic·퇴화율.",
+      "expected_if_false": "쌍상관 ≥ 0.85(창 중첩 95%), ΔIC ≈ 0 → SHELVE, 인벤토리 불변.",
+      "cost": "ANGLE-02 스크립트 재사용 + 수 분. 백테스트 0."
+     },
+     "adoption_basis": "ir_bar",
+     "risks": "z 평균은 CS 분산 수축 → 재표준화 필수(A4 STEP2), EMA와 이중 스무딩 → 신호 지연 증가(§S13.11 느린 신호+eta 0.5는 유리하나 과지연 위험). 구현이 walk_forward_train 내부(예측 루프)라 M. A4 전례 −0.164로 사전확률 최저. 첫 2슬롯(빈티지 < 3)은 가용 개수만 평균(파리티 경계 명시).",
+     "effort": "M",
+     "self_priority": 5,
+     "confidence": 0.15
+    }
+   ],
+   "rejected_on_own_review": [
+    "T2-2 조기종료 지표를 선형 top-k 평균으로: eval 지표는 그래디언트에 영향이 없고(objective rank_xendcg가 트리 궤적을 결정) 동일 궤적 위의 정지점(=트리 수=용량)만 고른다 → §S13.8([10] −0.083)·§S13.47([20] +0.203, 채택)·§S16.3(고정 67그루 +0.016)로 용량 축은 3회 측정·종결(§S16.3 결과절 '실행 없이 종결', 상호배타 다중성 2 선언). 다중성 3회째 선언 비용 대비 새 정보 0. 사전점검을 굳이 하면 19모델 val 폴드에서 num_iteration별 선형 top-50 지표의 argmax가 ndcg@20 argmax와 다른 트리 수를 고르는지 확인하는 것뿐이며, 다르더라도 '다른 용량'일 뿐이다.",
+    "T2-3 학습 쿼리 5BD 스트라이드(train_query_stride 5): 중복 쿼리 제거는 점추정을 바꾸지 않고 분산만 바꿈 → IR 원리 채널 부재, 효과는 결정적 섭동(§S12.3(i) 동형, ΔIR 카오스 대역). min_child_samples 60은 285k행 대비 0.02%라 어느 쪽이든 무규제(보고서의 '독립 관측 3개' 논리는 규제 의미 없음). 조기종료 노이즈는 val 126BD 창 길이 문제라 스트라이드로 해결 불가(val도 줄면 더 노이지). 이득은 학습시간 ~20×뿐 — 운영 편의 항목으로만 기록.",
+    "pca_n_remove 2→1(라벨-북 정합, §S13.12의 41% 캐리를 라벨에 편입): config.py L229 REDESIGN L(2026-04-13) n_remove=1 실측 P1 IR +1.34→−0.26 훼손으로 원복, §S12.5(L1560–1578)가 '공격적·변동성 가중 factor scrubbing이 유효 설계'로 재확인 → 종결 축. 라벨 잔차화 깊이는 재등록 금지.",
+    "label_gain 평탄화·rank_relevance_levels 변경·lambdarank 전환: rank_xendcg는 Phi=2^label 하드코딩이라 label_gain은 ndcg 지표에만 작용(=T2-2와 동형, 용량 축). relevance 10등급은 226종 쿼리에서 상위 23종이 동일 라벨 — 북 OW 사용대(랭크 6–50 ≈ rel 8–9, §S13.45-D)와 이미 정합. lambdarank 전환은 objective+truncation_level+label_gain 3파라미터라 단일 사전등록 불가·§S12.2 objective 교체 FAIL 선례. 라운드 종료 기록(L6601)도 '상금 기대치 근거 없음'.",
+    "subsample_freq 활성화(§S16 P8: subsample 0.8이 bagging_freq 0으로 inert): 설정 서술 정합 문제이나 수치 불변 처방(키 제거·주석)이 존재 — 배깅 ON은 하이퍼파라미터 arm(5종 FAIL 축)이며 원리 채널 없음.",
+    "retrain_freq 63→21·fresh_fixed 변형(용량·주기): §S16.3 '스테일 무비용' 반증(IC +14%·IR +0.016)으로 신선도 축 종결. 퇴화율 42%는 '검증창(126BD=독립 라벨창 6개)에 신호가 없다'는 정직한 답이고, IR에 무비용이므로 게이트 항목(report-only)으로만 유지.",
+    "시드 앙상블 재도전(k 확대·재표준화 변형): §S7 A4 종결(쌍상관 0.836·ΔIR −0.164). ANGLE-06 P0가 '다른 축인가'를 실측으로 판정하며, P0 > 0.80이면 앙상블 축 전체 종결.",
+    "EWMA full refresh·drop_pct·importance_type 변경: §S12.3(ii) 실행·FAIL, §S12.3(i) 스케일링은 카오스 섭동. M4 제거(ANGLE-05) 후 선택층은 min_features 60 > 56으로 inert 확정 — 별도 arm 무의미.",
+    "val_window·min_child_samples·learning_rate·num_leaves: 금지 목록(§S10.2·§S11.5b·§S11.10 FAIL, 퇴화 원인은 §S13.8 지표 아티팩트로 규명).",
+    "21BD 예측 시간 평균(시간 앙상블): EMA α0.5가 기표현 + raw_predictions가 lag 1BD 기적용이라 재주입 시 이중지연(결정 로그 L6601 함정) → 저가치. ANGLE-06(모델 평균)과 혼동 금지.",
+    "multi-horizon 블렌드 재시도(가중 변경): §S11.9 FAIL — 블렌드는 연율화 산술상 63d 몫 ~5%라 기간구조를 학습 전에 붕괴시킴; 재시도 대신 ANGLE-01(순수 63d)로 단일 판정.",
+    "라이브 모델 나이 게이트(일수 기준) 강화: §S16.3 동반 계측(live_model_age_ok, 한도 3 retrains)이 이미 report-only로 존재 — 성과 후보 아님, 거버넌스 항목."
+   ]
+  },
+  "screened": {
+   "angle_id": "G4_model_label_training",
+   "screened": [
+    {
+     "id": "ANGLE-01",
+     "title": "순수 63BD 라벨 (forward_horizon 20 -> 63)",
+     "verdict": "proceed_to_precheck",
+     "decision_log_hits": "grep forward_horizon/라벨 지평/h63/multi-horizon/블렌드 타깃: §S11.8 L1075–1117 (IC h05 0.048/h20 0.053/h40 0.068/h63 0.080 t3.6, post21_63 0.069 t3.4 부호 일관; (b) effective_label_horizon 선결 수정 → 63이면 embargo 63 자동) · §S11.9 L1119–1177 (블렌드 {20:0.7,63:0.3} E1 FAIL ΔIR −0.311, P1/P2/P3 −0.877/−0.704/+0.301, E2 turnover 72.6% vs 74.6% 불변, 퇴화 56→50%, 잔존 후보로 '2모델 mu 결합'만 명시 — '순수 63d 단일 라벨 잔존'은 결정 로그에 없고 S16 보고서 L293에만 있음, 후보 JSON 인용 정정 필요) · §S13.26 L3536–3583 (forward_horizon 20 라벨 전제, 10BD 부정) · §S13.40 L4865–4899 (rank corr d0/d10 0.915, 보유 후반 IC 감쇠는 알파 지평 구조) · §S13.12 L2577–2631 (전달률 9%, gap 2.27%/yr) · §S13.11 L2522–2575 (eta×신호속도 상호작용 +0.242) · §S12.3(i) L1376–1430 (미세 섭동에도 ΔIR −0.060·P2 대이동 = 카오스 감도). variants/ grep forward_horizon 단독 변경 arm 0건(arm_s11_9_mh_blend만 multi_horizon). 같은 기전 종결 아님 — 블렌드(§S11.9)는 연율화 산술상 63d 증분 분산 몫 ≈7%(0.6²·2/10.2)라 사실상 spec20 순위였고, 순수 63d 라벨 학습은 미실행.",
+     "invariant_check": "단일 파라미터 O (forward_horizon 63, 기존 config 필드 src/config.py:240) · 스윕 X (40/126·블렌드 재시도 금지 명시) · OFF-default: 기존 값 변경형 arm이라 variant 단독 오버라이드(§S11.9·§S13.26 동형) · 캐릭터: TE 캡 0.035·active share 제약 불변, turnover ↓ 기대(§2.5 밴드 병기) · 룩어헤드: model_trainer.py:748 build_walk_forward_split(forward_horizon=effective_label_horizon) → embargo 63 자동, split_audit causal_ok 확인 의무 · 사전점검 백테스트 0 (LGBM 오프라인 적합 6회는 run_variant 경로 아님). 경고: 단일 필드지만 동시 변경 4가지 — (a) 라벨(target_engine.py:69), (b) ic_series/avg_ic 정의, (c) _matured_trailing_ic_mean(backtest.py:1368–1380; horizon 63이면 리밸 3회 이전 IC만 성숙 → confidence 집행 노브 동반 변화), (d) Phase3 캐시 토큰(run_variant.py:211, --no-cache 필수). (c)는 2런 없이 귀속 분리 불가 — 사전등록에 명시 필요.",
+     "precheck_feasibility": "데이터: outputs/s16_7_name_risk_cap/backtest_result.pkl 존재(274MB, 09-01 10:02, 08-25 빈티지 쌍). BacktestResult 필드 확인(backtest.py:804–844): targets·panel·predictions(post-overlay·post-lag=옵티마이저 입력, :2029)·pre_execution_predictions(:2021, lag>0시만)·models(33키, 고유 19; _active_features/_active_fw 부착 model_trainer.py:870–873)·model_quality.split_audit(:951–957)·data_quality.listing_mask(data_loader.py:1192). 사전 고정 슬롯 3개(2019-11-12·2022-10-05·2025-03-05) models 키 실존 확인. 함수 import 가능: build_walk_forward_split·prepare_rank_data·train_model·predict_cross_sectional. spec63* 근사는 창별 PCA 기저 상이 — 후보가 명시. 게이트 판별력: G-B(3/3)·G-D(NW(20) t≥2·3슬롯 부호)는 실제 탈락 가능 — §S11.9 P1/P2 훼손 전례상 FAIL 개연성 높음(p-hacking 아님). 결함 1: G-D 문구('열등하지 않아야'=비열등)와 수식('ΔIC≥0 AND t≥2'=우월성) 불일치 — 측정 전 하나로 고정. 결함 2: 189일 pooled은 20d 라벨 중첩으로 유효 n≈10 — t≥2가 강한 요구임을 사전 기록. 슬롯 날짜는 하드코딩 대신 pkl models 키에서 조회.",
+     "corrected_priority": 1,
+     "expected_value_note": "모델 축 arm 전례 11건(§S10.2·S11.5b·S11.9·S11.10·S12.2·S12.3(ii)·S12.5·S13.8·S13.47·S15.1·S16.3) 중 +0.36 바 통과 0, 최대 +0.203(§S13.47, 부호 비일관). 사전확률 ~0.2. 주장 채널은 회전·캐리(구조)인데 신호는 이미 lag1 순위 자기상관 0.995·d10 rank corr 0.915로 느려 turnover 추가 감소 여지 불확실; §S13.12 캐리 gap이 북 변화에 비례 손실을 물어온 전례. 기대 ΔIR은 카오스 대역(±0.19) 내 가능성이 가장 높음. 그럼에도 6후보 중 유일하게 양의 진단 근거(§S11.8)와 한 번도 실행되지 않은 단일 경로를 가진 후보라 사전점검 가치 최상.",
+     "reason": "선행 시도는 블렌드(§S11.9)뿐이며 산술상 순수 63d 라벨과 다른 기전 — 종결 아님. 불변식 위반 없음(단일 필드, 스윕 없음, embargo 자동). 사전점검은 pkl만으로 계산 가능하고 게이트가 실제로 탈락시킬 수 있음. 사전등록 전 G-D 문구·수식 불일치 정정, confidence 경로 동반 변화 귀속 한계 명시, 결정 로그 인용 정정('순수 63d 잔존 후보'는 로그에 없음) 3건 필수."
+    },
+    {
+     "id": "ANGLE-02",
+     "title": "시간 감쇠 표본 가중 (sample_weight halflife)",
+     "verdict": "proceed_to_precheck",
+     "decision_log_hits": "grep sample_weight/halflife/반감기/시간 감쇠/표류/drift/recency: arm 0건 (L590 드리프트 모니터=대시보드 리포팅, L2884 반감기=피처 상관 — 무관). 반대 증거: §S11.10 부기 L1240–1257 (재사용 스테일 모델 ic_pipe +0.037 vs 신선 +0.003, p 0.29, 양 반기 동일 방향; age 7만 음 N=3) · §S16.3 L7739–7794 (fresh_fixed 12/12 발동, unique 21→33, avg_ic +14.1%, ΔIR +0.016 — '스테일 무비용' 반증) · §S7 A4 L417–447 (시드 IR std 0.187, 표본 축소는 분산 확대) · §S12.3(i) L1421–1427 (결정적 섭동만으로 ΔIR −0.060·퇴화 56→50%). 표류 시사로 인용된 §S13.47 L5680–5730은 eval_at 이득의 split3 집중이지 관계 표류 증거 아님; §S13.23 L3345–3376에 '후반 IC 감쇠' 서술 없음(해당 절 IC 언급은 사전점검 IC +0.037뿐) — 후보 JSON 인용 부정확. 같은 기전 종결 아님: 하이퍼파라미터 5종은 용량/규제, 학습 시점 가중 arm은 0건.",
+     "invariant_check": "신규 config sample_weight_halflife default 0 = OFF 파리티 O(fit(sample_weight=None) 경로 바이트 동일 단위테스트 선행) · 단일 파라미터 O — halflife는 사전점검 age-IC 곡선에서 공식('age0 대비 절반, 63 배수 반올림')으로 유도(§S16.5-P λ* 관용구 동형, 사후 선택 아님; S16 보고서의 504는 근거 없음 명시) · 스윕 X · 캐릭터 무관 · 룩어헤드 없음(학습창 내 가중) · 백테스트 0 · ANGLE-03과 상호배타 다중성 2 사전 선언 O. 코드: lightgbm 4.6.0 확인, LGBMRanker.fit 시그니처에 sample_weight 존재 확인; model_trainer.py:485–504 fit 호출에 현재 sample_weight 없음(플래그 분기 추가 필요).",
+     "precheck_feasibility": "필드 전부 존재: models 고유 19(_active_features/_active_fw 부착)·panel·targets·data_quality.listing_mask·model_quality.events·ic_series(감사 팩 ic_series.csv 96행 병존). 학습 라벨 종단 = t−(126+20+20)=t−166 → t≥d_j 예측은 전부 OOS(정확). 날짜 고정효과 회귀: age=t−d_j라 모델 FE 동시 포함 시 공선 — 날짜 FE만 쓰는 설계가 맞음. 게이트(b<0 AND NW t≤−2 AND 4y+<0–1y 버킷 2/3)는 실제 탈락 가능하며 §S11.10/§S16.3상 SHELVE가 최빈 기대치. 보강 필요: (i) 곡선이 비단조·halflife 정의 불가일 때 SHELVE 조항, (ii) ~900쌍은 모델 19개 클러스터라 NW t를 모델 클러스터 강건 SE로도 병기.",
+     "corrected_priority": 3,
+     "expected_value_note": "채널 avg_ic 단독(전달률 9%, §S13.12). IC 채널로 +0.36 통과 전례 0(§S13.9 IC +92%에도 −0.19, §S16.3 IC +14%에 +0.016). PROCEED해도 arm 기대 ΔIR ≈ 노이즈, 유효 표본 축소로 퇴화율·시드 분산 악화 위험. 실질 가치는 '학습 분포(시점 가중) 축'을 5분·인벤토리 0으로 공식 종결하는 것과 ANGLE-03 분기 결정.",
+     "reason": "선행 arm 없음, 불변식 준수, 사전점검은 계산 가능하고 게이트는 탈락 가능(SHELVE 최빈). 단 표류 부재 증거 2건(§S11.10 부기·§S16.3)이 이미 있어 arm 사전확률 낮음 — 사전점검 통과 없이는 arm 금지 조건 유지. 인용 정정(§S13.23) 필요."
+    },
+    {
+     "id": "ANGLE-03",
+     "title": "확장(expanding) 학습창 — train_start=0",
+     "verdict": "reject_weak",
+     "decision_log_hits": "grep train_window/expanding/확장창/1260/756/앵커: arm 0건 (L4912 'expanding'은 §S13.41 vol 모델 워크포워드, L5390·5459 P1′ 4분할 expanding OOS — 무관; variants 전부 train_window 1260 핀). config.py:339–347 REDESIGN D 주석 '~3y heterogeneous window triggered early stopping' — 창 확대 근거는 퇴화·안정성이었고 12년 창은 더 이질적. 기전 반증: §S16.3 L7762–7770 unique_models 21→33(모델 교체 12회 추가)에 turnover 0.671→0.674(0.996×) — 모델 교체가 회전을 만들지 않음(후보 기전 '63BD 교체 불연속→회전'의 필수 고리 부재 실측) · §S7 A4 L424–446 분산 축소 채널 ΔIR −0.164(쌍상관 0.836) · §S11.10 부기 스테일 모델 IC 우위(과거 창 모델이 유효 — 창 확장이 IC를 올릴 근거 아님) · §S11.4·§S14 PIT 마스킹(2014–18 유효 종목 수 적음).",
+     "invariant_check": "신규 플래그 default False 파리티 O · 값 자유도 0 O · 스윕 X · 코드상 분리 가능(model_trainer.py:737 루프 시작 train_window, :343 train_start=max(0,t−train_window)) · 캐릭터 무관 · 룩어헤드 없음 · 학습시간 ~2.5×(런 35–45분). 위반 없음.",
+     "precheck_feasibility": "ANGLE-02 공유 스크립트로 계산 가능(모델 19·panel·targets·turnover 97). 게이트 '교체 순위상관 중앙값 <0.85'는 탈락 가능한 게이트이나, §S16.3에서 63BD 이동창 신선 재적합 12개가 turnover를 0.4%만 바꾼 관측상 ≥0.9 개연성이 지배적 → 결과가 사실상 예견됨(SHELVE). (6) 재훈련 직후 리밸 turnover Welch t도 같은 이유로 무차이 예상.",
+     "corrected_priority": 5,
+     "expected_value_note": "기전의 필수 고리(교체→회전)가 §S16.3 E2에서 부재로 실측, 분산 축소→IR 고리는 A4 −0.164로 실패. 2014–18 PIT 유니버스 희소·라벨 PCA 기저 상이 → 이질 표본이 최근 관계를 희석할 위험이 이득보다 큼. 기대 ΔIR ≤ 0, 런 비용 2.5×. ANGLE-02 스크립트가 돌면 (5)(6)는 비액션 진단으로만 병기해 축 종결 기록.",
+     "reason": "불변식 위반은 없으나 기전이 이미 §S16.3 E2(교체 12회 추가에 turnover 불변)로 반증된 상태라 독립 사전점검·사전등록 가치 없음. ANGLE-02 스크립트의 부속 통계(5)(6)로 무료 기록만 권고."
+    },
+    {
+     "id": "ANGLE-04",
+     "title": "UW측 μ 평탄화 — μ≤0 종목의 목적함수 μ를 0으로 (T2-7)",
+     "verdict": "proceed_to_precheck",
+     "decision_log_hits": "grep 평탄화/flatten/mu_obj/UW측/하위 순위/score_threshold_for_ow/score gate: objective μ 변경 arm 0건. §S13.45-D L5401–5479 (gross UW 바닥-5 집중 8.4% vs OW top-5 30.7%, 바닥100 밖 30.1%=mega 펀딩 — UW는 이미 μ 순위와 느슨 결합 → '노이즈 순서가 펀딩 UW를 결정' 전제 일부 약화) · §S12.2 L1323–1374 (rank objective 하위 순위 미최적화 지적, regression 교체 시 turnover 107.9%) · §S13.49 L6145–6305 (score-gate 임계 축 종결 — 제약 임계 변경이지 objective μ 변경 아님; G1 23샘플 중 12 비트 동일=대부분 날 게이트 slack, 레짐 전환기만 10–29종 바인딩) · §S13.48-C L5914–6060 (mega funding μ 절대 0.0 가로지르기; 펀딩 선택은 portfolio_optimizer.py:381–392가 μ 오름차순 사용 — objective 평탄화와 별개 경로) · §S16.5-P L8099–8160 (리턴항/리스크항 115k배, w(λ=1)=w(λ=0) — objective 리스크항 inert; UW '최적 헤지'는 페널티가 아니라 하드 TE 캡(:410) 경유로만 작동; 갭₁ 33%는 eta 실행 드래그라 본 후보와 무관) · §S13.12 L2577–2631 (전달률 9%, 캐리 gap 북 변화에 비례 손실) · §S13.26 L3536–3583 (연 TC 6.9bp — 회전 비용 채널 미미). 라운드 종료 L6595–6601 '가중치 구성 계층 ②무비용 재배분 실행 경로 소진' — 본 후보는 objective 알파 항 변경이라 그 3경로와 다르나 같은 계층.",
+     "invariant_check": "신규 플래그 default False 파리티 O(objective의 mu만 where(mu≤score_threshold_for_ow, 0, mu); 제약·투영·turnover 페널티 불변) · 값 자유도 0(임계 0.0 재사용) · 스윕 X · 룩어헤드 없음 · G0 avg_ic 비트 동일 요구 O(옵티마이저 전용 §S16.7 방식) · 백테스트 0. 캐릭터 위험: UW측 active share 축소·섹터 리스크 점유(Technology 90%대 HOLD 이력) 이동·μ=0 동률 다수로 ECOS 해 degenerate 방향 불안정 — §2.5 밴드·optimizer_failure_rate·name-risk 캡 수렴 병기 의무.",
+     "precheck_feasibility": "predictions = post-overlay·post-lag 옵티마이저 입력 μ 확인(backtest.py:1944 vol_quality_tilt→:2021 lag→:2029 저장), targets(spec20)·portfolio_weights 97·daily_weights 존재. (4) E0 자산 scripts/precheck_s13_50_alpha_weighted_projection.py 존재(32KB, 워크북 1회 read-only 로드). 게이트 판별력: P1은 양방향 탈락 가능(μ≤0 IC t≥2 → SHELVE / μ>0 IC t<2 대조군 실패 → SHELVE). 약점: 'μ≤0 내 IC t<2 → PROCEED'는 귀무 불기각을 통과로 쓰는 구조 — n≈105/일×97일 SE≈0.01이라 |IC|<0.02면 통과(검정력 낮음). 보강 요구(사전등록 시): (a) (4)를 선택이 아닌 필수로(바닥 1–20 버킷 UW 실현 기여 3/3 양이면 SHELVE — 폐기되는 알파의 직접 측정), (b) 기전 규모 사전 계측 — gross UW 중 비-mega·μ≤0 종목 몫과 그 UW 집합 리밸 간 Jaccard 교체율에 최소 바(예: 몫 ≥50% AND 교체율 중앙값 ≥0.3)를 두어 효과 상한이 작으면 arm 미실행.",
+     "corrected_priority": 2,
+     "expected_value_note": "구성 계층 arm 전례: §S13.27 A/B FAIL, §S13.48/49/50 SHELVE, §S16.5-P SHELVE, 유일 채택 §S16.7(+0.045, 리스크 규율 근거). 회전 TC 채널 ≈0(6.9bp/yr), IR 이득은 캐리 안정 경유만 — 부호 불확실(UW 집합 변경 = 북 변경 = §S13.12 캐리 gap 노출). 기대 ΔIR 카오스 대역, 사전확률 ~0.15. 장점: 사전점검 수 초·백테스트 0·미측정 레버·avg_ic 비트 동일 증명 가능(성공 채널 §S13.41/§S16.7과 같은 성질).",
+     "reason": "같은 레버의 선행 arm 없음(score-gate 종결은 제약 임계 축). 불변식 준수. 사전점검은 pkl로 즉시 계산 가능하고 게이트는 탈락 가능하나 P1의 귀무-통과 구조가 약해 (4) 필수화·기전 규모 바 추가를 사전등록 조건으로 요구. §S13.45-D상 UW가 이미 μ와 느슨 결합이라 효과 상한이 작을 가능성을 사전 기록."
+    },
+    {
+     "id": "ANGLE-05",
+     "title": "죽은 브로드캐스트 피처 7 + 바이트 중복 2 제거 (65→56)",
+     "verdict": "reject_weak",
+     "decision_log_hits": "grep bcast/브로드캐스트/whitelist/fin_roe_level_z/fin_pb_level_z/colsample/gain 0: §S13.18 L2916–2951 (bcast 피처 gain 정확히 0 기전 — 쿼리 내 그래디언트 합 0; '기존 whitelist fac_* bcast 5종 만성 저중요도 동일 기제') · §S13.21 L3088–3117 (재확증, EWMA 63→60 드롭이 zero-gain 제거와 정합) · §S12.3(i) L1376–1430 (정보 이득 0인 스케일링 OFF가 ΔIR −0.060·TE +0.23%p·퇴화 56→50%·P2 대이동 — '제거는 결과 불변이 아니라 기준선 교체이며 기대 이득 없는 재인증 비용만 발생 → 청소 없음' 판정) — 본 후보와 동형(열 공간 변경 = colsample RNG 스트림 변경)의 직접 선례 · §S12.3(ii) L1490–1491 (whitelist 포화, floor 60) · §S13.7 L2109 (fin_pb_level_z delta 언급) · §S15 fix-pack L6984–7091 (#2 fac 달력 수정은 8건 합산 측정이라 #2 단독 no-op 여부 미분리 — M4의 '모델 no-op' 주장은 split 0 증거로만 성립). 피처 제거 arm 0건.",
+     "invariant_check": "플래그 default False 파리티 O · 값 자유도 0 O · 캐릭터 무관 · 룩어헤드 없음. 그러나 §S12.3(i) 선례가 '정보 이득 0·RNG 스트림 변경' 유형의 단독 런을 명시적으로 배제. 정확성 팩 동봉 권고는 '채택 기준=정확성' 팩에 비정확성(위생) 항목을 혼입시켜 페어드 귀속을 오염 — 인정 불가. 사전점검 백테스트 0 / arm은 페어드 런 1회(~20분).",
+     "precheck_feasibility": "감사 팩 존재 확인: zero_gain_by_model.json·high_corr_pairs.json(best_roe_level_z–fin_roe_level_z 1.000, best_px_bps_ratio_level_z–fin_pb_level_z 1.000)·feature_audit.csv(7종 dates_cs_std_eq_0 100%·median_cs_std 0.0)·models_summary.json(65피처 모델 n_zero_gain 7, 62피처 모델 4–5). pkl models booster feature_importance 재계산·np.array_equal 확인 가능(assembly.py:554 fin_roe_level_z=cross_sectional_zscore(roe), :565 fin_pb; best_* 동일식 여부는 accounting.py 대조). 게이트 (1)(2)는 §S13.18 기전상 사실상 항상 통과 → 후보를 탈락시키는 기능 없음(판별력 0). EWMA n_keep=max(56−2,60)=56 → 드롭 0(model_trainer.py:143–145)은 산술 확정.",
+     "corrected_priority": 4,
+     "expected_value_note": "정보 채널 0, ΔIR 카오스 대역(±0.19) — 후보 스스로 인정. 산출은 문서 정합뿐. §S16 P8 처방(수치 불변 문서화)이 동등 가치·비용 0. 권고: (1)(2)를 read-only 검증(백테스트 0·인벤토리 불변)으로 실행해 결정 로그에 M4 사실 기록 + CORE_FEATURE_WHITELIST 주석('bcast 7 inert·dup 2·EWMA 드롭 예산이 이들에 소진') — 코드 산출물 무변경. whitelist 실제 축소는 §S12.3(i) 판정대로 불실시, 정확성 팩 동봉도 귀속 오염이라 금지.",
+     "reason": "게이트가 항상 통과(판별력 0)하고 IR 채널이 없으며, 동형 선례 §S12.3(i)가 '기대 이득 없는 기준선 교체'로 청소를 배제. 후보로는 기각하되 (1)(2) 검증과 문서화는 0비용 거버넌스 기록으로 권고."
+    },
+    {
+     "id": "ANGLE-06",
+     "title": "재훈련 빈티지 k=3 예측 평균 (P0 상관 게이트)",
+     "verdict": "reject_weak",
+     "decision_log_hits": "grep 앙상블/ensemble/쌍상관/빈티지 평균/모델 평균/예측 평균/MAX_LIVE_MODEL_AGE: §S7 A4 L400–447 (시드 앙상블 k=5 쌍상관 0.8355, pre-재표준화 CS 분산 축소 13%→재표준화 후 0, ΔIR −0.164, 서브 −/−/+, OFF 유지) · L481 요약표 · L501 (시드 노이즈 ±0.19 = 채택 바와 동급) · §S16.3 L7739–7794 (신선도 무비용, live_model_age 한도 3 retrains — k=3 근거는 L7549) · §S11.10 부기 L1240–1257 (스테일 모델 IC 우위 — 과거 빈티지도 유효 신호) · L6599–6601 (21BD 예측평균은 EMA 기표현·raw_predictions lag 이중지연 함정으로 저가치 — 시간평균이라 본 후보와 별개, 후보가 구분 명시). 빈티지 평균 arm 0건이나 '분산 축소' 기전은 A4에서 실측 실패.",
+     "invariant_check": "신규 config default 1 파리티 O · k=3 근거(MAX_LIVE_MODEL_AGE_RETRAINS 3) O · 결합 규칙 A4 STEP1–3 파라미터-프리 O · 스윕 X · 룩어헤드 없음(적합일≤t 모델만). 캐릭터: z 평균→재표준화→EMA α0.5 이중 스무딩으로 지연 증가(§S13.11상 느린 신호는 유리하나 과지연 위험). 구현 walk_forward_train 예측 루프 M. 백테스트 0.",
+     "precheck_feasibility": "ANGLE-02 공유 스크립트로 계산 가능(models 고유 19·_active_features/_active_fw·panel·targets·listing_mask). P0(쌍 순위상관 ≤0.80)·P1(ΔIC≥0 3/3·t≥2)은 실제 탈락 가능한 게이트. 그러나 학습창 중첩 95%(1260 중 63 이동)·§S16.3에서 63BD 이동창 신선 재적합 12개가 turnover를 0.4%만 바꾼 관측상 빈티지 쌍상관 ≥0.9 개연성 지배적 → P0 FAIL(SHELVE) 예견.",
+     "corrected_priority": 5,
+     "expected_value_note": "분산 축소 채널은 더 다양한(쌍상관 0.836) 시드 앙상블에서 −0.164로 실측 실패; 덜 다양한(중첩 95%) 빈티지 앙상블이 이를 뒤집을 사전확률 <0.1. IC 채널 전달률 9%. 기대 ΔIR ≤ 0. ANGLE-02 스크립트가 돌면 P0 쌍상관을 비액션으로 병기해 '앙상블 축(시드+빈티지)' 종결만 기록.",
+     "reason": "기전(예측 분산 축소)이 §S7 A4에서 더 유리한 조건으로 이미 실패했고, 다양성 원천(창 이동)이 시드보다 약함이 §S16.3 관측과 구조(95% 중첩)에서 예견됨. 독립 사전점검·사전등록 가치 없음 — ANGLE-02 부속 통계로 무료 기록만."
+    }
+   ],
+   "screen_notes": "종합: 6후보 중 proceed_to_precheck 3건(ANGLE-01 라벨 63d 우선순위 1, ANGLE-04 UW μ 평탄화 2, ANGLE-02 시간 감쇠 가중 3), reject_weak 3건(ANGLE-05 죽은 피처 제거는 0비용 read-only 검증·문서화만 권고, ANGLE-03 확장창·ANGLE-06 빈티지 앙상블은 §S16.3 E2·§S7 A4로 기전 선반증 — ANGLE-02 공유 스크립트의 부속 통계로 무료 기록만). closed_axis 해당 없음(같은 기전의 arm 실행 이력이 있는 후보 없음), reject_invariant 해당 없음(전부 단일 파라미터·OFF-default·스윕 금지 준수). 인벤토리 471 불변(사전점검 전부 read-only·백테스트 0). 공통 데이터원 outputs/s16_7_name_risk_cap/backtest_result.pkl(274MB, 09-01 10:02, 08-25 빈티지 쌍) 필드 전수 확인 — predictions는 post-overlay·post-lag 옵티마이저 입력(backtest.py:2029), pre_execution_predictions는 lag>0시만(:2021), models 33키/고유 19에 _active_features/_active_fw 부착(model_trainer.py:870), split_audit·listing_mask·events 존재; pkl 로드는 평일 11:15–11:30 리프레시 창 회피. 후보 JSON 인용 오류 2건 정정 요구: (1) ANGLE-01 '결정 로그가 순수 63d 잔존 후보 명시' — 로그 §S11.9는 '2모델 mu 결합'만 잔존 명시, 순수 63d는 S16 보고서 L293에만 있음; (2) ANGLE-02 '§S13.23 후반 IC 감쇠 서술' — L3345–3376에 해당 서술 없음. 사전등록 전 필수 보강: ANGLE-01 G-D 문구(비열등)와 수식(우월성 t≥2) 불일치를 하나로 고정, confidence 경로(_matured_trailing_ic_mean horizon 63) 동반 변화의 귀속 불가 명시, 슬롯 날짜는 pkl 키 조회; ANGLE-04 P1의 귀무-통과 구조 보강 — (4) 바닥 버킷 UW 실현 기여를 필수 게이트로, 비-mega·μ≤0 UW 몫·Jaccard 교체율에 기전 규모 바 추가(§S13.45-D상 UW가 이미 μ와 느슨 결합); ANGLE-02 곡선 비단조 시 SHELVE 조항·모델 클러스터 강건 SE 병기. 기대값 총평: 모델 축 arm 11건·구성 계층 arm 전부 +0.36 바 미통과 전례 — 세 후보 모두 사전확률 ≤0.2, 사전점검 SHELVE가 최빈 기대치이며 가치는 축의 저비용 종결에 있음. 결과 파일: C:/Users/westl/AppData/Local/Temp/claude/C--Users-westl-PycharmProjects-pythonProject-venv-vf-new-machine-re-study-c2-ai-port/0caf960f-9660-4a4b-a91e-809a2f4ab53d/scratchpad/w2/screen_G4_model_label_training.json"
+  }
+ },
+ {
+  "angle": "G5_risk_model_sigma_te",
+  "generated": {
+   "angle_id": "G5_risk_model_sigma_te",
+   "candidates": [
+    {
+     "id": "ANGLE-01",
+     "title": "비동기 거래 보정 Σ — 상관행렬만 5일 겹침(주간) 수익률로 추정(대각 불변, K=5, Bartlett L=4)",
+     "axis": "리스크Σ",
+     "mechanism": "채널: structural_transmission(횡단면 재배분)+risk. 아시아 16종의 US 동시 corr 0.125 vs corr(Asia_t, US_{t-1}) 0.220(Dimson 비율 3.12, KR도 2.4~2.6)이므로 일간 126d pairwise Σ의 ASIA×US 블록은 보유기간(21BD) 기준 공분산의 ~1/3만 계측한다(아시아 휴장일 0-수익률 행도 같은 방향으로 교차항을 지운다). 라이브 북(08-18 risk.json)은 아시아 액티브 +3.5%p·Euler 액티브리스크 몫 46%(6857 0.31, 000660 0.22)이고 이들은 US 반도체 OW 군집(STX +2.75, NVDA +1.75, APP, LITE, MU, GEV, VRT ≈ +8%p)과 같은 방향이라 교차항 2·a_AᵀΣ_AU·a_U가 ~2.7배 과소 — 이 북 기준 ex-ante TE 2.74%가 ~3.2%로 재계측되고 6857 몫이 name-risk 캡 0.35를 넘는 규모. 타깃 TE 캡은 사실상 항상 바인딩(§S16.5-P '비바인딩 타깃 4/49')이므로 블록 보정은 아시아↔US 군집 간 상대 재배분을 강제한다 — §S13.41(횡단면 대각 +0.124) 계보의 전달 경로이며, §S13.46(스칼라 비대각 = 총량 채널, 전달 0)과 다른 채널. 설계: Σ_base = D_d·R_w·D_d (D_d = 일간 pairwise 표준편차, R_w = hist.rolling(5).sum() 겹침 수익률의 pairwise 상관 = Newey-West Bartlett L=4 커널, PSD 보존) → 이후 메가캡 수축·§S13.41 D_s 스케일 그대로. 알파 경로 비접촉(avg_ic 비트 동일).",
+     "prior_evidence": "main_observed_leads M2 + w3/pack/async_probe.csv(지역 중앙값: ASIA corr_lag0 0.125/lag1 0.220/lead1 0.027, β0 0.211 vs β_lag1 0.376; EUROPE 0.350/0.064/−0.031; US 0.571/−0.045/−0.055; 지역 EW ASIA same-day 0.179 vs US_{t-1} 0.328). risk.json(as_of 08-18): ASIA act +0.0347, te_contrib 0.0127/est TE 0.0274, Euler 몫 0.463. 본 라운드 직접 실측(operating returns.csv 09-01 런, pkl 미사용): 액티브 일수익 lag1 ACF +0.057(t 2.55), demeaned VR5 1.082·VR21 1.068, 연도별 VR5 2019~24 전부 >1(1.04~1.20), 2025 0.90·2026 0.71; bm VR5 0.925(US 반전). 북 총량 5일빈도 보정: 실현/ex-ante ratio_5 중앙 0.981·t 0.15(일간 1.013·t 1.29) — §S16.4 '총량 편향 없음' 유지 → 효과는 총량이 아니라 블록 간 상대 배분. 결정 로그 §S13.41(L4901~5050) 대각 +0.124·avg_ic 비트 동일; §S13.46(L5481~5637) 스칼라 비대각 ΔIR −0.009 종결; §S16.4(L7376~7430) pairwise 무편향 t +0.15(일간 빈도 검정).",
+     "why_not_closed": "종결된 축은 (i) 스칼라 시변 비대각(§S13.46), (ii) 고유공간 벌크 정제(§S13.48-B, floor 방향 점유 0%), (iii) 수축 강도(§S16.4), (iv) 대각 예측 증강 skew/term(§S13.42) — 전부 '일간 수익률 표본 공분산이 참'이라는 전제 위의 값 조정이다. 본 후보는 추정 빈도(계측) 자체가 보유기간과 어긋나 ASIA×US 블록 구조가 체계적으로 틀리다는 M2 리드이며, §S16.4 검정은 실현 측도 일간 빈도라 이 오류에 구조적으로 눈멀었다. Σ 비대각을 횡단면(블록)으로 바꾼 arm은 0건(src grep overlap/dimson/newey 0). 이번 실측 lag1 ACF t 2.55는 북 수준에서도 교차 시차항이 실재함을 시사.",
+     "single_parameter": "겹침 창 K=5 BD(모듈 상수). config 노출은 default-OFF 불리언 `cov_corr_overlap_enabled` 1개. 도출: 시차는 정확히 1거래일(아시아 종가→US 종가)이나 Bartlett L=1은 lag1 가중 0.5로 반쪽 보정이고 US→Asia→US 피드백(lag2)·휴장일 이월을 못 담는다; K=5(=Bartlett L=4, lag1 가중 0.8)는 전 거래소가 완전 사이클을 도는 최소 달력 단위(1주). K=2/3/10 시험 금지. 대각은 §S13.41 검증 완료 채널이라 불변(상관만 교체) — T-08(JP T+1 스탬프)이 확정돼도 lag2까지 커버해 강건.",
+     "precheck": {
+      "data_source": "pkl: outputs/codex_causal_rank_65/backtest_result.pkl(09-01 빈티지 production 재실행; portfolio_weights 97·daily_weights·predictions) 또는 S0′ outputs/s16_7_name_risk_cap(08-25). UniverseData(config=production) → raw_returns(=risk_source), get_benchmark_fn, get_sector_map; scripts/export_operating_data._production_risk_source/_load_optvol_scale/_apply_optvol_scale(production Σ 재현, precheck_s16_5.py 관용); w3/pack/universe_meta.csv currency→지역(USD=US, JPY/KRW=ASIA, 그 외 EUROPE); w3/pack/async_probe.csv(재현 대조). 빈티지: 실행 전후 (ai_signal_data.xlsx, Index.xlsx) mtime과 pkl data_vintage 기록 — 현재 Index.xlsx 09-02 11:09 리프레시로 어느 pkl과도 불일치(read-only 리스크 진단이라 판정 유효, 수치 미세차 명시; arm 비교는 동일 쌍 필수).",
+      "computation": "`PYTHONPATH=. <PY> scripts/precheck_g5_01_async_cov.py --pkl outputs/codex_causal_rank_65/backtest_result.pkl`. 리밸일 d(97)마다: hist = risk_source[<d].tail(130); Σ_d = estimate_covariance(hist.tail(126), bm, cfg)+optvol(production 그대로); R_w = hist.rolling(5, min_periods=5).sum().iloc[4:] 의 pairwise corr(min_periods 30); Σ_w = D_d·R_w·D_d → 메가캡 수축·optvol 동일 적용. P0: 블록 평균 상관 비율 mean(R_w)/mean(R_d) for ASIA×US, EUROPE×US, US×US, ASIA×ASIA — 97 중앙값·3분할. P1(캘리브레이션 기울기): a = 실행북 액티브(portfolio_weights − bm), a_A = ASIA 성분, a_R = 나머지; ex-ante 교차항 c_d = 2·a_Aᵀ Σ_d[AR] a_R·252, c_w 동일; 실현: 전진 21BD 동결북 슬리브 일수익 s_A = a_Aᵀr, s_R = a_Rᵀr → 5일 겹침 합 17개 → ĉ = 2·mean(S_A·S_R)/5·252; Mincer–Zarnowitz 회귀(절편 0) ĉ ~ β·c 로 β_d, β_w + NW(lag 4) t, 페어드 t of (ĉ − c_d). P2(바인딩): 매 4번째 리밸 24일 optimize_portfolio(production config, name-risk 캡 포함, μ=predictions·prev=직전 실행북) Σ_w vs Σ_d → one-way L1 중앙값, ASIA Δactive 합, Δex-ante TE(실행북 기준). P3(캐릭터): 재해 북 Pictet AS ±3%p·TE비·fallback 0. P4(T-08 강건성): JP·KR 각각 corr(r_t, US_EW_{t-1}) vs corr(r_t, US_EW_{t-2}). P5(TE 갭 분해, 비게이트): 97창 실현 TE(동결북 vs 드리프트북, 일간 vs 5일)/ex-ante — TE 캡 바인딩(실측 31%) vs 비바인딩, 지역 슬리브별 기여.",
+      "gate": "P0: ASIA×US 비율 중앙값 ≥ 1.5 AND US×US ∈ [0.85, 1.15](표적 보정 확인). P1(결정·정확성 자격): β_d 95%CI 하한 > 1 (또는 paired t(ĉ−c_d) ≥ 2) AND |β_w − 1| < |β_d − 1|/2. P2: L1 중앙값 ≥ 0.005(§S13.41 P1 동일 바). P3 전항 통과. 판정: P0∧P1∧P2∧P3 → arm(정확성 트랙, 단일 flag); P0∧P2∧P3이나 P1 FAIL → 교차항이 실북 분산에 비물질 → SHELVE(§S13.41 프레임 회부 없음); P0 FAIL → M2 Σ 함의 반증 기록.",
+      "expected_if_true": "ASIA×US 비율 2.0~3.0(async_probe 0.125→~0.33 함의), EUROPE×US 1.1~1.3, US×US 0.90~1.00, ASIA×ASIA ~1.0; β_d ≈ 2~3(t ≥ 2), β_w ≈ 0.8~1.2; L1 중앙값 0.01~0.03; 재해 북 ASIA 액티브 합 −1~−2%p(6857·000660 축소가 동일 신호 군집의 US 반도체·타 종목으로 흡수 — §S16.7 재배분 형태), 아시아 집중 북에서 ex-ante TE +0.2~0.5%p·6857 몫 캡 초과→강제 재배분.",
+      "expected_if_false": "P0 비율 < 1.5(휴장 0행·FX 잡음이 상쇄) 또는 β_d CI가 1 포함(아시아 액티브가 대부분 기간 소액이라 교차항 비물질 — 2025~26 VR5 < 1 관측과 정합) 또는 L1 < 0.005(name-cap·섹터 제약이 이미 흡수).",
+      "cost": "약 6~10분(UniverseData 로드 ~2분, cov 97×2, MVO 24×2), 백테스트 0"
+     },
+     "adoption_basis": "accuracy",
+     "risks": "(1) 전달 실패 전례 §S13.46(상관 정확도↑·IR 0) — 단 그건 스칼라 총량 채널; (2) 유효 표본 126→~25주로 상관 노이즈↑ → 추정오차 극대화·turnover↑ 가능(게이트 Δone-way ≤ +2%p, TE ≤ 기준+0.2%p, MaxDD ≤ 기준); (3) 캐릭터: 아시아 반도체 OW 축소가 알파 서식지 훼손 시 ΔIR 음 — do-no-harm ΔIR > −0.36 & 3분할 비일관음 요구, AS ±3%p; (4) T-08 JP T+1 스탬프 확정 시 피처·타깃 층 데이터 수정은 별도 선행(다른 관점), Σ arm 자체는 강건; (5) 룩어헤드 0(동일 hist 창); (6) ops risk.json·name-risk 가드 수치 동반 이동(정합) — 라이브 6857 몫 0.31이 보정 후 캡 초과 가능해 첫 라이브 리밸에서 강제 재배분을 사전 고지; (7) 정확성 트랙 인정은 P1 t≥2 조건부 — 미충족 시 §S13.41 프레임(리스크 게이트+ΔIR≥0 사용자 회부, DSR 계수).",
+     "effort": "M",
+     "self_priority": 1,
+     "confidence": 0.4
+    },
+    {
+     "id": "ANGLE-02",
+     "title": "메가캡 변동성 수축(cov_megacap_vol_shrink_enabled) OFF — 21종·bm 51%의 대각을 §S13.41 보정 모델 그대로 사용",
+     "axis": "리스크Σ",
+     "mechanism": "채널: accuracy(대각 = 유일 전달 실증 채널). portfolio_optimizer.estimate_covariance:101-114는 bm_i > 2/n(=0.8%, 250종에서 21종·bm 51%)의 σ_i를 0.5·avg_vol + 0.5·σ_i로 옮긴다(min(1,·) 클램프 없음): 고변동 메가캡(NVDA·TSLA·AVGO·META 류) σ −15~−25% 할인, 저변동(JNJ·PG·KO·WMT 류) +30~50% 부풀림. 이 수축 뒤에 §S13.41 D_s = σ̂_B/σ̂_A가 곱해지는데 모델 B는 수축 전 σ_trail126로 캘리브레이션된 것이라 21종에서 레벨 캘리브레이션이 깨진다. 결과: 가장 큰 액티브 포지션(NVDA OW +1.75%p, mega funding set UW −10%까지 허용)이 가장 부정확한 분산으로 TE 캡·Euler name 몫을 평가받음. OFF = 65종 시절 휴리스틱 제거 → 고변동 메가 OW는 비싸지고 저변동 메가 UW(펀딩)는 싸져 펀딩 효율↑·횡단면 재배분. 알파 경로 비접촉.",
+     "prior_evidence": "S16 구조 리뷰 P7(registry/2026-08-31-structural-review-s16.md L134-140) '검증됨·2렌즈 — 플래그 OFF arm 1회 측정 가치'; 결정 로그 §S16.6 #2(L7883) '명명-의도 드리프트, §S16.4 총량 검정 통과라 성능 이슈 아님' — 총량 검정(t +0.15)은 21종의 부호 상반 편향(고변동 과소·저변동 과대)이 상쇄되면 통과하므로 횡단면 오류를 못 본다; §S13.41(L4901~5050) 대각 채널 +0.124 3/3 양·avg_ic 비트 동일; §S15.2(L7166~7264) optvol 스케일 정확성 수정 채택 선례(같은 대각·같은 정확성 프레임); 결정 로그에 이 플래그 OFF 측정 기록 0(grep megacap_vol_shrink 0건); config.py:470 default True·production yaml 미오버라이드.",
+     "why_not_closed": "§S16.4는 수축 '추가'(pairwise 무수축 vs LW)를 다뤘고 본 건은 정반대인 '근거 없는 50% 평균회귀 휴리스틱(65종 시절 설계)'의 제거다. §S16.6이 비액션으로 둔 근거는 북 총량 검정뿐이며 셀 단위(종목×날짜) 예측력 검정은 미실시. 기존 스위치라 신규 코드 0·parity 자명(ON = S0′ 바이트 동일).",
+     "single_parameter": "없음 — 기존 불리언 `cov_megacap_vol_shrink_enabled: false` 1줄(production variant 오버라이드). 수축 강도(0.5) 완화 스윕 금지: 휴리스틱을 지지하는 사전 근거가 없으므로 원리적 값은 OFF(= §S13.41 모델 B 캘리브레이션 그대로)뿐.",
+     "precheck": {
+      "data_source": "pkl(portfolio_weights 97·bm 재구성) + UniverseData raw_returns·CUR_MKT_CAP(bm) + optvol 스케일 패널(_load_optvol_scale) + dataclasses.replace(cfg, cov_megacap_vol_shrink_enabled=False)로 OFF cov. 빈티지 기록 의무는 ANGLE-01과 동일.",
+      "computation": "`PYTHONPATH=. <PY> scripts/precheck_g5_02_megacap_shrink.py`. 리밸일 97: Σ_ON = estimate_covariance(hist, bm, cfg)+optvol, Σ_OFF = 동일(cfg_off)+optvol. 영향 집합 M_d = {i: bm_i > 2/n}(~21종). P0 셀 단위: σ̂_ON,i·σ̂_OFF,i(=sqrt(diag)·√252) vs 실현 h_i = σ_fwd21,i²(전진 21BD 일수익, 자기분산이라 일간 빈도 OK) → excess-QLIKE = log(σ̂²/h) + h/σ̂² − 1 pooled over (d,i)∈M(~2,000셀), 시간순 3분할. 기전 확인: σ_i > avg 부분집합과 σ_i < avg 부분집합의 mean log(h/σ̂²_ON) 부호. P1(북 수준, 비게이트): a = 실행북 액티브 → aᵀΣ_ON a vs aᵀΣ_OFF a vs 실현 21BD 동결북 액티브 분산 QLIKE(§S16.4 프레임). P2(바인딩): 매 4번째 24일 optimize_portfolio(production config) Σ_OFF vs Σ_ON one-way L1 중앙값; M 종목 Δactive(부호·크기), mega funding set 변화, Δex-ante TE. P3 캐릭터: AS ±3%p·TE비·fallback 0.",
+      "gate": "P0(결정): excess-QLIKE(OFF) ≤ 0.95×(ON) AND 3분할 전부 OFF 우세 AND 고변동 부분집합 mean log(h/σ̂²_ON) > 0·저변동 < 0(기전 확인). P2: L1 ≥ 0.005. P3 전항. 통과 → 단일 variant 오버라이드 arm(정확성 트랙). P0 FAIL(ON 우세·개선 <5%) → 휴리스틱 사후 정당화 기록·SHELVE.",
+      "expected_if_true": "OFF excess-QLIKE 개선 15~40%(50% 수축은 횡단면 vol 지속성 대비 과대), 고변동 메가 실현/ON 예측 분산비 1.3~1.7, 저변동 0.4~0.7; L1 0.01~0.03; 재해 북에서 NVDA류 OW 소폭 축소·저변동 메가 UW(펀딩) 확대·전체 ex-ante TE ±0.2%p; realized_beta 1.055 소폭 이동.",
+      "expected_if_false": "ON 우세(메가캡 vol이 21BD 지평에서 강하게 평균회귀) 또는 개선 <5%(D_s의 워크포워드 절편이 레벨을 이미 재보정) 또는 L1 < 0.005(mega_cap 제약이 M 종목 액티브를 고정).",
+      "cost": "약 5분, 백테스트 0"
+     },
+     "adoption_basis": "accuracy",
+     "risks": "(1) 저변동 메가 UW가 싸져 펀딩 UW 확대 → realized_beta 이동(병기·가드); (2) 고변동 메가 OW 축소가 §S13.27 vol-cap 실패(−0.62)와 같은 방향의 알파 서식지 훼손 — 규모는 21종 σ 재보정이라 훨씬 작으나 do-no-harm ΔIR > −0.36·3분할 요구; (3) ops risk.json·모니터·expected_rebalance 수치 동반 이동(정합, 산출물 변경); (4) 정확성 트랙 DSR 비계수이나 arm 백테스트 1회 필요(페어드 동일 빈티지).",
+     "effort": "S",
+     "self_priority": 2,
+     "confidence": 0.45
+    },
+    {
+     "id": "ANGLE-03",
+     "title": "T2-5 HAR 단기 항 — 변동성 모델 B에 log σ_trail21 회귀변수 1개 추가(모델 C) → Σ 대각 스케일",
+     "axis": "리스크Σ",
+     "mechanism": "채널: risk(대각 예측 정확도→선별 재배분, §S13.41 귀속과 동일 경로). production 대각 = 모델 B(log σ_fwd21 ~ log σ_trail126 + iv30_z)의 비율 스케일 s = σ̂_B/σ̂_A. 126BD 트레일은 급등 초기 반응 지연이 크고 iv30_z는 252D 자기 z(레벨이 아님)라 최근 21BD 실현 레짐 정보를 완전히 담지 못한다. Corsi HAR-RV의 월간 성분(21BD = 예측 지평 = 리밸 주기)을 넣으면 σ̂의 반응 속도가 오르고 스트레스 초기 고변동 종목 액티브가 Σ 경로로 축소된다(§S13.41 사후 귀속 '스트레스 축소' 보조 채널 강화·MaxDD 방향). 랭킹·avg_ic 불변.",
+     "prior_evidence": "§S13.41(L4901~5050) P0 excess-QLIKE −19.1%·MAE −9.1% 3분할 일관, arm +0.124 3/3 양, 귀속 '스트레스 창 액티브 일변동성 23.6→22.0bp'; §S13.42(L5051~5106) skew_z·term_z 증분 +2.5% FAIL — 꼬리 비대칭 정보는 변동성 크기 정보가 아님(HAR 항은 크기 정보); §S13.43(L5122~5225) T2 P1 NW t +2.30(옵션 합성이 직전 21BD 실현변동성 통제 후에도 리드 → 21BD 실현변동성 자체가 통제변수로 유의했음을 함의); S16 리뷰 T2-5 미실행.",
+     "why_not_closed": "§S13.42가 종결한 것은 skew_z·term_z(옵션 꼬리/기간구조) 증분뿐. 실현변동성 단기 성분은 어느 절에서도 검정된 적 없음(모델 B의 실현 정보는 126BD 창 하나). 다중성: 모델 B 증강 검정 2회째(§S13.42 이후) — 사전등록에 선언.",
+     "single_parameter": "회귀변수 1개: log σ_trail21(rolling 21, min_periods 15, ×√252). 21 = HAR 월간 성분 = FWD 예측 지평 = 리밸 주기(전부 21BD)로 원리적 고정; 5BD/1BD 성분·창 길이 스윕 금지. arm flag `option_vol_cov_har_enabled`(default-OFF), 모듈 상수 TRAIL_SHORT=21, 나머지(63BD 재추정·엠바고 t+21<추정일·클립 0.8/1.5·5BD 샘플링·MIN_TRAIN_ROWS 500) §S13.41 상수 그대로. OFF 경로 바이트 동일(스케일 패널 미생성 관용).",
+     "precheck": {
+      "data_source": "raw_returns(production 리스크 패널, option_vol_scale_fix 관측 마스크 포함) + iv30_z 시트 + raw_sheet_observed_mask; P1' 재해는 pkl portfolio_weights·predictions + production cov(precheck_s16_5 관용). 빈티지 기록 의무 동일.",
+      "computation": "`scripts/precheck_s13_42_skewterm.py`를 복제해 회귀변수만 교체(`PYTHONPATH=. <PY> scripts/precheck_g5_03_har.py`): 공통표본 원칙(모든 회귀변수 dropna 후 B·C 동일 표본 재적합), 63BD마다 expanding 재적합·엠바고·5BD 샘플링, OOS ~619 평가시점에서 B vs C의 excess-QLIKE·MAE(연율 σ)·시간순 3분할; 계수 d(log σ21) 시계열 안정성. P1': 매 8번째 리밸 12일에 D_C vs D_B(현 production) 재최적화(production config) one-way L1 중앙값·클립 도달률. P2'(비액션): corr(Δw, log σ21 − log σ126), 상위 μ 5분위 이탈 비중, 2020-03·2022·2024-08 급등 초기 s 상향 여부.",
+      "gate": "P0': C가 B 대비 excess-QLIKE ≥ 5% AND MAE ≥ 5% 감소 AND 3분할 부호 일관(§S13.42 P0' 동일 바). P1': L1 ≥ 0.005. 둘 다 PASS → 단일 arm; 하나라도 미달 → SHELVE(모델 B 실현변동성 축 소진 기록).",
+      "expected_if_true": "QLIKE −6~−12%·MAE −4~−8%, d 중앙값 +0.15~+0.30(HAR 월간 계수 대역)·12년 안정, L1 0.008~0.02, 급등 초기 s 상향(클립 1.5 도달률 소폭↑).",
+      "expected_if_false": "증분 < 5%(iv30_z가 최근 레짐을 이미 흡수, d < 0.1) 또는 3분할 비일관 또는 L1 < 0.005.",
+      "cost": "약 5분(§S13.42 스크립트 실측 수준), 백테스트 0"
+     },
+     "adoption_basis": "ir_bar",
+     "risks": "반응 속도↑ = 스케일 s 변동↑ → turnover↑(게이트 Δone-way ≤ +2%p); 급등 후 고변동 위너 축소(§S13.27 방향) — P2'로 위너 유출 사전 계측; 룩어헤드 0(엠바고 유지); 채택은 §S13.41 프레임(E1 ΔIR>+0.36 미달 시 리스크 게이트 4종 통과+ΔIR ≥ 0 사용자 회부, DSR 계수 +1).",
+     "effort": "S",
+     "self_priority": 3,
+     "confidence": 0.35
+    },
+    {
+     "id": "ANGLE-04",
+     "title": "T2-6 어닝 이벤트 분산 항 — PIT 케이던스 규칙 더미 1개를 모델 B에 추가(모델 D) → Σ 대각",
+     "axis": "리스크Σ",
+     "mechanism": "채널: risk(이벤트 분산의 사전 반영→발표 직전 액티브 축소). 발표일이 전진 21BD 창에 들면 창 σ +33%(S16 리뷰 T2-6). 모델 B는 iv30_z(252D 자기 z)로 발표 전 IV 프리미엄을 부분 포착(추정 ~40%: z ≈ +1.2 × c 0.11 → +14% vs 실제 +33%)하므로 잔여 +15~20%를 사전 예측 가능한 이벤트 더미로 넣으면 발표 직전 종목 액티브가 Σ 경로로 축소되어 이벤트 손실 분산 절감(TE·MaxDD 개선 방향). 어닝 정보를 랭커 경로(3회 실패)가 아닌 Σ 대각(전달 실증 채널)으로 소비하는 첫 arm. 랭킹 불변.",
+     "prior_evidence": "§S13.9(L2289~2397) 어닝 캘린더 8피처 IC +92%·IR −0.19; §S13.12(L2577~2633) 이벤트 슬리브 자체는 spec 포획 +0.75%/yr(비이벤트 코어 −1.1%); §S13.10·§S13.38 어닝/옵션 피처 arm FAIL; §S13.37(L4686~4722) days_to_earnings 시트 존재(단 realized Earnings_Date 기반 = 룩어헤드, §S15 확정 #26 earn_days_to_next 동형); data_loader._load_earnings_timeline(Earnings_Date 0/1 dates×tickers) 로드됨; §S13.41 대각 전달 실증; S16 리뷰 T2-6 미실행('Σ 대각 arm 0건').",
+     "why_not_closed": "어닝 정보의 종결은 랭커/피처 경로(§S13.9·10·38)뿐이며 Σ 대각 소비 arm은 0건. §S13.42 종결은 옵션 꼬리 변수. 다중성: 모델 B 증강 검정 3회째(§S13.42·T2-5 이후) 선언. 단 사전 확률은 낮음(아래 expected_if_false).",
+     "single_parameter": "더미 1개 E_t,i = 1{expected_next_i ∈ (t, t+21]}; expected_next = 마지막 발표일 + median(과거 발표 간격 BD, PIT expanding, 간격 ≥ 2개; 미달 시 63BD). 21 = FWD 지평 고정, 허용오차 창·케이던스 파라미터 없음(스윕 금지). 실현 날짜 버전(days_to_earnings 시트)은 상한 진단으로만 병기 — arm 사용 금지(룩어헤드). arm flag `option_vol_cov_earn_var_enabled`(default-OFF).",
+     "precheck": {
+      "data_source": "data.earnings_timeline(Earnings_Date 0/1) + raw_returns + iv30_z + 관측 마스크; P1'' 재해는 pkl portfolio_weights·predictions + production cov. 빈티지 기록 의무 동일.",
+      "computation": "`PYTHONPATH=. <PY> scripts/precheck_g5_04_earn_var.py`(§S13.42 골격): (a) 규칙 품질: PIT 더미의 precision/recall vs 실현 '창 내 발표' 여부(전 표본·연도별·지역별 — EU 반기 보고 종목 분리); (b) 효과 크기: 동일 종목 내 실현 σ_fwd21 비(더미=1 vs 0) 중앙값; (c) P0'': 모델 D = B + e·E 공통표본 OOS excess-QLIKE·MAE·3분할 — PIT 더미 기준(실현 더미 버전은 상한 병기); (d) P1'': 매 8번째 12 리밸 D_D vs D_B 재최적화 one-way L1; (e) P2''(비액션): Δw와 PEAD 부스트 종목의 겹침(발표 후 42~63BD 구간에서 트림되는 액티브 비율).",
+      "gate": "전제 P-rule: precision ≥ 0.7 AND recall ≥ 0.6 — 미달 시 규칙 신뢰 불가 SHELVE. P0'': excess-QLIKE ≥ 5% AND MAE ≥ 5% AND 3분할 일관. P1'': L1 ≥ 0.005. 전부 PASS → 단일 arm.",
+      "expected_if_true": "precision ~0.8(분기 보고 다수), recall 0.6~0.7(EU 반기·비정기 지연), 창 σ 비 1.25~1.35, e 계수 +0.15~+0.25, QLIKE −5~−8%, L1 ≥ 0.008.",
+      "expected_if_false": "QLIKE 개선 3~4%(iv30_z가 어닝 프리미엄 대부분 흡수 + 더미 셀 비율 ~1/3로 pooled 희석) — 사전 확률상 가장 가능성 큰 결과 → SHELVE·모델 B 어닝 축 종결 기록.",
+      "cost": "약 5~8분, 백테스트 0"
+     },
+     "adoption_basis": "ir_bar",
+     "risks": "PEAD로 구축한 포지션이 다음 발표 전 트림→발표 후 재구축 → turnover↑(게이트 ≤ +2%p)·§S13.12 캐리 훼손; 이벤트 슬리브 알파(+0.75%/yr) 일부 포기 가능 → ΔIR 음 위험; 케이던스 규칙 오탐 시 노이즈 Σ; 룩어헤드: 실현 더미 절대 arm 사용 금지; 채택은 §S13.41 프레임.",
+     "effort": "M",
+     "self_priority": 5,
+     "confidence": 0.25
+    },
+    {
+     "id": "ANGLE-05",
+     "title": "T2-8 종목·일자별 거래비용 capacity 게이트 — square-root 임팩트(k=1)로 AUM 상한 산출(성과 후보 아님·거버넌스)",
+     "axis": "실행",
+     "mechanism": "채널 없음(측정 IR은 하락만 가능 — 성과 후보가 아니라 §8 거버넌스 자료). 균일 10bp(one_way_tc)와 §S13.12 '비용 연 ~7bp 무시 가능' 전제를 AUM 함수로 검증한다: 리밸당 참여율 part_i = |Δw_i|·AUM/ADV_i → c_i(bp) = 2(half-spread 가정) + 1e4·k·σ_i,daily·√part_i. ADV가 낮은 아시아·유럽 종목과 6857·STX·000660 등 집중 포지션의 참여율이 capacity를 결정하므로 전략의 AUM 상한(AUM**: 드래그 = IR 1SE)과 '비용 무시 가능 AUM 대역'을 결정 로그에 고정하고, 향후 참여율 제약 arm 필요 여부를 판정한다.",
+     "prior_evidence": "§S12.6(L1621~1650) 균일 비용 민감도: 50bp에서도 ΔIR −0.08(순위 불변) — 단 종목·AUM 비종속; §S13.12 비용 연 ~7bp; §S13.35 volume_flow.py PX_VOLUME 시트 배선(src/features/volume_flow.py:35, 200/200 커버리지); monitoring.json transaction_costs.annualized_cost_drag(균일 모델) 존재; S0′ one-way turnover ~34%·two-way 0.98x; 라이브 북 top 액티브 STX 2.75%p·6857 2.04·000660 1.44(risk.json 08-18).",
+     "why_not_closed": "비용 축은 §S12.6 균일 민감도 1회뿐, 종목별 임팩트·AUM 축은 미측정. arm·백테스트 없음, 인벤토리 비계수 — 성과 개선 후보로 오분류 금지(S16 리뷰 T2-8 명시).",
+     "single_parameter": "k = 1.0(σ_daily 단위 square-root 법칙 계수; Almgren et al. 2005 실측 ≈ 0.6~0.7 → 1.0은 보수 상한, 거버넌스 상수·튜닝 없음). half-spread 2bp 고정 가정(스프레드 데이터 부재 명시). AUM 그리드 {0.1, 0.3, 1, 3, 10}B USD는 보고용이지 선택이 아님.",
+     "precheck": {
+      "data_source": "pkl portfolio_weights(97)·daily_weights(직전 드리프트북) → |Δw_i|; 워크북 PX_VOLUME(주식수)·PX_LAST·FX(data_loader USD 환산 경로) → ADV_i = median_21BD(volume × price × fx, USD); raw_returns → σ_i,daily(21BD). M1 주의: PX_LAST가 배당 조정가라 ADV가 고배당주에서 ≤10%(2025~26)·~40%(2014) 과소 → 라이브 게이트는 최근 252BD만 사용, 역사 계열은 w3/pack/px_adjustment_probe.json yr_hi 비율로 편향 상한 병기.",
+      "computation": "`PYTHONPATH=. <PY> scripts/capacity_gate_g5_05.py --k 1.0 --half-spread-bp 2`: 리밸 d·종목 i: part_i = |Δw_i|·AUM/ADV_i; c_i = 2 + 1e4·k·σ_i,d·√part_i (bp); drag(AUM) = Σ_d Σ_i |Δw_i|·c_i / yrs. 산출: (i) AUM*: drag = 균일 10bp 드래그(break-even), (ii) AUM**: drag = 0.36 × TE(≈ 1.3%/yr = IR 1SE), (iii) AUM = 1B에서 참여율 top10·지역별 비용 몫·참여율 > 10% 발생 리밸 수, (iv) 라이브 08-18 북 기준 동일 표, (v) 균일 모델(monitoring transaction_costs)과의 대조.",
+      "gate": "채택 게이트 없음(거버넌스). 기록 규칙: AUM** ≥ 3B → '비용 무시 가능' 전제 유지·결정 로그 기록; AUM** < 1B → capacity-binding 판정 → 참여율/비용 제약 arm은 별도 사전등록(이번 범위 밖, production 무변경).",
+      "expected_if_true": "AUM* ≈ 0.5~1.5B, AUM** ≈ 3~8B(대형주 250·one-way 34%·1B에서 참여율 중앙 < 1%, 6857/000660/285A 등 소수 종목만 5%+ 발생).",
+      "expected_if_false": "AUM** < 1B(아시아·소형 bm 종목 집중 포지션의 ADV가 예상보다 낮음) → capacity-binding 기록·후속 사전등록 트리거.",
+      "cost": "약 5분(워크북 2시트+FX 로드), 백테스트 0"
+     },
+     "adoption_basis": "governance",
+     "risks": "스프레드 데이터 부재(2bp 가정 명시); PX_LAST 배당 조정 편향(M1); k 불확실성 ±40% — 민감도는 보고만·선택 없음; 결과가 production 수치를 바꾸지 않음(리스크 0); 표시 편향 방지를 위해 AUM 그리드를 사전에 고정.",
+     "effort": "S",
+     "self_priority": 4,
+     "confidence": 0.8
+    }
+   ],
+   "rejected_on_own_review": [
+    "implied correlation/스칼라 비대각 재도전 — §S13.46 동일 빈티지 재판정 E1 FAIL(ΔIR −0.009, 3분할 비일관) 종결; 총량 채널은 전달 0",
+    "수축 강도·cov_lookback·겹침 창 K 스윕 — §2.4 금지; §S16.4 pairwise 무편향(t +0.15)으로 수축 축 종결",
+    "TE 캡 시변화/레짐 조건부 Σ 스케일링/μ 디리스킹 — §S13.22 FAIL·§S13.43 P2 FAIL·§S13.17 SHELVE·§S13.34-B no-op; 이번 실측도 북 총량 5일빈도 보정 t 0.15로 총량 편향 없음",
+    "risk_aversion λ 재도입 — §S16.5-P 갭₂ +0.024% ≪ 5% SHELVE·축 종결(타깃은 이미 제약 프런티어 위)",
+    "RMT/고유값 바닥 상향 — §S13.48-B floor 방향 액티브분산 점유 0.0%·QLIKE −51% 전제 반증",
+    "iv30 레벨을 모델 B 회귀변수로 추가 — B에 iv30_z 기존재, §S13.34 IV30/RV30 corr 0.878 공선성으로 σ_trail21과의 선택 문제 발생(=스윕); HAR 항 하나로 대체",
+    "downside_skew_z·iv_term_z 증강 — §S13.42 P0' +2.5% FAIL 종결",
+    "CDS/DRSK → Σ 대각 — 데이터 부재(Tier 3)",
+    "eta 0.5·no-trade band 재조정(§S16.5-P 갭₁ 33% 실행 드래그) — 실행 축은 G5 범위 밖이며 §S13.11 2×2에서 eta 1.0은 느린 신호에 −0.22 실측",
+    "비용을 최적화기 목적함수에 넣는 arm — 측정 IR 하락만 가능; ANGLE-05 capacity 결과가 binding일 때만 별도 사전등록",
+    "아시아 지역 노출 하드 제약 — 거버넌스 레버(T1-4 섹터 SOC 동형)이지 IR 후보 아님; M2 Σ 보정(ANGLE-01)이 선행되어야 노출 계측 자체가 맞음",
+    "beta_63d/idio_vol_63d Dimson 보정·PCA 타깃 아시아 공통요인 — 피처/라벨 축(다른 관점 담당), Σ 채널과 분리해 알파 비트 불변 성질을 지킴",
+    "5일 겹침 Σ를 대각까지 교체하는 버전 — 대각 채널은 §S13.41 모델 B가 일간 σ_trail126로 캘리브레이션·검증 완료; 상관만 교체가 최소 개입이고 두 채널 귀속을 분리",
+    "이벤트 더미를 실현 Earnings_Date로 정의 — 룩어헤드(§S15 #26 동형); PIT 케이던스 규칙으로만 arm 자격",
+    "TE 캡 0.035 자체 재조정 — 실현 3.7% vs 캡 3.5% 갭은 §S16.4·이번 실측(바인딩일 5일빈도 비 0.89, 비바인딩 1.05)상 Σ 편향이 아니라 시변 변동성·드리프트; 캡 값 변경은 스윕이며 성과 근거 없음"
+   ]
+  },
+  "screened": {
+   "angle_id": "G5_risk_model_sigma_te",
+   "screened": [
+    {
+     "id": "ANGLE-01",
+     "title": "비동기 거래 보정 Σ — 상관행렬만 5일 겹침(주간) 수익률로 추정(대각 불변, K=5, Bartlett L=4)",
+     "verdict": "proceed_to_precheck",
+     "decision_log_hits": "grep(비동기|겹침|overlap|Dimson|Newey|아시아|ASIA|시차|async|주간 수익): Σ 문맥의 선행 시도 0건 — L241·L3591·L4831의 '겹침'은 상장/극단 겹침 무관 문맥, L3646·L5167은 NW 회귀 관용구, L1810은 일본 티커 연초 휴장 ffill 비등록 기록뿐. 관련 종결 축: §S13.46(L5481~5637) 스칼라 비대각 ICorr arm ΔIR −0.0093(동일 빈티지 재판정)·3분할 비일관·avg_ic 비트 동일 → 총량 채널 종결; §S13.48-B(L5881~5913, 결과 L6581) RMT 고유공간 SHELVE(floor 방향 액티브분산 3.89e-06); §S16.4(L7376~7430) pairwise 무편향 t +0.15 — 단 실현 측도 일간 빈도라 시차 교차항에 양변 동일하게 눈멂(후보 지적 타당). §S16.4 L7423 '재도전은 다른 소비 지점 또는 새 정보를 대각에' — 블록 상관 구조 교정은 이 목록에 없는 미시험 축. src grep overlap/dimson/newey/bartlett 0건(utils.py:75·backtest.py:979 무관). async_probe.csv 지역 중앙값 독립 재계산 일치: ASIA(n=16) lag0 0.125/lag1 0.220/Dimson 3.12, EUROPE(43) 0.350/0.064/1.13, US(191) 0.571/−0.045/0.82.",
+     "invariant_check": "단일 파라미터 K=5 모듈 상수 + 불리언 `cov_corr_overlap_enabled` 1개 default-OFF·K 스윕 금지 명시 ✓; 대각 불변(§S13.41 채널 분리) ✓; 룩어헤드 0(동일 hist 창) ✓; 알파 경로 비접촉(avg_ic 비트 동일 요구) ✓; 사전점검 백테스트 0 ✓; 캐릭터 P3(AS ±3%p·TE비·fallback 0) ✓. 정정 필요: adoption_basis 'accuracy'는 과함 — 상관 추정기 교체는 §S15.2(패널 버그)·§S16.1(단위)류 결함 수정이 아닌 모델링 선택이므로 채택 프레임은 §S13.41/§S16.7 리스크 규율 프레임(리스크 게이트 4종 + ΔIR > −0.36 + 사용자 회부, DSR 인벤토리 +1)이어야 함. P1 t≥2는 '블록 미보정 실증' 근거이지 정확성 트랙 자격이 아님.",
+     "precheck_feasibility": "자산 존재 확인: pkl 2종(outputs/codex_causal_rank_65 09-01 16:17·s16_7_name_risk_cap 09-01 10:02), portfolio_weights·daily_weights(backtest.py:809), make_capweight_bm_fn(:1103)·get_benchmark_fn(:1165)·get_sector_map(:1034), export_operating_data._production_risk_source(:190)/_load_optvol_scale(:204)/_apply_optvol_scale(:234), raw_returns 비임퓨트(data_loader.py:1585 — 휴장일 0/NaN 여부는 스크립트 보고 의무), w3/pack/universe_meta.csv currency 열·async_probe.csv 존재. 게이트 판별력: P0(ASIA×US ≥1.5)는 probe 수치상 사실상 확정 통과 — 확인용이지 결정 게이트 아님. P2 L1≥0.005는 약함 — 5일 겹침(Bartlett L=4)은 250×250 전 쌍의 상관 추정분산을 ~3.4배(n_eff 126→~37, corr SE ~0.08→~0.16) 키우므로 노이즈만으로 L1이 커져 '바인딩'과 '노이즈'를 구분 못함. 결정력은 P1(MZ β_d CI 하한>1 또는 paired t≥2)에만 있음 — 아시아 액티브가 역사적으로 소액이면 c_d가 작아 CI가 1을 포함해 정직하게 FAIL 가능 ✓; P3도 노이즈로 FAIL 가능 ✓. 빈티지: Index.xlsx 09-02 11:09 리프레시로 어느 pkl과도 불일치 — read-only 진단은 유효, arm 비교는 동일 쌍 재인증 필수(§S13.46 사후 규명 규칙). 'T-08 JP T+1 스탬프'는 결정 로그·S16 보고서 어디에도 없음(다른 관점 항목 추정, 본 심사 검증 불가).",
+     "corrected_priority": 2,
+     "expected_value_note": "전례: 대각 채널 §S13.41 +0.124(3/3 양·전달), 비대각 스칼라 §S13.46 −0.009(전달 0), 재배분형 §S16.7 +0.045(무비용). 본 후보는 블록(횡단면) 비대각 → 두 전례 사이. 사전확률 P0 ~95%(확인용)·P1 ~40%·P2 ~90%(노이즈 포함)·P3 ~70% → arm 자격 ~25%; arm E1(>0.36) ~5%, §S13.41 프레임 회부(ΔIR ≥ 0·리스크 게이트) ~40%. 기대 ΔIR 채널: 아시아 반도체 OW(6857·000660) 축소 → US 반도체·동일 신호 군집 흡수(§S16.7형), 노이즈 밴드(±0.1) 예상. 실질 가치는 라이브 risk.json ex-ante TE 2.74→~3.2%·6857 Euler 몫 재계측(리스크 회계) — 단 전 쌍 노이즈 증가로 turnover↑·추정오차 극대화 위험이 이득을 상쇄할 수 있음. 비용: 사전점검 6~10분+신규 스크립트(M), arm 시 ~30분·인벤토리 +1.",
+     "reason": "동일 기전(블록 상관의 추정 빈도 오류) 선행 시도 0건, §S13.46·§S16.4 종결은 각각 스칼라 총량·일간 빈도 보정 검정이라 본 후보의 오류에 구조적으로 눈멂 — 종결 축 아님. 불변식 위반 없음. P1이 실제 탈락 가능한 결정 게이트라 진행 가치 있음. 단 (i) adoption_basis를 정확성 트랙에서 §S13.41 리스크 규율 프레임(DSR 계수)으로 정정, (ii) P2는 노이즈 혼입으로 판별력 없음을 사전등록에 명시하고 P1 단독 결정, (iii) 전 쌍 상관 노이즈 ~2배 증가의 비용(turnover·TE·fallback)을 P3 게이트 수치로 사전 고정, (iv) arm 비교 전 Index.xlsx 09-02 빈티지 기준 S0′ 재인증 필요를 조건으로 진행. ANGLE-02보다 코드량·노이즈 리스크가 커 2순위."
+    },
+    {
+     "id": "ANGLE-02",
+     "title": "메가캡 변동성 수축(cov_megacap_vol_shrink_enabled) OFF — 21종·bm 51%의 대각을 §S13.41 보정 모델 그대로 사용",
+     "verdict": "proceed_to_precheck",
+     "decision_log_hits": "grep(megacap_vol_shrink|메가캡.*수축|avg_vol|2/n|vol_shrink): L4915(§S13.41 '기존 메가캡 수축과 동일 관용구' — 관용구 인용만), L5909(§S13.48-B 적용 순서 언급만), L7883(§S16.6 #2 Low: '21종 적용, 65종 시절 의도보다 광범위, §S16.4 총량 검정 통과라 성능 이슈 아님, 명명-의도 드리프트 기록') — 플래그 OFF 측정 기록 0건. §S16.4(L7376~7430)는 수축 '추가' 방향(pairwise vs LW) 검정이며 북 총량 t +0.15는 21종의 부호 상반 편향(고변동 과소·저변동 과대)이 상쇄되면 통과하므로 셀 단위 오류 미검정(후보 논거 타당). S16 보고서 P7(L134~140) '검증됨·2렌즈 — 플래그 OFF arm 1회 측정 가치'. 코드 확인: portfolio_optimizer.py:101-114 `bm_i > 2/n`·`(0.5·avg_vol+0.5·σ_i)/σ_i` 클램프 없음, config.py:470 default True, production yaml 미오버라이드, tests/acceptance/test_optimizer_structural_fixes.py:145 cfg_off 테스트 존재.",
+     "invariant_check": "파라미터 0(기존 불리언 1줄 OFF)·수축 강도 스윕 금지 명시 ✓; parity — 기존 스위치라 ON = S0′ 바이트 동일, OFF는 variant 오버라이드로만(§8 production rule) ✓; 알파 경로 비접촉(avg_ic 비트 동일 요구) ✓; 캐릭터 P3 ✓; 사전점검 백테스트 0 ✓. 정정: '모델 B가 수축 전 σ로 캘리브레이션돼 21종에서 레벨 캘리브레이션이 깨진다'는 서술은 부정확 — §S13.41 s=σ̂_B/σ̂_A는 비율(레벨 무관)이라 수축 뒤 곱해도 모델 B 레벨과 무관하다(option_vol_cov.py:_predict_scale_block). 정확한 쟁점은 수축 휴리스틱 자체의 OOS 근거 부재. 적용 순서 확인: estimate_covariance 내 수축 → backtest.py:2137-2141 optvol 대각 → icorr(비활성).",
+     "precheck_feasibility": "자산: pkl portfolio_weights 97, UniverseData raw_returns·CUR_MKT_CAP(data_loader.py:1696), make_capweight_bm_fn(backtest.py:1103), _load_optvol_scale/_apply_optvol_scale(export_operating_data.py:204/234), dataclasses.replace 관용(compose_config) — 전부 존재. 게이트 판별력: P0 셀 단위 excess-QLIKE(OFF ≤ 0.95×ON)+3분할 전부 OFF 우세+기전 부호(고변동 log(h/σ̂²_ON)>0·저변동 <0) — 21BD 지평 변동성 평균회귀가 강하면 ON이 이길 수 있어 실제 탈락 가능 ✓; P2 L1≥0.005 — mega_cap 제약이 M 종목 액티브를 고정하면 FAIL 가능 ✓. 빈티지: pkl·워크북·Index.xlsx 쌍 기록 의무(Index.xlsx 09-02 리프레시로 pkl과 불일치, read-only 진단은 유효).",
+     "corrected_priority": 1,
+     "expected_value_note": "전례: §S15.2 optvol 스케일 정확성 수정 채택(E1·E2 PASS), §S13.41 대각 채널 +0.124 전달. 사전확률 P0 ~45%(저변동 메가 +30~50% 부풀림은 거의 확실히 과대예측이나 고변동 메가의 21BD 평균회귀가 ON을 부분 정당화 가능)·P2 ~70% → arm 자격 ~30%. 기대 ΔIR: 방향 불확실 — NVDA/TSLA OW 비용↑는 §S13.14 캐리 담체(PLTR/NVDA/TSLA) 축소 방향(음 위험), 저변동 메가 펀딩 UW 확대는 realized_beta↑ 방향; 노이즈 밴드(±0.15) 예상. 채택은 정확성 트랙(P0 셀 단위 캘리브레이션 우세 실증 시, DSR 비계수) + do-no-harm ΔIR > −0.36·3분할 비일관음 필수. 비용 최저: 사전점검 5분(신규 코드 거의 0), arm = variant 1줄.",
+     "reason": "결정 로그에 OFF 측정 0건, §S16.6 #2가 비액션으로 둔 근거(총량 검정)는 횡단면 상쇄에 눈멂 — 종결 축 아님. S16 리뷰 P7이 명시 권고. 불변식 위반 없음(기존 스위치·파라미터 0·parity 자명). 사전점검이 5분·백테스트 0이고 P0 게이트가 실제 탈락 가능(21BD vol 평균회귀 시 ON 우세). 정확성 트랙 자격은 P0 셀 단위 우세 실증에 조건부 — 미실증 시 §S13.41 프레임. 후보 서술의 '레벨 캘리브레이션 파손' 논거만 정정(비율 스케일이라 무관). 비용 대비 정보 가치 최상이라 1순위."
+    },
+    {
+     "id": "ANGLE-03",
+     "title": "T2-5 HAR 단기 항 — 변동성 모델 B에 log σ_trail21 회귀변수 1개 추가(모델 C) → Σ 대각 스케일",
+     "verdict": "proceed_to_precheck",
+     "decision_log_hits": "grep(HAR|trail21|σ_trail|실현변동성|모델 B|iv30_z|21BD 실현|단기 항): 모델 B 증강 선행 = §S13.42(L5051~5106)뿐 — skew_z·term_z 동시 추가 P0' +2.5%(<5%)·MAE +0.1%·3분할 비일관·P1' L1 0.0043 FAIL SHELVE, 결론 'IV 레벨 이후 skew/term의 실현변동성 예측 증분 없음'(꼬리 정보≠크기 정보). §S13.41(L4901~5050) 모델 B c_z +0.106~+0.123 12년 안정·P0 QLIKE −19.1%·arm +0.124 3/3 양·avg_ic 비트 동일. §S13.43(L5167) 통제 회귀에 '직전 21BD 실현변동성' 사용 — 통제변수로만, 모델 B 증강 검정 아님. §S16.4 L7423 '§S16.5의 HAR·어닝 이벤트 항처럼 새 정보를 대각에 넣는 방향으로만 가능' — 결정 로그 자체가 잔존 유효 방향으로 명시. S16 보고서 T2-5(L297) 미실행. 코드: src/option_vol_cov.py 모델 B 회귀변수 [1, log σ_trail126, iv30_z] 확인 — 실현변동성 정보는 126BD 창 하나(후보 주장 정확).",
+     "invariant_check": "회귀변수 1개·TRAIL_SHORT=21 모듈 상수(FWD=리밸 주기=21 원리적 고정)·플래그 `option_vol_cov_har_enabled` 1개 default-OFF·5BD/1BD 성분·창 길이 스윕 금지 ✓; OFF 바이트 동일(스케일 패널 미생성 관용, backtest.py:2078 `_optvol_scale=None`) ✓; 엠바고·63BD 재추정·클립 0.8/1.5 §S13.41 상수 유지 ✓; 알파 비접촉 ✓; 백테스트 0 ✓; 다중성(모델 B 증강 2회째) 선언 ✓. 주의: log σ_trail21은 log σ_trail126의 부분집합 창이라 공선성 — 계수 시계열 안정성 보고(후보 명시)와 공통표본 원칙 유지 필수.",
+     "precheck_feasibility": "scripts/precheck_s13_42_skewterm.py 존재 — 공통표본·63BD expanding 재적합·엠바고·5BD 샘플링·excess_qlike·ratio_scale·12회 재최적화 골격 확인, 상수 import(src/option_vol_cov.py: FWD 21·TRAIL 126·EST_FREQ 63·OBS_STEP 5·MIN_TRAIN_ROWS 500·CLIP 0.8/1.5) → 회귀변수 교체만으로 재현 가능 ✓. 단 S0_PKL/VARIANT가 s0_recert_s13_38(구 빈티지·200종)로 하드코딩 → s16_7 pkl·production variant로 교체 필요, 그리고 production의 option_vol_scale_fix_enabled(관측 마스크 raw_sheet_observed_mask, data_loader.py:1601)를 B·C 양쪽에 동일 적용해야 §S13.42 당시와 달리 production 정합(마스크 미적용 시 B가 production D_B와 불일치해 P1' 델타가 오염됨). 게이트: §S13.42가 동일 바(5%/5%/3분할·L1 0.005)로 FAIL한 실적 → 판별력 실증 ✓.",
+     "corrected_priority": 3,
+     "expected_value_note": "전례: §S13.41 P0 −19.1% QLIKE → arm +0.124 전달(유일 성공 리스크 채널); §S13.42 +2.5% FAIL. HAR 월간 성분은 크기 정보라 skew/term과 다르나 IV30(자기 z)이 최근 레짐을 상당 흡수 → P0'(QLIKE ≥5% AND MAE ≥5% AND 3분할) ~45%(MAE 동시 요구가 난관), P1' ~80%(계수 0.2급이면 L1 통과) → arm 자격 ~35%. arm E1(>0.36) ~5%, §S13.41 프레임 회부(리스크 게이트+ΔIR ≥ 0) ~35%. 기대 ΔIR 채널: 스트레스 초기 고변동 종목 액티브 축소(TE·MaxDD 개선, §S13.41 보조 채널 강화) ±0.1 노이즈 밴드; 반응 속도↑ = 스케일 s 변동↑ = turnover↑(게이트 +2%p) 위험. 비용 S(스크립트 복제 5분), arm 시 인벤토리 +1.",
+     "reason": "§S13.42 종결은 skew/term(꼬리 정보) 한정이고 실현변동성 단기 성분은 미검정 — 결정 로그 §S16.4가 스스로 잔존 유효 방향으로 명시한 축. 불변식 위반 없음(회귀변수 1·상수 고정·OFF 바이트 동일·다중성 선언). 사전점검은 기존 스크립트 복제로 5분·백테스트 0이며 게이트가 동일 바로 이미 한 번 탈락시킨 실적이 있어 p-hacking 아님. 조건: 스크립트의 구 pkl/variant 하드코딩 갱신 + production optvol 마스크 정합 반영. 전달 실증 채널 계보라 진행 가치 있으나 IV 흡수로 증분 5%/5% 동시 통과 확률이 반반이라 3순위(ANGLE-02와 같은 세션에서 로더 1회 공유 실행 권장)."
+    },
+    {
+     "id": "ANGLE-04",
+     "title": "T2-6 어닝 이벤트 분산 항 — PIT 케이던스 규칙 더미 1개를 모델 B에 추가(모델 D) → Σ 대각",
+     "verdict": "proceed_to_precheck",
+     "decision_log_hits": "grep(days_to_earnings|Earnings_Date|earnings_timeline|어닝.*분산|이벤트 분산|케이던스|발표 직전|earn_days_to_next): 어닝 정보 소비 선행 = 전부 랭커/피처 경로 — §S13.9(L2289~2397) 8피처 admit IC +92%·ΔIR −0.19·earn_days_to_next 모델 2위 피처(L2356)에도 FAIL, §S13.10 피어 캐스케이드 FAIL, §S13.38(L4735~4775) days_to_earnings 패스스루 arm FAIL; §S13.37(L4694~4700) days_to_earnings 시트는 '실현 Earnings_Date 기반 다음 발표까지 달력일수'(룩어헤드 성격, 커버리지 70.8%·최근 21일 22.5% L4763). Σ 대각 소비 arm 0건 — §S16.4 L7423가 '어닝 이벤트 항'을 잔존 유효 방향으로 명시, S16 보고서 T2-6(L298) 미실행. 단 T2-6의 'turnover 증가 없음' 주장은 틀림 — 발표 전 트림→발표 후 재구축은 turnover를 늘림(후보 risks가 스스로 인정).",
+     "invariant_check": "더미 1개·21 지평 고정·플래그 default-OFF·실현 더미 arm 사용 금지(룩어헤드 회피, §S15 #26 동형 인지) ✓; 백테스트 0 ✓; 다중성(모델 B 증강 3회째) 선언 ✓. 주의: expected_next 규칙의 '간격 ≥2개 미달 시 63BD' 폴백은 사실상 제2 상수(사전 고정이라 스윕은 아니나 사전등록에 명시 필요); 실현 더미 '상한 병기'는 룩어헤드 관측치이므로 어떤 게이트 판정에도 사용 금지를 사전등록에 못박아야 함.",
+     "precheck_feasibility": "data.earnings_timeline(data_loader.py:1367/1637, Earnings_Timeline→Earnings_Date fallback, 0/1 dates×tickers) 존재 — 과거 발표일만 쓰는 PIT 케이던스 규칙 계산 가능 ✓; 회귀 골격은 ANGLE-03과 동일 스크립트(§S13.42 복제) ✓; days_to_earnings 시트는 상한 진단 전용. 게이트: P-rule(precision ≥0.7 AND recall ≥0.6)·P0''(5%/5%/3분할)·P1''(L1 0.005) — 전부 실제 탈락 가능 ✓(EU 반기 보고·비정기 지연이 recall을 깎고, iv30_z 흡수+더미 셀 ~1/3 희석이 P0''를 3~4%에 묶을 가능성 큼). 빈티지 기록 의무 동일.",
+     "corrected_priority": 5,
+     "expected_value_note": "전례: 어닝 정보 랭커 경로 3회 FAIL(§S13.9 −0.19·§S13.10·§S13.38), Σ 대각 소비 0건. 사전확률 P-rule ~70%·P0'' ~25%(iv30_z 252D 자기 z가 발표 전 IV 프리미엄을 이미 흡수, 잔여 +15~20%가 1/3 셀에만 → pooled 3~4% 예상)·P1'' ~60% → arm 자격 ~10%. 기대 ΔIR: 발표 전 액티브 트림→turnover↑·PEAD 포지션(발표 후 42~63BD) 조기 트림으로 §S13.12 캐리 훼손 방향 → 음 위험이 우세, 이벤트 슬리브 알파(+0.75%/yr) 일부 포기. 후보 자신의 confidence 0.25·expected_if_false '가장 가능성 큰 결과' — 정보 가치는 '모델 B 어닝 축 종결 기록' 수준. 비용 5~8분·백테스트 0·인벤토리 0이나 다중성 3회째.",
+     "reason": "Σ 대각 소비 축은 미시험이고 결정 로그가 잔존 방향으로 명시했으므로 closed_axis는 아니며 불변식 위반도 없음. 게이트는 실제 탈락 가능. 그러나 사전확률이 낮고(후보 자인 0.25), 기전이 turnover↑·PEAD 캐리 훼손 방향이라 arm 자격을 얻어도 IR 채널은 음 위험 우세, 모델 B 증강 다중성 3회째 — 정보 가치가 '축 종결 기록'에 그침. 진행은 허용하되 최하위(5): (a)(b) 규칙 품질·효과 크기 단계를 먼저 돌려 P-rule FAIL이면 모델 적합 없이 종료, 실현 더미는 판정 완전 배제, 63BD 폴백을 사전등록 상수로 명시."
+    },
+    {
+     "id": "ANGLE-05",
+     "title": "T2-8 종목·일자별 거래비용 capacity 게이트 — square-root 임팩트(k=1)로 AUM 상한 산출(성과 후보 아님·거버넌스)",
+     "verdict": "proceed_to_precheck",
+     "decision_log_hits": "grep(capacity|ADV|임팩트|참여율|거래비용|one_way_tc|PX_VOLUME|AUM|square.?root|half.?spread): §S12.6(L1621~1650) 균일 비용 민감도 — 50bp에서도 ΔIR −0.08 순위 불변, '스프레드·임팩트의 비선형 비용은 범위 외(데이터 부재)' 명시; §S13.12(L2376·L2482)·§S13.26(L3543)·§S13.50(L6319·L6478) 비용 비병목 근거 전부 균일 one_way_tc 0.0010 산술; §S13.35(L4462~4493) PX_VOLUME 200/200·ADV21/ADV126·Amihud 배선(피처용) — 종목·AUM 종속 비용·capacity 측정 0건. S16 보고서 T2-8(L300) '성과 후보 아니라 capacity 게이트' 명시. monitoring.json transaction_costs 실측: 균일 10bp·97 리밸·annualized_cost_drag 0.00066(6.6bp/yr).",
+     "invariant_check": "k=1.0·half-spread 2bp·AUM 그리드 보고용 고정 — 선택 없음 ✓; production 무변경·인벤토리 0 ✓; 백테스트 0 ✓; 룩어헤드 무관(사후 비용 회계). 채택 게이트 부재는 설계상(거버넌스) — p-hacking 해당 없음. 주의: PX_VOLUME이 주식수 단위이므로 ADV_USD = volume×PX_LAST×FX 환산이 필수이고 PX_LAST가 배당 조정가(M1)라 역사 ADV 과소(고배당주 2014 ~1.9배) — 후보가 이미 최근 252BD 한정+편향 상한 병기로 처리.",
+     "precheck_feasibility": "pkl portfolio_weights·daily_weights(backtest.py:809, track_daily_weights 기본 True) ✓; PX_VOLUME 시트 data_loader.py:235/274 등록(§S13.35 당시 200/200 — 250 재생성 후 커버리지 미확인, 스크립트 내 커버리지 보고 의무); PX_LAST·CUR_MKT_CAP get 경로·FX data.fx_rates_usd_per_local(data_loader.py:1459/1515) ✓; monitoring.json transaction_costs(annualized_cost_drag·series) 대조 자료 ✓; w3/pack/px_adjustment_probe.json yr_hi 2014 1.906→2026 1.095 존재 ✓. 산출은 AUM 함수의 수치 보고이며 어떤 production·arm 판정도 바꾸지 않음(종이 포트폴리오라 AUM은 명목).",
+     "corrected_priority": 4,
+     "expected_value_note": "성과 채널 0(측정 IR은 하락만 가능). 전례 §S12.6 균일 50bp에도 비바인딩·§S13.12 7bp 무시 전제. 예상 결과 AUM* 0.5~1.5B·AUM** 3~8B(대형주 250·one-way 34%)이면 기존 전제 유지 기록, AUM** < 1B면 참여율 제약 arm 별도 사전등록 트리거 — 어느 쪽이든 production 무변경. 비용 5분·인벤토리 0. 정보 가치는 결정 로그 거버넌스 기록(§S13.12 '비용 무시 가능' 전제의 AUM 조건 명시)에 한정.",
+     "reason": "종목·AUM 종속 비용 축은 미측정이고 §S12.6이 스스로 '임팩트는 범위 외'로 남긴 항목 — 종결 아님. 파라미터 고정·선택 없음·production 무변경이라 불변식 위반 없음. 다만 결과가 어떤 채택·불채택 판정도 바꾸지 않는 순수 문서화라 IR 개선 후보들(01~03) 뒤로 배치(4순위). 실행 시 PX_VOLUME 250 커버리지·FX 환산·M1 배당 조정 편향을 스크립트가 함께 보고하고, 결과 표를 §S13.12 전제의 각주로만 기록할 것."
+    }
+   ],
+   "screen_notes": "G5 5후보 중 closed_axis·reject 0건, 전부 proceed_to_precheck(백테스트 0·인벤토리 비계수). 정정 순위: ANGLE-02(1) > ANGLE-01(2) > ANGLE-03(3) > ANGLE-05(4) > ANGLE-04(5). 핵심 정정 사항: (1) ANGLE-01 adoption_basis 'accuracy'는 부적절 — 추정기 교체는 결함 수정이 아니므로 §S13.41/§S16.7 리스크 규율 프레임(DSR +1)으로 사전등록; P0는 probe상 확정 통과(확인용), P2 L1은 5일 겹침이 전 쌍 상관 SE를 ~2배 키워 노이즈로도 통과하므로 판별력 없음 → P1(MZ β_d CI / paired t)이 유일 결정 게이트임을 명시. (2) ANGLE-02의 '모델 B 레벨 캘리브레이션 파손' 논거는 틀림(s=σ̂_B/σ̂_A 비율은 레벨 무관) — 쟁점은 수축 휴리스틱의 OOS 근거 부재로 재서술; 정확성 트랙 자격은 P0 셀 단위 우세 실증에 조건부. (3) ANGLE-03/04는 precheck_s13_42_skewterm.py 복제 시 S0_PKL/VARIANT가 구 빈티지(s0_recert_s13_38)로 하드코딩돼 있어 s16_7 pkl·production variant로 갱신하고 production의 option_vol_scale_fix 관측 마스크를 B·C 양쪽에 동일 적용해야 P1' 델타가 오염되지 않음. (4) 빈티지: Index.xlsx 09-02 11:09 리프레시로 현존 pkl(09-01 빈티지)과 쌍 불일치 — read-only 사전점검은 유효하나 arm 백테스트 비교는 새 쌍에서 S0′ 재인증 후에만 성립(§S13.46 사후 규명 규칙, 인벤토리 비산입 재인증). (5) 인벤토리 현황 experiment_inventory.json n_trials_total=471 확인. (6) 후보들이 인용한 'T-08 JP T+1 스탬프'는 결정 로그·S16 보고서에 부재 — 다른 관점 문서 항목으로 추정, 본 심사에서 검증 불가. 실행 제안: ANGLE-02·03은 UniverseData 로더 1회 공유로 한 세션에 순차 실행(총 ~10분), ANGLE-01은 신규 스크립트 M이므로 별도 세션, ANGLE-05·04는 여유 시. 기대값 요약: 전 후보 arm E1(>0.36) 통과 확률 ≤5%이며 현실적 성공 경로는 §S13.41/§S16.7형 리스크 게이트+ΔIR ≥ 0 사용자 회부 — 사전등록에 이 프레임과 DSR 계수 여부를 후보별로 명시할 것. 저장: C:/Users/westl/AppData/Local/Temp/claude/C--Users-westl-PycharmProjects-pythonProject-venv-vf-new-machine-re-study-c2-ai-port/0caf960f-9660-4a4b-a91e-809a2f4ab53d/scratchpad/w2/screen_G5_risk_model_sigma_te.json"
+  }
+ }
+]

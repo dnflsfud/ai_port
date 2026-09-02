@@ -1,0 +1,566 @@
+{
+ "models": [
+  {
+   "key": "2018-11-23",
+   "obj_id": 2048046101520,
+   "type": "LGBMRanker",
+   "n_trees": 66,
+   "best_iteration": 66,
+   "n_features": 65,
+   "top5_gain": {
+    "Column_21": 0.2228,
+    "Column_28": 0.1266,
+    "Column_24": 0.0447,
+    "Column_13": 0.0415,
+    "Column_55": 0.0321
+   },
+   "n_zero_gain": 7
+  },
+  {
+   "key": "2019-02-20",
+   "obj_id": 2048046192432,
+   "type": "LGBMRanker",
+   "n_trees": 68,
+   "best_iteration": 68,
+   "n_features": 65,
+   "top5_gain": {
+    "Column_21": 0.2022,
+    "Column_28": 0.1219,
+    "Column_24": 0.054,
+    "Column_13": 0.0439,
+    "Column_55": 0.0345
+   },
+   "n_zero_gain": 7
+  },
+  {
+   "key": "2019-05-20",
+   "obj_id": 2048046200784,
+   "type": "LGBMRanker",
+   "n_trees": 77,
+   "best_iteration": 77,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_21": 0.2237,
+    "Column_28": 0.0843,
+    "Column_24": 0.0479,
+    "Column_13": 0.0463,
+    "Column_52": 0.0362
+   },
+   "n_zero_gain": 4
+  },
+  {
+   "key": "2019-08-15",
+   "obj_id": 2048046258880,
+   "type": "LGBMRanker",
+   "n_trees": 43,
+   "best_iteration": 43,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_21": 0.2691,
+    "Column_28": 0.1074,
+    "Column_13": 0.0673,
+    "Column_56": 0.0439,
+    "Column_52": 0.043
+   },
+   "n_zero_gain": 4
+  },
+  {
+   "key": "2019-11-12",
+   "obj_id": 2048046266128,
+   "type": "LGBMRanker",
+   "n_trees": 60,
+   "best_iteration": 60,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_21": 0.2145,
+    "Column_28": 0.1179,
+    "Column_24": 0.0524,
+    "Column_13": 0.048,
+    "Column_56": 0.0469
+   },
+   "n_zero_gain": 5
+  },
+  {
+   "key": "2020-02-07",
+   "obj_id": 2048046323408,
+   "type": "LGBMRanker",
+   "n_trees": 23,
+   "best_iteration": 23,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_21": 0.2265,
+    "Column_28": 0.1826,
+    "Column_13": 0.0733,
+    "Column_56": 0.0552,
+    "Column_24": 0.0462
+   },
+   "n_zero_gain": 5
+  },
+  {
+   "key": "2020-05-06",
+   "obj_id": 2048046329696,
+   "type": "LGBMRanker",
+   "n_trees": 79,
+   "best_iteration": 79,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_21": 0.1614,
+    "Column_24": 0.0977,
+    "Column_28": 0.0884,
+    "Column_56": 0.0396,
+    "Column_13": 0.039
+   },
+   "n_zero_gain": 4
+  },
+  {
+   "key": "2020-08-03",
+   "obj_id": 2048046329696,
+   "type": "LGBMRanker",
+   "n_trees": 79,
+   "best_iteration": 79,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_21": 0.1614,
+    "Column_24": 0.0977,
+    "Column_28": 0.0884,
+    "Column_56": 0.0396,
+    "Column_13": 0.039
+   },
+   "n_zero_gain": 4
+  },
+  {
+   "key": "2020-10-29",
+   "obj_id": 2048046355120,
+   "type": "LGBMRanker",
+   "n_trees": 42,
+   "best_iteration": 42,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_21": 0.2561,
+    "Column_28": 0.1187,
+    "Column_24": 0.1014,
+    "Column_52": 0.0445,
+    "Column_7": 0.0316
+   },
+   "n_zero_gain": 5
+  },
+  {
+   "key": "2021-01-26",
+   "obj_id": 2048046362320,
+   "type": "LGBMRanker",
+   "n_trees": 35,
+   "best_iteration": 35,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_28": 0.2927,
+    "Column_21": 0.1034,
+    "Column_24": 0.0939,
+    "Column_52": 0.0515,
+    "Column_7": 0.0446
+   },
+   "n_zero_gain": 7
+  },
+  {
+   "key": "2021-04-23",
+   "obj_id": 2048046362320,
+   "type": "LGBMRanker",
+   "n_trees": 35,
+   "best_iteration": 35,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_28": 0.2927,
+    "Column_21": 0.1034,
+    "Column_24": 0.0939,
+    "Column_52": 0.0515,
+    "Column_7": 0.0446
+   },
+   "n_zero_gain": 7
+  },
+  {
+   "key": "2021-07-21",
+   "obj_id": 2048046362320,
+   "type": "LGBMRanker",
+   "n_trees": 35,
+   "best_iteration": 35,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_28": 0.2927,
+    "Column_21": 0.1034,
+    "Column_24": 0.0939,
+    "Column_52": 0.0515,
+    "Column_7": 0.0446
+   },
+   "n_zero_gain": 7
+  },
+  {
+   "key": "2021-10-18",
+   "obj_id": 2048046362320,
+   "type": "LGBMRanker",
+   "n_trees": 35,
+   "best_iteration": 35,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_28": 0.2927,
+    "Column_21": 0.1034,
+    "Column_24": 0.0939,
+    "Column_52": 0.0515,
+    "Column_7": 0.0446
+   },
+   "n_zero_gain": 7
+  },
+  {
+   "key": "2022-01-13",
+   "obj_id": 2048046362320,
+   "type": "LGBMRanker",
+   "n_trees": 35,
+   "best_iteration": 35,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_28": 0.2927,
+    "Column_21": 0.1034,
+    "Column_24": 0.0939,
+    "Column_52": 0.0515,
+    "Column_7": 0.0446
+   },
+   "n_zero_gain": 7
+  },
+  {
+   "key": "2022-04-12",
+   "obj_id": 2048046418400,
+   "type": "LGBMRanker",
+   "n_trees": 116,
+   "best_iteration": 116,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_28": 0.158,
+    "Column_7": 0.0585,
+    "Column_27": 0.0507,
+    "Column_21": 0.0469,
+    "Column_52": 0.037
+   },
+   "n_zero_gain": 4
+  },
+  {
+   "key": "2022-07-08",
+   "obj_id": 2048046429152,
+   "type": "LGBMRanker",
+   "n_trees": 516,
+   "best_iteration": 516,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_28": 0.0784,
+    "Column_7": 0.0448,
+    "Column_27": 0.0362,
+    "Column_21": 0.0354,
+    "Column_17": 0.0312
+   },
+   "n_zero_gain": 4
+  },
+  {
+   "key": "2022-10-05",
+   "obj_id": 2048046541152,
+   "type": "LGBMRanker",
+   "n_trees": 106,
+   "best_iteration": 106,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_28": 0.1713,
+    "Column_7": 0.0548,
+    "Column_13": 0.0477,
+    "Column_21": 0.0404,
+    "Column_6": 0.0402
+   },
+   "n_zero_gain": 4
+  },
+  {
+   "key": "2023-01-02",
+   "obj_id": 2048046584256,
+   "type": "LGBMRanker",
+   "n_trees": 79,
+   "best_iteration": 79,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_28": 0.1773,
+    "Column_13": 0.0709,
+    "Column_7": 0.0478,
+    "Column_27": 0.0459,
+    "Column_21": 0.043
+   },
+   "n_zero_gain": 4
+  },
+  {
+   "key": "2023-03-30",
+   "obj_id": 2048046584256,
+   "type": "LGBMRanker",
+   "n_trees": 79,
+   "best_iteration": 79,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_28": 0.1773,
+    "Column_13": 0.0709,
+    "Column_7": 0.0478,
+    "Column_27": 0.0459,
+    "Column_21": 0.043
+   },
+   "n_zero_gain": 4
+  },
+  {
+   "key": "2023-06-27",
+   "obj_id": 2048046593232,
+   "type": "LGBMRanker",
+   "n_trees": 46,
+   "best_iteration": 46,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_28": 0.269,
+    "Column_13": 0.058,
+    "Column_7": 0.0433,
+    "Column_27": 0.0401,
+    "Column_21": 0.0369
+   },
+   "n_zero_gain": 4
+  },
+  {
+   "key": "2023-09-22",
+   "obj_id": 2048046633456,
+   "type": "LGBMRanker",
+   "n_trees": 218,
+   "best_iteration": 218,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_28": 0.152,
+    "Column_27": 0.042,
+    "Column_6": 0.0353,
+    "Column_13": 0.0324,
+    "Column_7": 0.0323
+   },
+   "n_zero_gain": 4
+  },
+  {
+   "key": "2023-12-20",
+   "obj_id": 2048046698320,
+   "type": "LGBMRanker",
+   "n_trees": 280,
+   "best_iteration": 280,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_28": 0.1403,
+    "Column_27": 0.0407,
+    "Column_21": 0.0332,
+    "Column_1": 0.0321,
+    "Column_7": 0.0305
+   },
+   "n_zero_gain": 4
+  },
+  {
+   "key": "2024-03-18",
+   "obj_id": 2048046698320,
+   "type": "LGBMRanker",
+   "n_trees": 280,
+   "best_iteration": 280,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_28": 0.1403,
+    "Column_27": 0.0407,
+    "Column_21": 0.0332,
+    "Column_1": 0.0321,
+    "Column_7": 0.0305
+   },
+   "n_zero_gain": 4
+  },
+  {
+   "key": "2024-06-13",
+   "obj_id": 2048046698320,
+   "type": "LGBMRanker",
+   "n_trees": 280,
+   "best_iteration": 280,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_28": 0.1403,
+    "Column_27": 0.0407,
+    "Column_21": 0.0332,
+    "Column_1": 0.0321,
+    "Column_7": 0.0305
+   },
+   "n_zero_gain": 4
+  },
+  {
+   "key": "2024-09-10",
+   "obj_id": 2048046698320,
+   "type": "LGBMRanker",
+   "n_trees": 280,
+   "best_iteration": 280,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_28": 0.1403,
+    "Column_27": 0.0407,
+    "Column_21": 0.0332,
+    "Column_1": 0.0321,
+    "Column_7": 0.0305
+   },
+   "n_zero_gain": 4
+  },
+  {
+   "key": "2024-12-06",
+   "obj_id": 2048074422352,
+   "type": "LGBMRanker",
+   "n_trees": 10,
+   "best_iteration": 10,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_28": 0.4678,
+    "Column_1": 0.093,
+    "Column_21": 0.0673,
+    "Column_24": 0.0552,
+    "Column_27": 0.0278
+   },
+   "n_zero_gain": 6
+  },
+  {
+   "key": "2025-03-05",
+   "obj_id": 2048074428016,
+   "type": "LGBMRanker",
+   "n_trees": 81,
+   "best_iteration": 81,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_28": 0.2215,
+    "Column_21": 0.1265,
+    "Column_27": 0.0576,
+    "Column_1": 0.0389,
+    "Column_24": 0.0381
+   },
+   "n_zero_gain": 4
+  },
+  {
+   "key": "2025-06-02",
+   "obj_id": 2048074428016,
+   "type": "LGBMRanker",
+   "n_trees": 81,
+   "best_iteration": 81,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_28": 0.2215,
+    "Column_21": 0.1265,
+    "Column_27": 0.0576,
+    "Column_1": 0.0389,
+    "Column_24": 0.0381
+   },
+   "n_zero_gain": 4
+  },
+  {
+   "key": "2025-08-28",
+   "obj_id": 2048074428016,
+   "type": "LGBMRanker",
+   "n_trees": 81,
+   "best_iteration": 81,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_28": 0.2215,
+    "Column_21": 0.1265,
+    "Column_27": 0.0576,
+    "Column_1": 0.0389,
+    "Column_24": 0.0381
+   },
+   "n_zero_gain": 4
+  },
+  {
+   "key": "2025-11-25",
+   "obj_id": 2048074469920,
+   "type": "LGBMRanker",
+   "n_trees": 27,
+   "best_iteration": 27,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_28": 0.3531,
+    "Column_21": 0.0928,
+    "Column_1": 0.0528,
+    "Column_24": 0.0473,
+    "Column_23": 0.0405
+   },
+   "n_zero_gain": 6
+  },
+  {
+   "key": "2026-02-20",
+   "obj_id": 2048074469920,
+   "type": "LGBMRanker",
+   "n_trees": 27,
+   "best_iteration": 27,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_28": 0.3531,
+    "Column_21": 0.0928,
+    "Column_1": 0.0528,
+    "Column_24": 0.0473,
+    "Column_23": 0.0405
+   },
+   "n_zero_gain": 6
+  },
+  {
+   "key": "2026-05-20",
+   "obj_id": 2048074469920,
+   "type": "LGBMRanker",
+   "n_trees": 27,
+   "best_iteration": 27,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_28": 0.3531,
+    "Column_21": 0.0928,
+    "Column_1": 0.0528,
+    "Column_24": 0.0473,
+    "Column_23": 0.0405
+   },
+   "n_zero_gain": 6
+  },
+  {
+   "key": "2026-08-17",
+   "obj_id": 2048074469920,
+   "type": "LGBMRanker",
+   "n_trees": 27,
+   "best_iteration": 27,
+   "n_features": 62,
+   "top5_gain": {
+    "Column_28": 0.3531,
+    "Column_21": 0.0928,
+    "Column_1": 0.0528,
+    "Column_24": 0.0473,
+    "Column_23": 0.0405
+   },
+   "n_zero_gain": 6
+  }
+ ],
+ "shared_object_groups": [
+  [
+   "2020-05-06",
+   "2020-08-03"
+  ],
+  [
+   "2021-01-26",
+   "2021-04-23",
+   "2021-07-21",
+   "2021-10-18",
+   "2022-01-13"
+  ],
+  [
+   "2023-01-02",
+   "2023-03-30"
+  ],
+  [
+   "2023-12-20",
+   "2024-03-18",
+   "2024-06-13",
+   "2024-09-10"
+  ],
+  [
+   "2025-03-05",
+   "2025-06-02",
+   "2025-08-28"
+  ],
+  [
+   "2025-11-25",
+   "2026-02-20",
+   "2026-05-20",
+   "2026-08-17"
+  ]
+ ]
+}

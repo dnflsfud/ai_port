@@ -1,0 +1,133 @@
+{
+ "negative_equity_flags": [
+  "AAPL",
+  "PLTR",
+  "ABBV",
+  "MA",
+  "SPGI",
+  "HD",
+  "MCD",
+  "LMT",
+  "ORCL",
+  "KLAC",
+  "STX",
+  "BKNG",
+  "PM",
+  "RACE",
+  "DELL",
+  "AON",
+  "LOW",
+  "SBUX",
+  "MSI",
+  "ADSK",
+  "FTNT",
+  "MCO",
+  "AMGN",
+  "MCK",
+  "ORLY",
+  "RBLX",
+  "VRSN",
+  "MSCI",
+  "HCA",
+  "MAR",
+  "RDDT",
+  "MO",
+  "CL"
+ ],
+ "async_by_region": {
+  "corr_lag0_us": {
+   "ASIA": 0.1254,
+   "EUROPE": 0.3499,
+   "US": 0.571
+  },
+  "corr_stock_t_vs_us_tm1": {
+   "ASIA": 0.2198,
+   "EUROPE": 0.0645,
+   "US": -0.0454
+  },
+  "corr_stock_t_vs_us_tp1": {
+   "ASIA": 0.0267,
+   "EUROPE": -0.0313,
+   "US": -0.0546
+  },
+  "beta0_us": {
+   "ASIA": 0.2108,
+   "EUROPE": 0.5231,
+   "US": 0.9949
+  },
+  "beta_lag1_us": {
+   "ASIA": 0.3762,
+   "EUROPE": 0.0832,
+   "US": -0.0745
+  },
+  "dimson_beta": {
+   "ASIA": 0.6515,
+   "EUROPE": 0.598,
+   "US": 0.827
+  },
+  "dimson_ratio": {
+   "ASIA": 3.1208,
+   "EUROPE": 1.133,
+   "US": 0.821
+  },
+  "corr_lag0_all": {
+   "ASIA": 0.2011,
+   "EUROPE": 0.4279,
+   "US": 0.5695
+  }
+ },
+ "region_ew_xcorr": {
+  "ASIA": {
+   "n": 16,
+   "corr_same_day": 0.17867951997718412,
+   "corr_region_t_vs_us_tm1": 0.3275401011737065
+  },
+  "EUROPE": {
+   "n": 43,
+   "corr_same_day": 0.615352131937207,
+   "corr_region_t_vs_us_tm1": 0.10046527834560265
+  }
+ },
+ "tg": {
+  "bottom12": {
+   "SNDK": -0.961,
+   "285A": -0.942,
+   "GEV": -0.538,
+   "PLTR": -0.378,
+   "RDDT": -0.373,
+   "NVDA": -0.326,
+   "APP": -0.296,
+   "VRT": -0.287,
+   "NET": -0.281,
+   "AMD": -0.255,
+   "NFLX": -0.248,
+   "CEG": -0.226
+  },
+  "top12": {
+   "PUB": 0.528,
+   "DELL": 0.57,
+   "RIO": 0.571,
+   "VZ": 0.572,
+   "8316": 0.575,
+   "CS": 0.605,
+   "PFE": 0.615,
+   "SLB": 0.625,
+   "T": 0.645,
+   "TTE": 0.658,
+   "BNP": 0.661,
+   "MO": 0.669
+  },
+  "median_all": 0.07743288855004576,
+  "tg_px_ratio_median_by_ticker_outside_0.5_2": {
+   "GEV": 0.462,
+   "SNDK": 0.039,
+   "285A": 0.058
+  }
+ },
+ "returns_scale": 1.0,
+ "region_counts": {
+  "US": 191,
+  "EUROPE": 43,
+  "ASIA": 16
+ }
+}

@@ -8159,3 +8159,152 @@ config(캡 포함) 그대로 `optimize_portfolio`/`_build_mvo_constraints` 호�
    축은 §S13.40(10BD 전환 부정) 이후 미개척 — 재도전 시 새 사전등록 필요.
 
 `risk_aversion: 1.0` 무변경. 인벤토리 불변(471, read-only 비계수).
+
+
+---
+
+## S17 구조 리뷰 4차 + 성과 개선 후보 탐색 (2026-09-02, 읽기 전용 · production 무변경 · 인벤토리 471 불변)
+
+**리뷰 실행**: 3단 워크플로우 32 에이전트(1,143 도구 호출, 백테스트 0). ① 코드 렌즈 6종(S16.6 이후
+변경분·시간 정합·옵티마이저/실행·데이터/피처 단위·학습/설정·측정/판정) → 원시 20 → 트리아지 18(기지
+중복 0) → 반박 우선 검증 8 → **확정 7 / 반박 1 / 저심각 미검증 10**. ② 메인 직접 재현(인증 S0′ pkl
+감사 팩 + 워크북 원시 7시트 프로브) → 리드 M1~M5 → 독립 경험적 검증자 4인 + W1 배치 검증자 →
+**M1·M2·M4 확정, M3 반박, T-08 기각**. ③ 개선 후보 5관점 24건 → 관점별 회의적 심사 → **사전점검
+진행 가능 14 / 종결축 1 / 기각 9**. 전체 보고서 `outputs/reports/2026-09-02-structural-review-r4.md`,
+감사 팩·프로브·워크플로우 결과 `outputs/s17_prechecks/`.
+아티팩트 판본 https://claude.ai/code/artifact/48c4b07c-6a6c-436b-a7b1-25eed6f9709e.
+
+**빈티지 주의**: 인증 S0′ IR 1.7596(`outputs/s16_7_name_risk_cap`, 워크북 08-25·Index 09-01). 09-02
+11:30 스케줄 런은 **워크북 09-01 14:05 KST 리프레시 + Index 09-02** 새 쌍에서 IR 1.7052 / TE 3.64% /
+avg_ic 0.01631 — 데이터 리프레시만으로 −0.054. 이후 arm 은 새 쌍에서 S0′ 재인증 후 비교.
+
+**메인 직접 재현 항목**
+
+| ID | 실측 | 값 |
+|---|---|---|
+| M1 | PX_LAST 2014-06-30 / 명목 종가 | MO 0.466 · T 0.373 · VZ 0.527 · AAPL 0.876 · **무배당 TSLA/AMZN/ADBE/NFLX/ISRG 1.000** |
+| M1 | 배당락 서명 log(CUR_MKT_CAP/PX_LAST) 스텝 | MO 음수 74·양수 0, 배당락일 일치, −1.1%/건 → 시총 명목·가격 조정 |
+| M1 | 같은 조정 시트 | BEST_PE_RATIO·PX_BPS·PEG(스텝 비 ≈0) / EV_EBITDA·CUR_MKT_CAP 명목 → **PE×EPS ≡ PX_LAST(98.6%)** |
+| M1 | 고배당 12종 median(TG/PX) | 2014 2.02 → 2018 1.78 → 2022 1.47 → 2026 1.10 (무배당 1.14→1.31) |
+| M1 | 패널 tg_upside z 고배당군 | 2014~19 +1.44 → 2025~26 −0.12 (백분위 0.95→0.30; 라이브 12종 전부 음수) |
+| M1 | tg_upside IC(21일 격자 144일) | 현행 −0.0006(t −0.05) vs 탈조정 +0.028(t 2.78); 라이브 4모델 gain 0.0 |
+| T-01 | 목표주가 커버리지 갭 임퓨트 | VRT 409행·VST 127행 +5.0; 갭창 타 249종 \|z\| q95 0.777 vs 1.875/1.924(2.4× 압축) |
+| M2 | 아시아 16종 vs US(주중 달력) | 동시 0.124 < 전일 0.283, Dimson 3.82; 주간 corr 3.44× 회복; T-08 기각(피크 lag1 16/16) |
+| M2 | Σ ASIA×US 블록 corr 97 리밸일 | 일별 0.044 vs 5일 겹침 0.201, **97/97 3.1×**; 아시아 순 OW +1.5%, ex-ante 리스크 점유 10.9→13.6% |
+| M4 | 코어 65 중 모델 미소비 | bcast 7 = 33/33 split 0 · 중복 2 = 820,750셀 diff 0; EWMA 드롭 집합 31/31 고정(죽은 3) |
+| T-03 | name-risk 캡 strict 0.35 breach | 12/97(확실 7), (0.35,0.36] 12, >0.36 0 — 결정 로그 §S16.7 '0/97' 은 tol 0.01 기준 |
+| T-12 | IR 정의 | 기하 1.7596(metrics) / 산술 1.7233(harness·E1·DSR) / CAGR 차 2.035 |
+
+**확정 결함(production 수치)**
+- **P1 (M1, critical)**: 워크북 PX_LAST·PE·P/B·PEG 시트가 배당 재투자 소급 조정본(Bloomberg DPDF).
+  `sellside.py:368 upside = tg/local_prices − 1`, `accounting.py:160 shares = market_cap/prices`(§S16.1 P3),
+  PE/PB/PEG level_z 등 코어 10/65(gain 합 ~14%)가 t 이후 배당 누적분(룩어헤드)을 담고, 학습기(2014~19)
+  고배당 상위 5% → 라이브 하위 30% 순위 반전. 효과는 성과 과대가 아니라 **학습기 신호 소거**(현행 IC
+  −0.001 vs 탈조정 +0.028). 원천은 `re_study/create_universe_data.py:368` ← `Data/S&P500.xlsx`.
+  **PE×EPS 프록시 무효** → 수정은 워크북 배당 미조정 `PX_LAST_UNADJ` **별도 시트**(또는 EQY_SH_OUT)
+  재인출 필요(PX_LAST 교체 금지 — Daily_Returns 파생원). 채택 근거 = 데이터 정확성(§S16.1 선례).
+- **P2 (T-01, high)**: `data_loader.py:443-451 _fill_missing` 횡단면 median 이 FactSet 목표주가
+  커버리지 갭(VRT 393BD 등 10종)을 타 종목 가격으로 채움 → tg_upside +5 상수·타 종목 z 2.4× 압축.
+  코드만으로 수정 가능(선행 결측 NaN 유지 → per-date median).
+- **P3 (M2, medium)**: 시차 비동기 거래 — `estimate_covariance` 126d 일별 Σ의 ASIA×US 블록 3.1× 과소,
+  `price.py:167-180` beta_63d 3× 과소(gain 2.8%). idio_vol_63d 오염은 +4~5%뿐(아시아 고 idio 터실은
+  대부분 진짜) — 리스크 채널 결함. T-08(JP T+1 스탬프) 기각(2014 연초 5행은 선행 백필 아티팩트).
+- **P4 (M4/T-10, medium)**: bcast 7(cal_is_Q1·regime_mkt_ret_21d·fac_F_*·fac_value_growth_63d·
+  fac_yield_slope) 33/33 split 0, fin_roe_level_z≡best_roe_level_z·fin_pb_level_z≡best_px_bps_ratio_level_z.
+  EWMA 드롭 예산이 전부 죽은 피처에 소진 → 피처 선택층 inert. **§S15 fix-pack #2(fac_* 캘린더)는
+  모델 no-op**(7078행 '퇴화 +2 ← 팩터 캘린더' 귀속 근거 없음). 단독 arm 가치 0 — 문서화·가드 테스트.
+- P5 (T-09, low): 미 휴장일 행 리밸 4/97에서 US 종목 lag 0일. P7 (M5, low): capex_intensity_z 극단 고정.
+
+**반박·기각**: **M3(음/0 자본 ROE·P/B)** — 압축(극단셀 제외 z std −75%)은 실재하나 분할 90%가 압축
+본체 내부, 음자본 8종 예측 백분위 0.513 vs 실현 0.500, fin_roe_pb_gap 핀 기여 양(17/19), 액티브 +0.0001,
+대안 변환 IC 차 t 0.63 → 설계 관찰(low)·SHELVE. T-06(캡 루프 래칫) 유계로 저위험. T-08 기각.
+
+**판정 무결성·운영(산출물 불변, 즉시 적용 가능)**: T-03 export 가드 `> cap + NAME_RISK_CAP_TOL`
+정합 + 본 §S16.7 절 정정(strict 0.35 기준 12/97) · T-04 빈티지·git 지문을 UniverseData 생성 직전
+캡처(§S16.8 1차 런 무효 사고 원인) · T-02 arm 스크립트 'fallback 0' 게이트가 SCS 전환률만 읽음(4 pkl
+전부 bm 폴백 0 → latent) · T-05 캡 비수렴 미집계(latent; 부수: **MVO 타깃 턴오버 캡 97/97 바인딩**,
+실행 1/97) · T-07 강제거래 infeasible→bm 점프(latent, 강제 L1 최대 0.072 vs 0.15) · T-12 IR 정의 명시.
+
+**개선 후보 심사 결과(사전등록 전 — 실행 없음)**: Tier 0 정확성 — **G1-01a T-01(코드만, 즉시 사전등록
+가능)**, **G1-01b M1 명목가(데이터 대기: `PX_LAST_UNADJ` 시트 인출은 사용자 결정)**, G1-02 음자본
+가드 SHELVE(M3), G1-03 Dimson 피처 가치 하향. Tier 1 리스크/거버넌스 — G5-02 메가캡 수축 OFF
+(`cov_megacap_vol_shrink_enabled: false`, QLIKE 게이트, 5분) · G5-01 Σ 비동기 5일 겹침 상관(P0 는
+W3 로 충족, P1 MZ 회귀 결정 게이트, 리스크 규율 프레임) · G3-04 섹터 리스크 몫 캡(P0 최근 24회 위반율
+코드 작성 전 측정) · G5-03 HAR 항(§S13.42 바) · G2-03 폴백 prev(거버넌스). Tier 2 IR 바 — G4-01 순수
+63BD 라벨 · G3-01 top-20 UW 보호 · G2-01 실행층 confidence 제거 · G2-02 강제거래 eta 평활 · G4-04 UW μ
+평탄화 · G4-02 시간 감쇠 · G5-04 어닝 분산. 종결·기각 10건은 보고서 참조.
+
+**후속(사용자 결정 필요)**: (1) 워크북 `PX_LAST_UNADJ` 별도 시트 재인출 여부 — M1 수정의 유일 경로.
+(2) G1-01a·O-트랙 정정의 사전등록/적용 승인. (3) 5분 사전점검 2건(G5-02·G3-04 P0) 사전등록 승인.
+production variant·config·인벤토리 무변경. 이 절은 사전등록이 아니다.
+
+**완결성 비평(미검정 가설, 다음 라운드 첫 항목)**: (1) M3 SHELVE 가 `backtest.py:527 apply_vol_quality_tilt`
+(production ON, best_roe_level_z 직접 소비)를 빠뜨림 — 틸트 채널 한정 결함 가능; (2) T-01 의 `_fill_missing`
+횡단면 median 은 전 시트 공통(CUR_MKT_CAP·현지통화 절대액·정의 불가 밸류에이션 NaN 포함) — 수정 팩 범위 재검토;
+(3) 스핀오프·특별배당 스텝 조정 미검정(DELL 297·APP 118 클립은 M1 드리프트로 설명 불가) — 미조정이면 가짜
+폭락이 모멘텀·Σ·타깃까지 오염(M1 보다 심각). 그 외 EUROPE 43종 Σ 블록 미정량·PCA 타깃 오염·LW 분기 등
+`outputs/s17_prechecks/review_r4_w3_critic.md`.
+
+---
+
+## S17.1 사전등록 — 구조 리뷰 4차 수정 arm 4종 (T-01 · M2 Σ · M2 피처 · M4) — 2026-09-02 (측정 전 단독 커밋)
+
+**지시**: 사용자가 §S17 확정 결함 중 **T-01(high)·M2(medium)·M4(medium)** 를 "먼저 수정" 지시. M1(PX_LAST
+배당 조정)은 `PX_LAST_UNADJ` 재인출 결정 대기로 제외. 규약대로 **플래그 default-OFF + 바이트 패리티 단위테스트
+→ 사전등록 커밋 → 사전점검 → schtasks arm 측정 → flip 은 사용자 결정(§8)**.
+
+**비교 기준 S0′ (동일 빈티지)**: 2026-09-02 11:30 스케줄 런의 production 산출물 — **IR 1.7052** / TE 3.64% /
+β 1.050 / turnover 0.661 / Pictet AS 20.02% / avg_ic 0.016306 / 퇴화 12/33 / ECOS 194·fallback 0 / elapsed 1,371s.
+빈티지 쌍 (워크북 2026-09-01 14:05:40 KST, Index.xlsx 2026-09-02 11:09:18 KST), 코드 git b2a7bc4(= HEAD 2049c77,
+src 동일). 내일 11:30 스케줄 런이 `outputs/codex_causal_rank_65` 를 덮어쓰므로 **`outputs/s17_s0_0902` 에 동결**
+(metrics·manifest·pkl). ⚠ 사용자 데이터 파이프라인(`run_pipeline.py --stage full`, 16:19 KST 기동, PID 16240)이
+실행 중 — 종료 시 워크북 빈티지가 포크된다. 각 런은 `outputs/run_variant_task.ps1` 의 VINTAGE_PRE/POST 기록 +
+판정 G0 `data_vintage` 동일성으로 검사하고, **포크된 런은 무효 → 새 빈티지에서 S0′ 재인증 후 재측정**(§S16.8 선례).
+
+**구현(전부 default-OFF, 766 PASS, 신규 단위테스트 22 + 판정 헬퍼 9)**:
+
+| # | arm / variant | 단일 플래그 | 수정 위치 | 프레임 | DSR |
+|---|---|---|---|---|---|
+| A | `s17_1_coverage_gap_fix` | `s17_coverage_gap_fix_enabled` | `sellside.py _mask_pre_coverage` — 가격 레벨 시트(Factset_TG_Price·Factset_Fwd_OpCashflow)를 로더 임퓨트 이전 관측 마스크(`raw_sheet_observed_mask`, §S15.2 관용구)의 `cummax` 로 마스킹: 티커별 첫 관측 전 셀만 NaN, 이후 내부 갭은 ffill 유지. NaN 피처 셀은 패널 빌더 날짜별 median 으로(§S13.6 네이티브 NaN 경로 아님) | **정확성**(§S16.1 선례) | 비계수 |
+| B | `s17_2_cov_corr_overlap` | `cov_corr_overlap_enabled` (K=`cov_corr_overlap_days`=5 사전등록 상수) | `portfolio_optimizer._overlap_correlation_reassembly` — 일별 Σ 의 대각(분산)은 유지, **상관행렬만** K일 겹침 합 수익률로 재추정(분기 LW/pairwise 는 일별 경로와 동일), Σ′=D·C_K·D, 고유값 하한 PSD. 메가캡 수축·S13.41 대각·S13.46 비대각 **앞**에 위치 | **리스크 규율**(§S16.7 선례) | **+1** |
+| C | `s17_3_beta_overlap` | `s17_beta_overlap_enabled` (K=`s17_beta_overlap_days`=5) | `price.py` beta_63d·idio_vol_63d 를 K일 겹침 합(종목·EW 시장 양쪽)으로 같은 rolling 식 적용, idio 는 √K 일별 환산. `build_price_features(data, config=)` 시그니처 확장(assembly 배선) | **정확성** | 비계수 |
+| D | `s17_4_dead_feature_prune` | `s17_dead_feature_prune_enabled` | `assembly.S17_DEAD_FEATURES`(9: cal_is_Q1·regime_mkt_ret_21d·fac_yield_slope·fac_F_{Quality,Growth,Value}_mom_63d·fac_value_growth_63d·fin_roe_level_z·fin_pb_level_z) 를 `apply_core_filter(exclude=)` 로 제외(65→56, best_* 사본 유지) | **위생** | **+1** |
+
+**E0 (파리티, 선행 완료)**: `tests/test_s17_coverage_gap_fix.py`(6) · `test_s17_cov_corr_overlap.py`(5, OFF = LedoitWolf
+참조 바이트 동일·K=1 동일) · `test_s17_beta_overlap.py`(4, config 없는 호출과 동일·인라인 참조식 동일) ·
+`test_s17_dead_feature_prune.py`(7, `exclude=None` 레거시 동일·EWMA 산술 특성화 65→3드롭/56→0드롭). 전체 766 PASS.
+
+**사전점검 (사전등록 커밋 후 실행, 백테스트 0회)**:
+- `scripts/precheck_s17_feature_fixes.py` → `outputs/s17_prechecks/feature_fixes_accuracy.json` (워크북에서 OFF/ON
+  피처 직접 생성). **A 의 E1 정확성**: A1 결함 재현(VRT 갭창 OFF tg_upside z=+5.0 클립 ≥1행) · A2 같은 창 ON 전부
+  NaN · A3 갭창 타 종목 z 횡단면 std 중앙값 **≥ 0.90**(OFF ≈0.4). 관측: 갭 셀 종목별 수, tg_mom_63d 갭 종료 후 63BD
+  아티팩트 비율, 갭창 |z| p95 vs 전후 63BD. **C 의 E1 정확성**: B1 아시아 16종 raw beta_63d 중앙값 ON/OFF **≥ 2.0**
+  · B2 미국 종목 중앙값 **|ON/OFF−1| ≤ 0.15**. 관측: EU 비, idio 지역별 비(사전 기대 아시아 +4~5%), vol-quality
+  상위 터실 멤버십 변화/일(사전 기대 −0.8).
+- `scripts/precheck_s17_cov_overlap.py` → `outputs/s17_prechecks/cov_overlap_mechanism.json` (동결 S0′ 97 리밸 실행
+  북 고정, 옵티마이저 경로 그대로 Σ OFF/ON 재추정). **B 의 G1 기전 결정 게이트**: (i) ASIA×US 블록 평균 상관
+  ON/OFF ≥ 2.0 인 날짜 비율 **≥ 0.90** · (ii) US×US 블록 |ON/OFF−1| 중앙값 **< 0.10** · (iii) ON Σ PSD 전 날짜.
+  관측(비게이트, 사전등록): EU×US 비, ex-ante TE ON/OFF(사전 기대 +2%), 아시아 액티브 분산 점유(10.9→13.6%
+  기대), 조건수, **MZ 회귀** β_d·β_w(NW HAC lag 3; 실현 = 향후 63BD 주간 합 분산 일별 환산). *§S17 보고서
+  G5-01 행은 MZ β_d CI 하한 > 1 을 결정 게이트로 적었으나, W3 실측(북 ex-ante TE +2% = 분산 +4%)상 97점 회귀는
+  검정력이 없어 기전 게이트(i)~(iii)로 대체하고 MZ 는 관측으로 격하한다 — 측정 전 명시.*
+
+**arm 판정 (`scripts/eval_s17_arm.py --arm <label>` → `outputs/<label>/e1_summary.json`)**:
+- G0: `data_vintage` 쌍 동일. **B 는 추가로 avg_ic 비트 동일·퇴화 12/33 동일**(옵티마이저 전용 변경 증빙).
+- E2 do-no-harm(전 arm): TE ≤ 4.5% · Pictet AS 20.02% ± 3%p · turnover ≤ 1.25×(B 는 1.20×) · ECOS fallback 0 ·
+  퇴화율 병기.
+- E1: full ΔIR·3분할(공용 `evaluate_e1`, 산술 IR — T-12 정의 병기). **A·C(정확성)**: ΔIR 은 관측이며 채택 근거 아님
+  (부호 무관, §S16.1). **B(리스크 규율)·D(위생)**: no-harm = ΔIR > −0.36 이고 3분할이 전부 음이 아님. D 의 ΔIR 은
+  colsample RNG 실현 변경에 따른 **시드 잡음(±0.19, §S12.3(i))** 으로 취급 — 성과로 읽지 않는다.
+- arm 별 기전: A 패널 tg_upside VRT +5 클립 셀 base > 0 → arm 0 (+ 사전점검 A1~A3); C 사전점검 B1·B2; D 전 모델
+  활성 피처 ≤ 56·죽은 9개 부재. **D 부수 기록**: 56개에서 n_drop=2 < ewma_min_features 60 여유 → 드롭 0, 즉
+  EWMA 선택층은 prune 후에도 inert. 활성화(min_features 하향)는 별도 사전등록 대상이며 이 arm 범위 아님.
+- flip 후보 = G0 ∧ E2 ∧ 기전 (B·D 는 ∧ no-harm). **flip 은 §8 체크리스트로 사용자 결정, 한 번에 1개.** 채택 순서
+  후보: A → B → C → D (각각 이전 채택분 위에서 S0′ 재수립).
+
+**실행**: 순서 A→B→C→D, `outputs/s17_run_chain.bat`(각 arm 을 `run_variant_task.ps1` 로 `--no-cache` 직렬 실행,
+schtasks 일회성·배터리 허용·StopOnIdleEnd=false·ExecutionTimeLimit 12h). RAM 여유 2.7GB(파이프라인 1.4GB 점유)
+— 런 전 재확인. 각 arm 순수 연산 ~23분 예상(S0′ 1,371s).
+
+**인벤토리**: 471 → **473**(B·D 계수, A·C 정확성 트랙 비계수 — §S15/§S16.1 선례). 사전등록 시점 등록.
+

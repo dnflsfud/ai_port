@@ -97,6 +97,15 @@ def estimate_covariance(
         lw.fit(recent.values)
         cov = lw.covariance_.copy()
 
+    # §S17 M2 (Σ channel): non-synchronous trading — keep the daily variances,
+    # re-estimate only the correlation from K-day overlapping sums. Sits
+    # BEFORE the mega-cap shrink so the D@S@D step sees the corrected Σ, and
+    # the S13.41 / S13.46 scalings applied by the caller stay downstream.
+    if getattr(config, "cov_corr_overlap_enabled", False):
+        cov = _overlap_correlation_reassembly(
+            cov, recent, int(getattr(config, "cov_corr_overlap_days", 5))
+        )
+
     # Mild mega-cap volatility shrinkage while preserving PSD via D @ S @ D.
     if bm_weights is not None and getattr(config, "cov_megacap_vol_shrink_enabled", True):
         n = len(bm_weights)
@@ -127,6 +136,47 @@ def estimate_covariance(
         )
 
     return cov
+
+
+def _overlap_correlation_reassembly(
+    cov: np.ndarray, recent: pd.DataFrame, k: int
+) -> np.ndarray:
+    """§S17 M2: Σ' = D·C_K·D with D = daily vols from ``cov`` and C_K the
+    correlation of K-day overlapping-sum returns (decision log §S17 P3).
+
+    Asia trades before the US close, so contemporaneous daily correlations
+    of ASIA×US pairs are structurally understated (126d Σ block 0.044 vs 0.201
+    at 5-day overlap, 97/97 rebalance dates). Summing K days restores the
+    cross-timezone co-movement; the diagonal (daily variance) is already
+    correct and is kept. The branch (Ledoit-Wolf when the window is complete,
+    pairwise otherwise) mirrors the daily estimator so the shrinkage character
+    is unchanged. k <= 1 returns ``cov`` untouched.
+    """
+    if k <= 1:
+        return cov
+    summed = recent.rolling(k, min_periods=k).sum().iloc[k - 1:]
+    if summed.isna().any().any():
+        cov_k = _pairwise_covariance(summed)
+    else:
+        lw = LedoitWolf()
+        lw.fit(summed.values)
+        cov_k = lw.covariance_.copy()
+
+    d_k = np.sqrt(np.clip(np.diag(cov_k), 0.0, None))
+    d_k = np.where(d_k > 0, d_k, np.nan)
+    corr = cov_k / np.outer(d_k, d_k)
+    corr[~np.isfinite(corr)] = 0.0
+    np.fill_diagonal(corr, 1.0)
+    corr = 0.5 * (corr + corr.T)
+    eigvals, eigvecs = np.linalg.eigh(corr)
+    if eigvals.min() < 1e-8:
+        corr = (eigvecs * np.maximum(eigvals, 1e-8)) @ eigvecs.T
+        dd = np.sqrt(np.diag(corr))
+        corr = corr / np.outer(dd, dd)
+        corr = 0.5 * (corr + corr.T)
+
+    vols = np.sqrt(np.clip(np.diag(cov), 0.0, None))
+    return np.outer(vols, vols) * corr
 
 
 def _pairwise_covariance(

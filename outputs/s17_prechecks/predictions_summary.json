@@ -1,0 +1,91 @@
+{
+ "raw_predictions": {
+  "shape": [
+   3283,
+   250
+  ],
+  "nan_pct": 40.90977764240024,
+  "cs_std_median": 1.0,
+  "cs_std_min": 0.9999999999999998,
+  "cs_std_max": 1.0000000000000002,
+  "dates_all_nan": 1261,
+  "dates_cs_std_lt_1e-6": 0,
+  "first_date": "2014-01-24",
+  "last_date": "2026-08-25",
+  "rank_corr_vs_predictions_median": 0.974605924367916,
+  "rank_corr_vs_predictions_min": 0.9390558612701365
+ },
+ "pre_overlay_predictions": {
+  "shape": [
+   3283,
+   250
+  ],
+  "nan_pct": 40.879317697228146,
+  "cs_std_median": 0.9926416709861534,
+  "cs_std_min": 0.9400062057595643,
+  "cs_std_max": 1.0,
+  "dates_all_nan": 1260,
+  "dates_cs_std_lt_1e-6": 0,
+  "first_date": "2014-01-24",
+  "last_date": "2026-08-25",
+  "rank_corr_vs_predictions_median": 0.9752678968528434,
+  "rank_corr_vs_predictions_min": 0.9408426022941071
+ },
+ "predictions": {
+  "shape": [
+   3283,
+   250
+  ],
+  "nan_pct": 40.90977764240024,
+  "cs_std_median": 1.0323279691627745,
+  "cs_std_min": 0.9459849244636435,
+  "cs_std_max": 1.1104304371835076,
+  "dates_all_nan": 1261,
+  "dates_cs_std_lt_1e-6": 0,
+  "first_date": "2014-01-24",
+  "last_date": "2026-08-25"
+ },
+ "pre_execution_predictions": {
+  "shape": [
+   3283,
+   250
+  ],
+  "nan_pct": 40.879317697228146,
+  "cs_std_median": 1.0323574012565653,
+  "cs_std_min": 0.9459849244636435,
+  "cs_std_max": 1.1104304371835076,
+  "dates_all_nan": 1260,
+  "dates_cs_std_lt_1e-6": 0,
+  "first_date": "2014-01-24",
+  "last_date": "2026-08-25",
+  "rank_corr_vs_predictions_median": 0.9949440662526465,
+  "rank_corr_vs_predictions_min": 0.9560618008703526
+ },
+ "predictions_lag1_rank_autocorr_median": 0.995023502811541,
+ "predictions_ticker_mean_bottom10": {
+  "ZURN": -1.1731,
+  "HON": -1.0468,
+  "ALV": -1.002,
+  "AI": -0.999,
+  "PG": -0.9246,
+  "CS": -0.9102,
+  "NESN": -0.9071,
+  "ABBN": -0.903,
+  "BRK/B": -0.8928,
+  "KO": -0.8901
+ },
+ "predictions_ticker_mean_top10": {
+  "TEAM": 1.6691,
+  "DDOG": 1.6805,
+  "TSLA": 1.7049,
+  "SNOW": 1.7056,
+  "TTD": 1.7897,
+  "285A": 1.8451,
+  "ZS": 1.8668,
+  "PLTR": 1.9255,
+  "APP": 1.9601,
+  "BE": 2.1792
+ },
+ "predictions_ticker_mean_std_across_tickers": 0.741443242658066,
+ "predictions_global_std": 1.0295306968975362
+}
