@@ -1,0 +1,75 @@
+[DataLoader] Extending 1 tail dates beyond intersection (2026-08-31 -> 2026-09-01) via ffill.
+[DataLoader] Date intersection (3287) is 66% of longest sheet (4991). Tail-extended to 3288 dates.
+  [O] Earnings_Timeline 로드: (3288, 250), 총 11966개 발표일
+{
+  "preregistration": "decision log §S17.1 (2026-09-02)",
+  "base": "outputs\\s17_s0_0902\\backtest_result.pkl",
+  "n_rebalances": 97,
+  "n_region": {
+    "ASIA": 16,
+    "EU": 43,
+    "US": 191
+  },
+  "g1": {
+    "asia_ratio_frac_ge2": 0.7526,
+    "us_abs_dev_median": 0.1055,
+    "all_psd": true,
+    "g1_pass": false
+  },
+  "bars": {
+    "asia_ratio_min": 2.0,
+    "asia_date_frac_min": 0.9,
+    "us_abs_dev_max": 0.1
+  },
+  "block_corr_medians": {
+    "asia_us_off": 0.0415,
+    "asia_us_on": 0.1517,
+    "asia_us_ratio_median": 3.714,
+    "eu_us_ratio_median": 1.28,
+    "us_us_ratio_median": 0.935
+  },
+  "ex_ante_te": {
+    "off_median": 0.03251,
+    "on_median": 0.03257,
+    "ratio_median": 1.0077,
+    "cap": 0.035
+  },
+  "asia_active_variance_share": {
+    "off_mean": 0.1243,
+    "on_mean": 0.147
+  },
+  "asia_net_active_mean": 0.0171,
+  "condition_number_median": {
+    "off": 1341571.0,
+    "on": 1863921.8
+  },
+  "mz_regression": {
+    "n": 94,
+    "daily_sigma": {
+      "beta": 1.5958498918122601,
+      "alpha": -8.521778773532718e-07,
+      "se": 0.6524822738905466,
+      "ci95": [
+        0.31698463498678886,
+        2.8747151486377316
+      ]
+    },
+    "overlap_sigma": {
+      "beta": 0.8829580621021677,
+      "alpha": 1.8556992051985202e-06,
+      "se": 0.49081364906248565,
+      "ci95": [
+        -0.07903669006030423,
+        1.8449528142646394
+      ]
+    },
+    "mean_ratio_realized_week_over_pred": {
+      "off": 1.3435468593808175,
+      "on": 1.3555896190229995
+    },
+    "mean_ratio_realized_day_over_pred_off": 1.3519459252028176,
+    "note": "informational — book-level effect is ~+4% variance; a 97-point regression is underpowered by design"
+  }
+}
+
+G1: FAIL  (ASIAxUS ratio>=2 on 75% of dates, USxUS |dev| median 0.105, PSD True)

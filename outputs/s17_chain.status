@@ -1,0 +1,8 @@
+[2026-09-02 23:02:02.61] s17 chain start 
+[2026-09-02 23:02:02.61] start s17_1_coverage_gap_fix 
+[2026-09-02 23:02:02.61] end s17_1_coverage_gap_fix 
+[2026-09-02 23:02:02.61] start s17_3_beta_overlap 
+[2026-09-02 23:02:02.61] end s17_3_beta_overlap 
+[2026-09-02 23:02:02.61] start s17_4_dead_feature_prune 
+[2026-09-02 23:02:02.61] end s17_4_dead_feature_prune 
+[2026-09-03  1:06:43.62] DONE 

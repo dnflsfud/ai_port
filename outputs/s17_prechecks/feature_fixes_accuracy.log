@@ -1,0 +1,184 @@
+[DataLoader] Extending 1 tail dates beyond intersection (2026-08-31 -> 2026-09-01) via ffill.
+[DataLoader] Date intersection (3287) is 66% of longest sheet (4991). Tail-extended to 3288 dates.
+  [O] Earnings_Timeline 로드: (3288, 250), 총 11966개 발표일
+[RevisionClean] mode=reversion_gated threshold=15.0 down-spikes=2645 up-spikes=1264 gradual-down=12718 extension-cells=53031 extension-capped=1181
+[RevisionClean] mode=reversion_gated threshold=15.0 down-spikes=2083 up-spikes=1013 gradual-down=8616 extension-cells=44073 extension-capped=1146
+[RevisionClean] mode=reversion_gated threshold=15.0 down-spikes=2645 up-spikes=1264 gradual-down=12718 extension-cells=53031 extension-capped=1181
+[RevisionClean] mode=reversion_gated threshold=15.0 down-spikes=2083 up-spikes=1013 gradual-down=8616 extension-cells=44073 extension-capped=1146
+{
+  "preregistration": "decision log §S17.1 (2026-09-02)",
+  "workbook_mtime_kst": "2026-09-01 14:05:40",
+  "t01": {
+    "gap_ticker": "VRT",
+    "gap_window": [
+      "2018-08-01",
+      "2020-02-24"
+    ],
+    "gap_window_rows": 409,
+    "off_vrt_plus5_rows": 409,
+    "on_vrt_nan_rows": 409,
+    "others_cs_std_median": {
+      "off": 0.4328,
+      "on": 0.9738,
+      "bar": 0.9
+    },
+    "others_abs_z_p95_median": {
+      "off": 0.7946,
+      "on": 1.912,
+      "off_63d_before": 1.9489,
+      "off_63d_after": 1.9895
+    },
+    "tg_mom_63d_vrt_post_gap_share_le_minus4_99": {
+      "off": 0.9524,
+      "on": 0.0
+    },
+    "coverage_gap_cells_total": 693,
+    "changed_cells_total": 693,
+    "coverage_gap_cells_by_ticker": {
+      "VRT": 409,
+      "VST": 127,
+      "BE": 16,
+      "PLTR": 16,
+      "RACE": 16,
+      "APP": 16,
+      "CRWD": 15,
+      "ZS": 15,
+      "DDOG": 15,
+      "TEAM": 14,
+      "NET": 14,
+      "KEYS": 8,
+      "LITE": 4,
+      "HPE": 3,
+      "RDDT": 2,
+      "SNOW": 2,
+      "285A": 1
+    },
+    "a1_defect_reproduced": true,
+    "a2_gap_window_nan": true,
+    "a3_cs_std_restored": true,
+    "t01_pass": true
+  },
+  "beta_overlap": {
+    "n_region": {
+      "ASIA": 16,
+      "EU": 43,
+      "US": 191
+    },
+    "beta_63d_median": {
+      "ASIA": {
+        "off": 0.2819,
+        "on": 0.7731
+      },
+      "EU": {
+        "off": 0.7671,
+        "on": 0.8408
+      },
+      "US": {
+        "off": 1.0176,
+        "on": 0.9526
+      }
+    },
+    "beta_ratio_on_over_off": {
+      "ASIA": 2.7427,
+      "EU": 1.0961,
+      "US": 0.9361
+    },
+    "asia_per_name_beta_median": {
+      "000660": {
+        "off": 0.554,
+        "on": 1.197
+      },
+      "005930": {
+        "off": 0.413,
+        "on": 0.889
+      },
+      "285A": {
+        "off": 1.188,
+        "on": 3.048
+      },
+      "6857": {
+        "off": 0.538,
+        "on": 1.203
+      },
+      "8035": {
+        "off": 0.37,
+        "on": 1.191
+      },
+      "8306": {
+        "off": 0.235,
+        "on": 0.693
+      },
+      "7974": {
+        "off": 0.223,
+        "on": 0.571
+      },
+      "7203": {
+        "off": 0.235,
+        "on": 0.611
+      },
+      "6146": {
+        "off": 0.389,
+        "on": 1.201
+      },
+      "6981": {
+        "off": 0.337,
+        "on": 0.817
+      },
+      "9432": {
+        "off": 0.064,
+        "on": 0.189
+      },
+      "9433": {
+        "off": 0.061,
+        "on": 0.198
+      },
+      "8316": {
+        "off": 0.241,
+        "on": 0.648
+      },
+      "7011": {
+        "off": 0.19,
+        "on": 0.59
+      },
+      "6758": {
+        "off": 0.333,
+        "on": 0.89
+      },
+      "4063": {
+        "off": 0.319,
+        "on": 0.906
+      }
+    },
+    "idio_vol_63d_median": {
+      "ASIA": {
+        "off": 0.2881,
+        "on": 0.242
+      },
+      "EU": {
+        "off": 0.2042,
+        "on": 0.1822
+      },
+      "US": {
+        "off": 0.2097,
+        "on": 0.1969
+      }
+    },
+    "idio_ratio_on_over_off": {
+      "ASIA": 0.84,
+      "EU": 0.8923,
+      "US": 0.9388
+    },
+    "vol_quality_top_tercile_membership_change_per_date": 25.512,
+    "valid_dates": 3222,
+    "bars": {
+      "asia_ratio_min": 2.0,
+      "us_band": 0.15
+    },
+    "b1_asia_ratio_ok": true,
+    "b2_us_preserved": true,
+    "beta_pass": true
+  }
+}
+
+T-01: PASS  (VRT +5 rows OFF 409, ON NaN 409/409, others cs-std 0.433 -> 0.974)
+BETA: PASS  (ASIA 0.282 -> 0.773 x2.74, US x0.936)
