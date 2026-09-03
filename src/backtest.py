@@ -358,7 +358,12 @@ def apply_growth_tilt(
     # FactSet target prices are quoted in the listing currency. Portfolio
     # prices are USD after UniverseData conversion, so target-price upside
     # must explicitly use the preserved local-price panel.
-    local_prices = getattr(data, "local_prices", None)
+    # §S17.3 G1-01b: nominal denominator for the TG-upside leg when enabled.
+    local_prices = (
+        getattr(data, "local_prices_nominal")
+        if getattr(config, "nominal_price_source", None)
+        else getattr(data, "local_prices", None)
+    )
     px_last = (
         local_prices.reindex(index=pred_idx, columns=pred_cols).ffill()
         if local_prices is not None

@@ -5,8 +5,12 @@ from scripts.eval_s17_arm import FRAMES, evaluate_e2, evaluate_no_harm
 
 
 def test_frames_cover_the_four_preregistered_arms():
+    # §S17.1 4종 + §S17.3 G1-01b(명목가 분모, 기준 = 09-03 빈티지 재인증 s17_2_s0recert)
     assert set(FRAMES) == {"s17_1_coverage_gap_fix", "s17_2_cov_corr_overlap",
-                           "s17_3_beta_overlap", "s17_4_dead_feature_prune"}
+                           "s17_3_beta_overlap", "s17_4_dead_feature_prune",
+                           "s17_5_nominal_price"}
+    assert FRAMES["s17_5_nominal_price"]["frame"] == "correctness"
+    assert FRAMES["s17_5_nominal_price"]["base"] == "s17_2_s0recert"
     assert FRAMES["s17_1_coverage_gap_fix"]["frame"] == "correctness"
     assert FRAMES["s17_3_beta_overlap"]["frame"] == "correctness"
     assert FRAMES["s17_2_cov_corr_overlap"]["frame"] == "risk_discipline"

@@ -112,13 +112,16 @@ def build_accounting_features(
         features[f"{p}_rank"] = cs_rank(raw)
 
     # -- Cross-ratios (~10) --
-    _add_cross_ratios(data, features, unit_fix=unit_fix)
+    _add_cross_ratios(
+        data, features, unit_fix=unit_fix,
+        nominal=bool(getattr(config, "nominal_price_source", None)),
+    )
 
     return features
 
 
 def _add_cross_ratios(data: UniverseData, features: Dict[str, pd.DataFrame],
-                      unit_fix: bool = False):
+                      unit_fix: bool = False, nominal: bool = False):
     """Accounting 교차비율 피처."""
     def _safe_get(name):
         try:
@@ -157,7 +160,10 @@ def _add_cross_ratios(data: UniverseData, features: Dict[str, pd.DataFrame],
             # LN price rescale keeps those share counts right, and both live
             # behind this one flag. A constant multiplier (e.g. millions) is
             # universe-wide and therefore inert in the cross-sectional z.
-            shares = data.market_cap / data.prices.replace(0, np.nan)
+            # §S17.3 G1-01b: the USD price must be nominal as well, or the
+            # share count inherits the dividend adjustment (MO 2014 2.15x).
+            px_usd = data.prices_nominal if nominal else data.prices
+            shares = data.market_cap / px_usd.replace(0, np.nan)
             net_income = eps * shares.reindex_like(eps)
             features["cash_conversion_z"] = cross_sectional_zscore(
                 fcf / net_income.replace(0, np.nan).abs()

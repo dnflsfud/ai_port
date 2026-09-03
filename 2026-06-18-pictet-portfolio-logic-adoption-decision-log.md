@@ -8492,3 +8492,104 @@ IR 을 채택 근거로 쓰지 않음, §S15/§S16.1 선례; 인벤토리 472 �
 flip(사용자 결정 대기, 채택 시 A 위에서 재측정). 이후 모든 arm 비교 기준은 **1.7330**. M1(PX_LAST 배당 조정)은
 `PX_LAST_UNADJ` 재인출 결정 대기.
 
+### M1 데이터 게이트 — `PX_LAST_UNADJ` 수집 배선 (2026-09-03, 코드만·재인출 대기)
+
+사용자 지시로 블룸버그 수집기 `venv_vf_new/price_v4.py`(→ `Data/S&P500.xlsx`·`Index.xlsx`)에 **`PX_LAST_UNADJ` 시트**를
+추가했다. 블룸버그에 그 이름의 필드는 없으므로 **`PX_LAST` 를 HistoricalDataRequest 조정 플래그 `adjustmentFollowDPDF=False ·
+adjustmentNormal=False · adjustmentAbnormal=False · adjustmentSplit=True` 로 재요청**해 시트명으로 relabel 한다(배당·특별배당
+미조정, **분할 조정은 유지** — TG·시총 기반 주식수·PE/PB/PEG 역산 `X × PX_UNADJ/PX_LAST` 가 모두 분할 조정 기준이라 분할까지
+끄면 비율에 분할 배수가 남는다). 기존 시트들의 요청은 바이트 동일(`ADJUSTED_PRICE_ADJUSTMENTS` 기본값). 후속 스크립트는 수정
+불필요: `create_universe_data.py` 는 S&P500.xlsx 의 전 시트를 유니버스 열로 통과시키고, `create_ai_signal_data.py` 는
+RL_Universe_Data 의 전 시트를 복사하므로 다음 `run_data_pipeline.bat` 부터 `ai_signal_data.xlsx` 에 `PX_LAST_UNADJ` 가 실린다
+(ai_port 로더는 비필수 시트로 적재·상장 마스크 적용, 소비 코드 없음 = production 불변). 테스트 `test_price_v4.py` 11 PASS.
+**남은 절차**: ① 사용자 `price_v4.py` 재실행(블룸버그 단말) → ② `run_data_pipeline.bat` → ③ 새 빈티지 쌍에서 S0′ 재인증 →
+④ G1-01b 사전등록(데이터 게이트: 무배당 5종 PX_UNADJ=PX_LAST 4자리 일치 · MO 2014-06-30 ≈ 41.94 · TG/PX 2.0→1.0~1.25).
+**부분 재수집 모드(같은 날 추가, 사용자 선택)**: `price_v4.py --sheets PX_LAST,PX_LAST_UNADJ` — 지정 시트만 받아 기존
+Index.xlsx·S&P500.xlsx 의 나머지 시트(SPX Index·Earnings_Date 포함)는 그대로 두고 해당 시트만 교체/추가한다(임시 파일 →
+`os.replace` 원자 교체, Excel 에 열려 있으면 실패). 시트별 수집 분기는 `fetch_sheet_rows` 로 단일화해 전체 수집과 공유.
+전체 재수집(약 1.5~2h, 오늘 오전 11:48/13:18 런은 수정 전 코드라 UNADJ 시트 부재) 없이 오늘 워크북에 UNADJ 를 붙일 수 있다.
+`test_price_v4.py` 15 PASS. 주의: 두 파일 mtime 이 바뀌므로 빈티지 쌍이 포크된다(S0′ 재인증 필수) · 11:15~11:30 창 회피.
+
+## S17.2 M1 데이터 게이트 ① — `PX_LAST_UNADJ` 빈티지 생성 + S0′ 재인증 (2026-09-03, 재인증·비계수)
+
+**데이터**: 사용자가 `price_v4.py --sheets PX_LAST,PX_LAST_UNADJ` 로 두 시트를 부분 재수집(Index.xlsx 14:26:46 · S&P500.xlsx
+14:41:27; 전체 재수집분은 같은 날 11:48/13:18). 정합성(감사 기준 재현): MO 2014-06-30 PX_LAST 19.5639 / **UNADJ 41.94**
+(§S17 기준값 일치), T 13.18/35.36, AAPL 20.36/23.23(비 0.876 = 보고서 값), **무배당 TSLA·AMZN 비 1.0000**, NVDA 0.950,
+6종 전 구간 비 ≤ 1(배당 조정은 과거만 낮춤), 최신일(09-03) 두 시트 동일. `run_data_pipeline.bat` 15:04 → 15:51
+(센티먼트 재분석 → RL_Universe_Data 254MB → ai_signal_data 366MB, 57시트). **사고**: 최종 `os.replace` 가 PermissionError —
+병행 Claude 세션(new_ai_port `diag_units.py`, 15:50 기동)이 구 워크북을 읽는 중이라 잠김. 임시 파일은 완전했으므로 잠금
+해제(15:55) 후 수동 교체(재실행 0). ⚠ 워크북 교체 시점에 다른 세션의 pkl/xlsx 로드가 없는지 확인 필요(T-04 류).
+
+**재인증** `variants/s17_2_s0recert.yaml`(= production config 1c3acae 사본, overrides 동일 확인) → `outputs/s17_2_s0recert`,
+schtasks `s17_2_s0recert` 15:55:53 → EXIT 0 16:20:45 (1,478s). VINTAGE_PRE = POST = (워크북 **2026-09-03 15:51:22**, Index
+**2026-09-03 14:26:46**). 로더: 상장 재마스킹 **44 시트**(43 + PX_LAST_UNADJ), 날짜 교집합 3,287 불변(꼬리 3일 확장
+09-01→09-03), 코어 65 피처 불변 — 새 시트는 적재만 되고 소비 코드 없음.
+
+| 항목 | 직전 S0′ (s17_1, 09-01/09-02 빈티지) | **새 S0′ (s17_2_s0recert, 09-03 빈티지)** | Δ |
+|---|---:|---:|---:|
+| IR | 1.7330 | **1.7118** | −0.021 |
+| 3분할 IR (공통 구간) | 1.672 / 1.511 / 1.892 | 1.508 / 1.687 / 1.848 | −0.163 / +0.176 / −0.045 |
+| TE | 3.636% | 3.676% | +0.04%p |
+| 실현 β | 1.048 | 1.052 | +0.004 |
+| avg_ic | 0.019641 | 0.018935 | −3.6% |
+| turnover | 0.6588 | 0.6735 | +2.2% |
+| Pictet AS | 20.21% | 19.86% | −0.35%p |
+| 퇴화 | 13/33 | 10/33 | — |
+| MaxDD | −32.5% | −32.5% | — |
+| ECOS / fallback | 194 / 0 | 194 / 0 | — |
+| P4 tail IR | 0.507 | 0.252 | — |
+
+**해석**: 전체 재수집(블룸버그 이력 재기술·센티먼트 재분석·FactSet 재독) 빈티지라 §S13.33/§S13.34 형 **빈티지 포크** —
+공통 구간 일별 액티브 수익률의 99.1% 가 달라졌고(max |Δ| 0.53%) 3분할 부호가 엇갈리며 full ΔIR −0.021 은 잡음대. 코드
+변경 0·overrides 동일이므로 성과 판정 대상이 아니다. **이후 모든 arm 비교 기준 = S0′ 1.7118 (`outputs/s17_2_s0recert`);
+1.7330·1.7052·1.7596 은 은퇴·혼용 금지.** 인벤토리 472 불변(재인증 비계수). 다음: G1-01b(M1 명목가 분모) 사전등록 —
+로더 `local_prices_nominal`(PX_LAST_UNADJ, §S16.1 P1 LN×0.01 동일 적용) → sellside.py tg_upside·accounting.py 주식수·PE/PB/PEG
+역산 `X × PX_UNADJ/PX_LAST`, 데이터 게이트(무배당 5종 바이트 동일·MO 41.94·TG/PX 2.0→1.0~1.25·z 격차 1.56→<0.5)는
+이 빈티지에서 사전점검 스크립트로 확인 후 arm 측정.
+
+## S17.3 사전등록 — G1-01b / M1 명목가 분모 `nominal_price_source` — 2026-09-03 (측정 전 단독 커밋)
+
+**지시**: 사용자 "G1-01b(M1 명목가 분모: tg_upside·주식수·PE/PB/PEG 역산) 사전등록 … 데이터 게이트는 이 빈티지에서 사전점검 후
+arm 측정". 규약대로 **플래그 default-OFF + 바이트 패리티 단위테스트 → 사전등록 커밋 → 사전점검(데이터 게이트) → schtasks arm 측정 →
+flip 은 사용자 결정(§8)**. 결함 정본은 §S17 P1(critical)·보고서 처방 (A).
+
+**비교 기준 S0′**: `outputs/s17_2_s0recert`(§S17.2) — IR 1.7118 / TE 3.68% / β 1.052 / avg_ic 0.018935 / turnover 0.673 /
+Pictet AS 19.86% / 퇴화 10/33 / ECOS 194·fallback 0, 빈티지 쌍 (워크북 2026-09-03 15:51:22, Index 2026-09-03 14:26:46).
+G0 = arm 의 `data_vintage` 쌍 동일. 포크 시 무효 → 재인증 후 재측정.
+
+**구현 (default-OFF, 전체 780 PASS = 767 + 신규 10 + 판정 헬퍼 3)**: 사전등록 **단일 파라미터** `nominal_price_source: Optional[str] = None`,
+arm 값은 `"PX_LAST_UNADJ"` 하나(스윕 없음). 시트는 §S17.2 빈티지에 존재(분할 조정·배당 미조정, `price_v4.py` adjustmentNormal/Abnormal=False).
+
+| 위치 | ON 동작 | OFF |
+|---|---|---|
+| `data_loader._apply_nominal_price` (P1 단위 스케일 **후**·USD 변환 **전**) | `local_prices_nominal` = 시트(LN ×0.01 동일 적용) · `prices_nominal` = 동일 FX 경로 · `NOMINAL_RATIO_SHEETS`(BEST_PE_RATIO·BEST_PX_BPS_RATIO·BEST_PEG_RATIO) 를 셀별 `× PX_UNADJ/PX_LAST` 역산(어느 가격이든 결측이면 원값) · 진단 `data_quality.currency.nominal_price` · 시트 부재 시 KeyError | 속성·진단 키 없음, 시트 불변 |
+| `sellside._local_price_panel` | tg_upside(+diff/rank/z/vs_median/vol)·fwd_opcf_yield 분모 = 명목 패널; 패널 부재 시 AttributeError(무음 폴백 금지) | `local_prices` 그대로 |
+| `accounting._add_cross_ratios(nominal=)` | cash_conversion_z 주식수 = CUR_MKT_CAP / `prices_nominal` | `prices` |
+| `backtest.apply_growth_tilt` | TG 레그 분모 = `local_prices_nominal` (production `growth_tilt_rev_tg_share` 0 → inert) | `local_prices` |
+| **불변** | PX_LAST·Daily_Returns·모멘텀·52주·breakout/RSI·Σ·P&L·EV/EBITDA·CUR_MKT_CAP·tg_mom_* | — |
+
+시트 역산의 파급(의도된 범위): PE/PB/PEG `level_z·chg·accel·vs_median·vol·rank`, `roe_pe_z`, 밸류트랩 게이트의 PE z, financials 블록의
+PB/PE 갭 — 모두 같은 입력 계약 결함이므로 한 플래그로 묶는다(§S16.1 fix-pack 선례).
+
+**E0 (파리티, 완료)**: `tests/test_s17_nominal_price.py`(10) — 시트가 있어도 OFF 면 시트 없는 로드와 프레임 동일·속성 없음, ON 시 패널·
+FX·LN 스케일·시트 역산·EV/EBITDA 불변·진단 키, 시트 부재 KeyError, sellside OFF 동일/ON 분모, 패널 부재 AttributeError, accounting
+주식수, growth-tilt TG 레그 순위 반전, arm variant = production + 정확히 이 파라미터. `tests/test_precheck_s17_nominal_price.py`(3),
+`tests/test_eval_s17_arm.py` FRAMES 핀 갱신.
+
+**사전점검 — 데이터 게이트(결정 게이트, 전부 PASS 여야 arm 실행)** `scripts/precheck_s17_nominal_price.py` →
+`outputs/s17_prechecks/nominal_price_gates.json` (production overrides + 플래그 ON 으로 UniverseData 1회 로드, sellside OFF/ON):
+- **A** 무배당 5종(TSLA·AMZN·ADBE·NFLX·ISRG) 원시 PX_LAST_UNADJ == PX_LAST 전 구간 값 동일(공통 비결측 셀 `array_equal`).
+- **B** MO 2014-06-30 원시 UNADJ ≈ 41.94 (|Δ| ≤ 0.01).
+- **C** 고배당 12종(= 2014-06-30 PX_LAST/UNADJ 비 최저 12, 데이터로 정의) 2014 median(TG/PX): OFF 관측(보고서 2.02) → **ON ∈ [1.00, 1.25]**.
+- **D** 같은 군 tg_upside_z 격차 = median z(2014~19) − median z(2025~26): OFF 관측(보고서 +1.56) → **ON |격차| < 0.5**.
+- 관측: 연도별 TG/PX OFF/ON, 무배당군 z 격차, MO 2014 내재 주식수 OFF/ON 비(보고서 2.15), MO 2014-06-30 PE OFF/ON, ON |tg_upside| ≥ 4.99 셀 수.
+
+**arm 판정** `scripts/eval_s17_arm.py --arm s17_5_nominal_price`(base 기본 = `s17_2_s0recert`) → `outputs/s17_5_nominal_price/e1_summary.json`:
+G0 빈티지 동일 · E2 do-no-harm(TE ≤ 4.5% · AS ± 3%p · turnover ≤ 1.25× · fallback 0 · 퇴화 병기) · E1 full ΔIR·3분할은 **관측**(정확성
+트랙, 부호 무관 — §S16.1/§S17.1-A 선례) · 기전 = 사전점검 `gates_pass` ∧ 패널 고배당군 2014 tg_upside 중앙값 arm < base − 0.25.
+**flip 후보 = G0 ∧ E2 ∧ 기전**, flip 은 §8 체크리스트로 사용자 결정. 채택 시 데이터 정확성 계층으로 §2.1 예외(default-ON) 후보이나
+이번 커밋은 default-OFF 유지.
+
+**실행**: `variants/s17_5_nominal_price.yaml`(= production 1c3acae + 파라미터 1줄, `--no-cache`, schtasks 단일 런, 빈티지 쌍 PRE/POST 기록).
+**인벤토리**: 472 **불변**(정확성 트랙 비계수, §S15/§S16.1 선례) — 사전등록 시점 등록.
+

@@ -32,12 +32,17 @@ from scripts.eval_s13_46_arm import (  # noqa: E402 — 공용 판정 헬퍼
 
 BASE_DIR = AI_PORT / "outputs" / "s17_s0_0902"
 PRECHECK = AI_PORT / "outputs" / "s17_prechecks" / "feature_fixes_accuracy.json"
+# §S17.3 (G1-01b): nominal-price arm — base = the 09-03 PX_LAST_UNADJ-vintage S0′ recert.
+NOMINAL_PRECHECK = AI_PORT / "outputs" / "s17_prechecks" / "nominal_price_gates.json"
+HIGH_DIV_FALLBACK = ["MO", "T", "VZ", "PFE", "XOM", "KO", "PG", "JPM", "MSFT", "AAPL"]
 ACTIVE_SHARE_BAND = 0.03
 FRAMES = {
     "s17_1_coverage_gap_fix": {"frame": "correctness", "turnover_max": 1.25, "alpha_identical": False},
     "s17_2_cov_corr_overlap": {"frame": "risk_discipline", "turnover_max": 1.20, "alpha_identical": True},
     "s17_3_beta_overlap": {"frame": "correctness", "turnover_max": 1.25, "alpha_identical": False},
     "s17_4_dead_feature_prune": {"frame": "hygiene", "turnover_max": 1.25, "alpha_identical": False},
+    "s17_5_nominal_price": {"frame": "correctness", "turnover_max": 1.25, "alpha_identical": False,
+                            "base": "s17_2_s0recert"},
 }
 DEAD = {"cal_is_Q1", "regime_mkt_ret_21d", "fac_yield_slope", "fac_F_Quality_mom_63d",
         "fac_F_Growth_mom_63d", "fac_F_Value_mom_63d", "fac_value_growth_63d",
@@ -73,10 +78,12 @@ def _plus5_cells(panel, feature: str, ticker: str) -> int:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--arm", required=True, choices=sorted(FRAMES))
-    ap.add_argument("--base", default=str(BASE_DIR))
+    ap.add_argument("--base", default=None)
     args = ap.parse_args()
     spec = FRAMES[args.arm]
-    base_dir, arm_dir = Path(args.base), AI_PORT / "outputs" / args.arm
+    base_dir = (Path(args.base) if args.base
+                else AI_PORT / "outputs" / spec.get("base", BASE_DIR.name))
+    arm_dir = AI_PORT / "outputs" / args.arm
 
     base_doc = json.load(open(base_dir / "metrics.json", encoding="utf-8"))
     arm_doc = json.load(open(arm_dir / "metrics.json", encoding="utf-8"))
@@ -121,6 +128,30 @@ def main() -> None:
         mechanism = {"arm_model_feature_counts": n_feats, "base_model_feature_counts": base_n,
                      "dead_features_in_arm_models": leak,
                      "pass": bool(not leak and n_feats and max(n_feats) <= 56)}
+    elif args.arm == "s17_5_nominal_price":
+        # 사전점검 데이터 게이트(A~D) + 패널 기전: 고배당군 2014 tg_upside 중앙값이
+        # base(조정가 분모, ≈+1.0) 대비 arm(명목가 분모)에서 뚜렷이 낮아야 한다.
+        gates = json.load(open(NOMINAL_PRECHECK, encoding="utf-8")) if NOMINAL_PRECHECK.exists() else {}
+        high_div = gates.get("high_dividend_12") or HIGH_DIV_FALLBACK
+        def _hd_2014(res):
+            panel = getattr(res, "panel", None)
+            if panel is None or "tg_upside" not in panel.columns:
+                return None
+            col = panel["tg_upside"]
+            dates = col.index.get_level_values(0)
+            sub = col[(dates >= "2014-01-01") & (dates <= "2014-12-31")]
+            sub = sub[sub.index.get_level_values("ticker").isin(high_div)]
+            return float(sub.median()) if len(sub) else None
+        hd_base, hd_arm = _hd_2014(base_r), _hd_2014(arm_r)
+        mechanism = {
+            "precheck_gates": {"file": str(NOMINAL_PRECHECK.relative_to(AI_PORT)),
+                               "pass": bool(gates.get("gates_pass", False)),
+                               "detail": gates.get("gates")},
+            "panel_high_div_tg_upside_2014_median": {"base": hd_base, "arm": hd_arm},
+            "pass": bool(gates.get("gates_pass", False)
+                         and hd_base is not None and hd_arm is not None
+                         and hd_arm < hd_base - 0.25),
+        }
     if args.arm in ("s17_1_coverage_gap_fix", "s17_3_beta_overlap") and PRECHECK.exists():
         pre = json.load(open(PRECHECK, encoding="utf-8"))
         key, flag = (("t01", "t01_pass") if args.arm == "s17_1_coverage_gap_fix"

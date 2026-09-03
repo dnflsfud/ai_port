@@ -1045,6 +1045,30 @@ class PipelineConfig:
     s17_dead_feature_prune_enabled: bool = False
 
     # ------------------------------------------------------------------
+    # S17.3 (2026-09-03) — G1-01b / M1 nominal price denominator (decision
+    # log §S17.3 preregistration). The workbook's PX_LAST and the price-
+    # ratio sheets derived from it (BEST_PE_RATIO, BEST_PX_BPS_RATIO,
+    # BEST_PEG_RATIO) are Bloomberg DPDF dividend-reinvestment adjusted:
+    # every past price carries the dividends paid AFTER that date (MO
+    # 2014-06-30 19.56 vs nominal 41.94). Dividing a NOMINAL target price,
+    # CF/share estimate or market cap by it (tg_upside, fwd_opcf_yield,
+    # shares = mktcap / price) embeds future dividends — a look-ahead that
+    # erased the learner's tg_upside signal and flipped the high-dividend
+    # ranking between the training era and live. When set to a workbook
+    # sheet name (preregistered single value: "PX_LAST_UNADJ", split-
+    # adjusted / dividend-unadjusted, pulled by price_v4.py with
+    # adjustmentNormal/Abnormal=False), the loader attaches
+    # local_prices_nominal / prices_nominal (same §S16.1 P1 unit scale and
+    # FX conversion as PX_LAST) and rescales the three ratio sheets by
+    # PX_UNADJ / PX_LAST; sellside (tg_upside, fwd_opcf_yield), accounting
+    # (share count) and the growth-tilt TG leg use the nominal panel.
+    # PX_LAST, Daily_Returns, momentum, covariance and P&L paths are NOT
+    # touched (total-return series are the right contract there). None
+    # (default) keeps every touched code path byte-identical.
+    # ------------------------------------------------------------------
+    nominal_price_source: Optional[str] = None
+
+    # ------------------------------------------------------------------
     # S15.1 (2026-08-27) — sign-stable monotone constraints on the margin
     # axis (decision log §S15.1 preregistration). The map is FIXED to the
     # §S15 precheck output (oper_margin_chg_63d/252d, op_leverage_63d,

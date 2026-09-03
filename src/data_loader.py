@@ -205,6 +205,12 @@ SENT_TREND_SHEETS = {
     "Sent_Trend_21d_Timeseries",
 }
 
+# §S17.3 G1-01b: price-ratio sheets that inherit PX_LAST's dividend
+# adjustment (same ex-dividend step signature); rescaled by PX_UNADJ /
+# PX_LAST when config.nominal_price_source is set. BEST_EV_TO_BEST_EBITDA
+# and CUR_MKT_CAP are nominal in the workbook and stay untouched.
+NOMINAL_RATIO_SHEETS = ("BEST_PE_RATIO", "BEST_PX_BPS_RATIO", "BEST_PEG_RATIO")
+
 # Sheets exempt from the post-align listing re-mask (§S11.4): the PCA target
 # engine requires a dense cross-section, so Daily_Returns keeps its first-pass
 # mask + cross-sectional median refill (ghost constants replaced by the
@@ -1361,6 +1367,7 @@ class UniverseData:
 
         # Earnings Timeline (종목별 실적발표일 0/1 매트릭스)
         self._apply_price_unit_scale()
+        self._apply_nominal_price()
         self._apply_usd_conversion()
         self._check_target_price_unit_ratio()
 
@@ -1384,11 +1391,7 @@ class UniverseData:
         if not getattr(self.config, "s16_unit_fixpack_enabled", False):
             return
         prices = self.sheets["PX_LAST"]
-        scales = {
-            ticker: PRICE_UNIT_SCALE[self._market_map[ticker]]
-            for ticker in prices.columns
-            if self._market_map.get(ticker) in PRICE_UNIT_SCALE
-        }
+        scales = self._price_unit_scales(prices.columns)
         if scales:
             prices = prices.copy()
             for ticker, scale in scales.items():
@@ -1400,6 +1403,76 @@ class UniverseData:
         logger.info(
             "[UniverseData] price unit scale applied to %d ticker(s): %s",
             len(scales), sorted(scales),
+        )
+
+    def _price_unit_scales(self, columns) -> Dict[str, float]:
+        """§S16.1 P1 multipliers for ``columns`` ({} while the fix pack is OFF)."""
+        if not getattr(self.config, "s16_unit_fixpack_enabled", False):
+            return {}
+        return {
+            ticker: PRICE_UNIT_SCALE[self._market_map[ticker]]
+            for ticker in columns
+            if self._market_map.get(ticker) in PRICE_UNIT_SCALE
+        }
+
+    def _apply_nominal_price(self) -> None:
+        """§S17.3 G1-01b (M1): attach the dividend-UNadjusted price panel.
+
+        Runs after ``_apply_price_unit_scale`` (so the nominal panel gets the
+        same LN GBp->GBP multiplier as PX_LAST) and before
+        ``_apply_usd_conversion`` (which derives ``prices_nominal`` in USD).
+        ``config.nominal_price_source`` names the workbook sheet
+        (PX_LAST_UNADJ: split-adjusted, dividend-unadjusted). The three
+        price-ratio sheets in NOMINAL_RATIO_SHEETS inherit PX_LAST's dividend
+        adjustment, so they are rescaled cell-wise by PX_UNADJ / PX_LAST
+        (cells where either price is missing keep the workbook value).
+        PX_LAST and Daily_Returns are never touched. OFF (default) sets no
+        attribute, rescales nothing and writes no diagnostic key.
+        """
+        source = getattr(self.config, "nominal_price_source", None)
+        if not source:
+            return
+        if source not in self.sheets:
+            raise KeyError(
+                f"nominal_price_source={source!r} is not a workbook sheet "
+                f"(available: {sorted(self.sheets)})"
+            )
+        adjusted = self.sheets["PX_LAST"]
+        nominal = self.sheets[source].reindex(
+            index=adjusted.index, columns=adjusted.columns
+        )
+        scales = self._price_unit_scales(nominal.columns)
+        if scales:
+            nominal = nominal.copy()
+            for ticker, scale in scales.items():
+                nominal[ticker] = nominal[ticker] * scale
+        ratio = nominal / adjusted.replace(0, np.nan)
+        ratio = ratio.where(np.isfinite(ratio))
+        rescaled = []
+        for sheet in NOMINAL_RATIO_SHEETS:
+            if sheet not in self.sheets:
+                continue
+            frame = self.sheets[sheet]
+            factor = ratio.reindex(index=frame.index, columns=frame.columns).fillna(1.0)
+            self.sheets[sheet] = frame * factor
+            rescaled.append(sheet)
+        self.local_prices_nominal = nominal
+        valid = ratio.to_numpy(dtype=float)
+        valid = valid[np.isfinite(valid)]
+        self.data_quality["currency"]["nominal_price"] = {
+            "source": source,
+            "tickers_with_nominal": int(nominal.notna().any().sum()),
+            "ratio_nominal_over_adjusted": {
+                "min": float(valid.min()) if valid.size else None,
+                "median": float(np.median(valid)) if valid.size else None,
+                "max": float(valid.max()) if valid.size else None,
+            },
+            "rescaled_sheets": rescaled,
+        }
+        logger.info(
+            "[UniverseData] nominal price panel attached from %s (%d ticker(s)); "
+            "ratio sheets rescaled: %s",
+            source, int(nominal.notna().any().sum()), rescaled,
         )
 
     def _check_target_price_unit_ratio(self) -> None:
@@ -1526,6 +1599,12 @@ class UniverseData:
             columns=self.local_prices.columns,
         )
         self.sheets["PX_LAST"] = self.local_prices * local_price_rates
+        # §S17.3 G1-01b: the nominal panel gets the identical FX path.
+        nominal = getattr(self, "local_prices_nominal", None)
+        if nominal is not None:
+            self.prices_nominal = nominal * local_price_rates.reindex(
+                index=nominal.index, columns=nominal.columns
+            )
 
         local_fx_returns = ticker_fx_returns_all.reindex(
             index=self.local_returns.index,

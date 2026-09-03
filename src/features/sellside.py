@@ -351,6 +351,26 @@ def _mask_pre_coverage(sheet: pd.DataFrame, data, name: str) -> pd.DataFrame:
     return sheet.where(covered)
 
 
+def _local_price_panel(data: UniverseData, config) -> pd.DataFrame:
+    """Local-currency price denominator for per-share vendor estimates.
+
+    §S17.3 G1-01b: with ``config.nominal_price_source`` set, the loader's
+    dividend-unadjusted ``local_prices_nominal`` is the only correct
+    denominator for a NOMINAL target price / CF-per-share estimate. OFF keeps
+    the §S16.1 contract (``local_prices``, falling back to ``prices`` for
+    objects without the loader attribute) byte-identical.
+    """
+    if getattr(config, "nominal_price_source", None):
+        nominal = getattr(data, "local_prices_nominal", None)
+        if nominal is None:
+            raise AttributeError(
+                "nominal_price_source is set but the data object carries no "
+                "local_prices_nominal panel (UniverseData attaches it)"
+            )
+        return nominal
+    return getattr(data, "local_prices", data.prices)
+
+
 def build_sellside_features(data: UniverseData, config=None) -> Dict[str, pd.DataFrame]:
     """Build the sellside / sentiment feature block.
 
@@ -395,7 +415,7 @@ def build_sellside_features(data: UniverseData, config=None) -> Dict[str, pd.Dat
         # Vendor target prices are quoted in each listing's local currency.
         # UniverseData.prices is USD-normalized for return/momentum features,
         # so target-price upside must retain the matching local price unit.
-        px = getattr(data, "local_prices", data.prices).replace(0, np.nan)
+        px = _local_price_panel(data, config).replace(0, np.nan)
         upside = (tg / px) - 1
         features["tg_upside"] = upside
         features["tg_upside_diff_5d"] = upside - upside.shift(5)
@@ -460,7 +480,7 @@ def build_sellside_features(data: UniverseData, config=None) -> Dict[str, pd.Dat
             opcf = _mask_pre_coverage(opcf, data, "Factset_Fwd_OpCashflow")
         # Vendor CF/share estimates are quoted in local currency — divide by
         # the matching local price (same unit contract as tg_upside above).
-        px_local = getattr(data, "local_prices", data.prices).replace(0, np.nan)
+        px_local = _local_price_panel(data, config).replace(0, np.nan)
         features["fwd_opcf_yield"] = opcf / px_local
         # §S13.5: estimate-revision windows (user-directed 63/126/252d test).
         # safe_pct_change uses the |base| denominator, so the revision keeps
