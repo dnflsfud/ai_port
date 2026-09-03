@@ -25,6 +25,8 @@
     "causal_validation_enabled": true,
     "confidence_spread_scale": 0.2,
     "convert_returns_to_usd": true,
+    "cov_corr_overlap_days": 5,
+    "cov_corr_overlap_enabled": false,
     "cov_lookback": 126,
     "cov_megacap_vol_shrink_enabled": true,
     "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
@@ -281,6 +283,10 @@
     "risk_aversion": 1.0,
     "s15_fixpack_enabled": false,
     "s16_unit_fixpack_enabled": false,
+    "s17_beta_overlap_days": 5,
+    "s17_beta_overlap_enabled": false,
+    "s17_coverage_gap_fix_enabled": false,
+    "s17_dead_feature_prune_enabled": false,
     "sales_surprise_feature_enabled": false,
     "satellite_budget": 0.225,
     "satellite_max_per_stock": 0.04,
@@ -322,8 +328,8 @@
     "data_mtime_utc": "2026-09-01T05:05:40Z",
     "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
     "data_size_bytes": 359535643,
-    "fx_mtime_utc": "2026-09-02T02:09:18Z",
-    "fx_size_bytes": 86463179,
+    "fx_mtime_utc": "2026-09-03T02:48:13Z",
+    "fx_size_bytes": 86484689,
     "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx"
   },
   "extra": {
@@ -333,6 +339,6 @@
     "variant_label": "iter15_65tkr_reb21_vtg"
   },
   "git_dirty": false,
-  "git_hash": "b2a7bc495a38688be07829a23614d1e17370b411",
-  "timestamp_utc": "2026-09-02T02:49:26Z"
+  "git_hash": "1c3acae2fdcef24e67edac79987c7b9490835a9b",
+  "timestamp_utc": "2026-09-03T02:49:21Z"
 }
