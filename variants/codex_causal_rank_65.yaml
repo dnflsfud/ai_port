@@ -203,3 +203,23 @@ overrides:
   # comparisons. Rollback = delete this line (default-OFF, byte-identical
   # restore certified by unit tests).
   name_risk_share_cap_enabled: true
+
+  # S17.1-A (2026-09-03): T-01 FactSet coverage-gap fix. The loader's
+  # cross-sectional median filled every pre-coverage cell of the price-level
+  # sheets (Factset_TG_Price, Factset_Fwd_OpCashflow) with OTHER names'
+  # target-price levels, pinning tg_upside at the +5.0 z clip for VRT (409
+  # rows) / VST (127) and 14 more late-coverage names (693 cells) and
+  # compressing the other 249 names' z by 2.4x on those dates. ON masks the
+  # cells before each ticker's first observation back to NaN (interior gaps
+  # keep ffill); the panel builder's per-date median then imputes them.
+  # Adopted by user on correctness grounds — decision log S17.1 Production
+  # flip. Certified same-vintage measurement (outputs/s17_1_coverage_gap_fix,
+  # workbook 2026-09-01 14:05:40 / Index 2026-09-02 11:09:18): mechanism VRT
+  # +5 cells 409 -> 0, avg_ic 0.016306 -> 0.019641 (+20%, all 3 splits up),
+  # TE 3.64% (unchanged), turnover 0.996x, active share +0.19pp, ECOS 194 /
+  # fallback 0, degenerate 12/33 -> 13/33, IR 1.7052 -> 1.7330 (dIR +0.028
+  # noise band, observation only — accuracy is the adoption basis). This
+  # makes IR 1.7330 the S0' baseline; 1.7052 (and 1.7596 on the 08-25
+  # vintage) are retired for arm comparisons. Rollback = delete this line
+  # (default-OFF, byte-identical restore certified by unit tests).
+  s17_coverage_gap_fix_enabled: true

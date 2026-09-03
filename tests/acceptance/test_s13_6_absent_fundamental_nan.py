@@ -84,6 +84,7 @@ def test_arm_variant_differs_from_production_by_exactly_the_flag():
         "s16_unit_fixpack_enabled",  # S16.1 promotion (2026-08-31)
         "revision_extension_max_days",  # S16.2 promotion (2026-08-31)
         "name_risk_share_cap_enabled",  # S16.7 promotion (2026-09-01)
+        "s17_coverage_gap_fix_enabled",  # S17.1-A promotion (2026-09-03)
     }
     assert not [
         k for k in prod

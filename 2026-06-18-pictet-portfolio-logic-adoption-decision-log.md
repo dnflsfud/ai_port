@@ -8465,3 +8465,30 @@ flip 은 한 번에 1개(§8), 순서 후보 A → (D) . 각 flip 커밋은 §8 
 추가 시행 아님). 운영 기록: 사용자 데이터 파이프라인이 종료됐어도 빈티지 쌍이 유지됐음(워크북 09-01 14:05:40 그대로) — 이
 빈티지에서의 arm 4종 비교는 모두 유효. **M1(PX_LAST 배당 조정, critical)은 여전히 `PX_LAST_UNADJ` 재인출 결정 대기.**
 
+### Production flip — §S17.1-A s17_coverage_gap_fix_enabled 채택 (2026-09-03, 사용자 승인)
+
+사용자 승인("A flip 진행해줘")으로 production variant에 `s17_coverage_gap_fix_enabled: true` 1줄 flip. 근거는
+**정확성**(§S16.1 선례): T-01 결함(로더 횡단면 median 이 FactSet 커버리지 개시 전 셀을 타 종목 목표주가 *레벨*로
+채움 → VRT 409행·VST 127행 등 693 셀 tg_upside +5.0 클립, 타 249종 z 2.4× 압축) 의 기전 완전 해소(패널 VRT +5 셀
+409 → 0) + 사전점검 A1~A3 PASS + E2 do-no-harm PASS(TE·turnover·AS·β·fallback 불변). IC +20%(3/3 분할 ↑)는 정합
+관측, ΔIR +0.028 은 잡음대 관측 — 둘 다 채택 근거가 아님.
+
+**새 기준선**: **S0′ = IR 1.7330 / TE 3.64% / β 1.048 / avg_ic 0.019641 / turnover 0.659 / Pictet AS 20.21% / 퇴화
+13/33 / ECOS 194·fallback 0** (`outputs/s17_1_coverage_gap_fix`, 빈티지 쌍 워크북 2026-09-01 14:05:40 / Index
+2026-09-02 11:09:18). **1.7052(같은 빈티지)·1.7596(08-25 빈티지)는 은퇴 — arm 비교에 혼용 금지.** production variant 는
+이제 §S17.1-A 런 config 와 동일하므로 이 런이 새 기준선 산출물이다. 잔여 arm C·D 의 §S17.1 판정은 1.7052 기준으로
+이미 완료된 동일 빈티지 비교라 유효하나, 어느 쪽이든 추가 flip 시에는 **A 위에서 재측정**(§8 "이전 채택분 위에서
+S0′ 재수립")이 필요하다.
+
+**§8 체크리스트 이행(같은 커밋)**: ① variant 플래그+주석 ② acceptance `post_arm_production_flags` 5개 파일 +
+`test_residual_sleeve.py` allowlist 갱신 ③ production 핀 테스트 신설(`test_production_variant_pins_s17_1_flip_state`,
+`tests/test_s17_coverage_gap_fix.py`) ④ 전체 스위트 767 PASS ⑤ 본 절. **DSR 비계수**(정확성 트랙 —
+IR 을 채택 근거로 쓰지 않음, §S15/§S16.1 선례; 인벤토리 472 불변). 롤백 = variant 1줄 삭제(default-OFF 바이트 동일
+복원, 단위테스트 인증). 라이브 영향: 2026-09-03 11:30 스케줄 런부터 production 경로가 이 플래그로 실행된다 — 라이브
+북에서 커버리지 갭 종목(현재 갭 구간에 있는 종목은 없음; 693 셀은 전부 과거 구간)의 피처는 변하지 않고 학습 패널만
+바뀐다.
+
+**§S17.1 최종 상태**: **A flip ✓** · B SHELVE(G5-01b 후보) · C flip 보류(저분산 대안 재사전등록 후보) · D 선택적
+flip(사용자 결정 대기, 채택 시 A 위에서 재측정). 이후 모든 arm 비교 기준은 **1.7330**. M1(PX_LAST 배당 조정)은
+`PX_LAST_UNADJ` 재인출 결정 대기.
+
