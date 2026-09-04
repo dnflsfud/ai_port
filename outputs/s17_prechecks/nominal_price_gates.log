@@ -1,0 +1,199 @@
+  [O] Earnings_Timeline 로드: (3290, 250), 총 11971개 발표일
+[RevisionClean] mode=reversion_gated threshold=15.0 down-spikes=2645 up-spikes=1264 gradual-down=12718 extension-cells=53048 extension-capped=1183
+[RevisionClean] mode=reversion_gated threshold=15.0 down-spikes=2083 up-spikes=1013 gradual-down=8616 extension-cells=44087 extension-capped=1146
+[RevisionClean] mode=reversion_gated threshold=15.0 down-spikes=2645 up-spikes=1264 gradual-down=12718 extension-cells=53048 extension-capped=1183
+[RevisionClean] mode=reversion_gated threshold=15.0 down-spikes=2083 up-spikes=1013 gradual-down=8616 extension-cells=44087 extension-capped=1146
+{
+  "preregistration": "decision log §S17.3 (2026-09-03) G1-01b / M1",
+  "vintage": {
+    "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
+    "data_mtime": "2026-09-03T06:51:23"
+  },
+  "loader_diagnostic": {
+    "source": "PX_LAST_UNADJ",
+    "tickers_with_nominal": 250,
+    "ratio_nominal_over_adjusted": {
+      "min": 0.9959839357429718,
+      "median": 1.0755611614829204,
+      "max": 2.7186790920432373
+    },
+    "rescaled_sheets": [
+      "BEST_PE_RATIO",
+      "BEST_PX_BPS_RATIO",
+      "BEST_PEG_RATIO"
+    ]
+  },
+  "gates": {
+    "A_no_dividend_identical": true,
+    "B_mo_2014_06_30_nominal": true,
+    "C_high_div_tg_px_2014_on_in_band": true,
+    "D_high_div_z_gap_on_below_half": true
+  },
+  "gates_pass": true,
+  "A_no_dividend": {
+    "TSLA": {
+      "present": true,
+      "n_both": 4628,
+      "identical": true,
+      "max_abs_diff": 0.0,
+      "nan_pattern_equal": true
+    },
+    "AMZN": {
+      "present": true,
+      "n_both": 4628,
+      "identical": true,
+      "max_abs_diff": 0.0,
+      "nan_pattern_equal": true
+    },
+    "ADBE": {
+      "present": true,
+      "n_both": 4628,
+      "identical": true,
+      "max_abs_diff": 0.0,
+      "nan_pattern_equal": true
+    },
+    "NFLX": {
+      "present": true,
+      "n_both": 4628,
+      "identical": true,
+      "max_abs_diff": 0.0,
+      "nan_pattern_equal": true
+    },
+    "ISRG": {
+      "present": true,
+      "n_both": 4628,
+      "identical": true,
+      "max_abs_diff": 0.0,
+      "nan_pattern_equal": true
+    }
+  },
+  "B_mo": {
+    "date": "2014-06-30",
+    "px_last": 19.5639,
+    "px_last_unadj": 41.94,
+    "target": 41.94,
+    "tolerance": 0.01
+  },
+  "high_dividend_12": [
+    "T",
+    "RIO",
+    "RTX",
+    "MO",
+    "TTE",
+    "ZURN",
+    "HSBA",
+    "WMB",
+    "CS",
+    "VZ",
+    "SHEL",
+    "BNP"
+  ],
+  "high_dividend_12_ratio_2014_06_30": {
+    "T": 0.3727,
+    "RIO": 0.4151,
+    "RTX": 0.4445,
+    "MO": 0.4665,
+    "TTE": 0.4962,
+    "ZURN": 0.5009,
+    "HSBA": 0.5144,
+    "WMB": 0.5174,
+    "CS": 0.5237,
+    "VZ": 0.5273,
+    "SHEL": 0.5353,
+    "BNP": 0.5393
+  },
+  "C_tg_px_2014_median": {
+    "off": 2.1030931709918335,
+    "on": 1.0842614114459201,
+    "on_band": [
+      1.0,
+      1.25
+    ],
+    "by_year": {
+      "2014": {
+        "off": 2.103,
+        "on": 1.084
+      },
+      "2015": {
+        "off": 2.03,
+        "on": 1.086
+      },
+      "2016": {
+        "off": 1.897,
+        "on": 1.061
+      },
+      "2017": {
+        "off": 1.787,
+        "on": 1.053
+      },
+      "2018": {
+        "off": 1.835,
+        "on": 1.121
+      },
+      "2019": {
+        "off": 1.676,
+        "on": 1.095
+      },
+      "2020": {
+        "off": 1.62,
+        "on": 1.164
+      },
+      "2021": {
+        "off": 1.52,
+        "on": 1.122
+      },
+      "2022": {
+        "off": 1.471,
+        "on": 1.145
+      },
+      "2023": {
+        "off": 1.389,
+        "on": 1.157
+      },
+      "2024": {
+        "off": 1.259,
+        "on": 1.117
+      },
+      "2025": {
+        "off": 1.147,
+        "on": 1.093
+      },
+      "2026": {
+        "off": 1.1,
+        "on": 1.088
+      }
+    }
+  },
+  "D_tg_upside_z_gap": {
+    "off": 2.2545088473148462,
+    "on": 0.2350070415919493,
+    "on_max_abs": 0.5,
+    "train_2014_2019": {
+      "off": 1.9813334111936967,
+      "on": -0.19266875798888244
+    },
+    "live_2025_2026": {
+      "off": -0.27317543612114964,
+      "on": -0.42767579958083174
+    },
+    "no_dividend_group_gap": {
+      "off": -1.2229333727787333,
+      "on": -0.3545707219102644
+    }
+  },
+  "observations": {
+    "mo_implied_shares_2014": {
+      "off_2014_median": 4258.465142147119,
+      "on_2014_median": 1986.461180637544,
+      "off_over_on": 2.144
+    },
+    "mo_pe_2014_06_30": {
+      "date": "2014-06-30",
+      "on": 15.756520939076562,
+      "off": 7.349999999999999
+    },
+    "tg_upside_on_abs_ge_4_99_cells": 0
+  }
+}
+
+GATES: {'A_no_dividend_identical': True, 'B_mo_2014_06_30_nominal': True, 'C_high_div_tg_px_2014_on_in_band': True, 'D_high_div_z_gap_on_below_half': True} -> PASS
