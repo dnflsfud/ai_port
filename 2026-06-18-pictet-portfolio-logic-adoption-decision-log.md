@@ -8689,3 +8689,14 @@ schtasks 등록 스크립트 4개(템플릿 `s17_register_chain_task.ps1` 만 �
 데이터원)과 같은 빈티지의 OFF 짝 `outputs/s17_2_s0recert/backtest_result.pkl`(명목가 flip 효과의 페어드 분석용), 런 로그(UTF-16)·
 status·launcher bat(커밋된 감사 트레일), 킬 로그 `s17_4_dead_feature_prune_run.killed_0903_0106.log`.
 
+### 운영 — 이전 세션 run 디렉터리 pkl 정리 (2026-09-04, 사용자 지시)
+
+삭제: §S13~§S16 역사적 arm·기준선 런의 `backtest_result.pkl` 13개(≈3.3GB — `arm_s13_41a_optvol_cov`·`arm_s15_1_monotone_margin`·
+`s13_46_icorr_cov`·`s13_47_ndcg20`·`s14_overlay_base_250`·`s15_2_optvol_scale_fix`·`s15_fixpack`·`s16_1_unit_fixpack`·
+`s16_2_revision_extension_cap`·`s16_3_fresh_fixed`·`s16_7_name_risk_cap`·`s16_8_s0recert`·`s16_8a_opcf_level`). 각 디렉터리의
+metrics.json·experiment_manifest.json·e1_summary 등 **결과 기록은 커밋본 그대로 유지**(모든 기준선 수치는 결정 로그 각 절에 기록됨,
+빈티지 은퇴로 재비교 불가). **보존 pkl 4개**: `outputs/codex_causal_rank_65`(production 일별 산출·대시보드·사전점검 스크립트 원천),
+`outputs/iter15_65tkr_reb21_vtg`(Legacy 챌린저, `run_selection_bias.py` DSR 해킷 입력), `outputs/s17_5_nominal_price`(현 S0′),
+`outputs/s17_2_s0recert`(같은 빈티지 OFF 짝). 과거 사전점검 스크립트 중 삭제된 pkl 경로를 가리키는 것은 이미 은퇴한 절차라 수정하지
+않음(§S13.36 `s0_recert_s13_35` 선례).
+
