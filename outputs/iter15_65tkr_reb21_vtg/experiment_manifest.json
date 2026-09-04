@@ -200,6 +200,7 @@
     "name_risk_share_cap_enabled": false,
     "news_trend_feature_enabled": false,
     "no_trade_band": 0.003,
+    "nominal_price_source": null,
     "nonlinear_confirmation_features_enabled": false,
     "one_way_tc": 0.001,
     "option_risk_features_enabled": false,
@@ -325,11 +326,11 @@
     "winner_trim_quantile": 0.8
   },
   "data_vintage": {
-    "data_mtime_utc": "2026-09-01T05:05:40Z",
+    "data_mtime_utc": "2026-09-03T06:51:22Z",
     "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
-    "data_size_bytes": 359535643,
-    "fx_mtime_utc": "2026-09-03T02:48:13Z",
-    "fx_size_bytes": 86484689,
+    "data_size_bytes": 366330270,
+    "fx_mtime_utc": "2026-09-04T02:20:24Z",
+    "fx_size_bytes": 92109728,
     "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx"
   },
   "extra": {
@@ -339,6 +340,6 @@
     "variant_label": "iter15_65tkr_reb21_vtg"
   },
   "git_dirty": false,
-  "git_hash": "1c3acae2fdcef24e67edac79987c7b9490835a9b",
-  "timestamp_utc": "2026-09-03T02:49:21Z"
+  "git_hash": "527e62a6eb287bf44a8512e46108c3640ff6c5b1",
+  "timestamp_utc": "2026-09-04T02:57:17Z"
 }
