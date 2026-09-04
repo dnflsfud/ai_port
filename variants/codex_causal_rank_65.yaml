@@ -223,3 +223,27 @@ overrides:
   # vintage) are retired for arm comparisons. Rollback = delete this line
   # (default-OFF, byte-identical restore certified by unit tests).
   s17_coverage_gap_fix_enabled: true
+
+  # S17.3 (2026-09-04): G1-01b / M1 nominal price denominator. The workbook
+  # PX_LAST and the PE/PB/PEG ratio sheets are Bloomberg DPDF dividend-
+  # reinvestment adjusted (MO 2014-06-30 19.56 vs nominal 41.94), so
+  # tg_upside, fwd_opcf_yield and the share count behind cash_conversion_z
+  # carried the dividends paid AFTER each date -- a look-ahead that erased
+  # the learner's tg_upside signal (live models gain 0.0%) and flipped the
+  # high-dividend ranking between the training era and live. ON reads the
+  # split-adjusted / dividend-unadjusted PX_LAST_UNADJ sheet (price_v4.py
+  # adjustmentNormal/Abnormal=False) as the nominal denominator and rescales
+  # the three ratio sheets by PX_UNADJ / PX_LAST; PX_LAST, Daily_Returns,
+  # momentum, covariance and P&L paths are untouched. Adopted by user on
+  # correctness grounds -- decision log S17.3 Production flip. Data gates
+  # 4/4 (no-dividend 5 byte-identical, MO 41.94, high-div TG/PX 2.10 -> 1.08,
+  # z gap 2.26 -> 0.24). Certified same-vintage measurement
+  # (outputs/s17_5_nominal_price, workbook 2026-09-03 15:51:22 / Index
+  # 2026-09-03 14:26:46): TE 3.64%, turnover 1.012x, AS 19.42%, degenerate
+  # 10/33 identical, ECOS 194 / fallback 0, live-model tg_upside gain
+  # 0.0% -> 1.27%, IR 1.7118 -> 1.7633 (dIR +0.052 noise band, splits
+  # -0.14/+0.05/+0.21, observation only -- accuracy is the adoption basis),
+  # avg_ic -8% (split-mixed). This makes IR 1.7633 the S0' baseline; 1.7118
+  # is retired for arm comparisons. Rollback = delete this line (default-
+  # None, byte-identical restore certified by unit tests).
+  nominal_price_source: PX_LAST_UNADJ

@@ -8656,3 +8656,26 @@ OFF −1.22 → ON −0.35 로 축소(고배당군 팽창의 거울상이 사라
 `outputs/s17_5_nominal_price`), 1.7118 은퇴. 데이터 정확성 계층으로 §2.1 default-ON 전환은 별도 결정. **인벤토리 472 불변**(정확성
 트랙 비계수). 최종은 사용자 결정.
 
+### Production flip — §S17.3 nominal_price_source: PX_LAST_UNADJ 채택 (2026-09-04, 사용자 승인)
+
+사용자 승인("flip도 하고 커밋할게")으로 production variant에 `nominal_price_source: PX_LAST_UNADJ` 1줄 flip. 근거는 **정확성**
+(§S16.1·§S17.1-A 선례): 입력 계약 결함(M1, critical)의 데이터 게이트 4/4 PASS + 기전 완전 작동(패널 고배당군 2014 tg_upside +2.20 →
+−0.08, 라이브 4모델 tg_upside gain 0.0% → 1.27% 복원, cash_conversion_z 의 주식수 2.1배 과대 소거) + E2 do-no-harm PASS(TE·β·turnover·
+AS·fallback·퇴화 불변). ΔIR +0.052(3분할 부호 혼재)와 avg_ic −8%(1분할 국한)는 관측이며 채택 근거가 아님.
+
+**새 기준선**: **S0′ = IR 1.7633 / TE 3.64% / β 1.054 / avg_ic 0.017404 / turnover 0.681 / Pictet AS 19.42% / 퇴화 10/33 / ECOS
+194·fallback 0** (`outputs/s17_5_nominal_price`, 빈티지 쌍 워크북 2026-09-03 15:51:22 / Index 2026-09-03 14:26:46). **1.7118(같은
+빈티지)·1.7330·1.7052·1.7596 은 은퇴 — arm 비교에 혼용 금지.** production variant 는 이제 §S17.3 런 config 와 동일하므로 이 런이 새
+기준선 산출물이다. 라이브 영향: 2026-09-04 11:30 스케줄 런부터 production 경로가 명목가 분모로 실행된다 — 라이브 북의 tg_upside·
+PE/PB 계열 피처가 바뀌고(고배당군 순위 반전 해소), 리밸런싱 타깃은 다음 리밸일부터 반영.
+
+**§8 체크리스트 이행(같은 커밋)**: ① variant 파라미터+주석 ② acceptance `post_arm_production_flags` 5개 파일 + `test_residual_sleeve.py`
+allowlist 갱신 ③ production 핀 테스트 신설(`test_production_variant_pins_s17_3_flip_state`)·역사적 arm variant 핀을 "= production" 으로
+갱신(`test_arm_variant_equals_production_after_the_s17_3_flip`) ④ 전체 스위트 **781 PASS** ⑤ 본 절. **DSR 비계수**(정확성 트랙, 인벤토리
+472 불변). 롤백 = variant 1줄 삭제(default-None 바이트 동일 복원, 단위테스트 인증). `PipelineConfig` 기본값은 None 유지(§2.1 데이터
+정확성 계층 default-ON 전환은 별도 결정).
+
+**§S17 시퀀스 상태**: S17.1-A flip ✓ · B SHELVE · C 보류(저분산 대안 후보) · D 선택적(A·S17.3 위에서 재측정 필요) · **S17.2 빈티지
+재인증 ✓ · S17.3 flip ✓**. M1(critical)·T-01(high) 해소. 이후 모든 arm 비교 기준은 **1.7633**. 잔여: M2 Σ 채널 G5-01b, G1-03 저분산
+β/idio, D prune, 보고서 Tier 1~2 후보(G5-02·G3-04·G4-01 등).
+

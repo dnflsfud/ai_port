@@ -281,13 +281,28 @@ def test_growth_tilt_tg_leg_uses_nominal_prices_when_on():
 # ---------------------------------------------------------------------------
 # variant 핀: arm = production + 단일 파라미터, production 은 default-OFF 유지
 # ---------------------------------------------------------------------------
-def test_arm_variant_differs_from_production_by_exactly_the_flag():
+def test_arm_variant_equals_production_after_the_s17_3_flip():
+    """§8/S17.3: flip(2026-09-04) 이후 역사적 arm variant(수정 금지)는 production 과 overrides 가 동일하다."""
     import yaml
 
     with open("variants/codex_causal_rank_65.yaml", encoding="utf-8") as fh:
         prod = yaml.safe_load(fh)["overrides"]
     with open("variants/s17_5_nominal_price.yaml", encoding="utf-8") as fh:
         arm = yaml.safe_load(fh)["overrides"]
-    assert "nominal_price_source" not in prod
     assert arm["nominal_price_source"] == "PX_LAST_UNADJ"
-    assert {k: v for k, v in arm.items() if k != "nominal_price_source"} == prod
+    assert arm == prod
+
+
+def test_production_variant_pins_s17_3_flip_state():
+    """§8/S17.3: 사용자 승인 flip(2026-09-04) 이후의 production 상태 핀.
+
+    production variant는 nominal_price_source=PX_LAST_UNADJ(새 S0′ 1.7633,
+    1.7118 은퇴)여야 하고, PipelineConfig 기본값은 여전히 None(§8
+    default-OFF 유지)여야 한다."""
+    import yaml
+
+    with open("variants/codex_causal_rank_65.yaml", encoding="utf-8") as fh:
+        manifest = yaml.safe_load(fh)
+    overrides = manifest.get("overrides") or {}
+    assert overrides.get("nominal_price_source") == "PX_LAST_UNADJ"
+    assert PipelineConfig().nominal_price_source is None
