@@ -8679,3 +8679,13 @@ allowlist 갱신 ③ production 핀 테스트 신설(`test_production_variant_pi
 재인증 ✓ · S17.3 flip ✓**. M1(critical)·T-01(high) 해소. 이후 모든 arm 비교 기준은 **1.7633**. 잔여: M2 Σ 채널 G5-01b, G1-03 저분산
 β/idio, D prune, 보고서 Tier 1~2 후보(G5-02·G3-04·G4-01 등).
 
+### 운영 — §S17 세션 산출물 정리 (2026-09-04, 사용자 지시)
+
+삭제: 은퇴 빈티지 런의 `backtest_result.pkl` 4개(`s17_s0_0902`·`s17_1_coverage_gap_fix`·`s17_3_beta_overlap`·`s17_4_dead_feature_prune`,
+≈1.07GB — metrics·manifest·e1_summary 는 커밋본 유지, 이 런들은 빈티지가 은퇴돼 이후 비교에 쓸 수 없음), 빈 체인 로그 4개, 일회성
+schtasks 등록 스크립트 4개(템플릿 `s17_register_chain_task.ps1` 만 유지), 사전점검 stderr 파일, 데이터 파이프라인 로그
+(`re_study/outputs/data_pipeline_20260903.log`, 사고는 §S17.2 에 기록됨). 일회성 스케줄 작업 `s17_chain`·`s17_d_rerun`·
+`s17_2_s0recert`·`s17_5_nominal_price` 등록 해제. **보존**: 현 S0′ `outputs/s17_5_nominal_price/backtest_result.pkl`(사전점검 표준
+데이터원)과 같은 빈티지의 OFF 짝 `outputs/s17_2_s0recert/backtest_result.pkl`(명목가 flip 효과의 페어드 분석용), 런 로그(UTF-16)·
+status·launcher bat(커밋된 감사 트레일), 킬 로그 `s17_4_dead_feature_prune_run.killed_0903_0106.log`.
+
