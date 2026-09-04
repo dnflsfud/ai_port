@@ -42,7 +42,7 @@ FRAMES = {
     "s17_3_beta_overlap": {"frame": "correctness", "turnover_max": 1.25, "alpha_identical": False},
     "s17_4_dead_feature_prune": {"frame": "hygiene", "turnover_max": 1.25, "alpha_identical": False},
     "s17_5_nominal_price": {"frame": "correctness", "turnover_max": 1.25, "alpha_identical": False,
-                            "base": "s17_2_s0recert"},
+                            "base": "s17_2_s0recert", "prereg": "decision log §S17.3 (2026-09-03)"},
 }
 DEAD = {"cal_is_Q1", "regime_mkt_ret_21d", "fac_yield_slope", "fac_F_Quality_mom_63d",
         "fac_F_Growth_mom_63d", "fac_F_Value_mom_63d", "fac_value_growth_63d",
@@ -173,7 +173,7 @@ def main() -> None:
 
     out = {
         "arm": args.arm, "frame": spec["frame"], "adoption_basis": basis,
-        "preregistration": "decision log §S17.1 (2026-09-02)",
+        "preregistration": spec.get("prereg", "decision log §S17.1 (2026-09-02)"),
         "vintage": {"base_pkl_mtime": _kst(base_dir / "backtest_result.pkl"),
                     "arm_pkl_mtime": _kst(arm_dir / "backtest_result.pkl"),
                     "base_data_vintage": base_doc.get("data_vintage"),

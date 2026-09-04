@@ -2,7 +2,7 @@
   "arm": "s17_5_nominal_price",
   "frame": "correctness",
   "adoption_basis": "correctness: accuracy + do-no-harm (dIR is an observation)",
-  "preregistration": "decision log §S17.1 (2026-09-02)",
+  "preregistration": "decision log §S17.3 (2026-09-03)",
   "vintage": {
     "base_pkl_mtime": "2026-09-03 16:20:42",
     "arm_pkl_mtime": "2026-09-04 10:37:10",
