@@ -1,12 +1,12 @@
 label: s18_2_tg_basis_events
 display_name: s18_2_tg_basis_events
-portfolio_role: research
+portfolio_role: diagnostic
 description: >
   S18.1 arm 2 (decision log S18.1, 2026-09-07): production + tg_basis_events.
   Pre-event FactSet target-price rows rescaled onto the PX_LAST_UNADJ basis for the four
   data-verified corporate actions (RTX 2020-04, T 2022-04, DELL 2021-11, DHR 2016-07) (S18 P1).
 out_dir: outputs/s18_2_tg_basis_events
-tuning_mode: research
+tuning_mode: production
 overrides:
   # Causal ranking model. These are the only intentional signal-path changes.
   model_objective: cross_sectional_rank

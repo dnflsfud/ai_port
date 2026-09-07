@@ -1,12 +1,12 @@
 label: s18_1_tilt_negative_equity
 display_name: s18_1_tilt_negative_equity
-portfolio_role: research
+portfolio_role: diagnostic
 description: >
   S18.1 arm 1 (decision log S18.1, 2026-09-07): production + vol_quality_tilt_negative_equity_mask.
   Masks the vol-quality tilt's quality input where Bloomberg BEST_ROE < 0 and BEST_EPS > 0
   (negative-book-equity, profitable) so those cells stay byte-unchanged (S18 P2).
 out_dir: outputs/s18_1_tilt_negative_equity
-tuning_mode: research
+tuning_mode: production
 overrides:
   # Causal ranking model. These are the only intentional signal-path changes.
   model_objective: cross_sectional_rank
