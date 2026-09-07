@@ -1,0 +1,127 @@
+{
+  "arm": "s18_1_tilt_negative_equity",
+  "frame": "correctness",
+  "adoption_basis": "correctness: mechanism + do-no-harm (dIR is an observation)",
+  "preregistration": "decision log §S18.1 (2026-09-07)",
+  "vintage": {
+    "base_pkl_mtime": "2026-09-07 16:10:57",
+    "arm_pkl_mtime": "2026-09-07 17:01:22",
+    "base_data_vintage": {
+      "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
+      "data_mtime_utc": "2026-09-04T05:50:52Z",
+      "data_size_bytes": 366433443,
+      "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
+      "fx_mtime_utc": "2026-09-07T02:04:19Z",
+      "fx_size_bytes": 92162926
+    },
+    "arm_data_vintage": {
+      "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
+      "data_mtime_utc": "2026-09-04T05:50:52Z",
+      "data_size_bytes": 366433443,
+      "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
+      "fx_mtime_utc": "2026-09-07T02:04:19Z",
+      "fx_size_bytes": 92162926
+    }
+  },
+  "g0": {
+    "vintage_equal": true,
+    "avg_ic_bit_identical": false,
+    "degenerate_equal": true,
+    "g0_pass": true
+  },
+  "full_period": {
+    "ir_base": 1.6106,
+    "ir_arm": 1.6373,
+    "delta_ir": 0.0267,
+    "e1_bar": 0.36
+  },
+  "subperiods": [
+    {
+      "split": 1,
+      "start": "2018-11-26",
+      "end": "2021-06-29",
+      "ir_base": 1.3813,
+      "ir_arm": 1.3878,
+      "delta": 0.0065
+    },
+    {
+      "split": 2,
+      "start": "2021-06-30",
+      "end": "2024-02-01",
+      "ir_base": 1.6461,
+      "ir_arm": 1.6324,
+      "delta": -0.0137
+    },
+    {
+      "split": 3,
+      "start": "2024-02-02",
+      "end": "2026-09-04",
+      "ir_base": 1.7146,
+      "ir_arm": 1.7906,
+      "delta": 0.0759
+    }
+  ],
+  "e1_formal_pass": false,
+  "no_harm_pass": true,
+  "mechanism": {
+    "neg_equity_names": [
+      "DELL",
+      "FICO",
+      "HCA",
+      "MSCI",
+      "RR/",
+      "PM",
+      "LNG",
+      "ABBV",
+      "SBUX",
+      "VRSN",
+      "ADSK",
+      "LYV",
+      "NRG",
+      "MSI",
+      "ORCL",
+      "BKNG",
+      "LOW",
+      "MO",
+      "STX",
+      "CL",
+      "ORLY"
+    ],
+    "changed_cells": 12370,
+    "mean_delta_on_changed_cells": 0.2715,
+    "pass": true
+  },
+  "e2": {
+    "te_ok": true,
+    "active_share_ok": true,
+    "turnover_ok": true,
+    "fallback_zero": true
+  },
+  "e2_pass": true,
+  "flip_candidate": true,
+  "companions": {
+    "te_base": 0.03651,
+    "te_arm": 0.03673,
+    "turnover_base": 0.6772,
+    "turnover_arm": 0.6852,
+    "turnover_ratio": 1.0119,
+    "active_share_base": 0.1945,
+    "active_share_arm": 0.19621,
+    "realized_beta_base": 1.0535205133058725,
+    "realized_beta_arm": 1.0562442201887976,
+    "avg_ic_base": 0.016621372239614133,
+    "avg_ic_arm": 0.017723293897499843,
+    "max_drawdown_base": -0.32133001076793277,
+    "max_drawdown_arm": -0.3226265571781556,
+    "degenerate": {
+      "base": "11/33",
+      "arm": "11/33"
+    },
+    "fallback_arm": 0.0,
+    "solver_counts_arm": {
+      "ECOS": 194
+    },
+    "tg_px_ratio_suspect_arm": {},
+    "elapsed_sec_arm": 1325.3
+  }
+}
