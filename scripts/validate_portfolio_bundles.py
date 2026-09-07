@@ -662,6 +662,14 @@ def evaluate_production(record: dict) -> dict:
     tracking_error = _num(perf.get("tracking_error"))
     tail_days = _num(data_quality.get("tail_ffill_days"))
     max_tail_days = _num(data_quality.get("max_tail_ffill_days"))
+    # §S18.1 (decision log §S18 P1): FactSet target-price basis guard. The
+    # loader publishes names whose 252d median TG/price sits outside the
+    # suspect band, and run_variant the names whose median jumped vs the
+    # previous run (APH 1.16 -> 2.33 on the 2026-09-03 workbook went silently
+    # into the certified baseline). Fail-closed: missing suspect list -> None.
+    currency = data_quality.get("currency") if isinstance(data_quality.get("currency"), dict) else {}
+    tg_suspect = currency.get("tg_px_ratio_suspect")
+    tg_jump = currency.get("tg_px_ratio_jump_vs_prev") or {}
 
     checks = {
         "estimated_te_ok": _not_breached("estimated_te_breached"),
@@ -684,6 +692,10 @@ def evaluate_production(record: dict) -> dict:
         "stale_tail_ok": (
             None if tail_days is None or max_tail_days is None else tail_days <= max_tail_days
         ),
+        "tg_px_ratio_ok": (
+            None if not isinstance(tg_suspect, dict)
+            else (len(tg_suspect) == 0 and len(tg_jump) == 0)
+        ),
     }
     # Fail-closed (2026-07-21): PRODUCTION requires every check explicitly
     # True — a missing input (None) is not evidence of passing. S16.3 report-
@@ -704,6 +716,8 @@ def evaluate_production(record: dict) -> dict:
         "tracking_error": tracking_error,
         "tail_ffill_days": tail_days,
         "max_tail_ffill_days": max_tail_days,
+        "tg_px_ratio_suspect": tg_suspect if isinstance(tg_suspect, dict) else None,
+        "tg_px_ratio_jump_vs_prev": tg_jump,
     }
     return {"status": status, "checks": checks, "values": values}
 

@@ -915,10 +915,13 @@ def build_expected_rebalance(
     raw_row = None
     if raw_pred_row is not None:
         raw_row = pd.to_numeric(pd.Series(raw_pred_row).reindex(tickers), errors="coerce")
-    confidence = compute_signal_confidence(
-        pred_row, raw_row, trailing_ic_mean,
-        spread_scale=float(getattr(cfg, "confidence_spread_scale", 0.20)),
-    )
+    if getattr(cfg, "static_execution_enabled", False):
+        confidence = 1.0  # §S18.1: mirrors simulate_portfolio (E0 self-check parity)
+    else:
+        confidence = compute_signal_confidence(
+            pred_row, raw_row, trailing_ic_mean,
+            spread_scale=float(getattr(cfg, "confidence_spread_scale", 0.20)),
+        )
     candidate = apply_dynamic_execution(prev_vals.copy(), target, confidence, cfg)
 
     if getattr(cfg, "projection_fallback_mode", "target") == "prev":

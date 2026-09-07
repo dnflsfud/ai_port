@@ -355,6 +355,10 @@ def apply_growth_tilt(
     eps_raw = _get("BEST_EPS")
     sales_raw = _get("BEST_SALES")
     tg_price = _get("Factset_TG_Price")
+    if tg_price is not None:
+        # §S18.1: same TG basis contract as the sellside feature block.
+        from src.features.sellside import apply_tg_basis_events
+        tg_price = apply_tg_basis_events(tg_price, getattr(config, "tg_basis_events", None))
     # FactSet target prices are quoted in the listing currency. Portfolio
     # prices are USD after UniverseData conversion, so target-price upside
     # must explicitly use the preserved local-price panel.
@@ -498,10 +502,21 @@ def _vol_quality_winsor_z(s: pd.Series) -> pd.Series:
     return (sw - sw.mean()) / sd
 
 
+def negative_equity_mask(data, index, columns) -> pd.DataFrame:
+    """§S18.1: cells where Bloomberg BEST_ROE < 0 while BEST_EPS > 0 — the
+    negative-book-equity signature (buyback-heavy, profitable), NOT distress.
+    Boolean frame aligned to ``index`` x ``columns``; cells with either input
+    missing are False."""
+    roe = data.get_sheet("BEST_ROE").reindex(index=index, columns=columns)
+    eps = data.get_sheet("BEST_EPS").reindex(index=index, columns=columns)
+    return (roe < 0) & (eps > 0)
+
+
 def apply_vol_quality_tilt(
     predictions: pd.DataFrame,
     panel: pd.DataFrame,
     config: PipelineConfig,
+    data=None,
 ) -> pd.DataFrame:
     """§S13.32: quality tilt inside the top idio-vol tercile (default-OFF).
 
@@ -530,6 +545,18 @@ def apply_vol_quality_tilt(
         )
     vol_panel = panel[vol_feature].unstack("ticker")
     q_panel = panel["best_roe_level_z"].unstack("ticker")
+    if getattr(config, "vol_quality_tilt_negative_equity_mask", False):
+        # §S18.1 (decision log §S18 P2): negative-book-equity names carry a
+        # large NEGATIVE Bloomberg ROE with positive earnings; masking the
+        # quality input to NaN routes them through the existing
+        # "missing quality -> cell byte-unchanged" contract below.
+        if data is None:
+            raise ValueError(
+                "vol_quality_tilt_negative_equity_mask requires the loaded "
+                "UniverseData (raw BEST_ROE / BEST_EPS sheets)"
+            )
+        neg_eq = negative_equity_mask(data, q_panel.index, q_panel.columns)
+        q_panel = q_panel.mask(neg_eq)
     out = predictions.copy()
     tilted = 0
     for dt in predictions.index:
@@ -1637,10 +1664,15 @@ def simulate_portfolio(
                 else:
                     trailing_ic_mean = 0.0
 
-                confidence = compute_signal_confidence(
-                    pred_row, raw_pred_row, trailing_ic_mean,
-                    spread_scale=float(getattr(config, "confidence_spread_scale", 0.20)),
-                )
+                if getattr(config, "static_execution_enabled", False):
+                    # §S18.1 (decision log §S18 P3): confidence fixed at 1.0 ->
+                    # eta = partial_rebalance_eta, band = no_trade_band.
+                    confidence = 1.0
+                else:
+                    confidence = compute_signal_confidence(
+                        pred_row, raw_pred_row, trailing_ic_mean,
+                        spread_scale=float(getattr(config, "confidence_spread_scale", 0.20)),
+                    )
 
                 candidate_weights = apply_dynamic_execution(
                     prev_weights, target_weights, confidence, config,
@@ -1946,7 +1978,7 @@ def run_backtest(
 
     # Run every alpha overlay only after the listing mask. The checkpoint is
     # deliberately pre-mask/pre-overlay so cache reuse reapplies both once.
-    predictions = apply_vol_quality_tilt(predictions, panel, config)
+    predictions = apply_vol_quality_tilt(predictions, panel, config, data=data)
 
     # REDESIGN U (2026-04-14): PEAD post-process boost.
     # Stocks with positive pre-earnings revisions get +boost_w × decay × quality

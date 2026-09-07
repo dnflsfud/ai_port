@@ -211,6 +211,11 @@ SENT_TREND_SHEETS = {
 # and CUR_MKT_CAP are nominal in the workbook and stay untouched.
 NOMINAL_RATIO_SHEETS = ("BEST_PE_RATIO", "BEST_PX_BPS_RATIO", "BEST_PEG_RATIO")
 
+# §S18.1: trailing-252d median(target price / local price) band outside which
+# a name is flagged as a vendor-basis mismatch (APH 2.33 on the 2026-09-03
+# vintage). Observed production range on clean vintages: 0.97 .. 1.60.
+TG_PX_RATIO_SUSPECT_BAND = (0.6, 1.7)
+
 # Sheets exempt from the post-align listing re-mask (§S11.4): the PCA target
 # engine requires a dense cross-section, so Daily_Returns keeps its first-pass
 # mask + cross-sectional median refill (ghost constants replaced by the
@@ -1504,6 +1509,25 @@ class UniverseData:
                 "[0.2, 5] for %d ticker(s) — likely a quote-unit mismatch: %s",
                 len(offenders),
                 {str(t): round(float(v), 4) for t, v in offenders.items()},
+            )
+        # §S18.1 (decision log §S18 P1): the 2026-09-03 workbook carried APH's
+        # FactSet target price on a pre-split basis (median TG/price 2.33 vs
+        # 1.16 on the surrounding vintages) — inside [0.2, 5], so the guard
+        # above was silent and tg_upside sat at the +5 z clip for 12 years in
+        # the certified S0'. A 252d median outside TG_PX_RATIO_SUSPECT_BAND is
+        # a vendor-basis mismatch, not analyst optimism: published for the
+        # production HOLD gate. Diagnostic only — no panel is modified.
+        lo, hi = TG_PX_RATIO_SUSPECT_BAND
+        suspect = medians[(medians < lo) | (medians > hi)]
+        self.data_quality["currency"]["tg_px_ratio_suspect"] = {
+            str(ticker): float(value) for ticker, value in suspect.items()
+        }
+        if len(suspect):
+            logger.warning(
+                "[UniverseData] target-price / local-price 252d median outside "
+                "[%.1f, %.1f] for %d ticker(s) — vendor basis mismatch suspected: %s",
+                lo, hi, len(suspect),
+                {str(t): round(float(v), 4) for t, v in suspect.items()},
             )
 
     def _apply_usd_conversion(self) -> None:

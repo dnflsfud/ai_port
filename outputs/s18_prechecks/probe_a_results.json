@@ -1,0 +1,1911 @@
+{
+ "A1_coverage_gap": {
+  "PX_LAST": {
+   "leading_gap_cells": 0,
+   "tickers_with_gap": 0,
+   "interior_ffilled_cells": 0,
+   "top": {}
+  },
+  "PX_LAST_UNADJ": {
+   "leading_gap_cells": 0,
+   "tickers_with_gap": 0,
+   "interior_ffilled_cells": 0,
+   "top": {}
+  },
+  "CUR_MKT_CAP": {
+   "leading_gap_cells": 0,
+   "tickers_with_gap": 0,
+   "interior_ffilled_cells": 0,
+   "top": {}
+  },
+  "Factset_TG_Price": {
+   "leading_gap_cells": 965,
+   "tickers_with_gap": 17,
+   "interior_ffilled_cells": 0,
+   "top": {
+    "VRT": {
+     "rows": 573,
+     "first_obs": 19.0,
+     "fill_median": 87.425,
+     "median_fill_over_first": 4.601,
+     "gap_start": "2018-08-01",
+     "gap_end": "2020-02-24",
+     "ccy": "USD"
+    },
+    "VST": {
+     "rows": 177,
+     "first_obs": 18.0,
+     "fill_median": 66.8194,
+     "median_fill_over_first": 3.712,
+     "gap_start": "2016-10-05",
+     "gap_end": "2017-03-30",
+     "ccy": "USD"
+    },
+    "PLTR": {
+     "rows": 22,
+     "first_obs": 12.0,
+     "fill_median": 109.2941,
+     "median_fill_over_first": 9.108,
+     "gap_start": "2020-09-30",
+     "gap_end": "2020-10-21",
+     "ccy": "USD"
+    },
+    "BE": {
+     "rows": 22,
+     "first_obs": 24.0,
+     "fill_median": 86.1115,
+     "median_fill_over_first": 3.588,
+     "gap_start": "2018-07-25",
+     "gap_end": "2018-08-15",
+     "ccy": "USD"
+    },
+    "RACE": {
+     "rows": 22,
+     "first_obs": 50.0,
+     "fill_median": 64.1765,
+     "median_fill_over_first": 1.284,
+     "gap_start": "2015-10-21",
+     "gap_end": "2015-11-11",
+     "ccy": "USD"
+    },
+    "APP": {
+     "rows": 22,
+     "first_obs": 75.5714,
+     "fill_median": 132.6719,
+     "median_fill_over_first": 1.756,
+     "gap_start": "2021-04-15",
+     "gap_end": "2021-05-06",
+     "ccy": "USD"
+    },
+    "CRWD": {
+     "rows": 21,
+     "first_obs": 17.5,
+     "fill_median": 87.7429,
+     "median_fill_over_first": 5.014,
+     "gap_start": "2019-06-12",
+     "gap_end": "2019-07-02",
+     "ccy": "USD"
+    },
+    "DDOG": {
+     "rows": 21,
+     "first_obs": 34.0,
+     "fill_median": 90.4678,
+     "median_fill_over_first": 2.661,
+     "gap_start": "2019-09-19",
+     "gap_end": "2019-10-09",
+     "ccy": "USD"
+    },
+    "ZS": {
+     "rows": 21,
+     "first_obs": 35.0,
+     "fill_median": 84.431,
+     "median_fill_over_first": 2.412,
+     "gap_start": "2018-03-16",
+     "gap_end": "2018-04-05",
+     "ccy": "USD"
+    },
+    "TEAM": {
+     "rows": 20,
+     "first_obs": 34.0,
+     "fill_median": 64.5538,
+     "median_fill_over_first": 1.899,
+     "gap_start": "2015-12-10",
+     "gap_end": "2015-12-29",
+     "ccy": "USD"
+    },
+    "NET": {
+     "rows": 20,
+     "first_obs": 18.0,
+     "fill_median": 90.4351,
+     "median_fill_over_first": 5.024,
+     "gap_start": "2019-09-13",
+     "gap_end": "2019-10-02",
+     "ccy": "USD"
+    },
+    "KEYS": {
+     "rows": 10,
+     "first_obs": 36.5,
+     "fill_median": 59.677,
+     "median_fill_over_first": 1.635,
+     "gap_start": "2014-10-21",
+     "gap_end": "2014-10-30",
+     "ccy": "USD"
+    },
+    "LITE": {
+     "rows": 4,
+     "first_obs": 26.0,
+     "fill_median": 65.1789,
+     "median_fill_over_first": 2.507,
+     "gap_start": "2015-07-27",
+     "gap_end": "2015-07-30",
+     "ccy": "USD"
+    },
+    "RDDT": {
+     "rows": 4,
+     "first_obs": 54.0,
+     "fill_median": 167.9155,
+     "median_fill_over_first": 3.11,
+     "gap_start": "2024-03-21",
+     "gap_end": "2024-03-24",
+     "ccy": "USD"
+    },
+    "HPE": {
+     "rows": 3,
+     "first_obs": 8.1357,
+     "fill_median": 63.9203,
+     "median_fill_over_first": 7.857,
+     "gap_start": "2015-10-20",
+     "gap_end": "2015-10-22",
+     "ccy": "USD"
+    },
+    "SNOW": {
+     "rows": 2,
+     "first_obs": 175.0,
+     "fill_median": 105.3958,
+     "median_fill_over_first": 0.602,
+     "gap_start": "2020-09-16",
+     "gap_end": "2020-09-17",
+     "ccy": "USD"
+    },
+    "285A": {
+     "rows": 1,
+     "first_obs": 1950.0,
+     "fill_median": 187.2765,
+     "median_fill_over_first": 0.096,
+     "gap_start": "2024-12-18",
+     "gap_end": "2024-12-18",
+     "ccy": "JPY"
+    }
+   }
+  },
+  "BEST_EPS": {
+   "leading_gap_cells": 0,
+   "tickers_with_gap": 0,
+   "interior_ffilled_cells": 0,
+   "top": {}
+  },
+  "BEST_SALES": {
+   "leading_gap_cells": 0,
+   "tickers_with_gap": 0,
+   "interior_ffilled_cells": 0,
+   "top": {}
+  },
+  "BEST_ROE": {
+   "leading_gap_cells": 0,
+   "tickers_with_gap": 0,
+   "interior_ffilled_cells": 0,
+   "top": {}
+  },
+  "BEST_PE_RATIO": {
+   "leading_gap_cells": 0,
+   "tickers_with_gap": 0,
+   "interior_ffilled_cells": 0,
+   "top": {}
+  },
+  "BEST_PX_BPS_RATIO": {
+   "leading_gap_cells": 0,
+   "tickers_with_gap": 0,
+   "interior_ffilled_cells": 0,
+   "top": {}
+  },
+  "BEST_PEG_RATIO": {
+   "leading_gap_cells": 0,
+   "tickers_with_gap": 0,
+   "interior_ffilled_cells": 0,
+   "top": {}
+  },
+  "BEST_EV_TO_BEST_EBITDA": {
+   "leading_gap_cells": 0,
+   "tickers_with_gap": 0,
+   "interior_ffilled_cells": 0,
+   "top": {}
+  },
+  "BEST_CALCULATED_FCF": {
+   "leading_gap_cells": 0,
+   "tickers_with_gap": 0,
+   "interior_ffilled_cells": 0,
+   "top": {}
+  },
+  "BEST_CAPEX": {
+   "leading_gap_cells": 0,
+   "tickers_with_gap": 0,
+   "interior_ffilled_cells": 0,
+   "top": {}
+  },
+  "BEST_GROSS_MARGIN": {
+   "leading_gap_cells": 0,
+   "tickers_with_gap": 0,
+   "interior_ffilled_cells": 0,
+   "top": {}
+  },
+  "OPER_MARGIN": {
+   "leading_gap_cells": 0,
+   "tickers_with_gap": 0,
+   "interior_ffilled_cells": 0,
+   "top": {}
+  },
+  "EQY_REC_CONS": {
+   "leading_gap_cells": 0,
+   "tickers_with_gap": 0,
+   "interior_ffilled_cells": 0,
+   "top": {}
+  },
+  "Factset_EPS_Revision": {
+   "leading_gap_cells": 1219,
+   "tickers_with_gap": 25,
+   "interior_ffilled_cells": 29,
+   "top": {
+    "VRT": {
+     "rows": 586,
+     "first_obs": 100.0,
+     "fill_median": 6.0,
+     "median_fill_over_first": 0.06,
+     "gap_start": "2018-08-01",
+     "gap_end": "2020-03-08",
+     "ccy": "USD"
+    },
+    "VST": {
+     "rows": 222,
+     "first_obs": -100.0,
+     "fill_median": 5.0,
+     "median_fill_over_first": -0.05,
+     "gap_start": "2016-10-05",
+     "gap_end": "2017-05-14",
+     "ccy": "USD"
+    },
+    "285A": {
+     "rows": 34,
+     "first_obs": 0.0,
+     "fill_median": 11.75
+    },
+    "APP": {
+     "rows": 28,
+     "first_obs": 66.0,
+     "fill_median": 37.5,
+     "median_fill_over_first": 0.568,
+     "gap_start": "2021-04-15",
+     "gap_end": "2021-05-12",
+     "ccy": "USD"
+    },
+    "TTD": {
+     "rows": 27,
+     "first_obs": 0.0,
+     "fill_median": 7.0
+    },
+    "ZS": {
+     "rows": 26,
+     "first_obs": 0.0,
+     "fill_median": 33.0
+    },
+    "RACE": {
+     "rows": 26,
+     "first_obs": 0.0,
+     "fill_median": 0.0
+    },
+    "RDDT": {
+     "rows": 25,
+     "first_obs": 0.0,
+     "fill_median": 0.0
+    },
+    "NET": {
+     "rows": 24,
+     "first_obs": 0.0,
+     "fill_median": 11.0
+    },
+    "BE": {
+     "rows": 23,
+     "first_obs": 0.0,
+     "fill_median": 12.0
+    },
+    "PLTR": {
+     "rows": 23,
+     "first_obs": -50.0,
+     "fill_median": 25.0,
+     "median_fill_over_first": -0.5,
+     "gap_start": "2020-09-30",
+     "gap_end": "2020-10-22",
+     "ccy": "USD"
+    },
+    "CRWD": {
+     "rows": 23,
+     "first_obs": 0.0,
+     "fill_median": 7.5
+    },
+    "DDOG": {
+     "rows": 22,
+     "first_obs": 0.0,
+     "fill_median": 11.5
+    },
+    "ABNB": {
+     "rows": 22,
+     "first_obs": 0.0,
+     "fill_median": 61.0
+    },
+    "TEAM": {
+     "rows": 22,
+     "first_obs": 0.0,
+     "fill_median": -1.5
+    },
+    "SNOW": {
+     "rows": 14,
+     "first_obs": 0.0,
+     "fill_median": 38.5
+    },
+    "SPOT": {
+     "rows": 14,
+     "first_obs": 0.0,
+     "fill_median": 20.0
+    },
+    "KEYS": {
+     "rows": 13,
+     "first_obs": 0.0,
+     "fill_median": 0.0
+    },
+    "LITE": {
+     "rows": 11,
+     "first_obs": 0.0,
+     "fill_median": 3.0
+    },
+    "SNDK": {
+     "rows": 10,
+     "first_obs": 0.0,
+     "fill_median": 0.0
+    },
+    "DELL": {
+     "rows": 7,
+     "first_obs": 100.0,
+     "fill_median": 8.5,
+     "median_fill_over_first": 0.085,
+     "gap_start": "2018-12-28",
+     "gap_end": "2019-01-03",
+     "ccy": "USD"
+    },
+    "UBER": {
+     "rows": 7,
+     "first_obs": -100.0,
+     "fill_median": 4.0,
+     "median_fill_over_first": -0.04,
+     "gap_start": "2019-05-10",
+     "gap_end": "2019-05-16",
+     "ccy": "USD"
+    },
+    "HPE": {
+     "rows": 6,
+     "first_obs": 0.0,
+     "fill_median": -4.0
+    },
+    "GEV": {
+     "rows": 3,
+     "first_obs": 0.0,
+     "fill_median": 0.0
+    },
+    "UMG": {
+     "rows": 1,
+     "first_obs": 0.0,
+     "fill_median": 67.5
+    }
+   }
+  },
+  "Factset_Sales_Revision": {
+   "leading_gap_cells": 1012,
+   "tickers_with_gap": 24,
+   "interior_ffilled_cells": 890,
+   "top": {
+    "VRT": {
+     "rows": 586,
+     "first_obs": 0.0,
+     "fill_median": 0.0
+    },
+    "VST": {
+     "rows": 74,
+     "first_obs": 0.0,
+     "fill_median": 0.0
+    },
+    "285A": {
+     "rows": 34,
+     "first_obs": 0.0,
+     "fill_median": 0.0
+    },
+    "APP": {
+     "rows": 28,
+     "first_obs": 100.0,
+     "fill_median": 32.0,
+     "median_fill_over_first": 0.32,
+     "gap_start": "2021-04-15",
+     "gap_end": "2021-05-12",
+     "ccy": "USD"
+    },
+    "TTD": {
+     "rows": 27,
+     "first_obs": 0.0,
+     "fill_median": 0.0
+    },
+    "RACE": {
+     "rows": 26,
+     "first_obs": 0.0,
+     "fill_median": -5.0
+    },
+    "TEAM": {
+     "rows": 25,
+     "first_obs": 0.0,
+     "fill_median": -7.0
+    },
+    "ZS": {
+     "rows": 25,
+     "first_obs": 0.0,
+     "fill_median": 30.0
+    },
+    "NET": {
+     "rows": 24,
+     "first_obs": 0.0,
+     "fill_median": 0.0
+    },
+    "BE": {
+     "rows": 23,
+     "first_obs": 0.0,
+     "fill_median": 7.0
+    },
+    "PLTR": {
+     "rows": 23,
+     "first_obs": 0.0,
+     "fill_median": 19.0
+    },
+    "CRWD": {
+     "rows": 23,
+     "first_obs": 0.0,
+     "fill_median": 0.0
+    },
+    "DDOG": {
+     "rows": 22,
+     "first_obs": 0.0,
+     "fill_median": 0.0
+    },
+    "SNOW": {
+     "rows": 14,
+     "first_obs": 0.0,
+     "fill_median": 36.75
+    },
+    "KEYS": {
+     "rows": 13,
+     "first_obs": 0.0,
+     "fill_median": 0.0
+    },
+    "LITE": {
+     "rows": 11,
+     "first_obs": 0.0,
+     "fill_median": 0.0
+    },
+    "SNDK": {
+     "rows": 8,
+     "first_obs": 0.0,
+     "fill_median": 1.0
+    },
+    "UBER": {
+     "rows": 7,
+     "first_obs": 0.0,
+     "fill_median": 0.0
+    },
+    "HPE": {
+     "rows": 6,
+     "first_obs": 0.0,
+     "fill_median": -4.0
+    },
+    "RDDT": {
+     "rows": 4,
+     "first_obs": 0.0,
+     "fill_median": 0.0
+    },
+    "SPOT": {
+     "rows": 3,
+     "first_obs": -100.0,
+     "fill_median": 25.0,
+     "median_fill_over_first": -0.25,
+     "gap_start": "2018-04-03",
+     "gap_end": "2018-04-05",
+     "ccy": "USD"
+    },
+    "GEV": {
+     "rows": 3,
+     "first_obs": 0.0,
+     "fill_median": 0.0
+    },
+    "UMG": {
+     "rows": 2,
+     "first_obs": 0.0,
+     "fill_median": 56.5
+    },
+    "ABNB": {
+     "rows": 1,
+     "first_obs": 0.0,
+     "fill_median": 42.0
+    }
+   }
+  },
+  "NEWS_SENTIMENT_DAILY_AVG": {
+   "leading_gap_cells": 0,
+   "tickers_with_gap": 0,
+   "interior_ffilled_cells": 0,
+   "top": {}
+  },
+  "Factset_Fwd_OpCashflow": {
+   "leading_gap_cells": 74689,
+   "tickers_with_gap": 50,
+   "interior_ffilled_cells": 44435,
+   "top": {
+    "BAC": null,
+    "JPM": null,
+    "HSBA": null,
+    "GS": null,
+    "WFC": null,
+    "UCG": null,
+    "BNP": null,
+    "C": null,
+    "AXP": null,
+    "MS": null,
+    "BNY": null,
+    "UBSG": null,
+    "8306": null,
+    "8316": null,
+    "MUV2": {
+     "rows": 2673,
+     "first_obs": 2591.01,
+     "fill_median": 3737.127,
+     "median_fill_over_first": 1.442,
+     "gap_start": "2014-01-02",
+     "gap_end": "2021-04-27",
+     "ccy": "EUR"
+    },
+    "IBKR": {
+     "rows": 2618,
+     "first_obs": 1507.636,
+     "fill_median": 3713.391,
+     "median_fill_over_first": 2.463,
+     "gap_start": "2014-01-02",
+     "gap_end": "2021-03-03",
+     "ccy": "USD"
+    },
+    "MPWR": {
+     "rows": 678,
+     "first_obs": 102.91,
+     "fill_median": 3483.7105,
+     "median_fill_over_first": 33.852,
+     "gap_start": "2014-01-02",
+     "gap_end": "2015-11-10",
+     "ccy": "USD"
+    },
+    "VRT": {
+     "rows": 573,
+     "first_obs": 317.9395,
+     "fill_median": 4202.624,
+     "median_fill_over_first": 13.218,
+     "gap_start": "2018-08-01",
+     "gap_end": "2020-02-24",
+     "ccy": "USD"
+    },
+    "COF": null,
+    "KKR": {
+     "rows": 390,
+     "first_obs": 2190.0,
+     "fill_median": 3583.7915,
+     "median_fill_over_first": 1.636,
+     "gap_start": "2014-01-02",
+     "gap_end": "2015-01-26",
+     "ccy": "USD"
+    },
+    "SCHW": {
+     "rows": 370,
+     "first_obs": 14789.0,
+     "fill_median": 3595.957,
+     "median_fill_over_first": 0.243,
+     "gap_start": "2014-01-02",
+     "gap_end": "2015-01-06",
+     "ccy": "USD"
+    },
+    "BX": {
+     "rows": 351,
+     "first_obs": 2873.521,
+     "fill_median": 3599.5475,
+     "median_fill_over_first": 1.253,
+     "gap_start": "2014-01-02",
+     "gap_end": "2014-12-18",
+     "ccy": "USD"
+    },
+    "SNPS": {
+     "rows": 336,
+     "first_obs": 481.7322,
+     "fill_median": 3603.484,
+     "median_fill_over_first": 7.48,
+     "gap_start": "2014-01-02",
+     "gap_end": "2014-12-03",
+     "ccy": "USD"
+    },
+    "BLK": {
+     "rows": 286,
+     "first_obs": 3943.28,
+     "fill_median": 3608.8377,
+     "median_fill_over_first": 0.915,
+     "gap_start": "2014-01-02",
+     "gap_end": "2014-10-14",
+     "ccy": "USD"
+    },
+    "APO": {
+     "rows": 217,
+     "first_obs": 1022.0,
+     "fill_median": 3622.775,
+     "median_fill_over_first": 3.545,
+     "gap_start": "2014-01-02",
+     "gap_end": "2014-08-06",
+     "ccy": "USD"
+    },
+    "ALV": {
+     "rows": 210,
+     "first_obs": 2823.444,
+     "fill_median": 3625.551,
+     "median_fill_over_first": 1.284,
+     "gap_start": "2014-01-02",
+     "gap_end": "2014-07-30",
+     "ccy": "EUR"
+    },
+    "CDNS": {
+     "rows": 201,
+     "first_obs": 398.7126,
+     "fill_median": 3628.002,
+     "median_fill_over_first": 9.099,
+     "gap_start": "2014-01-02",
+     "gap_end": "2014-07-21",
+     "ccy": "USD"
+    },
+    "AXON": {
+     "rows": 131,
+     "first_obs": 35.067,
+     "fill_median": 3622.775,
+     "median_fill_over_first": 103.31,
+     "gap_start": "2014-01-02",
+     "gap_end": "2014-05-12",
+     "ccy": "USD"
+    },
+    "285A": {
+     "rows": 63,
+     "first_obs": 327154.1,
+     "fill_median": 6566.5525,
+     "median_fill_over_first": 0.02,
+     "gap_start": "2024-12-18",
+     "gap_end": "2025-02-18",
+     "ccy": "JPY"
+    },
+    "CS": {
+     "rows": 35,
+     "first_obs": 5675.518,
+     "fill_median": 3546.149,
+     "median_fill_over_first": 0.625,
+     "gap_start": "2014-01-02",
+     "gap_end": "2014-02-05",
+     "ccy": "EUR"
+    },
+    "ZS": {
+     "rows": 24,
+     "first_obs": -20.9031,
+     "fill_median": 4123.154,
+     "median_fill_over_first": -197.25,
+     "gap_start": "2018-03-16",
+     "gap_end": "2018-04-08",
+     "ccy": "USD"
+    },
+    "ANET": {
+     "rows": 24,
+     "first_obs": 54.1803,
+     "fill_median": 3605.437,
+     "median_fill_over_first": 66.545,
+     "gap_start": "2014-06-06",
+     "gap_end": "2014-06-29",
+     "ccy": "USD"
+    },
+    "PLTR": {
+     "rows": 22,
+     "first_obs": 84.2301,
+     "fill_median": 4070.2165,
+     "median_fill_over_first": 48.323,
+     "gap_start": "2020-09-30",
+     "gap_end": "2020-10-21",
+     "ccy": "USD"
+    },
+    "RACE": {
+     "rows": 22,
+     "first_obs": 690.0286,
+     "fill_median": 3453.2725,
+     "median_fill_over_first": 5.005,
+     "gap_start": "2015-10-21",
+     "gap_end": "2015-11-11",
+     "ccy": "USD"
+    },
+    "BE": {
+     "rows": 22,
+     "first_obs": 73.0858,
+     "fill_median": 4104.924,
+     "median_fill_over_first": 56.166,
+     "gap_start": "2018-07-25",
+     "gap_end": "2018-08-15",
+     "ccy": "USD"
+    },
+    "APP": {
+     "rows": 21,
+     "first_obs": 607.5178,
+     "fill_median": 4614.838,
+     "median_fill_over_first": 7.596,
+     "gap_start": "2021-04-15",
+     "gap_end": "2021-05-05",
+     "ccy": "USD"
+    },
+    "CRWD": {
+     "rows": 21,
+     "first_obs": -61.8404,
+     "fill_median": 4293.171,
+     "median_fill_over_first": -69.423,
+     "gap_start": "2019-06-12",
+     "gap_end": "2019-07-02",
+     "ccy": "USD"
+    },
+    "DDOG": {
+     "rows": 21,
+     "first_obs": 0.2016,
+     "fill_median": 4306.864,
+     "median_fill_over_first": 21359.249,
+     "gap_start": "2019-09-19",
+     "gap_end": "2019-10-09",
+     "ccy": "USD"
+    },
+    "NET": {
+     "rows": 20,
+     "first_obs": -21.6257,
+     "fill_median": 4307.8105,
+     "median_fill_over_first": -199.199,
+     "gap_start": "2019-09-13",
+     "gap_end": "2019-10-02",
+     "ccy": "USD"
+    },
+    "ABNB": {
+     "rows": 20,
+     "first_obs": -269.306,
+     "fill_median": 4373.856,
+     "median_fill_over_first": -16.241,
+     "gap_start": "2020-12-10",
+     "gap_end": "2020-12-29",
+     "ccy": "USD"
+    }
+   }
+  },
+  "Fwd_Sales_Slope_1FY2FY": {
+   "leading_gap_cells": 553250,
+   "tickers_with_gap": 244,
+   "interior_ffilled_cells": 0,
+   "top": {
+    "FN": {
+     "rows": 4203,
+     "first_obs": 0.1841,
+     "fill_median": 0.0462,
+     "median_fill_over_first": 0.251,
+     "gap_start": "2014-01-13",
+     "gap_end": "2025-07-16",
+     "ccy": "USD"
+    },
+    "APO": {
+     "rows": 4018,
+     "first_obs": 0.3437,
+     "fill_median": 0.0438,
+     "median_fill_over_first": 0.127,
+     "gap_start": "2014-01-13",
+     "gap_end": "2025-01-12",
+     "ccy": "USD"
+    },
+    "COHR": {
+     "rows": 3767,
+     "first_obs": 0.0646,
+     "fill_median": 0.0419,
+     "median_fill_over_first": 0.648,
+     "gap_start": "2014-01-13",
+     "gap_end": "2024-05-06",
+     "ccy": "USD"
+    },
+    "BRK/B": {
+     "rows": 3760,
+     "first_obs": 0.0041,
+     "fill_median": 0.0416,
+     "median_fill_over_first": 10.158,
+     "gap_start": "2014-01-13",
+     "gap_end": "2024-04-29",
+     "ccy": "USD"
+    },
+    "AXON": {
+     "rows": 3740,
+     "first_obs": 0.2277,
+     "fill_median": 0.0412,
+     "median_fill_over_first": 0.181,
+     "gap_start": "2014-01-13",
+     "gap_end": "2024-04-09",
+     "ccy": "USD"
+    },
+    "IBKR": {
+     "rows": 3656,
+     "first_obs": 0.033,
+     "fill_median": 0.0404,
+     "median_fill_over_first": 1.225,
+     "gap_start": "2014-01-13",
+     "gap_end": "2024-01-16",
+     "ccy": "USD"
+    },
+    "LITE": {
+     "rows": 3643,
+     "first_obs": 0.1341,
+     "fill_median": 0.0477,
+     "median_fill_over_first": 0.356,
+     "gap_start": "2015-07-27",
+     "gap_end": "2025-07-16",
+     "ccy": "USD"
+    },
+    "LSEG": {
+     "rows": 3619,
+     "first_obs": 0.0889,
+     "fill_median": 0.0404,
+     "median_fill_over_first": 0.454,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-12-10",
+     "ccy": "GBP"
+    },
+    "UCG": {
+     "rows": 3581,
+     "first_obs": -0.0065,
+     "fill_median": 0.0402,
+     "median_fill_over_first": -6.134,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-11-02",
+     "ccy": "EUR"
+    },
+    "KLAC": {
+     "rows": 3573,
+     "first_obs": 0.3879,
+     "fill_median": 0.0402,
+     "median_fill_over_first": 0.104,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-10-25",
+     "ccy": "USD"
+    },
+    "BX": {
+     "rows": 3570,
+     "first_obs": 0.0716,
+     "fill_median": 0.0401,
+     "median_fill_over_first": 0.56,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-10-22",
+     "ccy": "USD"
+    },
+    "LRCX": {
+     "rows": 3487,
+     "first_obs": 0.2957,
+     "fill_median": 0.0399,
+     "median_fill_over_first": 0.135,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-07-31",
+     "ccy": "USD"
+    },
+    "6981": {
+     "rows": 3487,
+     "first_obs": -0.0034,
+     "fill_median": 0.0399,
+     "median_fill_over_first": -11.793,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-07-31",
+     "ccy": "JPY"
+    },
+    "HSBA": {
+     "rows": 3487,
+     "first_obs": -0.0069,
+     "fill_median": 0.0399,
+     "median_fill_over_first": -5.748,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-07-31",
+     "ccy": "GBP"
+    },
+    "VRSN": {
+     "rows": 3483,
+     "first_obs": 0.0541,
+     "fill_median": 0.0399,
+     "median_fill_over_first": 0.738,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-07-27",
+     "ccy": "USD"
+    },
+    "7203": {
+     "rows": 3452,
+     "first_obs": 0.0321,
+     "fill_median": 0.0397,
+     "median_fill_over_first": 1.237,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-06-26",
+     "ccy": "JPY"
+    },
+    "CAT": {
+     "rows": 3447,
+     "first_obs": 0.4375,
+     "fill_median": 0.0397,
+     "median_fill_over_first": 0.091,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-06-21",
+     "ccy": "USD"
+    },
+    "7011": {
+     "rows": 3444,
+     "first_obs": 0.023,
+     "fill_median": 0.0397,
+     "median_fill_over_first": 1.726,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-06-18",
+     "ccy": "JPY"
+    },
+    "6857": {
+     "rows": 3444,
+     "first_obs": -0.032,
+     "fill_median": 0.0397,
+     "median_fill_over_first": -1.238,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-06-18",
+     "ccy": "JPY"
+    },
+    "MCK": {
+     "rows": 3430,
+     "first_obs": 0.0666,
+     "fill_median": 0.0396,
+     "median_fill_over_first": 0.596,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-06-04",
+     "ccy": "USD"
+    },
+    "8035": {
+     "rows": 3424,
+     "first_obs": -0.0742,
+     "fill_median": 0.0396,
+     "median_fill_over_first": -0.534,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-05-29",
+     "ccy": "JPY"
+    },
+    "4063": {
+     "rows": 3423,
+     "first_obs": -0.061,
+     "fill_median": 0.0396,
+     "median_fill_over_first": -0.65,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-05-28",
+     "ccy": "JPY"
+    },
+    "8316": {
+     "rows": 3417,
+     "first_obs": 0.0105,
+     "fill_median": 0.0396,
+     "median_fill_over_first": 3.773,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-05-22",
+     "ccy": "JPY"
+    },
+    "6146": {
+     "rows": 3417,
+     "first_obs": 0.02,
+     "fill_median": 0.0396,
+     "median_fill_over_first": 1.978,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-05-22",
+     "ccy": "JPY"
+    },
+    "WFC": {
+     "rows": 3410,
+     "first_obs": 0.0226,
+     "fill_median": 0.0393,
+     "median_fill_over_first": 1.739,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-05-15",
+     "ccy": "USD"
+    },
+    "7974": {
+     "rows": 3403,
+     "first_obs": 0.3276,
+     "fill_median": 0.0389,
+     "median_fill_over_first": 0.119,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-05-08",
+     "ccy": "JPY"
+    },
+    "KKR": {
+     "rows": 3403,
+     "first_obs": 0.0058,
+     "fill_median": 0.0389,
+     "median_fill_over_first": 6.746,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-05-08",
+     "ccy": "USD"
+    },
+    "MSI": {
+     "rows": 3402,
+     "first_obs": 0.0587,
+     "fill_median": 0.0389,
+     "median_fill_over_first": 0.662,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-05-07",
+     "ccy": "USD"
+    },
+    "GRMN": {
+     "rows": 3398,
+     "first_obs": 0.0807,
+     "fill_median": 0.0388,
+     "median_fill_over_first": 0.481,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-05-03",
+     "ccy": "USD"
+    },
+    "NXPI": {
+     "rows": 3397,
+     "first_obs": 0.0767,
+     "fill_median": 0.0387,
+     "median_fill_over_first": 0.505,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-05-02",
+     "ccy": "USD"
+    },
+    "ON": {
+     "rows": 3396,
+     "first_obs": 0.0525,
+     "fill_median": 0.0387,
+     "median_fill_over_first": 0.737,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-05-01",
+     "ccy": "USD"
+    },
+    "TER": {
+     "rows": 3392,
+     "first_obs": 0.1328,
+     "fill_median": 0.0387,
+     "median_fill_over_first": 0.292,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-04-27",
+     "ccy": "USD"
+    },
+    "ALV": {
+     "rows": 3390,
+     "first_obs": -0.0117,
+     "fill_median": 0.0387,
+     "median_fill_over_first": -3.297,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-04-25",
+     "ccy": "EUR"
+    },
+    "MUV2": {
+     "rows": 3390,
+     "first_obs": 0.0087,
+     "fill_median": 0.0387,
+     "median_fill_over_first": 4.464,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-04-25",
+     "ccy": "EUR"
+    },
+    "ZURN": {
+     "rows": 3390,
+     "first_obs": 0.001,
+     "fill_median": 0.0387,
+     "median_fill_over_first": 40.268,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-04-25",
+     "ccy": "CHF"
+    },
+    "000660": {
+     "rows": 3375,
+     "first_obs": -0.0774,
+     "fill_median": 0.0387,
+     "median_fill_over_first": -0.5,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-04-10",
+     "ccy": "KRW"
+    },
+    "C": {
+     "rows": 3346,
+     "first_obs": 0.0355,
+     "fill_median": 0.0372,
+     "median_fill_over_first": 1.046,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-03-12",
+     "ccy": "USD"
+    },
+    "AVGO": {
+     "rows": 3336,
+     "first_obs": 0.0519,
+     "fill_median": 0.0372,
+     "median_fill_over_first": 0.716,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-03-02",
+     "ccy": "USD"
+    },
+    "CDNS": {
+     "rows": 3326,
+     "first_obs": 0.1081,
+     "fill_median": 0.0372,
+     "median_fill_over_first": 0.344,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-02-20",
+     "ccy": "USD"
+    },
+    "WMB": {
+     "rows": 3326,
+     "first_obs": 0.0499,
+     "fill_median": 0.0372,
+     "median_fill_over_first": 0.745,
+     "gap_start": "2014-01-13",
+     "gap_end": "2023-02-20",
+     "ccy": "USD"
+    }
+   }
+  }
+ },
+ "A1_mktcap_bm_impact": {
+  "dates_with_imputed_bm_weight": 0,
+  "max_imputed_bm_share": 0.0,
+  "p95_imputed_bm_share_on_affected_dates": 0.0,
+  "worst_dates": {
+   "2014-01-02": 0.0,
+   "2014-01-03": 0.0,
+   "2014-01-04": 0.0,
+   "2014-01-05": 0.0,
+   "2014-01-06": 0.0,
+   "2014-01-07": 0.0,
+   "2014-01-08": 0.0,
+   "2014-01-09": 0.0
+  }
+ },
+ "A2_known_spinoffs": {
+  "WDC": {
+   "ticker": "WDC",
+   "date": "2025-02-24",
+   "min_daily_return_pm7d": -0.0558,
+   "step_log_shares_nominal": -0.2802,
+   "step_log_shares_adjusted": -0.2802,
+   "step_log_unadj_over_adj": -0.0,
+   "tg_over_nominal_px_before180d": 1.347,
+   "tg_over_nominal_px_after180d": 1.168
+  },
+  "GE": {
+   "ticker": "GE",
+   "date": "2024-04-02",
+   "min_daily_return_pm7d": -0.0255,
+   "step_log_shares_nominal": -0.2262,
+   "step_log_shares_adjusted": -0.2262,
+   "step_log_unadj_over_adj": 0.0,
+   "tg_over_nominal_px_before180d": 1.104,
+   "tg_over_nominal_px_after180d": 1.142
+  },
+  "DHR": {
+   "ticker": "DHR",
+   "date": "2023-10-02",
+   "min_daily_return_pm7d": -0.0281,
+   "step_log_shares_nominal": -0.1206,
+   "step_log_shares_adjusted": -0.1206,
+   "step_log_unadj_over_adj": -0.0,
+   "tg_over_nominal_px_before180d": 1.153,
+   "tg_over_nominal_px_after180d": 1.064
+  },
+  "IBM": {
+   "ticker": "IBM",
+   "date": "2021-11-04",
+   "min_daily_return_pm7d": -0.0167,
+   "step_log_shares_nominal": -0.0453,
+   "step_log_shares_adjusted": -0.0586,
+   "step_log_unadj_over_adj": -0.0133,
+   "tg_over_nominal_px_before180d": 1.054,
+   "tg_over_nominal_px_after180d": 1.135
+  },
+  "DELL": {
+   "ticker": "DELL",
+   "date": "2021-11-01",
+   "min_daily_return_pm7d": -0.0319,
+   "step_log_shares_nominal": -0.6815,
+   "step_log_shares_adjusted": -0.6815,
+   "step_log_unadj_over_adj": -0.0,
+   "tg_over_nominal_px_before180d": 2.284,
+   "tg_over_nominal_px_after180d": 1.203
+  },
+  "T": {
+   "ticker": "T",
+   "date": "2022-04-11",
+   "min_daily_return_pm7d": -0.0125,
+   "step_log_shares_nominal": 0.0,
+   "step_log_shares_adjusted": -0.2956,
+   "step_log_unadj_over_adj": -0.2956,
+   "tg_over_nominal_px_before180d": 0.927,
+   "tg_over_nominal_px_after180d": 1.16
+  },
+  "PFE": {
+   "ticker": "PFE",
+   "date": "2020-11-16",
+   "min_daily_return_pm7d": -0.0334,
+   "step_log_shares_nominal": -0.0535,
+   "step_log_shares_adjusted": -0.0535,
+   "step_log_unadj_over_adj": -0.0,
+   "tg_over_nominal_px_before180d": 1.122,
+   "tg_over_nominal_px_after180d": 1.118
+  },
+  "MRK": {
+   "ticker": "MRK",
+   "date": "2021-06-03",
+   "min_daily_return_pm7d": -0.0177,
+   "step_log_shares_nominal": 0.0,
+   "step_log_shares_adjusted": -0.0476,
+   "step_log_unadj_over_adj": -0.0476,
+   "tg_over_nominal_px_before180d": 1.185,
+   "tg_over_nominal_px_after180d": 1.207
+  },
+  "SIE": {
+   "ticker": "SIE",
+   "date": "2020-09-28",
+   "min_daily_return_pm7d": -0.0426,
+   "step_log_shares_nominal": -0.1035,
+   "step_log_shares_adjusted": -0.1035,
+   "step_log_unadj_over_adj": 0.0,
+   "tg_over_nominal_px_before180d": 1.096,
+   "tg_over_nominal_px_after180d": 1.113
+  },
+  "NOVN": {
+   "ticker": "NOVN",
+   "date": "2023-10-04",
+   "min_daily_return_pm7d": -0.0153,
+   "step_log_shares_nominal": -0.0419,
+   "step_log_shares_adjusted": -0.0419,
+   "step_log_unadj_over_adj": -0.0,
+   "tg_over_nominal_px_before180d": 1.109,
+   "tg_over_nominal_px_after180d": 1.101
+  },
+  "6758": {
+   "ticker": "6758",
+   "date": "2025-10-01",
+   "min_daily_return_pm7d": -0.0244,
+   "step_log_shares_nominal": -0.0529,
+   "step_log_shares_adjusted": -0.0529,
+   "step_log_unadj_over_adj": -0.0,
+   "tg_over_nominal_px_before180d": 1.155,
+   "tg_over_nominal_px_after180d": 1.312
+  },
+  "HON": {
+   "ticker": "HON",
+   "date": "2025-10-30",
+   "min_daily_return_pm7d": -0.0205,
+   "step_log_shares_nominal": -0.0596,
+   "step_log_shares_adjusted": -0.0596,
+   "step_log_unadj_over_adj": 0.0,
+   "tg_over_nominal_px_before180d": 1.135,
+   "tg_over_nominal_px_after180d": 1.132
+  },
+  "CMCSA": {
+   "ticker": "CMCSA",
+   "date": "2026-01-02",
+   "min_daily_return_pm7d": -0.0252,
+   "step_log_shares_nominal": -0.0653,
+   "step_log_shares_adjusted": -0.0653,
+   "step_log_unadj_over_adj": 0.0,
+   "tg_over_nominal_px_before180d": 1.258,
+   "tg_over_nominal_px_after180d": 1.186
+  },
+  "GE_GEHC": {
+   "ticker": "GE",
+   "date": "2023-01-04",
+   "min_daily_return_pm7d": -0.0105,
+   "step_log_shares_nominal": -0.248,
+   "step_log_shares_adjusted": -0.248,
+   "step_log_unadj_over_adj": -0.0,
+   "tg_over_nominal_px_before180d": 1.15,
+   "tg_over_nominal_px_after180d": 1.038
+  }
+ },
+ "A2_share_jumps_gt10pct": {
+  "count": 106,
+  "top": [
+   {
+    "ticker": "VRT",
+    "date": "2020-02-10",
+    "d_log_shares_nominal": 1.337,
+    "ret_local": 0.0093,
+    "d_log_unadj_over_adj": -0.0
+   },
+   {
+    "ticker": "APO",
+    "date": "2022-01-03",
+    "d_log_shares_nominal": 0.881,
+    "ret_local": -0.0124,
+    "d_log_unadj_over_adj": -0.0
+   },
+   {
+    "ticker": "UCG",
+    "date": "2017-03-03",
+    "d_log_shares_nominal": 0.727,
+    "ret_local": 0.037,
+    "d_log_unadj_over_adj": 0.0
+   },
+   {
+    "ticker": "DELL",
+    "date": "2021-11-02",
+    "d_log_shares_nominal": -0.681,
+    "ret_local": -0.0319,
+    "d_log_unadj_over_adj": 0.0
+   },
+   {
+    "ticker": "LIN",
+    "date": "2018-10-31",
+    "d_log_shares_nominal": 0.65,
+    "ret_local": 0.0059,
+    "d_log_unadj_over_adj": -0.0
+   },
+   {
+    "ticker": "HON",
+    "date": "2026-06-29",
+    "d_log_shares_nominal": -0.646,
+    "ret_local": -0.0641,
+    "d_log_unadj_over_adj": 0.0
+   },
+   {
+    "ticker": "RTX",
+    "date": "2020-04-03",
+    "d_log_shares_nominal": 0.56,
+    "ret_local": -0.0158,
+    "d_log_unadj_over_adj": -0.528
+   },
+   {
+    "ticker": "APP",
+    "date": "2021-05-07",
+    "d_log_shares_nominal": 0.533,
+    "ret_local": 0.0058,
+    "d_log_unadj_over_adj": 0.0
+   },
+   {
+    "ticker": "NEM",
+    "date": "2019-04-18",
+    "d_log_shares_nominal": 0.428,
+    "ret_local": -0.0334,
+    "d_log_unadj_over_adj": -0.0
+   },
+   {
+    "ticker": "MPC",
+    "date": "2018-10-02",
+    "d_log_shares_nominal": 0.427,
+    "ret_local": 0.0103,
+    "d_log_unadj_over_adj": -0.0
+   },
+   {
+    "ticker": "MAR",
+    "date": "2016-09-23",
+    "d_log_shares_nominal": 0.427,
+    "ret_local": -0.0188,
+    "d_log_unadj_over_adj": 0.0
+   },
+   {
+    "ticker": "COHR",
+    "date": "2019-09-25",
+    "d_log_shares_nominal": 0.412,
+    "ret_local": -0.0125,
+    "d_log_unadj_over_adj": 0.0
+   },
+   {
+    "ticker": "AVGO",
+    "date": "2016-02-02",
+    "d_log_shares_nominal": 0.397,
+    "ret_local": -0.0323,
+    "d_log_unadj_over_adj": 0.0
+   },
+   {
+    "ticker": "SPGI",
+    "date": "2022-02-28",
+    "d_log_shares_nominal": 0.385,
+    "ret_local": -0.0136,
+    "d_log_unadj_over_adj": -0.0
+   },
+   {
+    "ticker": "WMB",
+    "date": "2018-08-13",
+    "d_log_shares_nominal": 0.38,
+    "ret_local": -0.0346,
+    "d_log_unadj_over_adj": 0.0
+   },
+   {
+    "ticker": "ADI",
+    "date": "2021-08-30",
+    "d_log_shares_nominal": 0.378,
+    "ret_local": 0.003,
+    "d_log_unadj_over_adj": -0.0
+   },
+   {
+    "ticker": "SCHW",
+    "date": "2020-10-06",
+    "d_log_shares_nominal": 0.375,
+    "ret_local": -0.0051,
+    "d_log_unadj_over_adj": 0.0
+   },
+   {
+    "ticker": "KKR",
+    "date": "2022-06-02",
+    "d_log_shares_nominal": 0.372,
+    "ret_local": 0.0347,
+    "d_log_unadj_over_adj": -0.0
+   },
+   {
+    "ticker": "NEM",
+    "date": "2023-11-08",
+    "d_log_shares_nominal": 0.372,
+    "ret_local": -0.0513,
+    "d_log_unadj_over_adj": -0.0
+   },
+   {
+    "ticker": "VZ",
+    "date": "2014-02-24",
+    "d_log_shares_nominal": 0.368,
+    "ret_local": -0.022,
+    "d_log_unadj_over_adj": -0.0
+   },
+   {
+    "ticker": "MDT",
+    "date": "2015-01-27",
+    "d_log_shares_nominal": 0.366,
+    "ret_local": -0.0044,
+    "d_log_unadj_over_adj": 0.0
+   },
+   {
+    "ticker": "TMUS",
+    "date": "2020-04-01",
+    "d_log_shares_nominal": 0.361,
+    "ret_local": 0.0147,
+    "d_log_unadj_over_adj": -0.0
+   },
+   {
+    "ticker": "CB",
+    "date": "2016-01-15",
+    "d_log_shares_nominal": 0.352,
+    "ret_local": -0.0148,
+    "d_log_unadj_over_adj": 0.0
+   },
+   {
+    "ticker": "TTWO",
+    "date": "2022-05-24",
+    "d_log_shares_nominal": 0.336,
+    "ret_local": -0.0075,
+    "d_log_unadj_over_adj": 0.0
+   },
+   {
+    "ticker": "AMD",
+    "date": "2022-02-15",
+    "d_log_shares_nominal": 0.305,
+    "ret_local": 0.063,
+    "d_log_unadj_over_adj": 0.0
+   },
+   {
+    "ticker": "NXPI",
+    "date": "2015-12-08",
+    "d_log_shares_nominal": 0.305,
+    "ret_local": 0.0151,
+    "d_log_unadj_over_adj": -0.0
+   },
+   {
+    "ticker": "KKR",
+    "date": "2014-05-05",
+    "d_log_shares_nominal": 0.298,
+    "ret_local": 0.0009,
+    "d_log_unadj_over_adj": 0.0
+   },
+   {
+    "ticker": "HPE",
+    "date": "2017-04-03",
+    "d_log_shares_nominal": -0.289,
+    "ret_local": -0.0104,
+    "d_log_unadj_over_adj": -0.0
+   },
+   {
+    "ticker": "DHR",
+    "date": "2016-07-05",
+    "d_log_shares_nominal": -0.277,
+    "ret_local": 0.0368,
+    "d_log_unadj_over_adj": 0.0
+   },
+   {
+    "ticker": "LSEG",
+    "date": "2021-01-29",
+    "d_log_shares_nominal": 0.276,
+    "ret_local": 0.0077,
+    "d_log_unadj_over_adj": -0.0
+   },
+   {
+    "ticker": "MRVL",
+    "date": "2018-07-10",
+    "d_log_shares_nominal": 0.265,
+    "ret_local": 0.0295,
+    "d_log_unadj_over_adj": -0.0
+   },
+   {
+    "ticker": "HPE",
+    "date": "2017-09-01",
+    "d_log_shares_nominal": -0.254,
+    "ret_local": 0.0215,
+    "d_log_unadj_over_adj": -0.0
+   },
+   {
+    "ticker": "PWR",
+    "date": "2015-11-06",
+    "d_log_shares_nominal": -0.245,
+    "ret_local": 0.0058,
+    "d_log_unadj_over_adj": 0.0
+   },
+   {
+    "ticker": "VRSN",
+    "date": "2018-05-03",
+    "d_log_shares_nominal": 0.238,
+    "ret_local": 0.0165,
+    "d_log_unadj_over_adj": 0.0
+   },
+   {
+    "ticker": "COP",
+    "date": "2021-01-19",
+    "d_log_shares_nominal": 0.238,
+    "ret_local": 0.0195,
+    "d_log_unadj_over_adj": 0.0
+   },
+   {
+    "ticker": "RR/",
+    "date": "2020-11-12",
+    "d_log_shares_nominal": 0.237,
+    "ret_local": -0.0855,
+    "d_log_unadj_over_adj": -0.0
+   },
+   {
+    "ticker": "LSEG",
+    "date": "2014-09-26",
+    "d_log_shares_nominal": 0.237,
+    "ret_local": 0.0011,
+    "d_log_unadj_over_adj": -0.0
+   },
+   {
+    "ticker": "DLR",
+    "date": "2017-09-14",
+    "d_log_shares_nominal": 0.232,
+    "ret_local": 0.0027,
+    "d_log_unadj_over_adj": -0.0077
+   },
+   {
+    "ticker": "PLD",
+    "date": "2022-10-03",
+    "d_log_shares_nominal": 0.215,
+    "ret_local": 0.0272,
+    "d_log_unadj_over_adj": -0.0
+   },
+   {
+    "ticker": "DLR",
+    "date": "2020-03-16",
+    "d_log_shares_nominal": 0.21,
+    "ret_local": -0.0978,
+    "d_log_unadj_over_adj": -0.0078
+   },
+   {
+    "ticker": "SHEL",
+    "date": "2016-02-15",
+    "d_log_shares_nominal": 0.207,
+    "ret_local": 0.0108,
+    "d_log_unadj_over_adj": -0.0
+   },
+   {
+    "ticker": "ROP",
+    "date": "2015-01-15",
+    "d_log_shares_nominal": 0.198,
+    "ret_local": -0.0862,
+    "d_log_unadj_over_adj": -0.0
+   },
+   {
+    "ticker": "NESN",
+    "date": "2015-01-15",
+    "d_log_shares_nominal": 0.194,
+    "ret_local": -0.062,
+    "d_log_unadj_over_adj": -0.0
+   },
+   {
+    "ticker": "ZURN",
+    "date": "2015-01-15",
+    "d_log_shares_nominal": 0.194,
+    "ret_local": -0.0761,
+    "d_log_unadj_over_adj": 0.0
+   },
+   {
+    "ticker": "ABBN",
+    "date": "2015-01-15",
+    "d_log_shares_nominal": 0.194,
+    "ret_local": -0.0898,
+    "d_log_unadj_over_adj": -0.0
+   },
+   {
+    "ticker": "NOVN",
+    "date": "2015-01-15",
+    "d_log_shares_nominal": 0.194,
+    "ret_local": -0.0868,
+    "d_log_unadj_over_adj": 0.0
+   },
+   {
+    "ticker": "CFR",
+    "date": "2015-01-15",
+    "d_log_shares_nominal": 0.194,
+    "ret_local": -0.155,
+    "d_log_unadj_over_adj": -0.0
+   },
+   {
+    "ticker": "UBSG",
+    "date": "2015-01-15",
+    "d_log_shares_nominal": 0.194,
+    "ret_local": -0.1175,
+    "d_log_unadj_over_adj": 0.0001
+   },
+   {
+    "ticker": "COHR",
+    "date": "2022-07-06",
+    "d_log_shares_nominal": 0.192,
+    "ret_local": -0.0246,
+    "d_log_unadj_over_adj": 0.0
+   },
+   {
+    "ticker": "VST",
+    "date": "2018-04-09",
+    "d_log_shares_nominal": 0.191,
+    "ret_local": 0.0584,
+    "d_log_unadj_over_adj": 0.0
+   },
+   {
+    "ticker": "AI",
+    "date": "2026-06-09",
+    "d_log_shares_nominal": 0.191,
+    "ret_local": 0.0184,
+    "d_log_unadj_over_adj": 0.0
+   },
+   {
+    "ticker": "DIS",
+    "date": "2019-03-21",
+    "d_log_shares_nominal": 0.187,
+    "ret_local": -0.0121,
+    "d_log_unadj_over_adj": 0.0
+   },
+   {
+    "ticker": "MNST",
+    "date": "2015-06-15",
+    "d_log_shares_nominal": 0.182,
+    "ret_local": -0.0115,
+    "d_log_unadj_over_adj": 0.0
+   },
+   {
+    "ticker": "CRWD",
+    "date": "2020-05-26",
+    "d_log_shares_nominal": 0.178,
+    "ret_local": -0.0349,
+    "d_log_unadj_over_adj": 0.0
+   },
+   {
+    "ticker": "ABBV",
+    "date": "2020-05-12",
+    "d_log_shares_nominal": 0.177,
+    "ret_local": 0.0291,
+    "d_log_unadj_over_adj": -0.0
+   },
+   {
+    "ticker": "T",
+    "date": "2018-06-15",
+    "d_log_shares_nominal": 0.176,
+    "ret_local": 0.0194,
+    "d_log_unadj_over_adj": -0.0
+   },
+   {
+    "ticker": "SNPS",
+    "date": "2025-07-18",
+    "d_log_shares_nominal": 0.176,
+    "ret_local": -0.0072,
+    "d_log_unadj_over_adj": 0.0
+   },
+   {
+    "ticker": "COHR",
+    "date": "2026-02-04",
+    "d_log_shares_nominal": 0.176,
+    "ret_local": -0.0793,
+    "d_log_unadj_over_adj": 0.0
+   },
+   {
+    "ticker": "BE",
+    "date": "2026-02-09",
+    "d_log_shares_nominal": 0.171,
+    "ret_local": 0.0849,
+    "d_log_unadj_over_adj": 0.0
+   },
+   {
+    "ticker": "GM",
+    "date": "2024-01-30",
+    "d_log_shares_nominal": -0.171,
+    "ret_local": 0.078,
+    "d_log_unadj_over_adj": 0.0
+   }
+  ]
+ },
+ "A2_tg_over_nominal_gt1p5_ticker_years": {
+  "count": 23,
+  "top": [
+   {
+    "year": 2018,
+    "ticker": "DELL",
+    "median_tg_over_px": 2.716
+   },
+   {
+    "year": 2019,
+    "ticker": "DELL",
+    "median_tg_over_px": 2.424
+   },
+   {
+    "year": 2020,
+    "ticker": "DELL",
+    "median_tg_over_px": 2.199
+   },
+   {
+    "year": 2021,
+    "ticker": "DELL",
+    "median_tg_over_px": 2.145
+   },
+   {
+    "year": 2017,
+    "ticker": "DELL",
+    "median_tg_over_px": 1.946
+   },
+   {
+    "year": 2022,
+    "ticker": "APP",
+    "median_tg_over_px": 1.929
+   },
+   {
+    "year": 2019,
+    "ticker": "BE",
+    "median_tg_over_px": 1.866
+   },
+   {
+    "year": 2022,
+    "ticker": "UBER",
+    "median_tg_over_px": 1.787
+   },
+   {
+    "year": 2022,
+    "ticker": "DASH",
+    "median_tg_over_px": 1.696
+   },
+   {
+    "year": 2026,
+    "ticker": "ORCL",
+    "median_tg_over_px": 1.671
+   },
+   {
+    "year": 2023,
+    "ticker": "BE",
+    "median_tg_over_px": 1.622
+   },
+   {
+    "year": 2022,
+    "ticker": "NET",
+    "median_tg_over_px": 1.58
+   },
+   {
+    "year": 2026,
+    "ticker": "TEAM",
+    "median_tg_over_px": 1.577
+   },
+   {
+    "year": 2020,
+    "ticker": "VST",
+    "median_tg_over_px": 1.575
+   },
+   {
+    "year": 2022,
+    "ticker": "MRVL",
+    "median_tg_over_px": 1.561
+   },
+   {
+    "year": 2026,
+    "ticker": "RBLX",
+    "median_tg_over_px": 1.54
+   },
+   {
+    "year": 2022,
+    "ticker": "TEAM",
+    "median_tg_over_px": 1.537
+   },
+   {
+    "year": 2026,
+    "ticker": "NOW",
+    "median_tg_over_px": 1.532
+   },
+   {
+    "year": 2018,
+    "ticker": "MU",
+    "median_tg_over_px": 1.515
+   },
+   {
+    "year": 2022,
+    "ticker": "DDOG",
+    "median_tg_over_px": 1.509
+   },
+   {
+    "year": 2026,
+    "ticker": "VST",
+    "median_tg_over_px": 1.506
+   },
+   {
+    "year": 2026,
+    "ticker": "INTU",
+    "median_tg_over_px": 1.503
+   },
+   {
+    "year": 2022,
+    "ticker": "IFX",
+    "median_tg_over_px": 1.501
+   }
+  ]
+ },
+ "A3_zero_return_share_by_ccy": {
+  "CHF": {
+   "n": 7,
+   "median_zero_share": 0.323,
+   "max": 0.3258,
+   "max_ticker": "NESN"
+  },
+  "DKK": {
+   "n": 1,
+   "median_zero_share": 0.3224,
+   "max": 0.3224,
+   "max_ticker": "NOVOB"
+  },
+  "EUR": {
+   "n": 27,
+   "median_zero_share": 0.3068,
+   "max": 0.3112,
+   "max_ticker": "UMG"
+  },
+  "GBP": {
+   "n": 8,
+   "median_zero_share": 0.3136,
+   "max": 0.3207,
+   "max_ticker": "REL"
+  },
+  "JPY": {
+   "n": 14,
+   "median_zero_share": 0.3374,
+   "max": 0.3606,
+   "max_ticker": "9432"
+  },
+  "KRW": {
+   "n": 2,
+   "median_zero_share": 0.3536,
+   "max": 0.3544,
+   "max_ticker": "005930"
+  },
+  "USD": {
+   "n": 191,
+   "median_zero_share": 0.3142,
+   "max": 0.3444,
+   "max_ticker": "VRT"
+  }
+ }
+}

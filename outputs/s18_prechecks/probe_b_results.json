@@ -1,0 +1,622 @@
+{
+ "B7_listing_VRT_and_friends": {
+  "VRT": "2018-08-01",
+  "TKO": "2023-09-12",
+  "HWM": "2020-04-01",
+  "LIN": "2014-01-02",
+  "VST": "2016-10-05",
+  "285A": "2024-12-18",
+  "SNDK": "2025-02-24",
+  "GEV": "2024-04-02",
+  "ARM": "2023-09-14"
+ },
+ "B7_listing_sources": {
+  "px_last_inferred": 213,
+  "config_override": 37
+ },
+ "B7_lag_sanity_max_abs_diff_shifted": 0.0,
+ "B1_tilt_negative_equity": {
+  "rebalance_dates_with_neg_equity_in_top_vol_tercile": 78,
+  "name_rebalance_pairs": 157,
+  "names": {
+   "DELL": {
+    "n": 30,
+    "mean_zq": -4.3,
+    "min_zq": -5.95
+   },
+   "FICO": {
+    "n": 21,
+    "mean_zq": -2.18,
+    "min_zq": -3.38
+   },
+   "HCA": {
+    "n": 16,
+    "mean_zq": -3.43,
+    "min_zq": -4.99
+   },
+   "MSCI": {
+    "n": 15,
+    "mean_zq": -2.77,
+    "min_zq": -4.34
+   },
+   "RR/": {
+    "n": 11,
+    "mean_zq": -2.21,
+    "min_zq": -3.45
+   },
+   "PM": {
+    "n": 9,
+    "mean_zq": -2.12,
+    "min_zq": -3.28
+   },
+   "LNG": {
+    "n": 8,
+    "mean_zq": -3.73,
+    "min_zq": -5.45
+   },
+   "ABBV": {
+    "n": 7,
+    "mean_zq": -4.4,
+    "min_zq": -6.17
+   },
+   "SBUX": {
+    "n": 7,
+    "mean_zq": -1.27,
+    "min_zq": -1.83
+   },
+   "VRSN": {
+    "n": 5,
+    "mean_zq": -1.74,
+    "min_zq": -2.18
+   },
+   "ADSK": {
+    "n": 4,
+    "mean_zq": -4.89,
+    "min_zq": -6.08
+   },
+   "LYV": {
+    "n": 4,
+    "mean_zq": -2.4,
+    "min_zq": -2.82
+   },
+   "NRG": {
+    "n": 3,
+    "mean_zq": -2.41,
+    "min_zq": -3.92
+   },
+   "MSI": {
+    "n": 3,
+    "mean_zq": -3.63,
+    "min_zq": -3.98
+   },
+   "ORCL": {
+    "n": 3,
+    "mean_zq": -4.32,
+    "min_zq": -4.71
+   },
+   "BKNG": {
+    "n": 3,
+    "mean_zq": -2.76,
+    "min_zq": -3.61
+   },
+   "LOW": {
+    "n": 2,
+    "mean_zq": -5.19,
+    "min_zq": -5.23
+   },
+   "MO": {
+    "n": 2,
+    "mean_zq": -4.03,
+    "min_zq": -4.55
+   },
+   "STX": {
+    "n": 2,
+    "mean_zq": -0.95,
+    "min_zq": -1.25
+   },
+   "CL": {
+    "n": 1,
+    "mean_zq": -5.66,
+    "min_zq": -5.66
+   },
+   "ORLY": {
+    "n": 1,
+    "mean_zq": -4.19,
+    "min_zq": -4.19
+   }
+  },
+  "mean_score_shift_lam_sd_zq": -0.804,
+  "neg_equity_names_overall": [
+   "MCD",
+   "MSCI",
+   "PM",
+   "RBLX",
+   "RDDT",
+   "VRSN"
+  ]
+ },
+ "B2_execution_confidence": {
+  "raw_spread_top_bottom_decile": {
+   "min": 3.05,
+   "median": 3.44,
+   "max": 3.61,
+   "spread_scale": 0.2,
+   "share_spread_score_saturated_at_1": 1.0
+  },
+  "confidence": {
+   "min": 0.2,
+   "median": 0.707,
+   "max": 1.0,
+   "share_at_floor_0.2": 0.3402061855670103
+  },
+  "eta_effective": {
+   "min": 0.224,
+   "median": 0.42,
+   "max": 0.5
+  },
+  "ic_series": {
+   "n": 96,
+   "mean": 0.0174,
+   "std": 0.1549,
+   "lag1_autocorr": -0.087,
+   "lag2_autocorr": -0.122,
+   "corr_trailing6_mean_vs_next_ic": -0.17
+  }
+ },
+ "B3_turnover_two_way_per_rebalance": {
+  "n": 97,
+  "mean": 0.0566,
+  "median": 0.0579,
+  "p90": 0.0847,
+  "max": 0.15,
+  "share_gt_0.10": 0.030927835051546393,
+  "first_rebalance": 0.0359,
+  "active_share_mean": 0.1942
+ },
+ "B4_cov_branch": {
+  "pairwise_dates": 85,
+  "lw_dates": 10,
+  "pairwise": {
+   "n": 85,
+   "ex_ante_te_median": 0.0311,
+   "realized_te_median": 0.0319,
+   "ratio_realized_over_ex_ante_median": 0.964,
+   "cond_median": 1201007.0903645663,
+   "n_nan_cols_median": 11.0
+  },
+  "ledoit_wolf": {
+   "n": 10,
+   "ex_ante_te_median": 0.031,
+   "realized_te_median": 0.035,
+   "ratio_realized_over_ex_ante_median": 1.162,
+   "cond_median": 321.9143505558137,
+   "n_nan_cols_median": 0.0
+  },
+  "note": "local-currency returns used for the risk panel (FX leg omitted); optvol/scale-fix scaling omitted"
+ },
+ "B5_slope_modal_share_by_year": {
+  "2014": 1.0,
+  "2015": 0.968,
+  "2016": 0.968,
+  "2017": 0.928,
+  "2018": 0.832,
+  "2019": 0.784,
+  "2020": 0.656,
+  "2021": 0.424,
+  "2022": 0.304,
+  "2023": 0.104,
+  "2024": 0.032,
+  "2025": 0.008,
+  "2026": 0.004
+ },
+ "B5_coverage_indicator_ic_vs_target_by_year": {
+  "2015": {
+   "mean_ic": 0.0404,
+   "t": 1.93,
+   "n": 13
+  },
+  "2016": {
+   "mean_ic": -0.0584,
+   "t": -2.56,
+   "n": 12
+  },
+  "2017": {
+   "mean_ic": 0.0245,
+   "t": 0.8,
+   "n": 12
+  },
+  "2018": {
+   "mean_ic": 0.0177,
+   "t": 0.59,
+   "n": 13
+  },
+  "2019": {
+   "mean_ic": 0.0032,
+   "t": 0.1,
+   "n": 12
+  },
+  "2020": {
+   "mean_ic": 0.0057,
+   "t": 0.13,
+   "n": 13
+  },
+  "2021": {
+   "mean_ic": 0.0355,
+   "t": 0.88,
+   "n": 12
+  },
+  "2022": {
+   "mean_ic": 0.0133,
+   "t": 0.39,
+   "n": 12
+  },
+  "2023": {
+   "mean_ic": -0.0064,
+   "t": -0.21,
+   "n": 13
+  },
+  "2024": {
+   "mean_ic": -0.0064,
+   "t": -0.28,
+   "n": 12
+  },
+  "2025": {
+   "mean_ic": -0.0108,
+   "t": -0.46,
+   "n": 13
+  },
+  "2026": {
+   "mean_ic": 0.0042,
+   "t": 0.22,
+   "n": 7
+  }
+ },
+ "B5_slope_block_gain_share_by_model": {
+  "2018-11-23": {
+   "fwd_sales_slope_level": 0.0211,
+   "fwd_sales_slope_chg_63d": 0.018,
+   "nl_fslope_rev_confirm": 0.0243,
+   "nl_fslope_growth_confirm": 0.0146,
+   "tg_upside": 0.0099,
+   "idio_vol_63d": 0.104
+  },
+  "2019-02-20": {
+   "fwd_sales_slope_level": 0.0211,
+   "fwd_sales_slope_chg_63d": 0.0069,
+   "nl_fslope_rev_confirm": 0.0164,
+   "nl_fslope_growth_confirm": 0.0122,
+   "tg_upside": 0.0077,
+   "idio_vol_63d": 0.1435
+  },
+  "2019-05-20": {
+   "fwd_sales_slope_level": 0.0245,
+   "fwd_sales_slope_chg_63d": 0.016,
+   "nl_fslope_rev_confirm": 0.0312,
+   "nl_fslope_growth_confirm": 0.0168,
+   "tg_upside": 0.0111,
+   "idio_vol_63d": 0.0787
+  },
+  "2019-08-15": {
+   "fwd_sales_slope_level": 0.0091,
+   "fwd_sales_slope_chg_63d": 0.0058,
+   "nl_fslope_rev_confirm": 0.0188,
+   "nl_fslope_growth_confirm": 0.0186,
+   "tg_upside": 0.0083,
+   "idio_vol_63d": 0.1105
+  },
+  "2019-11-12": {
+   "fwd_sales_slope_level": 0.017,
+   "fwd_sales_slope_chg_63d": 0.0046,
+   "nl_fslope_rev_confirm": 0.0122,
+   "nl_fslope_growth_confirm": 0.0099,
+   "tg_upside": 0.007,
+   "idio_vol_63d": 0.1547
+  },
+  "2020-02-07": {
+   "fwd_sales_slope_level": 0.0351,
+   "fwd_sales_slope_chg_63d": 0.0136,
+   "nl_fslope_rev_confirm": 0.0217,
+   "nl_fslope_growth_confirm": 0.0202,
+   "tg_upside": 0.006,
+   "idio_vol_63d": 0.0934
+  },
+  "2020-05-06": {
+   "fwd_sales_slope_level": 0.0184,
+   "fwd_sales_slope_chg_63d": 0.0076,
+   "nl_fslope_rev_confirm": 0.0214,
+   "nl_fslope_growth_confirm": 0.0207,
+   "tg_upside": 0.0034,
+   "idio_vol_63d": 0.087
+  },
+  "2020-08-03": {
+   "fwd_sales_slope_level": 0.0208,
+   "fwd_sales_slope_chg_63d": 0.0068,
+   "nl_fslope_rev_confirm": 0.0136,
+   "nl_fslope_growth_confirm": 0.0214,
+   "tg_upside": 0.0049,
+   "idio_vol_63d": 0.1029
+  },
+  "2020-10-29": {
+   "fwd_sales_slope_level": 0.0133,
+   "fwd_sales_slope_chg_63d": 0.004,
+   "nl_fslope_rev_confirm": 0.0089,
+   "nl_fslope_growth_confirm": 0.0174,
+   "tg_upside": 0.002,
+   "idio_vol_63d": 0.0881
+  },
+  "2021-01-26": {
+   "fwd_sales_slope_level": 0.0051,
+   "fwd_sales_slope_chg_63d": 0.0024,
+   "nl_fslope_rev_confirm": 0.0045,
+   "nl_fslope_growth_confirm": 0.0063,
+   "tg_upside": 0.0043,
+   "idio_vol_63d": 0.3173
+  },
+  "2021-04-23": {
+   "fwd_sales_slope_level": 0.0128,
+   "fwd_sales_slope_chg_63d": 0.0034,
+   "nl_fslope_rev_confirm": 0.007,
+   "nl_fslope_growth_confirm": 0.0012,
+   "tg_upside": 0.011,
+   "idio_vol_63d": 0.4006
+  },
+  "2021-07-21": {
+   "fwd_sales_slope_level": 0.0128,
+   "fwd_sales_slope_chg_63d": 0.0034,
+   "nl_fslope_rev_confirm": 0.007,
+   "nl_fslope_growth_confirm": 0.0012,
+   "tg_upside": 0.011,
+   "idio_vol_63d": 0.4006
+  },
+  "2021-10-18": {
+   "fwd_sales_slope_level": 0.0167,
+   "fwd_sales_slope_chg_63d": 0.0055,
+   "nl_fslope_rev_confirm": 0.0078,
+   "nl_fslope_growth_confirm": 0.0173,
+   "tg_upside": 0.0109,
+   "idio_vol_63d": 0.166
+  },
+  "2022-01-13": {
+   "fwd_sales_slope_level": 0.0157,
+   "fwd_sales_slope_chg_63d": 0.0061,
+   "nl_fslope_rev_confirm": 0.0055,
+   "nl_fslope_growth_confirm": 0.0106,
+   "tg_upside": 0.0073,
+   "idio_vol_63d": 0.2839
+  },
+  "2022-04-12": {
+   "fwd_sales_slope_level": 0.0213,
+   "fwd_sales_slope_chg_63d": 0.0125,
+   "nl_fslope_rev_confirm": 0.0173,
+   "nl_fslope_growth_confirm": 0.017,
+   "tg_upside": 0.0105,
+   "idio_vol_63d": 0.1051
+  },
+  "2022-07-08": {
+   "fwd_sales_slope_level": 0.0213,
+   "fwd_sales_slope_chg_63d": 0.0125,
+   "nl_fslope_rev_confirm": 0.0173,
+   "nl_fslope_growth_confirm": 0.017,
+   "tg_upside": 0.0105,
+   "idio_vol_63d": 0.1051
+  },
+  "2022-10-05": {
+   "fwd_sales_slope_level": 0.0137,
+   "fwd_sales_slope_chg_63d": 0.0042,
+   "nl_fslope_rev_confirm": 0.0057,
+   "nl_fslope_growth_confirm": 0.0125,
+   "tg_upside": 0.0213,
+   "idio_vol_63d": 0.1861
+  },
+  "2023-01-02": {
+   "fwd_sales_slope_level": 0.02,
+   "fwd_sales_slope_chg_63d": 0.0056,
+   "nl_fslope_rev_confirm": 0.0074,
+   "nl_fslope_growth_confirm": 0.0102,
+   "tg_upside": 0.0258,
+   "idio_vol_63d": 0.1752
+  },
+  "2023-03-30": {
+   "fwd_sales_slope_level": 0.02,
+   "fwd_sales_slope_chg_63d": 0.0056,
+   "nl_fslope_rev_confirm": 0.0074,
+   "nl_fslope_growth_confirm": 0.0102,
+   "tg_upside": 0.0258,
+   "idio_vol_63d": 0.1752
+  },
+  "2023-06-27": {
+   "fwd_sales_slope_level": 0.0192,
+   "fwd_sales_slope_chg_63d": 0.0041,
+   "nl_fslope_rev_confirm": 0.0071,
+   "nl_fslope_growth_confirm": 0.0085,
+   "tg_upside": 0.0271,
+   "idio_vol_63d": 0.171
+  },
+  "2023-09-22": {
+   "fwd_sales_slope_level": 0.0136,
+   "fwd_sales_slope_chg_63d": 0.0036,
+   "nl_fslope_rev_confirm": 0.0101,
+   "nl_fslope_growth_confirm": 0.018,
+   "tg_upside": 0.038,
+   "idio_vol_63d": 0.198
+  },
+  "2023-12-20": {
+   "fwd_sales_slope_level": 0.0284,
+   "fwd_sales_slope_chg_63d": 0.0076,
+   "nl_fslope_rev_confirm": 0.01,
+   "nl_fslope_growth_confirm": 0.0207,
+   "tg_upside": 0.0303,
+   "idio_vol_63d": 0.1568
+  },
+  "2024-03-18": {
+   "fwd_sales_slope_level": 0.0284,
+   "fwd_sales_slope_chg_63d": 0.0076,
+   "nl_fslope_rev_confirm": 0.01,
+   "nl_fslope_growth_confirm": 0.0207,
+   "tg_upside": 0.0303,
+   "idio_vol_63d": 0.1568
+  },
+  "2024-06-13": {
+   "fwd_sales_slope_level": 0.0284,
+   "fwd_sales_slope_chg_63d": 0.0076,
+   "nl_fslope_rev_confirm": 0.01,
+   "nl_fslope_growth_confirm": 0.0207,
+   "tg_upside": 0.0303,
+   "idio_vol_63d": 0.1568
+  },
+  "2024-09-10": {
+   "fwd_sales_slope_level": 0.0284,
+   "fwd_sales_slope_chg_63d": 0.0076,
+   "nl_fslope_rev_confirm": 0.01,
+   "nl_fslope_growth_confirm": 0.0207,
+   "tg_upside": 0.0303,
+   "idio_vol_63d": 0.1568
+  },
+  "2024-12-06": {
+   "fwd_sales_slope_level": 0.0035,
+   "fwd_sales_slope_chg_63d": 0.0031,
+   "nl_fslope_rev_confirm": 0.0046,
+   "nl_fslope_growth_confirm": 0.0076,
+   "tg_upside": 0.0419,
+   "idio_vol_63d": 0.4381
+  },
+  "2025-03-05": {
+   "fwd_sales_slope_level": 0.0121,
+   "fwd_sales_slope_chg_63d": 0.0067,
+   "nl_fslope_rev_confirm": 0.0052,
+   "nl_fslope_growth_confirm": 0.0012,
+   "tg_upside": 0.0242,
+   "idio_vol_63d": 0.3746
+  },
+  "2025-06-02": {
+   "fwd_sales_slope_level": 0.0121,
+   "fwd_sales_slope_chg_63d": 0.0067,
+   "nl_fslope_rev_confirm": 0.0052,
+   "nl_fslope_growth_confirm": 0.0012,
+   "tg_upside": 0.0242,
+   "idio_vol_63d": 0.3746
+  },
+  "2025-08-28": {
+   "fwd_sales_slope_level": 0.0035,
+   "fwd_sales_slope_chg_63d": 0.0029,
+   "nl_fslope_rev_confirm": 0.0139,
+   "nl_fslope_growth_confirm": 0.0032,
+   "tg_upside": 0.0168,
+   "idio_vol_63d": 0.4064
+  },
+  "2025-11-25": {
+   "fwd_sales_slope_level": 0.0094,
+   "fwd_sales_slope_chg_63d": 0.0038,
+   "nl_fslope_rev_confirm": 0.0062,
+   "nl_fslope_growth_confirm": 0.0129,
+   "tg_upside": 0.0127,
+   "idio_vol_63d": 0.3555
+  },
+  "2026-02-20": {
+   "fwd_sales_slope_level": 0.0094,
+   "fwd_sales_slope_chg_63d": 0.0038,
+   "nl_fslope_rev_confirm": 0.0062,
+   "nl_fslope_growth_confirm": 0.0129,
+   "tg_upside": 0.0127,
+   "idio_vol_63d": 0.3555
+  },
+  "2026-05-20": {
+   "fwd_sales_slope_level": 0.0094,
+   "fwd_sales_slope_chg_63d": 0.0038,
+   "nl_fslope_rev_confirm": 0.0062,
+   "nl_fslope_growth_confirm": 0.0129,
+   "tg_upside": 0.0127,
+   "idio_vol_63d": 0.3555
+  },
+  "2026-08-17": {
+   "fwd_sales_slope_level": 0.0094,
+   "fwd_sales_slope_chg_63d": 0.0038,
+   "nl_fslope_rev_confirm": 0.0062,
+   "nl_fslope_growth_confirm": 0.0129,
+   "tg_upside": 0.0127,
+   "idio_vol_63d": 0.3555
+  }
+ },
+ "B5_slope_block_gain_summary": {
+  "slope4_sum_median": 0.0436,
+  "slope4_sum_by_model": {
+   "2018-11-23": 0.078,
+   "2019-02-20": 0.0566,
+   "2019-05-20": 0.0885,
+   "2019-08-15": 0.0523,
+   "2019-11-12": 0.0437,
+   "2020-02-07": 0.0906,
+   "2020-05-06": 0.0681,
+   "2020-08-03": 0.0626,
+   "2020-10-29": 0.0436,
+   "2021-01-26": 0.0183,
+   "2021-04-23": 0.0244,
+   "2021-07-21": 0.0244,
+   "2021-10-18": 0.0473,
+   "2022-01-13": 0.0379,
+   "2022-04-12": 0.0681,
+   "2022-07-08": 0.0681,
+   "2022-10-05": 0.0361,
+   "2023-01-02": 0.0432,
+   "2023-03-30": 0.0432,
+   "2023-06-27": 0.0389,
+   "2023-09-22": 0.0453,
+   "2023-12-20": 0.0667,
+   "2024-03-18": 0.0667,
+   "2024-06-13": 0.0667,
+   "2024-09-10": 0.0667,
+   "2024-12-06": 0.0188,
+   "2025-03-05": 0.0252,
+   "2025-06-02": 0.0252,
+   "2025-08-28": 0.0235,
+   "2025-11-25": 0.0323,
+   "2026-02-20": 0.0323,
+   "2026-05-20": 0.0323,
+   "2026-08-17": 0.0323
+  }
+ },
+ "B6_tg_upside_clip_rows_by_ticker": {
+  "APH": 3178,
+  "DELL": 728,
+  "BE": 199,
+  "APP": 111,
+  "NRG": 32,
+  "TEAM": 30,
+  "285A": 28,
+  "WMB": 25,
+  "UCG": 18,
+  "FCX": 18,
+  "DASH": 13,
+  "000660": 8
+ },
+ "B6_tg_upside_clip_rows_by_year_total": {
+  "2014": 244,
+  "2015": 310,
+  "2016": 276,
+  "2017": 260,
+  "2018": 266,
+  "2019": 581,
+  "2020": 512,
+  "2021": 484,
+  "2022": 355,
+  "2023": 336,
+  "2024": 294,
+  "2025": 261,
+  "2026": 231
+ },
+ "B6_DELL_tg_upside_z_by_year": {
+  "2014": -0.12,
+  "2015": -0.12,
+  "2016": -0.1,
+  "2017": -0.07,
+  "2018": -0.1,
+  "2019": 5.0,
+  "2020": 5.0,
+  "2021": 5.0,
+  "2022": 0.29,
+  "2023": -0.65,
+  "2024": 0.35,
+  "2025": 0.64,
+  "2026": -0.21
+ }
+}

@@ -8700,3 +8700,66 @@ metrics.json·experiment_manifest.json·e1_summary 등 **결과 기록은 커밋
 `outputs/s17_2_s0recert`(같은 빈티지 OFF 짝). 과거 사전점검 스크립트 중 삭제된 pkl 경로를 가리키는 것은 이미 은퇴한 절차라 수정하지
 않음(§S13.36 `s0_recert_s13_35` 선례).
 
+
+## S18 구조 리뷰 5차 + 성과 개선 후보 (2026-09-07, 읽기 전용 · production 무변경 · 인벤토리 472 불변)
+
+**지시**: 사용자 "펀드의 구조적 오류 가능성을 체크해주고, 수익률을 높일 수 있는 방안들을 면밀하게 고려해줘". 메인 단독(에이전트 0, 백테스트 0).
+정본 보고서 `outputs/reports/2026-09-07-structural-review-r5.md`, 감사 팩 `outputs/s18_prechecks/`(probe_a_raw·probe_b_pkl·probe_c_flat + 결과 JSON/CSV).
+방법 = 코드 렌즈(src 핵심 9파일 전량) + 데이터 프로브 3종(원시 워크북 09-04 14:50 빈티지 · 인증 S0′ pkl `s17_5_nominal_price`). §S17 비평가 미검정 3건을 먼저 검정.
+
+**기준선 상태(중요)**: 인증 S0′ 1.7633 은 09-03 15:51 빈티지 — 이 빈티지에서 **APH 의 FactSet TG/가격 = 2.33**(09-01·09-04 빈티지 1.16) 로 `tg_upside` z 가
+12년 내내 +5.0(3,178행) 이었다(s17_2 OFF 짝도 동일). 09-04 14:50 재생성 워크북 이후 production 런(09-07 12:36, `outputs/codex_causal_rank_65`) 은
+**IR 1.6106 / TE 3.65% / avg_ic 0.0166 / turnover 0.677 / AS 19.45% / 퇴화 11/33**(APH 1.166) — 09-04 12:41 런(같은 09-03 데이터, Index 09-04) 1.7643 과
+비교해 워크북 재생성만으로 **−0.154 포크**. → 새 빈티지에서 S0′ 재인증 없이는 1.7633 과의 arm 비교 무효(§S13.47). 동결 여부는 사용자 결정.
+
+**확정 결함(신규)**
+- **P1 (high)** TG(FactSet) vs 명목가(UNADJ) 기업행사 기저 불일치 3클래스: ① 빈티지 고유(APH, 09-03 만) — 로더 가드 [0.2, 5] 통과·무음; ② 자본변경형 스핀오프(블룸버그 Split 플래그, UNADJ 조정·TG 미조정): DELL/VMW 2021-11(TG/UN 2017~21 1.95~2.72, 패널 z +5 2019~21, 2020 액티브 +0.73%p), DHR/Fortive 2016(z +3.1/+2.6 2014~15), WDC·GE 부분; ③ 특별배당형(Abnormal 플래그, UNADJ 미조정·TG 조정): RTX 2020-04(UNADJ/PX_LAST 스텝 −0.528 → TG/UN 2014~19 0.63~0.69, z −3.2~−4.0), T/WBD 2022-04(−0.296 → z −1.9~−2.6 2014~21), MRK/OGN 소폭. **③ 은 §S17.3 명목가 flip 이 만든 부작용**(조정가 분모에서는 정합했음). 횡단면 z sd 0.81~0.89(2014~21). 처방: (A) 가드 강화(트레일링 252d 중앙 [0.6,1.7] + 직전 런 대비 |Δlog|>0.25 HOLD, 산출물 불변) (B) `tg_basis_events` 이벤트 재스케일 arm 또는 A′ EQY_SH_OUT (C) S0′ 재인증.
+- **P2 (high)** `apply_vol_quality_tilt` 가 음(−)자본 고ROE 종목(ABBV·ORCL·LOW·CL·MO·PM·HCA·MSCI·FICO·ADSK·DELL 등)을 최하 품질로 벌점: 인증 S0′ 97 리밸 중 78일, 157 종목-리밸 쌍, 점수 이동 평균 −0.80 sd(λ·sd·zq, zq −2~−6). §S17 M3 반박은 모델 채널 한정 — 틸트는 선형 곱이라 극단 z 전달(비평가 #1 확증). 처방: `vol_quality_tilt_negative_equity_mask`(BEST_ROE<0 ∧ EPS>0 → 품질 NaN → 셀 바이트 불변).
+- **P3 (medium)** 집행 신뢰도: spread leg 100% 포화(스프레드 3.05~3.61 vs scale 0.20), IC leg 무지속(lag-1 −0.087, 6회 평균→다음 −0.17), 신뢰도 바닥 0.2 가 34% 리밸일(eta 0.224 vs 0.50). 처방: G2-01 정적 집행을 Tier 1 로 승격(§S13.11 의 eta 상향 처치와 상이).
+- **P4 (medium, 데이터 한계)** Fwd_Sales_Slope 실커버리지 2018 17%·2020 34%·2021 58%·2023 90%(BEST_SALES_2FY 벤더 히스토리 종목별 2017~23 시작, 생성기 마스킹 정확 99.6%); 블록 gain 2018~20 모델 4.4~9.1%. 커버 지표 IC 비유의(2016 만 t −2.56). §S13.25 채택 근거는 사실상 2021+.
+- **P5 (medium, 설계 불일치)** Σ 추정 95 리밸 중 85 가 pairwise(무수축, cond 1.2e6), LW 10. 실현/ex-ante 0.96 vs 1.16 → 편향 없음(§S16.4 재확인) → 문서·가드만.
+- **P6 (medium-low)** 전신 히스토리: VRT 2018-08~2020-02 SPAC 셸(BEST_EPS/SALES 420행 상수, de-SPAC 주식수 ×3.8), LIN 2014-01~2018-10 BEST_* 1,262행 상수 → `listing_dates` VRT 2020-02-10·LIN 2018-10-31 오버라이드 후보(TKO/HWM 선례).
+- 반박·해소: 비평가 #2(커버리지 갭 CS-median 전 시트) — BEST_* 17시트·CUR_MKT_CAP·EQY_REC·NEWS 선행 갭 0셀, 벤치마크 영향 0, revision 시트 임퓨트는 중립(VRT 586·VST 222행); 비평가 #3(스핀오프) — 14건 PX_LAST 전부 조정(가짜 폭락 0). 금융주 정의 불가 펀더멘털 상수(GM 24종 등)는 chg 0·tsz→median 중립(§S13.6 일관).
+
+**개선 후보 순위**: 0 S0′ 재인증+가드(운영) → 1 P2 틸트 마스크(정확성) → 2 P1-B TG 기저 정규화(정확성) → 3 P3 정적 집행(실행, 프레임 사용자 비준) → 4 G4-01 63BD 라벨 → 5 G5-02 메가캡 수축 OFF → 6 P6 전신 오버라이드 → 7 P4 slope 타당성 arm. 종결 재확인: 비TG CS-median 확장·스핀오프 가격 조정·Σ 수축·eta 상향·음자본 모델 채널.
+**상태**: arm 0건 실행, 사전등록 0건(전부 사용자 결정 대기), production variant·PipelineConfig·인벤토리 472 무변경, 커밋 미실시.
+
+## S18.1 사전등록 — 구조 리뷰 5차 수정 4종 (가드 1 + arm 3) — 2026-09-07 (측정 전 단독 커밋)
+
+**지시**: 사용자 "APH 목표주가 결함을 수정해줘. 그리고 목표주가와 명목가의 기업행사 기저 불일치 문제도 해결해줘. 틸트 음자본 마스크, TG기저 이벤트
+정규화, 정적 집행 모두 해결해줘". 규약대로 **플래그 default-OFF + 바이트 패리티 단위테스트 → 사전등록 커밋 → 체인 측정 → flip 은 사용자 결정(§8)**.
+
+**새 기준선 S0′ (동결)**: `outputs/s18_s0recert` = 09-07 12:36 production 스케줄 런 사본(config = production variant 와 동일 확인, `--no-cache`) —
+**IR 1.6106 / TE 3.65% / active 5.88% / avg_ic 0.0166 / turnover 0.677 / AS 19.45% / β 1.054 / 퇴화 11/33 / ECOS 194·fallback 0**, 빈티지 쌍
+(워크북 2026-09-04 05:50:52Z = 14:50 KST, Index 2026-09-07 02:04:19Z), APH TG/가격 1.166. **1.7633(09-03 빈티지, APH 2.33) 은퇴·혼용 금지.**
+G0 = arm 의 `data_vintage` 쌍 동일(체인은 오늘 같은 쌍에서 실행; Index 는 익일 11:04 갱신).
+
+**① APH 결함 = 데이터(09-03 빈티지 고유) — 코드 수정은 가드(산출물 불변, 즉시 적용)**
+- `data_loader._check_target_price_unit_ratio`: `TG_PX_RATIO_SUSPECT_BAND = (0.6, 1.7)` 밖 종목을 `data_quality.currency.tg_px_ratio_suspect` 로 발행+경고
+  (09-03 빈티지였다면 APH 2.33 발화; 현 빈티지 최대 ORCL 1.597 → 0건).
+- `run_variant.annotate_tg_ratio_jump`: 같은 out_dir 의 직전 metrics.json 대비 종목별 |Δlog(252d 중앙 TG/가격)| > 0.25 → `tg_px_ratio_jump_vs_prev`.
+- `validate_portfolio_bundles.evaluate_production`: 체크 7종째 `tg_px_ratio_ok`(suspect 비어 있고 jump 비어 있음; fail-closed — 입력 부재 None → HOLD).
+  테스트 픽스처에 clean 입력 추가. 패널·가중치 무변경.
+
+**② arm 3종 (variants = production + 정확히 1 파라미터, `tests/test_s18_fixes.py` 핀)**
+| arm | 파라미터(단일, 스윕 없음) | 트랙 | 기전 게이트 | 판정 |
+|---|---|---|---|---|
+| `s18_1_tilt_negative_equity` | `vol_quality_tilt_negative_equity_mask: true` — `apply_vol_quality_tilt(data=)` 가 BEST_ROE<0 ∧ BEST_EPS>0 셀의 품질 입력을 NaN → 셀 바이트 불변(기존 계약). data 없이 ON 이면 ValueError | 정확성(§S18 P2) | §S18 B1 음자본 21종(DELL·FICO·HCA·MSCI·RR/·PM·LNG·ABBV·SBUX·VRSN·ADSK·LYV·NRG·MSI·ORCL·BKNG·LOW·MO·STX·CL·ORLY)의 실행 전 예측 arm−base 변경 셀 ≥ 100 ∧ 평균 > +0.10 | G0∧E2∧기전 → flip 후보(ΔIR 관측) |
+| `s18_2_tg_basis_events` | `tg_basis_events: {RTX:{2020-04-03:1.696}, T:{2022-04-11:1.324}, DELL:{2021-11-02:0.506}, DHR:{2016-07-05:0.758}}` — 이벤트 전 TG 행 × factor(sellside `apply_tg_basis_events` + growth-tilt TG 레그 동일 계약) | 정확성(§S18 P1) | 패널 tg_upside z 연중앙: RTX 2014~19 ≥ −1.5 · T 2014~21 ≥ −1.0 · DELL 2019~21 ≤ 3.0 · DHR 2014~15 ≤ 1.5 ∧ 2014~21 횡단면 z sd 연중앙 ≥ 0.90 | G0∧E2∧기전 |
+| `s18_3_static_execution` | `static_execution_enabled: true` — 신뢰도 ≡ 1(eta 0.50·밴드 0.003 고정), `compute_signal_confidence` 미호출; export expected_rebalance 동일 분기 | 집행(§S18 P3) | 회전율 비 ∈ [1.00, 1.25] ∧ avg_ic·퇴화 비트 동일(순수 집행 노브) | G0∧E2∧기전∧**no-harm**(ΔIR > −0.36·3분할 전부 음 아님) → flip 후보; formal E1 병기, 프레임 최종은 사용자 |
+
+**factor 도출(`outputs/s18_prechecks/tg_basis_candidates.csv`, 258 스텝 후보 전수 스캔)**: 등재 규칙 = 알려진 스핀오프/분배 이벤트 ∧ 벤더 스텝
+(분배형 `Δlog(UNADJ/PX_LAST)` < −0.03, 자본변경형 `Δlog(CUR_MKT_CAP/UNADJ)` < −0.08) ∧ 180d 전후 TG/UN 중앙값 점프 |log| ≥ 0.10 이고 스텝 크기의
+≥ 60%. factor = 스텝 역수(exp(−Δlog))로 고정: RTX(−0.528 → 1.696; 관측 점프 +0.650) · T(−0.281 → 1.324; +0.224) · DELL(−0.681 → 0.506; −0.641) ·
+DHR 2016(−0.277 → 0.758; −0.227). **기각**: DHR 2023(점프 −0.081 < 0.10) · MRK/OGN(−0.048 스텝, 점프 소) · KLAC 2014 특별배당(점프 0.107 = 스텝의 49%) ·
+ADP/MC/APD(점프 부호·크기 불일치) · GM 2024-01(−0.171 스텝은 ASR 자사주 매입 = 실제 주식수, 조정 아님) · HPE·SIE·PFE·NOVN·HON·CMCSA·6758·IBM
+(FactSet 이미 정합, 점프 없음) · WDC·GE(listing 오버라이드로 이벤트 전 히스토리 마스킹). 유럽 연 1회 배당의 −0.03~−0.07 스텝은 전부 정상 배당(등재 없음).
+잔여(문서화): DELL·DHR 이벤트 전 `cash_conversion_z` 주식수(mktcap/UNADJ) 과대는 이번 범위 밖.
+
+**E0 (파리티, 완료 — 전체 스위트 PASS)**: `tests/test_s18_fixes.py`(20: 기본값 OFF·가드 밴드·점프·HOLD fail-closed·TG 이벤트 같은 객체/이벤트 전 행만·
+sellside OFF 동일/ON tg_* 만 변경·음자본 서명·틸트 OFF 동일(data 유무)·ON 해당 셀 불변+타 셀 변경+data 부재 ValueError·정적 집행 신뢰도 미호출·
+신뢰도≡1 과 동일·variant = production+1·판정 프레임), `tests/test_eval_s18_arm.py`(4), `tests/test_validate_portfolio_bundles.py` 픽스처.
+
+**E2 do-no-harm**: TE ≤ 4.5% · AS ±3%p · turnover ≤ 1.25× · fallback 0 · 퇴화 병기. **판정** `scripts/eval_s18_arm.py --arm <label>` → `outputs/<label>/e1_summary.json`.
+**실행**: `outputs/s18_run_chain.bat`(1→2→3 순차, `run_variant_task.ps1`, `--no-cache`, VINTAGE_PRE/POST). **인벤토리**: s18_3 만 성과 arm(+1 → 473);
+s18_1·s18_2 는 정확성 트랙 비계수(§S15/§S16.1/§S17.3 선례). flip 은 결과 절 뒤 사용자 결정(§8 체크리스트).

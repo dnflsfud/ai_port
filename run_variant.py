@@ -59,6 +59,7 @@ import hashlib
 import io
 import json
 import logging
+import math
 import pickle
 import sys
 import time
@@ -557,6 +558,14 @@ def run(manifest_path: Path, no_cache: bool = False) -> int:
             result, n_dates=getattr(cfg, "alpha_attribution_n_dates", 8)
         )
 
+    # §S18.1 (decision log §S18 P1): cross-vintage target-price basis check —
+    # compare this run's per-ticker median(TG / local price) with the previous
+    # metrics.json in the same out_dir (the daily production run overwrites it,
+    # so "previous" is the prior vintage). A 252d median jumping by more than
+    # TG_PX_RATIO_JUMP_MAX in log terms is a vendor basis change (APH 1.16 ->
+    # 2.33 on the 2026-09-03 workbook), never analyst drift. Diagnostic only.
+    annotate_tg_ratio_jump(out_dir, getattr(result, "data_quality", None))
+
     # Persist artifacts
     with (out_dir / "metrics.json").open("w", encoding="utf-8") as fh:
         json.dump(
@@ -600,6 +609,42 @@ def run(manifest_path: Path, no_cache: bool = False) -> int:
     _summarize(metrics, baseline_path)
     print(f"[run_variant] done in {time.time() - t0:.1f}s — artifacts: {out_dir}")
     return 0
+
+
+TG_PX_RATIO_JUMP_MAX = 0.25  # |log(now / previous)| of the 252d median TG/price
+
+
+def annotate_tg_ratio_jump(out_dir: Path, data_quality) -> dict:
+    """Write ``data_quality['currency']['tg_px_ratio_jump_vs_prev']`` from the
+    previous metrics.json in ``out_dir`` (empty when there is no previous run,
+    no ratios, or no jump). Returns the jump dict. Never raises."""
+    if not isinstance(data_quality, dict) or not isinstance(data_quality.get("currency"), dict):
+        return {}
+    currency = data_quality["currency"]
+    now = currency.get("tg_px_ratio_median") or {}
+    prev_path = Path(out_dir) / "metrics.json"
+    prev = {}
+    try:
+        if prev_path.exists():
+            prev_doc = json.loads(prev_path.read_text(encoding="utf-8"))
+            prev = (prev_doc.get("data_quality", {}).get("currency", {})
+                    .get("tg_px_ratio_median") or {})
+    except (OSError, ValueError, AttributeError):
+        prev = {}
+    jumps = {}
+    for ticker, value in now.items():
+        old = prev.get(ticker)
+        try:
+            new_f, old_f = float(value), float(old)
+        except (TypeError, ValueError):
+            continue
+        if new_f > 0 and old_f > 0 and abs(math.log(new_f / old_f)) > TG_PX_RATIO_JUMP_MAX:
+            jumps[str(ticker)] = {"previous": old_f, "now": new_f}
+    currency["tg_px_ratio_jump_vs_prev"] = jumps
+    if jumps:
+        print(f"[run_variant] WARNING: target-price/price basis jump vs previous run "
+              f"(|dlog| > {TG_PX_RATIO_JUMP_MAX}) for {sorted(jumps)} — vendor basis change?")
+    return jumps
 
 
 def main() -> int:

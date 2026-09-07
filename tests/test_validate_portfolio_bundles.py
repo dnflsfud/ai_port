@@ -38,7 +38,9 @@ def _write_bundle(
         "information_ratio": 1.0, "tracking_error": 0.03, "realized_beta": 1.0,
         "avg_annual_turnover": 1.0, "max_drawdown": -0.2, "avg_ic": 0.04,
         "sub_period_ir": {"P1_ir": 1.0, "P2_ir": 1.0, "P3_ir": 1.0},
-        "data_quality": {"tail_ffill_days": 1, "max_tail_ffill_days": 10},
+        "data_quality": {"tail_ffill_days": 1, "max_tail_ffill_days": 10,
+                         # §S18.1 target-price basis guard input (clean vintage)
+                         "currency": {"tg_px_ratio_suspect": {}}},
     }
     meta = {
         "schema_version": 1, "id": name, "display_name": name,

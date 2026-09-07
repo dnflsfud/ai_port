@@ -351,6 +351,27 @@ def _mask_pre_coverage(sheet: pd.DataFrame, data, name: str) -> pd.DataFrame:
     return sheet.where(covered)
 
 
+def apply_tg_basis_events(tg: pd.DataFrame, events) -> pd.DataFrame:
+    """§S18.1 (decision log §S18 P1): put the FactSet target-price history on
+    the nominal-price basis across preregistered corporate-action events.
+
+    ``events`` is ``{ticker: {"YYYY-MM-DD": factor}}``; every TG row dated
+    strictly BEFORE the event date is multiplied by ``factor``. Empty/None
+    returns the input object (byte parity). Tickers absent from ``tg`` are
+    ignored; the input frame is never mutated.
+    """
+    if not events:
+        return tg
+    out = tg.copy()
+    for ticker, dated in events.items():
+        if ticker not in out.columns or not dated:
+            continue
+        for event_date, factor in dated.items():
+            before = out.index < pd.Timestamp(event_date)
+            out.loc[before, ticker] = out.loc[before, ticker] * float(factor)
+    return out
+
+
 def _local_price_panel(data: UniverseData, config) -> pd.DataFrame:
     """Local-currency price denominator for per-share vendor estimates.
 
@@ -412,6 +433,8 @@ def build_sellside_features(data: UniverseData, config=None) -> Dict[str, pd.Dat
         tg = data.get_sheet("Factset_TG_Price")
         if coverage_fix:
             tg = _mask_pre_coverage(tg, data, "Factset_TG_Price")
+        # §S18.1: pre-event TG rows onto the nominal-price basis (empty -> same object).
+        tg = apply_tg_basis_events(tg, getattr(config, "tg_basis_events", None))
         # Vendor target prices are quoted in each listing's local currency.
         # UniverseData.prices is USD-normalized for return/momentum features,
         # so target-price upside must retain the matching local price unit.

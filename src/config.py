@@ -595,6 +595,16 @@ class PipelineConfig:
     # pre-committed §S13.31 value — do not sweep.
     vol_quality_tilt_enabled: bool = False
     vol_quality_tilt_lambda: float = 0.25
+    # §S18.1 (2026-09-07, decision log §S18 P2): Bloomberg BEST_ROE is large
+    # and NEGATIVE for negative-book-equity companies with positive earnings
+    # (buyback-heavy names: ABBV, ORCL, LOW, CL, MO, PM, HCA, MSCI, FICO,
+    # ADSK, DELL). The tilt multiplies that z linearly, so in the certified
+    # S0' it moved their scores by -0.80 sd on 78/97 rebalances (157 pairs)
+    # — "worst quality" for the opposite of distress. ON masks the quality
+    # input where BEST_ROE < 0 and BEST_EPS > 0 to NaN, which the function
+    # contract already treats as "missing quality -> cell byte-unchanged".
+    # Needs the loaded UniverseData (raw sheets); OFF is byte-identical.
+    vol_quality_tilt_negative_equity_mask: bool = False
     # Opt-in admission of the standard rolling market-model residual-vol
     # feature into the core model. The feature itself is always built so it is
     # available to diagnostics and non-core modes.
@@ -1069,6 +1079,26 @@ class PipelineConfig:
     nominal_price_source: Optional[str] = None
 
     # ------------------------------------------------------------------
+    # S18.1 (2026-09-07) — FactSet target-price basis events (decision log
+    # §S18 P1). FactSet adjusts the TG history for some spin-offs and not
+    # others, and Bloomberg classifies the same events differently:
+    #   * capital-change spin-offs (adjustmentSplit; PX_LAST_UNADJ scaled,
+    #     TG NOT scaled): DELL/VMW 2021-11, DHR/Fortive 2016-07 ->
+    #     TG/nominal 2.3 -> tg_upside pinned at +5 z for years;
+    #   * distribution-type spin-offs (adjustmentAbnormal; UNADJ NOT scaled,
+    #     TG scaled by FactSet): RTX/Carrier-Otis 2020-04, T/WBD 2022-04 ->
+    #     TG/nominal 0.66 -> tg_upside at -3.5 z for years (a side effect of
+    #     the §S17.3 nominal denominator).
+    # {ticker: {"YYYY-MM-DD": factor}} multiplies the TG rows dated BEFORE
+    # the event so the pre-event TG sits on the same basis as the nominal
+    # price. Factors are data-derived from the vendor adjustment step
+    # (exp(-dlog(UNADJ/PX_LAST)) for distribution-type, exp(dlog(mktcap/
+    # UNADJ)) for capital-change) and preregistered per event; empty
+    # (default) leaves every code path byte-identical.
+    # ------------------------------------------------------------------
+    tg_basis_events: Dict[str, Dict[str, float]] = field(default_factory=dict)
+
+    # ------------------------------------------------------------------
     # S15.1 (2026-08-27) — sign-stable monotone constraints on the margin
     # axis (decision log §S15.1 preregistration). The map is FIXED to the
     # §S15 precheck output (oper_margin_chg_63d/252d, op_leverage_63d,
@@ -1361,6 +1391,15 @@ class PipelineConfig:
     # at 1.00 (confidence collapses to the IC term). Default keeps current
     # behaviour; recalibrate only via a variant override after ablation.
     confidence_spread_scale: float = 0.20
+    # §S18.1 (2026-09-07, decision log §S18 P3): the spread term above is
+    # saturated on every rebalance (spread 3.0-3.6 vs scale 0.20) and the
+    # remaining trailing-IC term has no persistence (IC lag-1 autocorr -0.09,
+    # 6-rebalance mean vs next IC -0.17), so confidence sits at its 0.20 floor
+    # on 34% of rebalances and eta drops from 0.50 to 0.22 at random dates.
+    # ON fixes confidence = 1.0: eta = partial_rebalance_eta, band =
+    # no_trade_band, on every rebalance. Predictions/IC are untouched
+    # (pure execution knob, §S13.11 design); OFF is byte-identical.
+    static_execution_enabled: bool = False
 
     # Projection-failure execution fallback (2026-07-02 structure review).
     # When the MVO hard-constraint projection is infeasible, which book to
