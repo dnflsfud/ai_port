@@ -325,11 +325,11 @@
     "winner_trim_quantile": 0.8
   },
   "data_vintage": {
-    "data_mtime_utc": "2026-09-03T06:51:22Z",
+    "data_mtime_utc": "2026-09-04T05:50:52Z",
     "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
-    "data_size_bytes": 366330270,
-    "fx_mtime_utc": "2026-09-04T02:20:24Z",
-    "fx_size_bytes": 92109728,
+    "data_size_bytes": 366433443,
+    "fx_mtime_utc": "2026-09-07T02:04:19Z",
+    "fx_size_bytes": 92162926,
     "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx"
   },
   "extra": {
@@ -339,6 +339,6 @@
     "variant_label": "codex_causal_rank_65"
   },
   "git_dirty": false,
-  "git_hash": "527e62a6eb287bf44a8512e46108c3640ff6c5b1",
-  "timestamp_utc": "2026-09-04T03:34:58Z"
+  "git_hash": "e2f8c3b0b10a175ba9566d1bc1d759a5e9b14785",
+  "timestamp_utc": "2026-09-07T03:27:42Z"
 }
