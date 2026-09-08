@@ -255,14 +255,32 @@ def test_static_execution_equals_confidence_one(monkeypatch):
 
 
 # --------------------------------------------------------------------------- 5. variants / 판정 프레임
+# §8 flips adopted AFTER the S18.1 arms were frozen (historical arm variants are
+# never edited; the pin compares against the pre-flip production state).
+S18_PRODUCTION_FLIPS = {
+    "vol_quality_tilt_negative_equity_mask",  # S18.2 flip (2026-09-08)
+}
+
+
 @pytest.mark.parametrize("label", sorted(ARMS))
 def test_arm_variant_is_production_plus_exactly_one_parameter(label):
     prod = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/codex_causal_rank_65.yaml", encoding="utf-8"))["overrides"]
+    prod_pre_flip = {k: v for k, v in prod.items() if k not in S18_PRODUCTION_FLIPS}
     arm = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/{label}.yaml", encoding="utf-8"))
     assert arm["out_dir"] == f"outputs/{label}"
-    extra = {k: v for k, v in arm["overrides"].items() if k not in prod}
+    extra = {k: v for k, v in arm["overrides"].items() if k not in prod_pre_flip}
     assert extra == ARMS[label]
-    assert {k: v for k, v in arm["overrides"].items() if k in prod} == prod
+    assert {k: v for k, v in arm["overrides"].items() if k in prod_pre_flip} == prod_pre_flip
+
+
+def test_production_variant_pins_s18_2_flip_state():
+    """§8/S18.2: 사용자 승인 flip(2026-09-08) 이후의 production 상태 핀.
+
+    production variant 는 vol_quality_tilt_negative_equity_mask=True(새 S0′ 1.6373,
+    1.6106 은퇴)여야 하고, PipelineConfig 기본값은 여전히 False(§8 default-OFF 유지)."""
+    prod = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/codex_causal_rank_65.yaml", encoding="utf-8"))["overrides"]
+    assert prod.get("vol_quality_tilt_negative_equity_mask") is True
+    assert PipelineConfig().vol_quality_tilt_negative_equity_mask is False
 
 
 def test_eval_s18_frames():

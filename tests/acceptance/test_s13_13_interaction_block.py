@@ -80,6 +80,7 @@ def test_arm_variant_differs_from_production_by_exactly_the_flag():
         "name_risk_share_cap_enabled",  # S16.7 promotion (2026-09-01)
         "s17_coverage_gap_fix_enabled",  # S17.1-A promotion (2026-09-03)
         "nominal_price_source",  # S17.3 promotion (2026-09-04)
+        "vol_quality_tilt_negative_equity_mask",  # S18.2 promotion (2026-09-08)
     }
     assert not [
         k for k in prod

@@ -8791,3 +8791,24 @@ G0 3/3 PASS(빈티지 쌍 워크북 2026-09-04 05:50:52Z / Index 2026-09-07 02:0
 아니라 평균 거래 속도를 올리는 처치였음(eta 중앙 0.42→0.50, 바닥 0.22 해소). 재도전은 `partial_rebalance_eta` 를 낮춰(예 0.42, 기존 실효 중앙)
 회전율 중립으로 맞춘 새 사전등록이 필요(§S13.11 eta 상향 손실 경험과 정합; 이번 arm 은 그 예외가 아님을 확인).
 **인벤토리**: arm 3 +1 → 473 (arm 1·2 비계수). **flip 은 사용자 결정** — §8 순서: arm 1 flip → S0′ 재검증 런 → arm 2 flip → 재검증(한 번에 1개).
+
+### Production flip — §S18.1 arm 1 `vol_quality_tilt_negative_equity_mask` 채택 (2026-09-08, 사용자 승인) — §S18.2
+
+사용자 지시("arm 1,2 flip해주고 arm3은 재도전 해줘")로 production variant 에 `vol_quality_tilt_negative_equity_mask: true` 1줄 flip.
+근거는 **정확성**(§S18 P2, §S16.1·§S17.1-A·§S17.3 선례): 음자본 고ROE 21종에 대한 틸트 벌점이 결함(BEST_ROE<0 을 "junk" 로 오독)이었고,
+기전 완전 작동(변경 셀 12,370·평균 +0.27sd, 그 외 셀 바이트 불변) + E2 do-no-harm 4/4 PASS. ΔIR +0.027(3분할 +0.007/−0.014/+0.076)·
+avg_ic +6.6% 는 관측이며 채택 근거가 아님.
+
+**새 기준선**: **S0′ = IR 1.6373 / TE 3.67% / active 6.01% / β 1.056 / avg_ic 0.017723 / turnover 0.685 / Pictet AS 19.62% / MaxDD −32.3% /
+퇴화 11/33 / ECOS 194·fallback 0** (`outputs/s18_1_tilt_negative_equity`, 빈티지 쌍 워크북 2026-09-04 14:50:52 / Index 2026-09-07 11:04:19).
+production variant 는 이제 §S18.1 arm 1 런 config 와 동일하고 빈티지 쌍도 09-08 현재 불변(재확인)이므로 파이프라인 비트 결정성(§S13.47 E0)
+에 따라 이 런이 새 기준선 산출물이다(§S17.3 선례). **1.6106 은퇴 — arm 비교에 혼용 금지.** 라이브 영향: 다음 스케줄 런부터 production
+경로가 마스크 ON 으로 실행된다(음자본 21종의 틸트 벌점 해소 → 리밸런싱 타깃은 다음 리밸일부터 반영).
+
+**§8 체크리스트 이행(같은 커밋)**: ① variant 파라미터+주석 ② acceptance `post_arm_production_flags` 5개 파일 + `test_residual_sleeve.py`
+allowlist 갱신 ③ production 핀 테스트 신설(`test_production_variant_pins_s18_2_flip_state`)·역사적 arm variant 핀을 "= flip 전 production"
+기준으로 갱신(`S18_PRODUCTION_FLIPS`)·§S17.3 역사적 arm 핀도 flip 이후 플래그 제외로 갱신 ④ 전체 스위트 **802 PASS** ⑤ 본 절. **DSR 비계수**(정확성 트랙, 인벤토리 473 불변).
+롤백 = variant 1줄 삭제(default-OFF 바이트 동일 복원, `tests/test_s18_fixes.py` 인증). `PipelineConfig` 기본값은 False 유지.
+
+**이번 시퀀스(사용자 결정)**: arm 1 flip(본 절) → arm 2 flip + 재검증 런(`s18_4_flip2_recert`) → arm 3 회전율 중립 재도전
+(`s18_5_static_execution_eta042`, 새 사전등록) — 아래 절들.

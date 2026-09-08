@@ -247,3 +247,22 @@ overrides:
   # is retired for arm comparisons. Rollback = delete this line (default-
   # None, byte-identical restore certified by unit tests).
   nominal_price_source: PX_LAST_UNADJ
+
+  # S18.2 (2026-09-08): vol-quality tilt negative-equity mask (decision log
+  # S18 P2 / S18.1 arm 1). apply_vol_quality_tilt penalised 21 negative-
+  # book-equity, profitable names (ABBV, ORCL, LOW, CL, MO, PM, HCA, MSCI,
+  # FICO, ADSK, DELL, ...) because a negative BEST_ROE reads as "junk"
+  # inside the top vol tercile (157 penalised pairs / 78 rebalances, -0.80
+  # sd). ON sets the quality input to NaN where BEST_ROE < 0 and
+  # BEST_EPS > 0 so those cells stay byte-unchanged; every other cell is
+  # untouched. Adopted by user on correctness grounds -- decision log S18.2
+  # Production flip. Certified same-vintage measurement
+  # (outputs/s18_1_tilt_negative_equity, workbook 2026-09-04 14:50:52 /
+  # Index 2026-09-07 11:04:19): mechanism PASS (12,370 changed cells on the
+  # 21 names, mean +0.27 sd), E2 PASS (TE 3.67%, turnover 1.012x, AS
+  # +0.17pp, ECOS 194 / fallback 0, degenerate 11/33 identical), IR 1.6106
+  # -> 1.6373 (dIR +0.027 noise band, observation only), avg_ic +6.6%. This
+  # makes IR 1.6373 the S0' baseline; 1.6106 is retired for arm comparisons.
+  # Rollback = delete this line (default-OFF, byte-identical restore
+  # certified by tests/test_s18_fixes.py).
+  vol_quality_tilt_negative_equity_mask: true

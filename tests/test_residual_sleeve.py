@@ -85,6 +85,7 @@ def test_default_off_and_variant_has_one_semantic_delta():
             "name_risk_share_cap_enabled",  # S16.7 promotion (2026-09-01)
             "s17_coverage_gap_fix_enabled",  # S17.1-A promotion (2026-09-03)
             "nominal_price_source",  # S17.3 promotion (2026-09-04)
+            "vol_quality_tilt_negative_equity_mask",  # S18.2 promotion (2026-09-08)
             "rank_eval_at",  # S13.47 promotion (2026-08-20): [5, 10] -> [20]
             "expected_universe_size",  # S14.2 (2026-08-25): 200 -> 250
         ):

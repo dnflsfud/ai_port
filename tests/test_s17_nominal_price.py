@@ -290,7 +290,10 @@ def test_arm_variant_equals_production_after_the_s17_3_flip():
     with open("variants/s17_5_nominal_price.yaml", encoding="utf-8") as fh:
         arm = yaml.safe_load(fh)["overrides"]
     assert arm["nominal_price_source"] == "PX_LAST_UNADJ"
-    assert arm == prod
+    # Flags promoted AFTER this historical arm was frozen (S18.2 flip 2026-09-08 ...)
+    # are excluded; the arm itself is never edited.
+    post_s17_3_flips = {"vol_quality_tilt_negative_equity_mask"}
+    assert arm == {k: v for k, v in prod.items() if k not in post_s17_3_flips}
 
 
 def test_production_variant_pins_s17_3_flip_state():
