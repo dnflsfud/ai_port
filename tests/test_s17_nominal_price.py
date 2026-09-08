@@ -292,7 +292,7 @@ def test_arm_variant_equals_production_after_the_s17_3_flip():
     assert arm["nominal_price_source"] == "PX_LAST_UNADJ"
     # Flags promoted AFTER this historical arm was frozen (S18.2 flip 2026-09-08 ...)
     # are excluded; the arm itself is never edited.
-    post_s17_3_flips = {"vol_quality_tilt_negative_equity_mask"}
+    post_s17_3_flips = {"vol_quality_tilt_negative_equity_mask", "tg_basis_events"}
     assert arm == {k: v for k, v in prod.items() if k not in post_s17_3_flips}
 
 

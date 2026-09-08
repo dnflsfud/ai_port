@@ -8812,3 +8812,20 @@ allowlist 갱신 ③ production 핀 테스트 신설(`test_production_variant_pi
 
 **이번 시퀀스(사용자 결정)**: arm 1 flip(본 절) → arm 2 flip + 재검증 런(`s18_4_flip2_recert`) → arm 3 회전율 중립 재도전
 (`s18_5_static_execution_eta042`, 새 사전등록) — 아래 절들.
+
+### Production flip — §S18.1 arm 2 `tg_basis_events` 채택 (2026-09-08, 사용자 승인) — §S18.2 (2)
+
+같은 지시로 production variant 에 `tg_basis_events: {RTX 2020-04-03 ×1.696, T 2022-04-11 ×1.324, DELL 2021-11-02 ×0.506, DHR 2016-07-05 ×0.758}`
+flip(arm 1 위에 한 번에 1개). 근거는 **정확성**(§S18 P1 — FactSet TG 와 PX_LAST_UNADJ 의 기업행사 기저 불일치, §S17.3 명목가 flip 의 부작용
+해소): 기전 완전 작동(RTX 2014~19 z −3.95→+0.14 · T −2.43→−0.35 · DELL +5.0→+0.25 · DHR +3.49→+0.15 · 횡단면 z sd 0.925→0.940, 그 외 셀
+바이트 불변) + E2 4/4 PASS(TE 3.61%·turnover 1.050×·AS +0.03%p·fallback 0). ΔIR +0.096(3분할 −0.069/+0.094/+0.234)·avg_ic +3.1%·퇴화 11→12
+는 관측이며 채택 근거가 아님.
+
+**재검증 런(§8 "flip → S0 재검증")**: 두 flip 을 함께 담은 config 는 아직 실행된 적이 없으므로 `variants/s18_4_flip2_recert.yaml`(production
+overrides 바이트 사본, `tests/test_s18_fixes.py::test_s18_4_recert_variant_is_a_byte_copy_of_production` 핀)을 같은 빈티지 쌍(워크북
+2026-09-04 14:50:52 / Index 2026-09-07 11:04:19)에서 실행해 **새 S0′** 로 삼는다 — 수치는 아래 "§S18.2 결과" 절. 그 전까지 arm 비교 기준은
+1.6373(arm 1 단독) 이며, 재인증 후 1.6373·1.6106 모두 은퇴. 재검증 비계수(재인증).
+
+**§8 체크리스트 이행(같은 커밋)**: ① variant 파라미터(5줄)+주석 ② acceptance allowlist 5파일 + `test_residual_sleeve.py` ③ S18 핀
+(`S18_PRODUCTION_FLIPS` += tg_basis_events, 상태 핀에 tg_basis_events == 사전등록 factor 검증)·§S17.3 역사적 arm 핀 ④ 전체 스위트 **803 PASS** ⑤ 본 절. **DSR 비계수**(정확성 트랙, 인벤토리 473 불변). 롤백 = variant 5줄 삭제(default-{} 바이트 동일 복원,
+단위테스트 인증). `PipelineConfig` 기본값은 {} 유지. 잔여(문서화, 범위 밖): DELL·DHR 이벤트 전 `cash_conversion_z` 주식수 과대.

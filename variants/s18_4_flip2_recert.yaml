@@ -1,15 +1,13 @@
-label: codex_causal_rank_65
-display_name: Causal Rank 250
-portfolio_role: production
+label: s18_4_flip2_recert
+display_name: S18.2 S0-recert (arm 1 + arm 2 flips)
+portfolio_role: diagnostic
 description: >
-  Fixed-250 causal production portfolio. Uses date-grouped LightGBM rank_xendcg,
-  purged/embargoed validation, and a one-trading-day execution signal lag.
-  The legacy label/output path is retained for automation compatibility; the
-  universe is the validated 250-name Universe_Meta set (decision log §S14.2).
-  The adopted four-feature forward-sales-slope block is enabled per S13.25;
-  benchmark, overlays, optimizer and transaction-cost assumptions remain pinned
-  to the canonical iter15_65tkr_reb21_vtg portfolio design.
-out_dir: outputs/codex_causal_rank_65
+  Byte-for-byte copy of the production config (variants/codex_causal_rank_65.yaml
+  after the two S18.2 flips: vol_quality_tilt_negative_equity_mask + tg_basis_events)
+  run on the unchanged 2026-09-04 workbook / 2026-09-07 Index.xlsx vintage pair.
+  Re-certifies the S0' baseline with both flips (decision log S18.2 result);
+  not counted in the DSR inventory (re-certification).
+out_dir: outputs/s18_4_flip2_recert
 tuning_mode: production
 overrides:
   # Causal ranking model. These are the only intentional signal-path changes.

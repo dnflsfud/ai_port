@@ -259,6 +259,7 @@ def test_static_execution_equals_confidence_one(monkeypatch):
 # never edited; the pin compares against the pre-flip production state).
 S18_PRODUCTION_FLIPS = {
     "vol_quality_tilt_negative_equity_mask",  # S18.2 flip (2026-09-08)
+    "tg_basis_events",  # S18.2 flip (2026-09-08)
 }
 
 
@@ -281,6 +282,17 @@ def test_production_variant_pins_s18_2_flip_state():
     prod = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/codex_causal_rank_65.yaml", encoding="utf-8"))["overrides"]
     assert prod.get("vol_quality_tilt_negative_equity_mask") is True
     assert PipelineConfig().vol_quality_tilt_negative_equity_mask is False
+    assert prod.get("tg_basis_events") == ARMS["s18_2_tg_basis_events"]["tg_basis_events"]
+    assert PipelineConfig().tg_basis_events == {}
+
+
+def test_s18_4_recert_variant_is_a_byte_copy_of_production():
+    """§S18.2 재검증 런: overrides 가 production 과 동일(두 flip 포함), out_dir 만 다름."""
+    prod = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/codex_causal_rank_65.yaml", encoding="utf-8"))
+    rec = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/s18_4_flip2_recert.yaml", encoding="utf-8"))
+    assert rec["overrides"] == prod["overrides"]
+    assert rec["out_dir"] == "outputs/s18_4_flip2_recert"
+    assert rec["tuning_mode"] == "production" and rec["portfolio_role"] == "diagnostic"
 
 
 def test_eval_s18_frames():
