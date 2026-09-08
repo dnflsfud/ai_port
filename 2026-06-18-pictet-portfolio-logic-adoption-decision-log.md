@@ -8829,3 +8829,25 @@ overrides 바이트 사본, `tests/test_s18_fixes.py::test_s18_4_recert_variant_
 **§8 체크리스트 이행(같은 커밋)**: ① variant 파라미터(5줄)+주석 ② acceptance allowlist 5파일 + `test_residual_sleeve.py` ③ S18 핀
 (`S18_PRODUCTION_FLIPS` += tg_basis_events, 상태 핀에 tg_basis_events == 사전등록 factor 검증)·§S17.3 역사적 arm 핀 ④ 전체 스위트 **803 PASS** ⑤ 본 절. **DSR 비계수**(정확성 트랙, 인벤토리 473 불변). 롤백 = variant 5줄 삭제(default-{} 바이트 동일 복원,
 단위테스트 인증). `PipelineConfig` 기본값은 {} 유지. 잔여(문서화, 범위 밖): DELL·DHR 이벤트 전 `cash_conversion_z` 주식수 과대.
+
+## S18.3 사전등록 — arm 3 회전율 중립 재도전 `s18_5_static_execution_eta042` — 2026-09-08 (측정 전 단독 커밋)
+
+**지시**: 사용자 "arm3은 재도전 해줘". §S18.1 결과 절의 재도전 처방(정적 집행 + `partial_rebalance_eta` 를 base 의 실효 중앙 0.42 로 낮춰
+회전율 중립)을 그대로 단일 사전등록한다 — **스윕 없음**. 정적 집행 자체(신뢰도 ≡ 1, `compute_signal_confidence` 미호출)는 §S18.1 arm 3 과 동일.
+
+**variant** `variants/s18_5_static_execution_eta042.yaml` = 현 production(두 §S18.2 flip 포함) + `static_execution_enabled: true` +
+`partial_rebalance_eta: 0.42`(0.50 대체). `tests/test_s18_fixes.py::test_reattempt_variant_is_current_production_plus_the_preregistered_delta`
+가 정확히 이 2개 델타만 존재함을 핀. **base** = `outputs/s18_4_flip2_recert`(두 flip 재인증 S0′ — 같은 체인에서 직전에 실행, 같은 빈티지 쌍).
+
+**판정 프레임(집행 트랙, `scripts/eval_s18_arm.py --arm s18_5_static_execution_eta042`, 자동으로 base = s18_4_flip2_recert)**:
+- G0: `data_vintage` 쌍 동일 ∧ avg_ic 비트 동일 ∧ 퇴화 동일(순수 집행 노브 확인).
+- 기전(신설 `mechanism_static_neutral`): **회전율 비 ∈ [0.85, 1.15]**(TURNOVER_NEUTRAL_BAND) ∧ G0 알파 동일 — "무작위 감속 제거" 효과를 평균
+  거래 속도 상승과 분리하는 것이 이 arm 의 목적이므로, §S18.1 arm 3 의 1.28× 는 이 밴드에서 자동 FAIL(단위테스트 핀). 밴드 폭 ±15% 근거:
+  정적 0.42 = 동적 eta 의 중앙값이므로 바닥(0.22) 리밸 34% 에서는 빨라지고 상단(0.50) 리밸에서는 느려져 순효과는 소폭 ↑ 예상(선형 외삽
+  1.28×0.84 ≈ 1.08); AS ±3%p 와 같은 급의 관용 밴드.
+- E2 do-no-harm: TE ≤ 4.5% · AS ±3%p · turnover ≤ 1.25× · fallback 0.
+- no-harm: ΔIR > −0.36 ∧ 3분할 전부 음 아님. **flip 후보 = G0 ∧ E2 ∧ 기전 ∧ no-harm**; formal E1(ΔIR > +0.36 ∧ 3분할 부호 일관) 병기.
+  집행 트랙이므로 최종 프레임(E1 요구 여부)은 §S18.1 과 같이 사용자 결정.
+
+**실행**: `outputs/s18_2_run_chain.bat`(s18_4 → s18_5 순차, `run_variant_task.ps1`, `--no-cache`, VINTAGE_PRE/POST), 전원 AC 연결 상태에서
+schtasks 일회성 기동. **인벤토리**: 성과 arm +1 → 474 (측정 결과 절에서 반영; s18_4 는 재인증 비계수). 결과는 아래 "§S18.2 결과·§S18.3 결과".

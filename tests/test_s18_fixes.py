@@ -31,6 +31,11 @@ ARMS = {
     }},
     "s18_3_static_execution": {"static_execution_enabled": True},
 }
+# §S18.3 (2026-09-08) turnover-neutral re-attempt of arm 3 — measured against the
+# two-flip production (S18.2); exactly these two overrides differ from it.
+REATTEMPT_ARMS = {
+    "s18_5_static_execution_eta042": {"static_execution_enabled": True, "partial_rebalance_eta": 0.42},
+}
 
 
 # --------------------------------------------------------------------------- 공통 스텁
@@ -295,10 +300,21 @@ def test_s18_4_recert_variant_is_a_byte_copy_of_production():
     assert rec["tuning_mode"] == "production" and rec["portfolio_role"] == "diagnostic"
 
 
+@pytest.mark.parametrize("label", sorted(REATTEMPT_ARMS))
+def test_reattempt_variant_is_current_production_plus_the_preregistered_delta(label):
+    prod = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/codex_causal_rank_65.yaml", encoding="utf-8"))["overrides"]
+    arm = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/{label}.yaml", encoding="utf-8"))
+    assert arm["out_dir"] == f"outputs/{label}"
+    delta = {k: v for k, v in arm["overrides"].items() if prod.get(k, object()) != v}
+    assert delta == REATTEMPT_ARMS[label]
+    assert set(arm["overrides"]) - set(prod) == {"static_execution_enabled"}
+    assert prod["partial_rebalance_eta"] == 0.50 and PipelineConfig().static_execution_enabled is False
+
+
 def test_eval_s18_frames():
     from scripts.eval_s18_arm import BASE, FRAMES, NEG_EQUITY_NAMES
 
-    assert set(FRAMES) == set(ARMS)
+    assert set(FRAMES) == set(ARMS) | set(REATTEMPT_ARMS)
     assert BASE == "s18_s0recert"
     assert FRAMES["s18_1_tilt_negative_equity"]["frame"] == "correctness"
     assert FRAMES["s18_2_tg_basis_events"]["frame"] == "correctness"

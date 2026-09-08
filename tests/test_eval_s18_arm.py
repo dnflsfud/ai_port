@@ -6,14 +6,19 @@ import numpy as np
 import pandas as pd
 
 from scripts.eval_s18_arm import (
-    BASE, FRAMES, NEG_EQUITY_NAMES, TG_BASIS_GATES, Z_SD_MIN,
-    mechanism_static, mechanism_tg_basis, mechanism_tilt,
+    BASE, FRAMES, NEG_EQUITY_NAMES, TG_BASIS_GATES, TURNOVER_NEUTRAL_BAND, Z_SD_MIN,
+    mechanism_static, mechanism_static_neutral, mechanism_tg_basis, mechanism_tilt,
 )
 
 
 def test_frames_and_base():
-    assert set(FRAMES) == {"s18_1_tilt_negative_equity", "s18_2_tg_basis_events", "s18_3_static_execution"}
+    assert set(FRAMES) == {"s18_1_tilt_negative_equity", "s18_2_tg_basis_events", "s18_3_static_execution",
+                           "s18_5_static_execution_eta042"}
     assert BASE == "s18_s0recert"
+    # §S18.3 re-attempt is judged against the two-flip re-certification, not the S18.1 base.
+    assert FRAMES["s18_5_static_execution_eta042"]["base"] == "s18_4_flip2_recert"
+    assert FRAMES["s18_5_static_execution_eta042"]["mechanism"] == "static_neutral"
+    assert TURNOVER_NEUTRAL_BAND == (0.85, 1.15)
     assert FRAMES["s18_3_static_execution"]["alpha_identical"] is True
     assert all(v["turnover_max"] == 1.25 for v in FRAMES.values())
     assert set(TG_BASIS_GATES) == {"RTX", "T", "DELL", "DHR"} and Z_SD_MIN == 0.90
@@ -66,3 +71,12 @@ def test_mechanism_static_execution_bounds():
     assert mechanism_static(0.98, g0_ok)["pass"] is False      # execution-only change must not trade less
     assert mechanism_static(1.30, g0_ok)["pass"] is False
     assert mechanism_static(1.10, {"avg_ic_bit_identical": False, "degenerate_equal": True})["pass"] is False
+
+
+def test_mechanism_static_neutral_bounds():
+    g0_ok = {"avg_ic_bit_identical": True, "degenerate_equal": True}
+    assert mechanism_static_neutral(1.00, g0_ok)["pass"] is True
+    assert mechanism_static_neutral(0.90, g0_ok)["pass"] is True      # neutral: trading less is allowed
+    assert mechanism_static_neutral(0.80, g0_ok)["pass"] is False
+    assert mechanism_static_neutral(1.28, g0_ok)["pass"] is False     # the S18.1 arm-3 outcome fails here
+    assert mechanism_static_neutral(1.00, {"avg_ic_bit_identical": False, "degenerate_equal": True})["pass"] is False

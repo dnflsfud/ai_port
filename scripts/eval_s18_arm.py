@@ -15,6 +15,9 @@
             DELL 2019~21 ≤ 3.0, DHR 2014~15 ≤ 1.5, 그리고 2014~21 횡단면 z 표준편차
             연중앙값 ≥ 0.90 (base 값 병기);
     s18_3 — 회전율 비 ∈ [1.00, 1.25] 이고 avg_ic·퇴화 비트 동일.
+  §S18.3 재도전(2026-09-08) s18_5_static_execution_eta042 — base = outputs/s18_4_flip2_recert
+    (두 flip 재인증 S0′), 기전 = 회전율 중립 비 ∈ TURNOVER_NEUTRAL_BAND [0.85, 1.15] 이고
+    avg_ic·퇴화 비트 동일; 나머지 판정 프레임(집행: G0∧E2∧기전∧no-harm, formal E1 병기)은 동일.
 출력: outputs/<label>/e1_summary.json
 """
 
@@ -41,7 +44,12 @@ FRAMES = {
     "s18_1_tilt_negative_equity": {"frame": "correctness", "turnover_max": 1.25, "alpha_identical": False},
     "s18_2_tg_basis_events": {"frame": "correctness", "turnover_max": 1.25, "alpha_identical": False},
     "s18_3_static_execution": {"frame": "execution", "turnover_max": 1.25, "alpha_identical": True},
+    # §S18.3 (2026-09-08) turnover-neutral re-attempt; base = the S18.2 two-flip re-certification.
+    "s18_5_static_execution_eta042": {"frame": "execution", "turnover_max": 1.25, "alpha_identical": True,
+                                      "base": "s18_4_flip2_recert", "mechanism": "static_neutral",
+                                      "preregistration": "decision log §S18.3 (2026-09-08)"},
 }
+TURNOVER_NEUTRAL_BAND = (0.85, 1.15)
 # §S18 B1 (outputs/s18_prechecks/probe_b_results.json): negative-equity names that
 # received the tilt penalty inside the top vol tercile on the certified S0'.
 NEG_EQUITY_NAMES = [
@@ -112,13 +120,19 @@ def mechanism_static(turnover_ratio: float, g0: dict) -> dict:
             "pass": bool(1.0 <= turnover_ratio <= 1.25 and g0["avg_ic_bit_identical"] and g0["degenerate_equal"])}
 
 
+def mechanism_static_neutral(turnover_ratio: float, g0: dict, band=TURNOVER_NEUTRAL_BAND) -> dict:
+    lo, hi = band
+    return {"turnover_ratio": round(turnover_ratio, 4), "neutral_band": [lo, hi],
+            "pass": bool(lo <= turnover_ratio <= hi and g0["avg_ic_bit_identical"] and g0["degenerate_equal"])}
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--arm", required=True, choices=sorted(FRAMES))
     ap.add_argument("--base", default=None)
     args = ap.parse_args()
     spec = FRAMES[args.arm]
-    base_dir = Path(args.base) if args.base else AI_PORT / "outputs" / BASE
+    base_dir = Path(args.base) if args.base else AI_PORT / "outputs" / spec.get("base", BASE)
     arm_dir = AI_PORT / "outputs" / args.arm
 
     base_doc = json.load(open(base_dir / "metrics.json", encoding="utf-8"))
@@ -154,6 +168,8 @@ def main() -> None:
         mechanism = mechanism_tilt(base_r, arm_r)
     elif args.arm == "s18_2_tg_basis_events":
         mechanism = mechanism_tg_basis(base_r, arm_r)
+    elif spec.get("mechanism") == "static_neutral":
+        mechanism = mechanism_static_neutral(turnover_ratio, g0)
     else:
         mechanism = mechanism_static(turnover_ratio, g0)
 
@@ -170,7 +186,8 @@ def main() -> None:
 
     out = {
         "arm": args.arm, "frame": spec["frame"], "adoption_basis": basis,
-        "preregistration": "decision log §S18.1 (2026-09-07)",
+        "preregistration": spec.get("preregistration", "decision log §S18.1 (2026-09-07)"),
+        "base_dir": str(base_dir),
         "vintage": {"base_pkl_mtime": _kst(base_dir / "backtest_result.pkl"),
                     "arm_pkl_mtime": _kst(arm_dir / "backtest_result.pkl"),
                     "base_data_vintage": base_doc.get("data_vintage"),
