@@ -379,3 +379,95 @@ def test_missing_essential_sheet_is_diagnostic_only_without_expected_size(monkey
         "Factset_TG_Price"
     ]
     assert list(data.tickers) == ["AAA", "BBB"]
+
+
+# ---------------------------------------------------------------------------
+# 영업일 캘린더 (감사 2026-09-09 Medium-2, default-OFF).
+#
+# price_v4 가 모든 시트를 일력(주말+휴일)으로 reindex+ffill 하고 align_dates 는
+# 주말만 제거하므로, 미 휴일 119행이 production 캘린더에 남는다(US 종목 수익률
+# 0 · 비US 는 실제 이동). ON 이면 raw 단계에서 BusinessDays 시트의 거래일만
+# 남기고 Daily_Returns 를 남은 PX_LAST 행에서 재계산한다(휴일을 가로지르는
+# 비US 이동은 다음 거래일에 복리로 합산 -- 유실 0).
+# ---------------------------------------------------------------------------
+
+def _holiday_workbook():
+    # Thu 07-02, Fri 07-03 (US holiday: AAA ffilled, BBB moves), Sat, Sun, Mon 07-06
+    dates = pd.to_datetime(
+        ["2026-07-02", "2026-07-03", "2026-07-04", "2026-07-05", "2026-07-06"]
+    )
+    px = pd.DataFrame(
+        {"AAA": [100.0, 100.0, 100.0, 100.0, 102.0],
+         "BBB": [100.0, 101.0, 101.0, 101.0, 103.0]},
+        index=dates,
+    )
+    raw = {
+        "Universe_Meta": pd.DataFrame(
+            {"Ticker": ["AAA", "BBB"], "Name": ["Alpha", "Beta"]},
+            index=["AAA US Equity", "BBB US Equity"],
+        ),
+        "BusinessDays": pd.DataFrame(
+            index=pd.Index(pd.to_datetime(["2026-07-02", "2026-07-06"]), name="BusinessDay")
+        ),
+        "PX_LAST": px,
+        "Daily_Returns": px.pct_change(fill_method=None),
+        "BEST_EPS": pd.DataFrame(1.0, index=dates, columns=["AAA", "BBB"]),
+    }
+    return raw
+
+
+def test_business_day_calendar_flag_default_off():
+    from src.config import PipelineConfig
+    assert PipelineConfig().business_day_calendar_enabled is False
+
+
+def test_restrict_to_business_days_drops_holidays_and_compounds_returns():
+    from src.data_loader import restrict_to_business_days
+
+    raw = _holiday_workbook()
+    out, diag = restrict_to_business_days(raw)
+
+    kept = list(out["PX_LAST"].index.strftime("%Y-%m-%d"))
+    assert kept == ["2026-07-02", "2026-07-06"]
+    assert list(out["BEST_EPS"].index) == list(out["PX_LAST"].index)
+    ret = out["Daily_Returns"]
+    assert bool(np.isnan(ret["AAA"].iloc[0]))
+    assert ret["AAA"].iloc[1] == pytest.approx(0.02)
+    assert ret["BBB"].iloc[1] == pytest.approx(0.03)   # 휴일 이동이 복리로 합산
+    assert out["Universe_Meta"].equals(raw["Universe_Meta"])
+    assert diag["business_days"] == 2
+    assert diag["rows_dropped_by_sheet"]["PX_LAST"] == 3
+    # 입력은 변경되지 않는다
+    assert len(raw["PX_LAST"]) == 5
+
+
+def test_restrict_to_business_days_requires_business_days_sheet():
+    from src.data_loader import restrict_to_business_days
+
+    raw = _holiday_workbook()
+    del raw["BusinessDays"]
+    with pytest.raises(ValueError, match="BusinessDays"):
+        restrict_to_business_days(raw)
+
+
+def test_universedata_business_day_calendar_off_is_parity_and_on_restricts(monkeypatch):
+    from src.config import PipelineConfig
+    from src.data_loader import UniverseData
+
+    raw = _holiday_workbook()
+    for sheet in _OBS_ESSENTIAL - {"PX_LAST", "Daily_Returns", "BEST_EPS"}:
+        raw[sheet] = pd.DataFrame(1.0, index=raw["PX_LAST"].index, columns=["AAA", "BBB"])
+    monkeypatch.setattr(
+        "src.data_loader.load_all_sheets",
+        lambda _path: {k: v.copy() for k, v in raw.items()},
+    )
+    off = UniverseData("unused.xlsx", config=PipelineConfig(fx_source_path="missing.xlsx"))
+    on = UniverseData(
+        "unused.xlsx",
+        config=PipelineConfig(fx_source_path="missing.xlsx", business_day_calendar_enabled=True),
+    )
+    assert list(off.dates.strftime("%Y-%m-%d")) == ["2026-07-02", "2026-07-03", "2026-07-06"]
+    assert "business_day_calendar" not in off.data_quality
+    assert list(on.dates.strftime("%Y-%m-%d")) == ["2026-07-02", "2026-07-06"]
+    assert on.data_quality["business_day_calendar"]["business_days"] == 2
+    assert on.get_sheet("Daily_Returns")["BBB"].iloc[1] == pytest.approx(0.03)

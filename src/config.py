@@ -214,6 +214,21 @@ class PipelineConfig:
     # extended span. Move the sheet out of CALENDAR_EXEMPT_SHEETS first.
     calendar_exempt_sheets_enabled: bool = False
 
+    # Business-day calendar (data audit 2026-09-09 Medium-2, default-OFF).
+    # price_v4 reindexes every workbook sheet onto a DAILY calendar (weekends
+    # and US holidays forward-filled) and align_dates drops weekends only, so
+    # 119 US-holiday weekdays sit in the production calendar (3,282 rows vs
+    # 3,187 BusinessDays): US names carry a zero return on those rows while
+    # non-US names move, and the 21-row rebalance cadence / rolling windows
+    # count them as trading days. ON restricts every dated raw sheet to the
+    # BusinessDays sheet (SPX trading days) BEFORE listing inference and
+    # preprocessing, and recomputes Daily_Returns from the kept PX_LAST rows
+    # so a non-US move across a US holiday is compounded into the next kept
+    # row (nothing is lost). It changes the calendar -- targets, panel and
+    # rebalance dates -- so flipping it is a §8 production decision after an
+    # S0' re-certification. OFF (default) leaves the raw dict untouched.
+    business_day_calendar_enabled: bool = False
+
     # Sector active-risk soft penalty (§S11.5 candidate, default-OFF).
     # Convex proxy for the report-only guardrail (top-sector share of the
     # Euler-decomposed active TE, which is a non-DCP ratio): penalise

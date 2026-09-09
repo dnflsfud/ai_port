@@ -1324,7 +1324,18 @@
         "NRG": 1.3749675314829246,
         "ENEL": 1.071249762411914,
         "WELL": 1.1045606919837163
-      }
+      },
+      "tg_px_ratio_suspect": {
+        "RR/": 0.011076319770769508,
+        "AZN": 0.011608948858767551,
+        "SHEL": 0.011531126132714826,
+        "HSBA": 0.010215402701623548,
+        "RIO": 0.010455105551490696,
+        "LSEG": 0.014025135076777122,
+        "ULVR": 0.011348916119746885,
+        "REL": 0.014097663090212043
+      },
+      "tg_px_ratio_jump_vs_prev": {}
     },
     "fx": {
       "required_currencies": [
@@ -1422,13 +1433,13 @@
     "ECOS": 194
   },
   "optimizer_solver_fallback_rate": 0.0,
-  "elapsed_sec": 1345.0,
+  "elapsed_sec": 1132.1,
   "data_vintage": {
     "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
     "data_mtime_utc": "2026-09-04T05:50:52Z",
     "data_size_bytes": 366433443,
     "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
-    "fx_mtime_utc": "2026-09-07T02:04:19Z",
-    "fx_size_bytes": 92162926
+    "fx_mtime_utc": "2026-09-09T02:09:12Z",
+    "fx_size_bytes": 92206629
   }
 }

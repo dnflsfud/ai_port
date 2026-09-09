@@ -299,8 +299,10 @@
     "sp500_benchmark_enabled": true,
     "sp500_factor_ticker": "SPX",
     "standard_idio_vol_feature_enabled": false,
+    "static_execution_enabled": false,
     "symmetric_rank_loss": "huber",
     "symmetric_rank_metric": "l2",
+    "tg_basis_events": {},
     "trailing_ic_window": 6,
     "train_cutoff_date": null,
     "train_window": 1260,
@@ -315,6 +317,7 @@
     "vol_exposure_cap_excess": 0.05,
     "vol_quality_tilt_enabled": false,
     "vol_quality_tilt_lambda": 0.25,
+    "vol_quality_tilt_negative_equity_mask": false,
     "vol_quality_tilt_vol_feature": "idio_vol_63d",
     "volume_features_enabled": false,
     "vtg_accel_threshold": 0.5,
@@ -329,8 +332,8 @@
     "data_mtime_utc": "2026-09-04T05:50:52Z",
     "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
     "data_size_bytes": 366433443,
-    "fx_mtime_utc": "2026-09-07T02:04:19Z",
-    "fx_size_bytes": 92162926,
+    "fx_mtime_utc": "2026-09-09T02:09:12Z",
+    "fx_size_bytes": 92206629,
     "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx"
   },
   "extra": {
@@ -340,6 +343,6 @@
     "variant_label": "iter15_65tkr_reb21_vtg"
   },
   "git_dirty": false,
-  "git_hash": "e2f8c3b0b10a175ba9566d1bc1d759a5e9b14785",
-  "timestamp_utc": "2026-09-07T02:53:46Z"
+  "git_hash": "cad00c9efe320cb51c8b688124090433a915586b",
+  "timestamp_utc": "2026-09-09T02:50:10Z"
 }

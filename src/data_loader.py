@@ -338,6 +338,75 @@ def load_all_sheets(data_path: str) -> Dict[str, pd.DataFrame]:
     return raw
 
 
+def restrict_to_business_days(
+    raw: Dict[str, pd.DataFrame],
+) -> Tuple[Dict[str, pd.DataFrame], Dict]:
+    """Keep only BusinessDays trading days in every dated raw sheet.
+
+    Data audit 2026-09-09 (Medium-2): the workbook sheets sit on a daily
+    calendar (price_v4 reindex + ffill), so US-holiday weekdays survive the
+    weekend filter in align_dates. This runs on the RAW dict, before listing
+    inference and preprocessing. Daily_Returns is recomputed from the kept
+    PX_LAST rows so a non-US move across a dropped day is compounded into
+    the next kept row rather than lost. Meta/summary sheets are untouched.
+    The input dict is not mutated.
+    """
+    if "BusinessDays" not in raw:
+        raise ValueError(
+            "business_day_calendar_enabled=True requires a BusinessDays sheet "
+            "in the workbook."
+        )
+    bd_sheet = raw["BusinessDays"]
+    bd_values = (
+        bd_sheet["BusinessDay"] if "BusinessDay" in bd_sheet.columns
+        else pd.Series(bd_sheet.index)
+    )
+    business_days = pd.DatetimeIndex(
+        pd.to_datetime(bd_values, errors="coerce").dropna()
+    ).normalize().unique().sort_values()
+    if len(business_days) == 0:
+        raise ValueError("BusinessDays sheet has no valid dates.")
+
+    out: Dict[str, pd.DataFrame] = {}
+    dropped: Dict[str, int] = {}
+    for name, df in raw.items():
+        if name in SKIP_SHEETS:
+            out[name] = df
+            continue
+        dates = pd.DatetimeIndex(pd.to_datetime(df.index, errors="coerce"))
+        keep = dates.normalize().isin(business_days)  # NaT never matches
+        kept = df.loc[keep]
+        dropped[name] = int(len(df) - len(kept))
+        out[name] = kept
+
+    recomputed = False
+    if "PX_LAST" in out and "Daily_Returns" in out:
+        prices = out["PX_LAST"].apply(pd.to_numeric, errors="coerce")
+        prices.index = pd.DatetimeIndex(pd.to_datetime(prices.index)).normalize()
+        prices = prices[~prices.index.duplicated(keep="first")].sort_index()
+        returns = prices.pct_change(fill_method=None)
+        orig = out["Daily_Returns"]
+        orig_dates = pd.DatetimeIndex(pd.to_datetime(orig.index)).normalize()
+        cols = [c for c in orig.columns if c in returns.columns]
+        out["Daily_Returns"] = returns[cols].reindex(orig_dates)
+        recomputed = True
+
+    diagnostics = {
+        "enabled": True,
+        "business_days": int(len(business_days)),
+        "first": business_days.min().strftime("%Y-%m-%d"),
+        "last": business_days.max().strftime("%Y-%m-%d"),
+        "rows_dropped_by_sheet": dropped,
+        "daily_returns_recomputed": recomputed,
+    }
+    logger.info(
+        "[DataLoader] business-day calendar: %d trading days, dropped %d rows "
+        "across %d sheet(s), Daily_Returns recomputed=%s",
+        len(business_days), sum(dropped.values()), len(dropped), recomputed,
+    )
+    return out, diagnostics
+
+
 def _normalize_company_name(value) -> str:
     """Normalize a vendor company label for collision-free exact matching."""
     return " ".join(str(value).strip().split()).casefold()
@@ -1116,8 +1185,14 @@ class UniverseData:
         self.config = config or DEFAULT_CONFIG
         self.data_path = data_path
         self.raw = load_all_sheets(data_path)
-        self.meta = load_universe_meta(self.raw)
         self.data_quality: Dict = {}
+        # Data audit 2026-09-09 (Medium-2): trading-day calendar. Must run on
+        # the raw dict BEFORE listing inference (PX_LAST flat runs) and before
+        # raw_returns extraction so every downstream view sees one calendar.
+        if getattr(self.config, "business_day_calendar_enabled", False):
+            self.raw, calendar_diag = restrict_to_business_days(self.raw)
+            self.data_quality["business_day_calendar"] = calendar_diag
+        self.meta = load_universe_meta(self.raw)
         self.full_universe = list(self.meta.index)
         self.listing_dates, self.listing_date_sources = resolve_listing_dates(
             self.meta, self.raw, self.config

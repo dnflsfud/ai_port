@@ -8851,3 +8851,43 @@ overrides 바이트 사본, `tests/test_s18_fixes.py::test_s18_4_recert_variant_
 
 **실행**: `outputs/s18_2_run_chain.bat`(s18_4 → s18_5 순차, `run_variant_task.ps1`, `--no-cache`, VINTAGE_PRE/POST), 전원 AC 연결 상태에서
 schtasks 일회성 기동. **인벤토리**: 성과 arm +1 → 474 (측정 결과 절에서 반영; s18_4 는 재인증 비계수). 결과는 아래 "§S18.2 결과·§S18.3 결과".
+
+## S18.6 데이터 감사 + 정확성 수정 2종 — 2026-09-09 (코드만 · production 무변경 · 인벤토리 불변)
+
+**지시**: 사용자 "ai_signal_data를 만드는 로직이 제대로 되어있는지 체크해주고, 데이터들의 정합성을 점검해줘" → 감사 보고 후 "High 1건과 Medium 2번을 수정해줘".
+메인 단독(에이전트 0, 백테스트 0). 감사 대상 = `price_v4.py` → `re_study/create_universe_data.py` → `re_study/create_ai_signal_data.py` → `src/data_loader.py`;
+데이터 = 09-04 14:50 워크북 57시트 전량 캐시 재계산 + 원천 `S&P500.xlsx`(09-07)·`Index.xlsx`(09-09) 부분 대조.
+
+**재현 PASS(비트 수준)**: Daily_Returns = PX_LAST.pct_change (4e-16, NaN 패턴 동일) · Factor_Returns 재계산 7e-15(LEVEL_CHANGE 는 diff) · Factor_PX_LAST index == BusinessDays 3,187 ·
+FX 7페어 Factor_PX_LAST vs Index.xlsx 3,187일 전부 동일 · CUR_MKT_CAP USD 환산 + LN 펜스 ×0.01 → 내재 주식수 정상(삼성 5.85B·토요타 14.6B·HSBC 17.2B·AZN 1.55B) ·
+옵션 파생 9시트·Fwd_Sales_Slope·days_to_earnings·Earnings_Timeline 전부 재현(최대 8e-9) · PX_LAST vs PX_LAST_UNADJ 분할 불일치 0(스텝은 전부 배당·스핀, RTX/T 는 §S18.2 등록) ·
+TG/PX 트레일링 252 중앙값 250종 전부 0.97~1.66 · 유령 접두 45종 전부 `listing_dates` 또는 auto-infer 커버(HPE 는 auto) · 생산 측 단위테스트 37 PASS.
+
+**확정 결함**
+- **High-1 — KR·JP 14종의 마지막 행이 시트마다 다른 시각의 장중가**: PX_LAST/PX_LAST_UNADJ 비율이 09-03까지 전 종목 정확히 1.0000 인데 09-04 행만 0.981(285A)~1.002(9432). US·유럽 1.0 유지.
+  09-07 재생성 원천에서도 재현(000660 0.992·285A 0.991·7203 1.0016) → 체계적. 원인: `price_v4.refresh_sheets`/`process_index_list` 가 시트를 순차 인출(전체 런 ~1.5h)하는 동안
+  KR/JP 장이 열려 있어 PX_LAST·PX_LAST_UNADJ·CUR_MKT_CAP 의 인출일 행이 서로 다른 시각의 스냅샷. US/EU 의 인출일 행은 `fill_missing_data` 의 전일 ffill. 영향: 라이브 리밸일 명목가
+  재스케일(§S17.3)·Daily_Returns 마지막 행이 부분일 값(과거 구간은 다음 리프레시가 덮어씀).
+- **Medium-2 — 미 휴일 119행이 모델 캘린더에 잔존**: 워크북 티커 시트 4,629행 = 영업일 3,187 + 주말 1,322 + 평일 휴일 119(`price_v4.fill_missing_data` 일력 reindex+ffill).
+  `align_dates` 는 주말만 제거하고 `BusinessDays` 시트를 쓰지 않아 production 3,282행에 휴일 ~95행 포함. 휴일 행에서 US 종목 100% stale(수익률 0), 비US 18~42%만 stale(실제 이동)
+  → 21행 리밸 주기·롤링 창이 휴일을 세고, US 0 · 비US 실수익률의 비대칭 행이 학습에 들어감.
+- Medium-3 `days_to_earnings` 실현 미래 발표일 사용(OFF arm 전용) · Medium-4 추정치 유령 접두가 PX_LAST 상장일 이후 잔존(VST BEST_EPS 2017-05-12 까지 +150행, LSEG 180, ZS 34; VRT·LIN 은 §S18 P6)
+  · Low 5건(프록시 전표본 상관 선택·docstring, FactSet 날짜 고정포맷 coerce, 센티먼트 median 폴백 inert, 9433 skew≡0, ADP 2014-10 TG/UNADJ 0.90→0.98 경미; KLAC/APD/ASM 은 기저 일치 확인 → 추가 tg_basis_events 불필요). **미수정(보고만)**.
+
+**수정 ① High-1 — 생산 측 인출일 컷오프(코드만, 워크북 미재생성)**
+- `re_study/universe_config.py::completed_day_cutoff(last_panel_date)` = 패널 마지막 날짜 − 1일. 근거: price_v4 는 `end_date=오늘`까지 모든 시트를 일력으로 채우므로 패널 마지막 날짜 = 인출일;
+  그 하루를 잘라 남는 모든 날짜는 전 시장이 마감한 날짜(07:00 KST D+1 인출이면 D 유지, 장중/야간 인출이면 부분일 D 제거 — 어느 시각이든 안전).
+- `create_universe_data.py`: PX_LAST 로부터 fetch_day → cutoff, 전 S&P500 시트·BusinessDays·센티먼트(부분일 뉴스)·FactSet 에 `<= cutoff` 적용. Daily_Returns/Summary/Earnings 는 컷 후 파생.
+- `create_ai_signal_data.py`: `apply_panel_cutoff` + `load_sp500_sheet(sheet, cutoff)`; SHORT_INT·VOL 5종·PX_VOLUME/PUT_CALL·1FY/2FY·25Δ 풋콜 전부 유니버스 PX_LAST 마지막 날짜에 맞춤. Index.xlsx 파생(Factor·SPX 열)은 이미 BusinessDays/패널 인덱스로 reindex.
+- 테스트: `test_universe_config.py`·`test_create_universe_data.py`·`test_create_ai_signal_data.py` +4 → **41 PASS**. 효과는 **다음 `run_data_pipeline.bat` 재생성부터**(새 빈티지 → S0′ 재인증 필요, §S13.47 규칙).
+
+**수정 ② Medium-2 — 소비 측 `business_day_calendar_enabled`(default-OFF, 사전등록 단일 boolean)**
+- `src/data_loader.py::restrict_to_business_days(raw)`: raw 단계(상장 추론·raw_returns 추출·전처리 이전)에서 SKIP_SHEETS 외 모든 시트를 BusinessDays 거래일로 제한하고 **Daily_Returns 를 남은 PX_LAST 행에서
+  재계산**(비US 종목의 휴일 이동은 다음 거래일에 복리 합산 — 유실 0). BusinessDays 부재 시 ValueError. 진단 `data_quality["business_day_calendar"]`(거래일 수·시트별 드롭 행).
+- OFF 는 raw dict 무변경(바이트 동일) — `tests/test_data_loader.py` +4(기본값 OFF·드롭/복리·시트 부재 fail-fast·UniverseData ON/OFF parity). **ai_port 전체 809 PASS**(재인증 variant 추가 후 acceptance 212 PASS).
+- variant `variants/s18_6_business_day_calendar.yaml` = 현 production(두 §S18.2 flip 포함) + 플래그 1줄, `outputs/s18_6_run.bat`. **미실행·미flip**: 캘린더 변경(타깃·패널·리밸일)이라 §8 — 같은 빈티지 쌍에서 S0′(s18_4) 대비 측정 후 사용자 승인.
+  판정 프레임(정확성 트랙): 기전 = `data.dates ⊆ BusinessDays` ∧ US 종목 휴일 0-수익률 행 0 ∧ 캘린더 3,282 → ~3,17x; E2 do-no-harm(TE ≤ 4.5%·AS ±3%p·turnover ≤ 1.25×·fallback 0); ΔIR 관측만. DSR 비계수(정확성).
+- 로더 단독 실측(플래그 ON, 09-04 워크북)은 **미수행** — 12:27 기동된 production 일일 런(`scripts/export_operating_data.py`, run_and_upload 체인)과 메모리 경합으로 OS 가 로더 프로세스를 종료(여유 2.1GB/16GB).
+  실측은 `outputs/s18_6_run.bat`(schtasks, 유휴 시간) 로 대체한다. 기대치: 캘린더 3,282 → 약 3,17x(교집합 시작 2014-01-24 이후 BusinessDays), `weekend_dates_removed` 0.
+
+**상태**: 코드 수정 2종 완료(미커밋 — 생산 측은 pythonProject 루트 레포, 소비 측은 ai_port), production variant·PipelineConfig 기본값 무변경, 인벤토리 불변(정확성 트랙·재인증 비계수). 다음: ① 사용자 Bloomberg 재인출 + `run_data_pipeline.bat` 재생성(High-1 발효) → S0′ 재인증 ② 같은 빈티지에서 s18_6 측정 → §8 flip 여부 사용자 결정.
