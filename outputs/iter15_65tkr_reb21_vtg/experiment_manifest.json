@@ -17,6 +17,7 @@
     "bm_proportional_cap_vol_lookback": 63,
     "bm_proportional_cap_vol_scale_floor": 0.5,
     "bm_weight_floor": 0.02,
+    "business_day_calendar_enabled": false,
     "calendar_exempt_sheets_enabled": false,
     "carry_te_conditioning_enabled": false,
     "carry_te_conditioning_features": null,
@@ -332,8 +333,8 @@
     "data_mtime_utc": "2026-09-04T05:50:52Z",
     "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
     "data_size_bytes": 366433443,
-    "fx_mtime_utc": "2026-09-09T02:09:12Z",
-    "fx_size_bytes": 92206629,
+    "fx_mtime_utc": "2026-09-10T02:20:39Z",
+    "fx_size_bytes": 92228823,
     "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx"
   },
   "extra": {
@@ -343,6 +344,6 @@
     "variant_label": "iter15_65tkr_reb21_vtg"
   },
   "git_dirty": false,
-  "git_hash": "cad00c9efe320cb51c8b688124090433a915586b",
-  "timestamp_utc": "2026-09-09T02:50:10Z"
+  "git_hash": "c28ecf94f235e01f735ddc7cfe3e342c1f171e88",
+  "timestamp_utc": "2026-09-10T02:48:16Z"
 }
