@@ -60,7 +60,7 @@
     "enforce_score_gated_ow": true,
     "score_threshold_for_ow": 0.0,
     "no_trade_band": 0.003,
-    "partial_rebalance_eta": 0.5,
+    "partial_rebalance_eta": 0.42,
     "trailing_ic_window": 6,
     "one_way_tc": 0.001,
     "rebalance_freq": 21,
@@ -122,38 +122,39 @@
       "DHR": {
         "2016-07-05": 0.758
       }
-    }
+    },
+    "static_execution_enabled": true
   },
   "metrics": {
-    "annual_return": 0.26380334766398716,
-    "annual_vol": 0.1963981132812276,
-    "sharpe_ratio": 1.3432071380759154,
-    "active_return": 0.059720876468014605,
-    "tracking_error": 0.03616603446775069,
-    "information_ratio": 1.6512973387023617,
-    "max_drawdown": -0.3234966610131138,
-    "avg_annual_turnover": 0.708496902956811,
-    "avg_annual_turnover_one_way": 0.3542484514784055,
-    "active_share": 0.19776042013596923,
+    "annual_return": 0.26908698572996625,
+    "annual_vol": 0.196702222850573,
+    "sharpe_ratio": 1.367991585607963,
+    "active_return": 0.06417673022581316,
+    "tracking_error": 0.03731767517858251,
+    "information_ratio": 1.7197408444844842,
+    "max_drawdown": -0.3283940518438102,
+    "avg_annual_turnover": 0.7961979926866238,
+    "avg_annual_turnover_one_way": 0.3980989963433119,
+    "active_share": 0.20493405160305822,
     "avg_ic": 0.018299483317641214,
-    "annual_tc": 0.000708496902956811,
+    "annual_tc": 0.0007961979926866239,
     "sp500_annual_return": 0.1494489490320614,
     "sp500_annual_vol": 0.195817766201054,
     "sp500_sharpe": 0.7632042379577353,
-    "sp500_active_return": 0.10368158122303961,
-    "sp500_tracking_error": 0.05701676714434571,
-    "sp500_information_ratio": 1.8184401960313807,
-    "sp500_beta": 0.9801415309479319,
+    "sp500_active_return": 0.1083763913724638,
+    "sp500_tracking_error": 0.057957642434413675,
+    "sp500_information_ratio": 1.8699240828352404,
+    "sp500_beta": 0.980335477579728,
     "spx_annual_return": 0.1494489490320614,
     "spx_annual_vol": 0.195817766201054,
     "spx_sharpe": 0.7632042379577353,
-    "realized_beta": 1.0562963325690224,
-    "realized_active_beta": 0.05629633256902235,
+    "realized_beta": 1.0568176143644195,
+    "realized_active_beta": 0.056817614364418956,
     "sub_periods": {
-      "P1_ir": 1.2441536242801374,
-      "P2_ir": 1.5845611720919077,
-      "P3_ir": 2.107018152458723,
-      "P4_tail_ir": 1.1183557041915533,
+      "P1_ir": 1.439961164265792,
+      "P2_ir": 1.4662978262201216,
+      "P3_ir": 2.161939067726579,
+      "P4_tail_ir": 1.6311758098231808,
       "sub_period_coverage_end": "2026-09-04"
     }
   },
@@ -1463,13 +1464,13 @@
     "ECOS": 194
   },
   "optimizer_solver_fallback_rate": 0.0,
-  "elapsed_sec": 1281.6,
+  "elapsed_sec": 1319.0,
   "data_vintage": {
     "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
     "data_mtime_utc": "2026-09-04T05:50:52Z",
     "data_size_bytes": 366433443,
     "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
-    "fx_mtime_utc": "2026-09-10T02:20:39Z",
-    "fx_size_bytes": 92228823
+    "fx_mtime_utc": "2026-09-11T02:00:19Z",
+    "fx_size_bytes": 92252318
   }
 }

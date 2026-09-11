@@ -1,32 +1,32 @@
 {
   "as_of": "2026-09-04",
-  "annual_return": 0.26380334766398716,
-  "annual_vol": 0.1963981132812276,
-  "sharpe_ratio": 1.3432071380759154,
-  "active_return": 0.059720876468014605,
-  "tracking_error": 0.03616603446775069,
-  "information_ratio": 1.6512973387023617,
-  "realized_beta": 1.0562963325690224,
-  "avg_annual_turnover": 0.708496902956811,
+  "annual_return": 0.26908698572996625,
+  "annual_vol": 0.196702222850573,
+  "sharpe_ratio": 1.367991585607963,
+  "active_return": 0.06417673022581316,
+  "tracking_error": 0.03731767517858251,
+  "information_ratio": 1.7197408444844842,
+  "realized_beta": 1.0568176143644195,
+  "avg_annual_turnover": 0.7961979926866238,
   "avg_ic": 0.018299483317641214,
-  "total_return": 5.593027277718669,
+  "total_return": 5.818371275383143,
   "bm_total_return": 3.1970520179156345,
-  "max_drawdown": -0.3234966610131138,
+  "max_drawdown": -0.3283940518438102,
   "sub_period_ir": {
-    "P1_ir": 1.2441536242801374,
-    "P2_ir": 1.5845611720919077,
-    "P3_ir": 2.107018152458723,
-    "P4_tail_ir": 1.1183557041915533,
+    "P1_ir": 1.439961164265792,
+    "P2_ir": 1.4662978262201216,
+    "P3_ir": 2.161939067726579,
+    "P4_tail_ir": 1.6311758098231808,
     "sub_period_coverage_end": "2026-09-04"
   },
   "sp500": {
     "annual_return": 0.1494489490320614,
     "annual_vol": 0.195817766201054,
     "sharpe_ratio": 0.7632042379577353,
-    "active_return": 0.10368158122303961,
-    "tracking_error": 0.05701676714434571,
-    "information_ratio": 1.8184401960313807,
-    "beta": 0.9801415309479319,
+    "active_return": 0.1083763913724638,
+    "tracking_error": 0.057957642434413675,
+    "information_ratio": 1.8699240828352404,
+    "beta": 0.980335477579728,
     "total_return": 1.9430326374327622,
     "sub_period_ir": {
       "P1_ir": NaN,
@@ -38,67 +38,67 @@
   },
   "by_year_returns": {
     "2018": {
-      "portfolio": -0.0274,
+      "portfolio": -0.0262,
       "benchmark": -0.0295,
-      "active": 0.0022,
+      "active": 0.0034,
       "sp500": -0.0478,
-      "active_vs_sp500": 0.0204
+      "active_vs_sp500": 0.0216
     },
     "2019": {
-      "portfolio": 0.3617,
+      "portfolio": 0.3862,
       "benchmark": 0.3393,
-      "active": 0.0224,
+      "active": 0.0469,
       "sp500": 0.2888,
-      "active_vs_sp500": 0.0729
+      "active_vs_sp500": 0.0974
     },
     "2020": {
-      "portfolio": 0.4065,
+      "portfolio": 0.4213,
       "benchmark": 0.2689,
-      "active": 0.1376,
+      "active": 0.1525,
       "sp500": 0.1626,
-      "active_vs_sp500": 0.2439
+      "active_vs_sp500": 0.2587
     },
     "2021": {
-      "portfolio": 0.3211,
+      "portfolio": 0.3304,
       "benchmark": 0.2777,
-      "active": 0.0434,
+      "active": 0.0526,
       "sp500": 0.2689,
-      "active_vs_sp500": 0.0522
+      "active_vs_sp500": 0.0614
     },
     "2022": {
-      "portfolio": -0.2097,
+      "portfolio": -0.2218,
       "benchmark": -0.2002,
-      "active": -0.0096,
+      "active": -0.0217,
       "sp500": -0.1944,
-      "active_vs_sp500": -0.0153
+      "active_vs_sp500": -0.0274
     },
     "2023": {
-      "portfolio": 0.5143,
+      "portfolio": 0.5103,
       "benchmark": 0.3475,
-      "active": 0.1667,
+      "active": 0.1628,
       "sp500": 0.2423,
-      "active_vs_sp500": 0.272
+      "active_vs_sp500": 0.268
     },
     "2024": {
-      "portfolio": 0.4236,
+      "portfolio": 0.4124,
       "benchmark": 0.2772,
-      "active": 0.1464,
+      "active": 0.1352,
       "sp500": 0.2331,
-      "active_vs_sp500": 0.1905
+      "active_vs_sp500": 0.1793
     },
     "2025": {
-      "portfolio": 0.3276,
+      "portfolio": 0.3421,
       "benchmark": 0.2371,
-      "active": 0.0904,
+      "active": 0.105,
       "sp500": 0.1639,
-      "active_vs_sp500": 0.1637
+      "active_vs_sp500": 0.1782
     },
     "2026": {
-      "portfolio": 0.1846,
+      "portfolio": 0.1989,
       "benchmark": 0.1695,
-      "active": 0.0151,
+      "active": 0.0294,
       "sp500": 0.1318,
-      "active_vs_sp500": 0.0528
+      "active_vs_sp500": 0.0671
     }
   },
   "optimizer_failure_rate": 0.0,

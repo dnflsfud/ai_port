@@ -1433,13 +1433,13 @@
     "ECOS": 194
   },
   "optimizer_solver_fallback_rate": 0.0,
-  "elapsed_sec": 1017.9,
+  "elapsed_sec": 1139.0,
   "data_vintage": {
     "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
     "data_mtime_utc": "2026-09-04T05:50:52Z",
     "data_size_bytes": 366433443,
     "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
-    "fx_mtime_utc": "2026-09-10T02:20:39Z",
-    "fx_size_bytes": 92228823
+    "fx_mtime_utc": "2026-09-11T02:00:19Z",
+    "fx_size_bytes": 92252318
   }
 }

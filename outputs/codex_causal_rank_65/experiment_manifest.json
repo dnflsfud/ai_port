@@ -208,7 +208,7 @@
     "option_vol_covariance_enabled": true,
     "option_vol_scale_fix_enabled": true,
     "output_dir": "./outputs",
-    "partial_rebalance_eta": 0.5,
+    "partial_rebalance_eta": 0.42,
     "pca_components": 5,
     "pca_lookback": 252,
     "pca_lookback_long": 504,
@@ -299,7 +299,7 @@
     "sp500_benchmark_enabled": true,
     "sp500_factor_ticker": "SPX",
     "standard_idio_vol_feature_enabled": false,
-    "static_execution_enabled": false,
+    "static_execution_enabled": true,
     "symmetric_rank_loss": "huber",
     "symmetric_rank_metric": "l2",
     "tg_basis_events": {
@@ -345,8 +345,8 @@
     "data_mtime_utc": "2026-09-04T05:50:52Z",
     "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
     "data_size_bytes": 366433443,
-    "fx_mtime_utc": "2026-09-10T02:20:39Z",
-    "fx_size_bytes": 92228823,
+    "fx_mtime_utc": "2026-09-11T02:00:19Z",
+    "fx_size_bytes": 92252318,
     "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx"
   },
   "extra": {
@@ -356,6 +356,6 @@
     "variant_label": "codex_causal_rank_65"
   },
   "git_dirty": false,
-  "git_hash": "c28ecf94f235e01f735ddc7cfe3e342c1f171e88",
-  "timestamp_utc": "2026-09-10T03:15:30Z"
+  "git_hash": "cc01ba1df0eddca276c8db8d4639814560fa1778",
+  "timestamp_utc": "2026-09-11T03:18:59Z"
 }
