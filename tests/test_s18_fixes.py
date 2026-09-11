@@ -271,6 +271,7 @@ S18_PRODUCTION_FLIPS = {
     "vol_quality_tilt_negative_equity_mask",  # S18.2 flip (2026-09-08)
     "tg_basis_events",  # S18.2 flip (2026-09-08)
     "static_execution_enabled",  # S18.3 flip (2026-09-10)
+    "business_day_calendar_enabled",  # S18.7 flip (2026-09-11)
 }
 # Values the S18.3 flip changed on an existing key (frozen arms keep the pre-flip value).
 S18_PRE_FLIP_VALUES = {"partial_rebalance_eta": 0.50}
@@ -312,7 +313,8 @@ def test_s18_4_recert_variant_is_a_byte_copy_of_production():
     역사적 재인증 variant 는 수정하지 않는다."""
     prod = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/codex_causal_rank_65.yaml", encoding="utf-8"))
     rec = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/s18_4_flip2_recert.yaml", encoding="utf-8"))
-    pre_s18_3 = {k: v for k, v in prod["overrides"].items() if k != "static_execution_enabled"}
+    pre_s18_3 = {k: v for k, v in prod["overrides"].items()
+                 if k not in ("static_execution_enabled", "business_day_calendar_enabled")}
     pre_s18_3["partial_rebalance_eta"] = 0.50
     assert rec["overrides"] == pre_s18_3
     assert rec["out_dir"] == "outputs/s18_4_flip2_recert"
@@ -331,7 +333,8 @@ def test_reattempt_variant_is_current_production_plus_the_preregistered_delta(la
     delta = {k: v for k, v in arm["overrides"].items() if pre.get(k, object()) != v}
     assert delta == REATTEMPT_ARMS[label]
     assert set(arm["overrides"]) - set(pre) == {"static_execution_enabled"}
-    assert arm["overrides"] == prod
+    # S18.7 flip (2026-09-11) added business_day_calendar_enabled on top; the frozen arm predates it.
+    assert arm["overrides"] == {k: v for k, v in prod.items() if k != "business_day_calendar_enabled"}
     assert PipelineConfig().static_execution_enabled is False and PipelineConfig().partial_rebalance_eta == 0.50
 
 
@@ -354,9 +357,12 @@ def test_calendar_arm_variant_is_current_production_plus_exactly_the_flag(label)
     arm = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/{label}.yaml", encoding="utf-8"))
     assert arm["out_dir"] == f"outputs/{label}"
     assert arm["tuning_mode"] == "production" and arm["portfolio_role"] == "diagnostic"
-    extra = {k: v for k, v in arm["overrides"].items() if k not in prod}
+    pre = {k: v for k, v in prod.items() if k not in CALENDAR_ARMS[label]}  # production before the S18.7 flip
+    extra = {k: v for k, v in arm["overrides"].items() if k not in pre}
     assert extra == CALENDAR_ARMS[label]
-    assert {k: v for k, v in arm["overrides"].items() if k in prod} == prod
+    assert {k: v for k, v in arm["overrides"].items() if k in pre} == pre
+    # S18.7 flip (2026-09-11): production now equals this arm (the arm run is the new S0').
+    assert arm["overrides"] == prod
     assert PipelineConfig().business_day_calendar_enabled is False
 
 
@@ -364,9 +370,19 @@ def test_s18_7_recert_variant_is_a_byte_copy_of_production():
     """§S18.7 재인증 런(09-11 워크북): overrides 가 현 production 과 동일, out_dir 만 다름."""
     prod = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/codex_causal_rank_65.yaml", encoding="utf-8"))
     rec = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/s18_7_s0recert.yaml", encoding="utf-8"))
-    assert rec["overrides"] == prod["overrides"]
+    # S18.7 flip (2026-09-11): the re-certification predates the calendar flag; never edited.
+    assert rec["overrides"] == {k: v for k, v in prod["overrides"].items() if k != "business_day_calendar_enabled"}
     assert rec["out_dir"] == "outputs/s18_7_s0recert"
     assert rec["tuning_mode"] == "production" and rec["portfolio_role"] == "diagnostic"
+
+def test_production_variant_pins_s18_7_flip_state():
+    """§8/S18.7: 사용자 승인 flip(2026-09-11) 이후의 production 상태 핀.
+
+    production variant 는 business_day_calendar_enabled=True(새 S0′ 1.7512, 1.7167 은퇴)여야 하고,
+    PipelineConfig 기본값은 여전히 False(§8 default-OFF 유지)."""
+    prod = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/codex_causal_rank_65.yaml", encoding="utf-8"))["overrides"]
+    assert prod.get("business_day_calendar_enabled") is True
+    assert PipelineConfig().business_day_calendar_enabled is False
 
 def test_eval_s18_frames():
     from scripts.eval_s18_arm import BASE, FRAMES, NEG_EQUITY_NAMES

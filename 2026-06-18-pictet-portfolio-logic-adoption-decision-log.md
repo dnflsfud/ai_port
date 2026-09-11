@@ -9059,3 +9059,31 @@ ffill 연장이 불필요해짐).
 `test_s18_fixes.py` 핀 + 전체 스위트 + DSR 비계수 기록 + 이 런이 새 S0′ 1.7512). 주의(채택 시 운영 영향): 리밸 주기 21행이 이제 거래일 21일이라
 라이브 리밸일 격자가 이동하고, 다음 스케줄 런의 expected_rebalance 가 새 격자를 따른다. **인벤토리 474 불변**(재인증·정확성 비계수).
 결과물: `outputs/s18_7_s0recert/{metrics,experiment_manifest}.json`, `outputs/s18_6_business_day_calendar/{metrics,e1_summary,experiment_manifest}.json`.
+
+### Production flip — §S18.7 `business_day_calendar_enabled` 채택 (2026-09-11, 사용자 승인)
+
+**지시**: 사용자 "flip해줘"(§S18.7 결과 절의 (a)). 근거는 **정확성**(§S18.6 Medium-2, §S15/§S16.1/§S17.1-A/§S17.3/§S18.2 선례): 모델 캘린더에 남아
+있던 미 휴일 평일 119행(US 종목 100% stale · 비US 실수익률의 비대칭 행)이 학습·타깃·21행 리밸/63행 리트레인 격자에서 제거됨 — 기전 완전 작동(arm 날짜
+3,176 전부 BusinessDays 안, 휴일 행 0, Daily_Returns 재계산) + E2 4/4 PASS. ΔIR +0.035·avg_ic −29%(리트레인 격자 이동 재실현, 1 SE 안)는 관측이며 채택
+근거가 아님. **DSR 비계수**(정확성 트랙, 인벤토리 474 불변).
+
+**새 기준선**: **S0′ = IR 1.7512 / TE 3.79% / active 6.64% / β 1.051 / avg_ic 0.012600 / turnover 0.790 / Pictet AS 20.45% / MaxDD −32.9% / 퇴화 14/31 /
+ECOS 184·fallback 0 / 캘린더 3,176 / 리밸 92 / 리트레인 31** (`outputs/s18_6_business_day_calendar`, 빈티지 쌍 워크북 2026-09-11 13:34:45 / Index 2026-09-11
+11:00:19). production variant 는 이제 s18_6 런 config 와 overrides 동일(`test_calendar_arm_variant_…` 가 `arm["overrides"] == prod` 검증) → 파이프라인
+비트 결정성(§S13.47 E0)에 따라 이 런이 새 기준선 산출물(§S17.3·§S18.2·§S18.3 선례). **1.7167·1.7197·1.6513 은퇴 — arm 비교에 혼용 금지.**
+이후 arm 의 avg_ic·리밸 수·리트레인 수 비교는 **이 캘린더 기준**(3,176행·92 리밸·31 리트레인)으로만 한다.
+
+**라이브 영향**: 다음 스케줄 런(09-14 11:30, 주말 제외)부터 production 로더가 BusinessDays 캘린더로 실행 — (i) 리밸런싱·리트레인 격자가 거래일 기준으로
+이동하므로 다음 리밸일이 이전 격자와 달라질 수 있음(expected_rebalance 는 새 격자를 따름), (ii) 리밸일 당일 목표비중은 캘린더 변경만큼 달라짐(캐시 없음),
+(iii) HOLD 게이트(`validate_portfolio_bundles.evaluate_production`)에는 날짜 수·캘린더 가정이 없어 영향 없음(stale-depth·꼬리 ffill·TG 비율 체크만).
+BusinessDays 시트 부재 시 로더가 ValueError 로 fail-fast(단위테스트 인증) — 워크북 재생성 파이프라인이 BusinessDays 를 항상 생성함(§S18.6 감사 재현 PASS).
+
+**§8 체크리스트 이행(같은 커밋)**: ① `variants/codex_causal_rank_65.yaml` 1줄 + 근거 주석·롤백 ② acceptance `post_arm_production_flags` 5개 파일 +
+`test_residual_sleeve.py` allowlist ③ `tests/test_s18_fixes.py` — `S18_PRODUCTION_FLIPS` += business_day_calendar_enabled, s18_4·s18_7 재인증 핀과 s18_5
+재도전 핀을 "flip 전 production" 기준으로 갱신(역사적 variant 무편집), 캘린더 arm 핀에 `arm == production` 추가, 신설
+`test_production_variant_pins_s18_7_flip_state`(production True · `PipelineConfig` 기본 False 유지); `tests/test_s17_nominal_price.py` 역사적 arm 핀도 flip 이후
+플래그 제외 ④ 전체 스위트 **814 PASS** ⑤ 본 절. 롤백 = variant 1줄 삭제(default-OFF, raw dict 바이트 동일 복원 — `tests/test_data_loader.py` parity 인증).
+`PipelineConfig` 기본값은 False 유지.
+
+**§S18.6 잔여(비액션)**: Medium-3 `days_to_earnings` 실현 발표일(OFF arm 전용) · Medium-4 추정치 유령 접두(VST/LSEG/ZS) · Low 5건은 보고 상태 그대로.
+S18.6 생산 측 수정(re_study 3파일+테스트)은 pythonProject 루트 레포에 **미커밋** — 별도 정리 필요.

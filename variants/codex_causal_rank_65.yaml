@@ -320,3 +320,26 @@ overrides:
   # Rollback = delete this line AND restore partial_rebalance_eta 0.50
   # (default-OFF, byte-identical restore certified by tests/test_s18_fixes.py).
   static_execution_enabled: true
+
+  # S18.7 (2026-09-11): trading-day calendar (data audit 2026-09-09 Medium-2,
+  # decision log S18.6/S18.7). The workbook sheets sit on a daily calendar
+  # (price_v4 reindex + ffill) and align_dates dropped weekends only, so
+  # ~120 US-holiday weekdays survived in the model calendar: US names 100%
+  # stale (zero return) while non-US names moved -- asymmetric rows in
+  # training, targets and the 21-row rebalance / retrain grids. ON restricts
+  # every dated raw sheet to the BusinessDays sheet and recomputes
+  # Daily_Returns from the kept PX_LAST rows (non-US moves across a dropped
+  # day compound into the next kept row). Adopted by user on correctness
+  # grounds -- decision log S18.7 Production flip. Certified same-vintage
+  # measurement (outputs/s18_6_business_day_calendar, workbook 2026-09-11
+  # 13:34:45 / Index 2026-09-11 11:00:19, base s18_7_s0recert): mechanism
+  # PASS (holiday weekday rows 119 -> 0, calendar 3295 -> 3176, Daily_Returns
+  # recomputed), E2 PASS (TE 3.79%, turnover 0.991x, AS +0.03pp, ECOS 184 /
+  # fallback 0), IR 1.7167 -> 1.7512 (dIR +0.035, splits +0.148/-0.187/+0.176
+  # -- observation only; avg_ic 0.0177 -> 0.0126 is the retrain grid shifting
+  # on the shorter calendar, within 1 SE). This run's config equals
+  # production after the flip, so IR 1.7512 is the new S0' baseline; 1.7167
+  # is retired. Live effect: rebalance / retrain grids now count trading
+  # days. Rollback = delete this line (default-OFF, byte-identical restore
+  # certified by tests/test_data_loader.py + tests/test_s18_fixes.py).
+  business_day_calendar_enabled: true
