@@ -1,5 +1,5 @@
-﻿START 2026-09-10T16:08:24 variant=variants/s18_4_flip2_recert.yaml
+﻿START 2026-09-10T16:30:33 variant=variants/s18_5_static_execution_eta042.yaml
 VINTAGE_PRE  workbook=2026-09-04T14:50:52 index=2026-09-10T11:20:39
 VINTAGE_POST workbook=2026-09-04T14:50:52 index=2026-09-10T11:20:39
-EXIT 0 2026-09-10T16:30:32
+EXIT 0 2026-09-10T16:53:59
 DONE

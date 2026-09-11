@@ -8852,6 +8852,51 @@ overrides 바이트 사본, `tests/test_s18_fixes.py::test_s18_4_recert_variant_
 **실행**: `outputs/s18_2_run_chain.bat`(s18_4 → s18_5 순차, `run_variant_task.ps1`, `--no-cache`, VINTAGE_PRE/POST), 전원 AC 연결 상태에서
 schtasks 일회성 기동. **인벤토리**: 성과 arm +1 → 474 (측정 결과 절에서 반영; s18_4 는 재인증 비계수). 결과는 아래 "§S18.2 결과·§S18.3 결과".
 
+### §S18.2 결과 — 두 flip 재인증 런 `s18_4_flip2_recert` = **새 S0′** (2026-09-10 16:08~16:30, schtasks `ai_port_s18_2_chain`)
+
+**운영 기록**: 09-08 15:34 1차 기동은 s18_4 가 Phase 4(모델 학습) 중 약 10분 만에 EXIT 없이 소실(출력 디렉터리 비어 있음, s18_5 미기동; 원인 미확정 —
+OS 킬·절전·수동 종료 중 하나). 09-10 16:08 재기동(AC·디스크 5.2GB·11:15~11:30 리프레시 창 밖·경합 python 0 확인) → s18_4 EXIT 0(1,319초)
+→ s18_5 EXIT 0(1,399초) → 체인 DONE 16:53:59. 양쪽 VINTAGE_PRE/POST 동일.
+
+**빈티지 이동**: Index.xlsx 가 09-09·09-10 11:20:39 에 리프레시되어 §S18.2 arm 1 기준선 1.6373(Index 09-07 11:04:19 쌍)은 빈티지상 은퇴.
+**현 빈티지 쌍 = 워크북 2026-09-04 14:50:52 (05:50:52Z) / Index 2026-09-10 11:20:39 (02:20:39Z)**.
+
+**새 기준선 S0′ (`outputs/s18_4_flip2_recert`, production overrides 바이트 사본)**: **IR 1.6513 / TE 3.62% / active 5.97% / β 1.056 / avg_ic 0.018299 /
+turnover 0.708 / Pictet AS 19.78% / MaxDD −32.3% / 퇴화 12/33 / ECOS 194·fallback 0**. **1.6373·1.6106 은퇴 — arm 비교에 혼용 금지.**
+**비트 재현 증빙(E0)**: 같은 빈티지 쌍에서 12:00 에 돈 production 일일 런(`outputs/codex_causal_rank_65`, run_and_upload)의 IR 이
+1.6512973387023617 로 s18_4 와 소수점 끝까지 동일 — production variant = s18_4 variant 바이트 사본이 결정성대로 재현됨(§S13.47 E0 선례).
+재인증 비계수(인벤토리 불변).
+
+### §S18.3 결과 — arm 3 회전율 중립 재도전 `s18_5_static_execution_eta042` (2026-09-10 16:30~16:54, 판정 `scripts/eval_s18_arm.py --arm s18_5_static_execution_eta042`, base = s18_4)
+
+G0 3/3 PASS(빈티지 쌍 동일 · avg_ic **비트 동일** 0.018299483317641214 · 퇴화 12/33 동일 · `tg_px_ratio_suspect` 0건) — 순수 집행 노브 확인.
+
+| 항목 | S0′ (s18_4) | **arm** s18_5 (static ON + eta 0.42) | 참고: §S18.1 arm 3 (static ON, eta 0.50, base 1.6106) |
+|---|---:|---:|---:|
+| IR (full) | 1.6513 | **1.7197** (ΔIR **+0.0684**) | 1.8248 (+0.214) |
+| 3분할 ΔIR | — | +0.166 / −0.098 / +0.127 | +0.152 / −0.051 / +0.469 |
+| TE | 3.617% | 3.732% (+0.12%p) | 3.947% |
+| turnover (비) | 0.7085 | **0.7962 (1.124×)** — 밴드 [0.85, 1.15] 안 | 0.867 (1.280×) |
+| Pictet AS | 19.78% | 20.49% (+0.72%p) | 21.02% |
+| avg_ic | 0.018299 | 0.018299 (비트 동일) | 비트 동일 |
+| 퇴화 | 12/33 | 12/33 | 11/33 |
+| MaxDD | −32.35% | −32.84% | −32.9% |
+| β | 1.0563 | 1.0568 | 1.053 |
+| E2 do-no-harm | — | **PASS 4/4**(TE ≤ 4.5% · AS ±3%p · turnover ≤ 1.25× · fallback 0) | FAIL(turnover) |
+| 기전 `mechanism_static_neutral` | — | **PASS**(1.124 ∈ [0.85, 1.15] ∧ G0 알파 동일) | FAIL |
+| formal E1 / no-harm | — | **FAIL**(+0.068 < +0.36, 2분할 음) / **PASS** | FAIL / PASS |
+| **flip 후보(사전등록 프레임 = G0 ∧ E2 ∧ 기전 ∧ no-harm)** | — | **TRUE** | FALSE |
+
+**해석**: 사전등록 예측(선형 외삽 1.28×0.84 ≈ 1.08×)대로 eta 0.42 가 회전율을 밴드 안(1.12×)으로 되돌렸고, 그 상태에서도 ΔIR 은 +0.068 로
+양(§S18.1 arm 3 의 +0.214 중 약 1/3 이 "무작위 감속 제거" 몫, 나머지 2/3 는 평균 거래 속도 상승 몫이었다는 분해). 다만 +0.068 은 노이즈 바
+(1 SE 0.36) 안이고 2분할(2021-06~2024-02) 음이므로 **IR 근거 채택은 불가**(불변식 4). 채택 가능한 근거는 사전등록된 집행 트랙 프레임뿐:
+알파 비트 불변 · 리스크 계량 소폭 상승(TE +0.12%p·AS +0.7%p·turnover +12%·MaxDD −0.5%p) 안에서 "신뢰도 계산 경로 제거 = 코드 단순화"
+가 IR 을 해치지 않음(no-harm). 반대로 turnover +12% 는 무비용이 아니며(§S13.11 eta 상향 손실 경험), 집행 트랙에 formal E1 을 요구하면
+불채택이다. **flip 여부는 사용자 결정(§S18.1·§S18.3 사전등록대로 최종 프레임은 사용자 몫)** — 채택 시 §8 체크리스트(variant 2줄
+`static_execution_enabled: true`·`partial_rebalance_eta: 0.42` + acceptance allowlist + 핀 테스트 + 전체 스위트 + 재검증 런) 이행, 롤백 = 2줄 revert.
+**인벤토리**: 성과 arm +1 → **474**. DSR 은 flip 결정 시 `run_selection_bias.py` 해킷 기록(불변식 7).
+결과물: `outputs/s18_5_static_execution_eta042/{metrics,e1_summary,experiment_manifest}.json`(pkl 은 로컬 보존·비추적).
+
 ## S18.6 데이터 감사 + 정확성 수정 2종 — 2026-09-09 (코드만 · production 무변경 · 인벤토리 불변)
 
 **지시**: 사용자 "ai_signal_data를 만드는 로직이 제대로 되어있는지 체크해주고, 데이터들의 정합성을 점검해줘" → 감사 보고 후 "High 1건과 Medium 2번을 수정해줘".

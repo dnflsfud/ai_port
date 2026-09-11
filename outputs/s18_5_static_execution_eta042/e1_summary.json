@@ -1,0 +1,108 @@
+{
+  "arm": "s18_5_static_execution_eta042",
+  "frame": "execution",
+  "adoption_basis": "execution: mechanism + do-no-harm (dIR > -0.36, not all splits negative); formal E1 reported for the user's frame decision",
+  "preregistration": "decision log §S18.3 (2026-09-08)",
+  "base_dir": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\c2\\ai_port\\outputs\\s18_4_flip2_recert",
+  "vintage": {
+    "base_pkl_mtime": "2026-09-10 16:30:30",
+    "arm_pkl_mtime": "2026-09-10 16:53:57",
+    "base_data_vintage": {
+      "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
+      "data_mtime_utc": "2026-09-04T05:50:52Z",
+      "data_size_bytes": 366433443,
+      "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
+      "fx_mtime_utc": "2026-09-10T02:20:39Z",
+      "fx_size_bytes": 92228823
+    },
+    "arm_data_vintage": {
+      "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
+      "data_mtime_utc": "2026-09-04T05:50:52Z",
+      "data_size_bytes": 366433443,
+      "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
+      "fx_mtime_utc": "2026-09-10T02:20:39Z",
+      "fx_size_bytes": 92228823
+    }
+  },
+  "g0": {
+    "vintage_equal": true,
+    "avg_ic_bit_identical": true,
+    "degenerate_equal": true,
+    "g0_pass": true
+  },
+  "full_period": {
+    "ir_base": 1.6513,
+    "ir_arm": 1.7197,
+    "delta_ir": 0.0684,
+    "e1_bar": 0.36
+  },
+  "subperiods": [
+    {
+      "split": 1,
+      "start": "2018-11-26",
+      "end": "2021-06-29",
+      "ir_base": 1.3353,
+      "ir_arm": 1.5016,
+      "delta": 0.1663
+    },
+    {
+      "split": 2,
+      "start": "2021-06-30",
+      "end": "2024-02-01",
+      "ir_base": 1.7533,
+      "ir_arm": 1.6553,
+      "delta": -0.098
+    },
+    {
+      "split": 3,
+      "start": "2024-02-02",
+      "end": "2026-09-04",
+      "ir_base": 1.7735,
+      "ir_arm": 1.9001,
+      "delta": 0.1267
+    }
+  ],
+  "e1_formal_pass": false,
+  "no_harm_pass": true,
+  "mechanism": {
+    "turnover_ratio": 1.1238,
+    "neutral_band": [
+      0.85,
+      1.15
+    ],
+    "pass": true
+  },
+  "e2": {
+    "te_ok": true,
+    "active_share_ok": true,
+    "turnover_ok": true,
+    "fallback_zero": true
+  },
+  "e2_pass": true,
+  "flip_candidate": true,
+  "companions": {
+    "te_base": 0.03617,
+    "te_arm": 0.03732,
+    "turnover_base": 0.7085,
+    "turnover_arm": 0.7962,
+    "turnover_ratio": 1.1238,
+    "active_share_base": 0.19776,
+    "active_share_arm": 0.20493,
+    "realized_beta_base": 1.0562963325690224,
+    "realized_beta_arm": 1.0568176143644195,
+    "avg_ic_base": 0.018299483317641214,
+    "avg_ic_arm": 0.018299483317641214,
+    "max_drawdown_base": -0.3234966610131138,
+    "max_drawdown_arm": -0.3283940518438102,
+    "degenerate": {
+      "base": "12/33",
+      "arm": "12/33"
+    },
+    "fallback_arm": 0.0,
+    "solver_counts_arm": {
+      "ECOS": 194
+    },
+    "tg_px_ratio_suspect_arm": {},
+    "elapsed_sec_arm": 1398.9
+  }
+}
