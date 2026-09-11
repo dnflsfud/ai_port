@@ -2,7 +2,8 @@ label: s18_6_business_day_calendar
 display_name: S18.6 business-day calendar (data audit 2026-09-09 Medium-2)
 portfolio_role: diagnostic
 description: >
-  Production config (variants/codex_causal_rank_65.yaml after the S18.2 flips)
+  Production config (variants/codex_causal_rank_65.yaml after the S18.2 flips
+  and the S18.3 static-execution flip of 2026-09-10)
   plus business_day_calendar_enabled: true (data audit 2026-09-09 Medium-2:
   119 US-holiday weekdays sit in the production calendar because price_v4
   fills a daily calendar and align_dates drops weekends only; ON restricts
@@ -81,7 +82,8 @@ overrides:
   enforce_score_gated_ow: true
   score_threshold_for_ow: 0.0
   no_trade_band: 0.003
-  partial_rebalance_eta: 0.50
+  # S18.3 flip (2026-09-10): production eta 0.42 with static_execution_enabled.
+  partial_rebalance_eta: 0.42
   trailing_ic_window: 6
   one_way_tc: 0.0010
   rebalance_freq: 21
@@ -299,4 +301,5 @@ overrides:
   # S18.6 (2026-09-09): business-day calendar (data audit Medium-2). Single
   # preregistered boolean, no sweep. Rollback = delete this line (default-OFF,
   # byte-identical restore certified by tests/test_data_loader.py).
+  static_execution_enabled: true
   business_day_calendar_enabled: true

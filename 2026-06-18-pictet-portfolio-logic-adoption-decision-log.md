@@ -8897,6 +8897,50 @@ G0 3/3 PASS(빈티지 쌍 동일 · avg_ic **비트 동일** 0.01829948331764121
 **인벤토리**: 성과 arm +1 → **474**. DSR 은 flip 결정 시 `run_selection_bias.py` 해킷 기록(불변식 7).
 결과물: `outputs/s18_5_static_execution_eta042/{metrics,e1_summary,experiment_manifest}.json`(pkl 은 로컬 보존·비추적).
 
+### Production flip — §S18.3 arm 3 재도전 `static_execution_enabled` + `partial_rebalance_eta 0.42` 채택 (2026-09-11, 사용자 승인) — §S18.3 (2)
+
+**지시**: 사용자가 §S18.3 결과 절의 두 선택지 중 **(a) 집행 프레임으로 채택**을 선택(2026-09-11). 근거는 사전등록 집행 트랙 프레임
+(G0 ∧ 기전 ∧ E2 ∧ no-harm)이며 **IR 근거 채택이 아니다**: 알파 비트 불변(avg_ic 0.018299483317641214 동일·퇴화 12/33 동일) 상태에서
+신뢰도 계산 경로(`compute_signal_confidence`, §S18 P3: IC 무지속·34% 리밸 eta 바닥 0.22 = 무작위 감속)를 제거하고 eta 를 실효 중앙
+0.42 로 고정해 평균 거래 속도를 유지(turnover 1.124× ∈ [0.85, 1.15])한 것이 IR 을 해치지 않음(ΔIR +0.068·no-harm PASS)을 확인.
+ΔIR 은 노이즈 바 안·2분할 음이므로 **관측**으로만 기록(불변식 4). 수반 비용도 기록: turnover +12%·TE +0.12%p·AS +0.7%p·MaxDD −0.5%p.
+
+**DSR/selection-bias 해킷(불변식 7)**: `run_selection_bias.py --auto --label s18_5_static_execution_eta042`, **N = 474**, 09-11 10:48
+(`outputs/reports/selection_bias_report.md`).
+
+| 체크 | 결과 | 판정 |
+|---|---|---|
+| DSR | observed SR 1.686, E[max SR] 1.248, σ(SR) 0.356, DSR 1.231, **p = 0.1091** | **FAIL**(바 0.05; §S13.41 승격 전례 p 0.1319 와 같은 대역) |
+| MinTRL | 필요 1.0y vs 보유 8.1y | SUFFICIENT |
+| Grid haircut | 1.248 → adjusted SR 0.438 | PASS |
+| Survivorship | late entrants 25(유니버스 확장 이력·상장 마스킹 대상, §S11.4/§S14 동일) | WARN |
+| Sub-period | 1.502 / 1.633 / 1.918 전부 양 | STABLE |
+| **게이트** | | **FAIL → 사용자 오버라이드**(§S13.41·§S13.47·§S13.25 선례) |
+
+DSR FAIL 의 해석: 이 게이트는 "관측 SR 이 474회 탐색의 최댓값 편향으로 설명되는가"를 묻는데, 채택 근거가 SR 이 아니라 집행 프레임
+(알파 불변·리스크 계량 안·회전율 중립)이므로 게이트 FAIL 은 "IR 상승분을 성과로 주장하지 말 것"으로 읽는다. 따라서 이 flip 의
+성과 주장은 없음. 롤백은 2줄 revert 로 즉시 가능.
+
+**새 기준선**: **S0′ = IR 1.7197 / TE 3.73% / active 6.42% / β 1.057 / avg_ic 0.018299 / turnover 0.796 / Pictet AS 20.49% / MaxDD −32.8% /
+퇴화 12/33 / ECOS 194·fallback 0** (`outputs/s18_5_static_execution_eta042`, 빈티지 쌍 워크북 2026-09-04 14:50:52 / Index 2026-09-10 11:20:39).
+production variant 는 이제 s18_5 런 config 와 overrides 가 동일(핀 테스트 `test_reattempt_variant_…` 가 `arm["overrides"] == prod` 검증)
+하므로 파이프라인 비트 결정성(§S13.47 E0)에 따라 이 런이 새 기준선 산출물이다(§S17.3·§S18.2 arm 1 선례) — 별도 재검증 런 불필요.
+**1.6513·1.6373·1.6106 은퇴 — arm 비교에 혼용 금지.** 라이브 영향: 다음 스케줄 런(09-11 11:30)부터 production 경로가 신뢰도 ≡ 1·eta 0.42
+로 실행된다(`scripts/export_operating_data.py` 의 `static_execution_enabled` 분기가 `simulate_portfolio` 와 동일 경로, §S18.1 E0 self-check).
+
+**§8 체크리스트 이행(같은 커밋)**: ① `variants/codex_causal_rank_65.yaml` — `partial_rebalance_eta 0.50→0.42` + `static_execution_enabled: true`
+(2줄, 근거 주석·롤백 방법) ② acceptance `post_arm_production_flags` 5개 파일에 `static_execution_enabled` 추가 + delta 제외 집합에
+`partial_rebalance_eta`(역사적 arm 은 0.50 유지) + `test_residual_sleeve.py` allowlist ③ `tests/test_s18_fixes.py` — `S18_PRODUCTION_FLIPS` +=
+static_execution_enabled, `S18_PRE_FLIP_VALUES = {partial_rebalance_eta: 0.50}` 로 역사적 arm 핀을 "flip 전 production" 기준으로 유지,
+s18_4 재인증 핀을 "S18.3 flip 전 production" 으로 갱신, 재도전 핀에 `arm == production` 추가, 신설 `test_production_variant_pins_s18_3_flip_state`
+(production True/0.42 · `PipelineConfig` 기본 False/0.50 유지); `tests/test_s17_nominal_price.py` 역사적 arm 핀도 flip 이후 플래그 제외 ④ 전체
+스위트 **810 PASS** ⑤ 본 절. 인벤토리 474 불변(§S18.3 결과에서 이미 계수). 부수: 미실행 `variants/s18_6_business_day_calendar.yaml` 을
+"현 production + 플래그 1줄" 정의대로 새 production 에 맞춤(eta 0.42 + static ON; 역사적 arm 이 아니므로 편집 허용) — 실행 시 base 는
+**s18_5** 런이어야 하며 `scripts/eval_s18_arm.py` 에 s18_6 프레임 배선은 아직 없음(실행 전 사전등록 필요).
+
+롤백 = variant 2줄 revert(`static_execution_enabled` 삭제 + `partial_rebalance_eta 0.50` 복원) → s18_4 config 로 바이트 동일 복원
+(`test_s18_4_recert_variant_is_a_byte_copy_of_production` 이 그 상태를 핀). `PipelineConfig` 기본값은 False / 0.50 유지.
+
 ## S18.6 데이터 감사 + 정확성 수정 2종 — 2026-09-09 (코드만 · production 무변경 · 인벤토리 불변)
 
 **지시**: 사용자 "ai_signal_data를 만드는 로직이 제대로 되어있는지 체크해주고, 데이터들의 정합성을 점검해줘" → 감사 보고 후 "High 1건과 Medium 2번을 수정해줘".

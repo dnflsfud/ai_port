@@ -73,7 +73,7 @@ def test_arm_variant_differs_from_production_by_exactly_the_flag():
     # S13.47 promotion (2026-08-20): production rank_eval_at [5, 10] -> [20];
     # historical arms pin the pre-promotion value. S14.2 (2026-08-25):
     # universe 200 -> 250 — historical arms pin the pre-expansion 200.
-    assert set(delta) - {"rank_eval_at", "expected_universe_size"} == {"absent_fundamental_nan_enabled"}, delta
+    assert set(delta) - {"rank_eval_at", "expected_universe_size", "partial_rebalance_eta"} == {"absent_fundamental_nan_enabled"}, delta
     post_arm_production_flags = {
         "fwd_sales_slope_features_enabled",
         "vol_quality_tilt_enabled",
@@ -88,6 +88,7 @@ def test_arm_variant_differs_from_production_by_exactly_the_flag():
         "nominal_price_source",  # S17.3 promotion (2026-09-04)
         "vol_quality_tilt_negative_equity_mask",  # S18.2 promotion (2026-09-08)
         "tg_basis_events",  # S18.2 promotion (2026-09-08)
+        "static_execution_enabled",  # S18.3 promotion (2026-09-10); partial_rebalance_eta 0.50 -> 0.42 pinned pre-flip above
     }
     assert not [
         k for k in prod

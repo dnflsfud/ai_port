@@ -80,7 +80,13 @@ overrides:
   enforce_score_gated_ow: true
   score_threshold_for_ow: 0.0
   no_trade_band: 0.003
-  partial_rebalance_eta: 0.50
+  # S18.3 (2026-09-10): 0.50 -> 0.42 together with static_execution_enabled
+  # (below). 0.42 = the realised median of the dynamic eta under the old
+  # confidence path, so the average trading speed is held at the previous
+  # level (turnover 1.124x within the preregistered neutral band [0.85, 1.15]).
+  # Rollback = restore 0.50 AND delete static_execution_enabled (both lines
+  # together; certified by tests/test_s18_fixes.py).
+  partial_rebalance_eta: 0.42
   trailing_ic_window: 6
   one_way_tc: 0.0010
   rebalance_freq: 21
@@ -294,3 +300,23 @@ overrides:
     T: {"2022-04-11": 1.324}
     DELL: {"2021-11-02": 0.506}
     DHR: {"2016-07-05": 0.758}
+
+  # S18.3 (2026-09-10): static execution -- rebalance confidence fixed at 1.0
+  # (compute_signal_confidence not called; decision log S18 P3: the IC-driven
+  # confidence had no persistence and 34% of rebalances sat at the eta floor
+  # 0.22, i.e. random slow-downs). S18.1 arm 3 (eta 0.50) traded 1.28x and
+  # failed E2; this S18.3 re-attempt pairs the flag with partial_rebalance_eta
+  # 0.42 (single preregistered value, no sweep). Adopted by user under the
+  # preregistered execution frame (G0 + mechanism + E2 + no-harm; formal E1
+  # not required) -- decision log S18.3 Production flip. Certified same-
+  # vintage measurement (outputs/s18_5_static_execution_eta042, workbook
+  # 2026-09-04 14:50:52 / Index 2026-09-10 11:20:39, base s18_4_flip2_recert):
+  # G0 PASS (avg_ic bit-identical 0.018299, degenerate 12/33 identical),
+  # mechanism PASS (turnover 0.7085 -> 0.7962 = 1.124x), E2 PASS (TE 3.62% ->
+  # 3.73%, AS 19.78% -> 20.49%, ECOS 194 / fallback 0), IR 1.6513 -> 1.7197
+  # (dIR +0.068, splits +0.166/-0.098/+0.127 -- noise band, observation only),
+  # MaxDD -32.35% -> -32.84%. This run's config equals production after the
+  # flip, so IR 1.7197 is the new S0' baseline; 1.6513 is retired.
+  # Rollback = delete this line AND restore partial_rebalance_eta 0.50
+  # (default-OFF, byte-identical restore certified by tests/test_s18_fixes.py).
+  static_execution_enabled: true

@@ -265,13 +265,22 @@ def test_static_execution_equals_confidence_one(monkeypatch):
 S18_PRODUCTION_FLIPS = {
     "vol_quality_tilt_negative_equity_mask",  # S18.2 flip (2026-09-08)
     "tg_basis_events",  # S18.2 flip (2026-09-08)
+    "static_execution_enabled",  # S18.3 flip (2026-09-10)
 }
+# Values the S18.3 flip changed on an existing key (frozen arms keep the pre-flip value).
+S18_PRE_FLIP_VALUES = {"partial_rebalance_eta": 0.50}
+
+
+def _production_pre_s18_flips(prod):
+    pre = {k: v for k, v in prod.items() if k not in S18_PRODUCTION_FLIPS}
+    pre.update(S18_PRE_FLIP_VALUES)
+    return pre
 
 
 @pytest.mark.parametrize("label", sorted(ARMS))
 def test_arm_variant_is_production_plus_exactly_one_parameter(label):
     prod = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/codex_causal_rank_65.yaml", encoding="utf-8"))["overrides"]
-    prod_pre_flip = {k: v for k, v in prod.items() if k not in S18_PRODUCTION_FLIPS}
+    prod_pre_flip = _production_pre_s18_flips(prod)
     arm = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/{label}.yaml", encoding="utf-8"))
     assert arm["out_dir"] == f"outputs/{label}"
     extra = {k: v for k, v in arm["overrides"].items() if k not in prod_pre_flip}
@@ -292,23 +301,45 @@ def test_production_variant_pins_s18_2_flip_state():
 
 
 def test_s18_4_recert_variant_is_a_byte_copy_of_production():
-    """§S18.2 재검증 런: overrides 가 production 과 동일(두 flip 포함), out_dir 만 다름."""
+    """§S18.2 재검증 런: overrides 가 (S18.3 flip 전) production 과 동일(두 flip 포함), out_dir 만 다름.
+
+    S18.3 flip(2026-09-10) 이후 production 은 static_execution_enabled·eta 0.42 를 더 가지며,
+    역사적 재인증 variant 는 수정하지 않는다."""
     prod = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/codex_causal_rank_65.yaml", encoding="utf-8"))
     rec = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/s18_4_flip2_recert.yaml", encoding="utf-8"))
-    assert rec["overrides"] == prod["overrides"]
+    pre_s18_3 = {k: v for k, v in prod["overrides"].items() if k != "static_execution_enabled"}
+    pre_s18_3["partial_rebalance_eta"] = 0.50
+    assert rec["overrides"] == pre_s18_3
     assert rec["out_dir"] == "outputs/s18_4_flip2_recert"
     assert rec["tuning_mode"] == "production" and rec["portfolio_role"] == "diagnostic"
 
 
 @pytest.mark.parametrize("label", sorted(REATTEMPT_ARMS))
 def test_reattempt_variant_is_current_production_plus_the_preregistered_delta(label):
+    """§S18.3: 재도전 arm = (flip 전) production + 사전등록 델타 2개. S18.3 flip(2026-09-10) 이후에는
+    production 이 이 arm 과 overrides 가 동일하다(arm 런이 새 S0′ 산출물, §S17.3·§S18.2 선례)."""
     prod = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/codex_causal_rank_65.yaml", encoding="utf-8"))["overrides"]
     arm = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/{label}.yaml", encoding="utf-8"))
     assert arm["out_dir"] == f"outputs/{label}"
-    delta = {k: v for k, v in arm["overrides"].items() if prod.get(k, object()) != v}
+    pre = _production_pre_s18_flips(prod)
+    pre.update({k: prod[k] for k in ("vol_quality_tilt_negative_equity_mask", "tg_basis_events")})
+    delta = {k: v for k, v in arm["overrides"].items() if pre.get(k, object()) != v}
     assert delta == REATTEMPT_ARMS[label]
-    assert set(arm["overrides"]) - set(prod) == {"static_execution_enabled"}
-    assert prod["partial_rebalance_eta"] == 0.50 and PipelineConfig().static_execution_enabled is False
+    assert set(arm["overrides"]) - set(pre) == {"static_execution_enabled"}
+    assert arm["overrides"] == prod
+    assert PipelineConfig().static_execution_enabled is False and PipelineConfig().partial_rebalance_eta == 0.50
+
+
+def test_production_variant_pins_s18_3_flip_state():
+    """§8/S18.3: 사용자 승인 flip(2026-09-10) 이후의 production 상태 핀.
+
+    production variant 는 static_execution_enabled=True + partial_rebalance_eta=0.42(새 S0′ 1.7197,
+    1.6513 은퇴)여야 하고, PipelineConfig 기본값은 여전히 False / 0.50(§8 default-OFF 유지)."""
+    prod = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/codex_causal_rank_65.yaml", encoding="utf-8"))["overrides"]
+    assert prod.get("static_execution_enabled") is True
+    assert prod.get("partial_rebalance_eta") == 0.42
+    assert PipelineConfig().static_execution_enabled is False
+    assert PipelineConfig().partial_rebalance_eta == 0.50
 
 
 def test_eval_s18_frames():
