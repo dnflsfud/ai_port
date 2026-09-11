@@ -18,6 +18,10 @@
   §S18.3 재도전(2026-09-08) s18_5_static_execution_eta042 — base = outputs/s18_4_flip2_recert
     (두 flip 재인증 S0′), 기전 = 회전율 중립 비 ∈ TURNOVER_NEUTRAL_BAND [0.85, 1.15] 이고
     avg_ic·퇴화 비트 동일; 나머지 판정 프레임(집행: G0∧E2∧기전∧no-harm, formal E1 병기)은 동일.
+  §S18.7 (2026-09-11) s18_6_business_day_calendar — 정확성 트랙, base = outputs/s18_7_s0recert
+    (2026-09-11 13:34 워크북 재인증 S0′). 기전 = arm 의 data_quality.business_day_calendar 가 켜져
+    있고 Daily_Returns 재계산됨 ∧ arm 백테스트·패널 날짜가 전부 BusinessDays 시트 안 ∧ base 에는
+    BusinessDays 밖 평일(미 휴일) 행이 > 0 개, arm 에는 0 개 ∧ arm 캘린더 길이 < base. ΔIR 관측만.
 출력: outputs/<label>/e1_summary.json
 """
 
@@ -48,6 +52,11 @@ FRAMES = {
     "s18_5_static_execution_eta042": {"frame": "execution", "turnover_max": 1.25, "alpha_identical": True,
                                       "base": "s18_4_flip2_recert", "mechanism": "static_neutral",
                                       "preregistration": "decision log §S18.3 (2026-09-08)"},
+    # §S18.7 (2026-09-11) data-audit Medium-2 correctness arm; base = the S0' re-certification on
+    # the regenerated 2026-09-11 workbook (High-1 cutoff). Calendar change => alpha not identical.
+    "s18_6_business_day_calendar": {"frame": "correctness", "turnover_max": 1.25, "alpha_identical": False,
+                                    "base": "s18_7_s0recert", "mechanism": "business_day_calendar",
+                                    "preregistration": "decision log §S18.6/§S18.7 (2026-09-09/11)"},
 }
 TURNOVER_NEUTRAL_BAND = (0.85, 1.15)
 # §S18 B1 (outputs/s18_prechecks/probe_b_results.json): negative-equity names that
@@ -126,6 +135,53 @@ def mechanism_static_neutral(turnover_ratio: float, g0: dict, band=TURNOVER_NEUT
             "pass": bool(lo <= turnover_ratio <= hi and g0["avg_ic_bit_identical"] and g0["degenerate_equal"])}
 
 
+def _result_dates(res) -> pd.DatetimeIndex:
+    """Backtest dates of a result: active_returns index ∪ panel date level (whichever exist)."""
+    parts = []
+    act = getattr(res, "active_returns", None)
+    if act is not None and len(act):
+        parts.append(pd.DatetimeIndex(pd.Series(act).index))
+    panel = getattr(res, "panel", None)
+    if panel is not None and getattr(panel.index, "nlevels", 1) >= 2 and "date" in panel.index.names:
+        parts.append(pd.DatetimeIndex(panel.index.get_level_values("date").unique()))
+    if not parts:
+        return pd.DatetimeIndex([])
+    out = parts[0]
+    for p in parts[1:]:
+        out = out.union(p)
+    return out.normalize().unique()
+
+
+def load_business_days(workbook_path) -> pd.DatetimeIndex:
+    bd = pd.read_excel(workbook_path, sheet_name="BusinessDays")
+    col = bd["BusinessDay"] if "BusinessDay" in bd.columns else bd.iloc[:, 0]
+    return pd.DatetimeIndex(pd.to_datetime(col, errors="coerce").dropna()).normalize().unique()
+
+
+def mechanism_business_day_calendar(base_r, arm_r, arm_doc: dict, base_doc: dict,
+                                    business_days: pd.DatetimeIndex) -> dict:
+    """§S18.7: the arm must sit entirely on the BusinessDays calendar while the base carries
+    weekday rows outside it (US-holiday weekdays); Daily_Returns must have been recomputed."""
+    diag = (arm_doc.get("data_quality") or {}).get("business_day_calendar") or {}
+    b_dates, a_dates = _result_dates(base_r), _result_dates(arm_r)
+    weekday = lambda ix: ix[ix.weekday < 5]  # noqa: E731
+    b_off = int((~weekday(b_dates).isin(business_days)).sum())
+    a_off = int((~weekday(a_dates).isin(business_days)).sum())
+    a_subset = bool(len(a_dates) > 0 and a_dates.isin(business_days).all())
+    cal_b = (base_doc.get("data_quality") or {}).get("tail_extended_dates")
+    cal_a = (arm_doc.get("data_quality") or {}).get("tail_extended_dates")
+    cal_shrank = bool(cal_a is not None and cal_b is not None and cal_a < cal_b)
+    passed = bool(diag.get("enabled") is True and diag.get("daily_returns_recomputed") is True
+                  and a_subset and a_off == 0 and b_off > 0 and cal_shrank)
+    return {"diag": {k: diag.get(k) for k in ("enabled", "business_days", "first", "last", "daily_returns_recomputed")},
+            "rows_dropped_total": int(sum((diag.get("rows_dropped_by_sheet") or {}).values())),
+            "backtest_dates": {"base": int(len(b_dates)), "arm": int(len(a_dates))},
+            "weekday_rows_outside_business_days": {"base": b_off, "arm": a_off},
+            "arm_dates_subset_of_business_days": a_subset,
+            "calendar_len": {"base": cal_b, "arm": cal_a, "shrank": cal_shrank},
+            "pass": passed}
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--arm", required=True, choices=sorted(FRAMES))
@@ -170,6 +226,9 @@ def main() -> None:
         mechanism = mechanism_tg_basis(base_r, arm_r)
     elif spec.get("mechanism") == "static_neutral":
         mechanism = mechanism_static_neutral(turnover_ratio, g0)
+    elif spec.get("mechanism") == "business_day_calendar":
+        wb = (arm_doc.get("data_vintage") or {}).get("data_path")
+        mechanism = mechanism_business_day_calendar(base_r, arm_r, arm_doc, base_doc, load_business_days(wb))
     else:
         mechanism = mechanism_static(turnover_ratio, g0)
 

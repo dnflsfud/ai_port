@@ -7,13 +7,18 @@ import pandas as pd
 
 from scripts.eval_s18_arm import (
     BASE, FRAMES, NEG_EQUITY_NAMES, TG_BASIS_GATES, TURNOVER_NEUTRAL_BAND, Z_SD_MIN,
-    mechanism_static, mechanism_static_neutral, mechanism_tg_basis, mechanism_tilt,
+    mechanism_business_day_calendar, mechanism_static, mechanism_static_neutral, mechanism_tg_basis,
+    mechanism_tilt,
 )
 
 
 def test_frames_and_base():
     assert set(FRAMES) == {"s18_1_tilt_negative_equity", "s18_2_tg_basis_events", "s18_3_static_execution",
-                           "s18_5_static_execution_eta042"}
+                           "s18_5_static_execution_eta042", "s18_6_business_day_calendar"}
+    # §S18.7 calendar arm: correctness track against the 2026-09-11 workbook re-certification.
+    assert FRAMES["s18_6_business_day_calendar"]["base"] == "s18_7_s0recert"
+    assert FRAMES["s18_6_business_day_calendar"]["mechanism"] == "business_day_calendar"
+    assert FRAMES["s18_6_business_day_calendar"]["alpha_identical"] is False
     assert BASE == "s18_s0recert"
     # §S18.3 re-attempt is judged against the two-flip re-certification, not the S18.1 base.
     assert FRAMES["s18_5_static_execution_eta042"]["base"] == "s18_4_flip2_recert"
@@ -80,3 +85,36 @@ def test_mechanism_static_neutral_bounds():
     assert mechanism_static_neutral(0.80, g0_ok)["pass"] is False
     assert mechanism_static_neutral(1.28, g0_ok)["pass"] is False     # the S18.1 arm-3 outcome fails here
     assert mechanism_static_neutral(1.00, {"avg_ic_bit_identical": False, "degenerate_equal": True})["pass"] is False
+
+
+def _cal_res(dates, panel_dates=None):
+    act = pd.Series(0.0, index=pd.DatetimeIndex(dates))
+    panel = None
+    if panel_dates is not None:
+        idx = pd.MultiIndex.from_product([pd.DatetimeIndex(panel_dates), ["AAA", "BBB"]], names=["date", "ticker"])
+        panel = pd.DataFrame({"x": 0.0}, index=idx)
+    return types.SimpleNamespace(active_returns=act, panel=panel)
+
+
+def test_mechanism_business_day_calendar_gate():
+    bdays = pd.bdate_range("2024-01-01", "2024-12-31")
+    holidays = pd.DatetimeIndex(["2024-01-15", "2024-02-19", "2024-05-27", "2024-07-04"])  # US-holiday weekdays
+    business = bdays.difference(holidays)
+    base = _cal_res(bdays, bdays)                       # daily calendar incl. holiday weekdays
+    arm = _cal_res(business, business)                  # restricted to BusinessDays
+    arm_doc = {"data_quality": {"business_day_calendar": {"enabled": True, "daily_returns_recomputed": True,
+                                                          "business_days": len(business),
+                                                          "rows_dropped_by_sheet": {"PX_LAST": 4, "Daily_Returns": 4}},
+                                "tail_extended_dates": len(business)}}
+    base_doc = {"data_quality": {"tail_extended_dates": len(bdays)}}
+    out = mechanism_business_day_calendar(base, arm, arm_doc, base_doc, business)
+    assert out["pass"] is True
+    assert out["weekday_rows_outside_business_days"] == {"base": 4, "arm": 0}
+    assert out["rows_dropped_total"] == 8 and out["calendar_len"]["shrank"] is True
+    # arm still carrying a holiday row -> FAIL
+    leaky = _cal_res(business.union(holidays[:1]), business)
+    assert mechanism_business_day_calendar(base, leaky, arm_doc, base_doc, business)["pass"] is False
+    # flag not actually on (no diagnostic) -> FAIL even if dates look right
+    assert mechanism_business_day_calendar(base, arm, {"data_quality": {}}, base_doc, business)["pass"] is False
+    # base already clean (nothing to fix) -> FAIL (mechanism must be observable)
+    assert mechanism_business_day_calendar(arm, arm, arm_doc, arm_doc, business)["pass"] is False

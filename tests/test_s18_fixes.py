@@ -36,6 +36,11 @@ ARMS = {
 REATTEMPT_ARMS = {
     "s18_5_static_execution_eta042": {"static_execution_enabled": True, "partial_rebalance_eta": 0.42},
 }
+# §S18.7 (2026-09-11) data-audit Medium-2 correctness arm: current production (three S18 flips)
+# + exactly this flag; judged against the s18_7_s0recert re-certification on the 09-11 workbook.
+CALENDAR_ARMS = {
+    "s18_6_business_day_calendar": {"business_day_calendar_enabled": True},
+}
 
 
 # --------------------------------------------------------------------------- 공통 스텁
@@ -342,10 +347,32 @@ def test_production_variant_pins_s18_3_flip_state():
     assert PipelineConfig().partial_rebalance_eta == 0.50
 
 
+@pytest.mark.parametrize("label", sorted(CALENDAR_ARMS))
+def test_calendar_arm_variant_is_current_production_plus_exactly_the_flag(label):
+    """§S18.7: s18_6 = 현 production(세 S18 flip 포함) + business_day_calendar_enabled 1개."""
+    prod = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/codex_causal_rank_65.yaml", encoding="utf-8"))["overrides"]
+    arm = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/{label}.yaml", encoding="utf-8"))
+    assert arm["out_dir"] == f"outputs/{label}"
+    assert arm["tuning_mode"] == "production" and arm["portfolio_role"] == "diagnostic"
+    extra = {k: v for k, v in arm["overrides"].items() if k not in prod}
+    assert extra == CALENDAR_ARMS[label]
+    assert {k: v for k, v in arm["overrides"].items() if k in prod} == prod
+    assert PipelineConfig().business_day_calendar_enabled is False
+
+
+def test_s18_7_recert_variant_is_a_byte_copy_of_production():
+    """§S18.7 재인증 런(09-11 워크북): overrides 가 현 production 과 동일, out_dir 만 다름."""
+    prod = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/codex_causal_rank_65.yaml", encoding="utf-8"))
+    rec = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/s18_7_s0recert.yaml", encoding="utf-8"))
+    assert rec["overrides"] == prod["overrides"]
+    assert rec["out_dir"] == "outputs/s18_7_s0recert"
+    assert rec["tuning_mode"] == "production" and rec["portfolio_role"] == "diagnostic"
+
 def test_eval_s18_frames():
     from scripts.eval_s18_arm import BASE, FRAMES, NEG_EQUITY_NAMES
 
-    assert set(FRAMES) == set(ARMS) | set(REATTEMPT_ARMS)
+    assert set(FRAMES) == set(ARMS) | set(REATTEMPT_ARMS) | set(CALENDAR_ARMS)
+    assert FRAMES["s18_6_business_day_calendar"]["base"] == "s18_7_s0recert"
     assert BASE == "s18_s0recert"
     assert FRAMES["s18_1_tilt_negative_equity"]["frame"] == "correctness"
     assert FRAMES["s18_2_tg_basis_events"]["frame"] == "correctness"

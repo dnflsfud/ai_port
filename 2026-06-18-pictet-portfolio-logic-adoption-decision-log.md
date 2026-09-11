@@ -8980,3 +8980,33 @@ TG/PX 트레일링 252 중앙값 250종 전부 0.97~1.66 · 유령 접두 45종 
   실측은 `outputs/s18_6_run.bat`(schtasks, 유휴 시간) 로 대체한다. 기대치: 캘린더 3,282 → 약 3,17x(교집합 시작 2014-01-24 이후 BusinessDays), `weekend_dates_removed` 0.
 
 **상태**: 코드 수정 2종 완료(미커밋 — 생산 측은 pythonProject 루트 레포, 소비 측은 ai_port), production variant·PipelineConfig 기본값 무변경, 인벤토리 불변(정확성 트랙·재인증 비계수). 다음: ① 사용자 Bloomberg 재인출 + `run_data_pipeline.bat` 재생성(High-1 발효) → S0′ 재인증 ② 같은 빈티지에서 s18_6 측정 → §8 flip 여부 사용자 결정.
+
+## S18.7 사전등록 — 새 빈티지(09-11 워크북, High-1 발효) S0′ 재인증 + s18_6 영업일 캘린더 arm — 2026-09-11 (측정 전 단독 커밋)
+
+**지시**: 사용자 "다음 후보 테스트해줘"(§S18.3 flip 보고의 다음 후보 1번 = s18_6). 착수 시점 확인 사실:
+- **빈티지 포크**: `ai_signal_data.xlsx` 가 09-11 13:34:45 에 재생성됨(366,939,766B; 이전 09-04 14:50:52 / 366,433,443B). 검사(pandas 직접
+  판독): PX_LAST 마지막 행 **2026-09-10**(인출일 09-11 − 1 = §S18.6 High-1 컷오프 발효), KR/JP 16종 마지막 2행 UNADJ/PX **전부 1.0000**(High-1
+  해소), 평일 행 3,311 중 BusinessDays 밖 **120**(Medium-2 잔존 — s18_6 의 대상), BusinessDays 3,191(2014-01-02~2026-09-10). Index.xlsx 09-11 11:00:19.
+  → **현 빈티지 쌍 = 워크북 2026-09-11 13:34:45 / Index 2026-09-11 11:00:19.** §S18.3 flip 기준선 1.7197(09-04 워크북)은 이 쌍에서 은퇴.
+- 부수 관측(비액션): 09-11 12:03 production 일일 런(09-04 워크북 / Index 09-11 11:00)의 IR 1.7197408444844842 는 s18_5 런(Index 09-10)과 **비트
+  동일** — Index.xlsx 일일 리프레시는 워크북 마지막 날짜 이후 행만 더하므로 백테스트 창 안 FX 입력은 불변. G0 의 쌍 동일 요건은 형식적으로 유지.
+
+**① 재인증 `s18_7_s0recert`** = production overrides 바이트 사본(`tests/test_s18_fixes.py::test_s18_7_recert_variant_is_a_byte_copy_of_production`
+핀, tuning_mode production · portfolio_role diagnostic). 재인증 비계수. 결과가 **새 S0′**(1.7197 은퇴).
+
+**② arm `s18_6_business_day_calendar`** = 현 production(세 S18 flip 포함) + `business_day_calendar_enabled: true` 1줄(`test_calendar_arm_variant_…` 핀,
+§S18.6 정의대로 09-11 production 에 맞춤 — 미실행 variant 라 편집 허용, 역사적 arm 아님). 정확성 트랙 · 단일 boolean · 스윕 없음 · **DSR 비계수**.
+
+**판정 프레임(`scripts/eval_s18_arm.py --arm s18_6_business_day_calendar`, base 자동 = s18_7_s0recert)**:
+- G0: `data_vintage` 쌍 동일(alpha_identical=False — 캘린더 변경은 타깃·패널·리밸일을 바꾸므로 avg_ic 동일을 요구하지 않음).
+- 기전 `mechanism_business_day_calendar`(신설, `tests/test_eval_s18_arm.py` 단위 핀 4케이스): arm `data_quality.business_day_calendar.enabled` ∧
+  `daily_returns_recomputed` ∧ arm 백테스트 날짜(active_returns ∪ 패널 date 레벨)가 **전부 BusinessDays 시트 안** ∧ BusinessDays 밖 평일 행 수
+  **base > 0 · arm = 0** ∧ arm 캘린더 길이(`tail_extended_dates`) < base. BusinessDays 는 arm manifest 의 워크북 경로에서 직접 판독(1초).
+- E2 do-no-harm: TE ≤ 4.5% · AS ±3%p · turnover ≤ 1.25× · fallback 0. 퇴화·avg_ic 병기.
+- ΔIR·3분할은 **관측**(정확성 트랙; §S15/§S16.1/§S17.3/§S18.2 선례). **flip 후보 = G0 ∧ 기전 ∧ E2**, flip 은 사용자 결정(§8).
+- 기대치(사전 기록): 캘린더 3,291 → 약 3,17x, `weekend_dates_removed` 0, 리밸런싱 횟수 97 → 약 94(21행 주기가 휴일을 안 세므로).
+
+**실행**: `outputs/s18_6_run_chain.bat`(s18_7 → s18_6 순차, `run_variant_task.ps1`, `--no-cache`, VINTAGE_PRE/POST), schtasks `ai_port_s18_6_chain`
+(배터리 조건 해제·12h 한도, `ai_port_s18_2_chain` 설정 복제). 기동 시 AC·디스크·리프레시 창 밖 확인. 운영 주의: 같은 시각 `run_regime_rl.py --stage train`
+(별개 프로젝트, WS 1.3GB, 여유 RAM 2.1GB)이 돌고 있어 페이징 지연·OS 킬 위험 — 킬되면 같은 빈티지 쌍에서 재기동(§S17.1-D 선례, 1 trial 유지).
+**인벤토리 474 불변**(재인증·정확성 모두 비계수). 결과는 아래 "§S18.7 결과".
