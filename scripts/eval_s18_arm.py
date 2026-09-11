@@ -158,6 +158,13 @@ def load_business_days(workbook_path) -> pd.DatetimeIndex:
     return pd.DatetimeIndex(pd.to_datetime(col, errors="coerce").dropna()).normalize().unique()
 
 
+def _calendar_len(doc: dict):
+    q = doc.get("data_quality") or {}
+    if q.get("intersection_dates") is None:
+        return None
+    return int(q["intersection_dates"]) + int(q.get("tail_extended_dates") or 0)
+
+
 def mechanism_business_day_calendar(base_r, arm_r, arm_doc: dict, base_doc: dict,
                                     business_days: pd.DatetimeIndex) -> dict:
     """§S18.7: the arm must sit entirely on the BusinessDays calendar while the base carries
@@ -168,8 +175,10 @@ def mechanism_business_day_calendar(base_r, arm_r, arm_doc: dict, base_doc: dict
     b_off = int((~weekday(b_dates).isin(business_days)).sum())
     a_off = int((~weekday(a_dates).isin(business_days)).sum())
     a_subset = bool(len(a_dates) > 0 and a_dates.isin(business_days).all())
-    cal_b = (base_doc.get("data_quality") or {}).get("tail_extended_dates")
-    cal_a = (arm_doc.get("data_quality") or {}).get("tail_extended_dates")
+    # Model calendar length = date intersection + tail-extended dates (data_quality keys;
+    # tail_extended_dates alone is only the count of ffill-extended tail dates).
+    cal_b = _calendar_len(base_doc)
+    cal_a = _calendar_len(arm_doc)
     cal_shrank = bool(cal_a is not None and cal_b is not None and cal_a < cal_b)
     passed = bool(diag.get("enabled") is True and diag.get("daily_returns_recomputed") is True
                   and a_subset and a_off == 0 and b_off > 0 and cal_shrank)

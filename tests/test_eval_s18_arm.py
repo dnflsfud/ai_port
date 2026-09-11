@@ -105,12 +105,13 @@ def test_mechanism_business_day_calendar_gate():
     arm_doc = {"data_quality": {"business_day_calendar": {"enabled": True, "daily_returns_recomputed": True,
                                                           "business_days": len(business),
                                                           "rows_dropped_by_sheet": {"PX_LAST": 4, "Daily_Returns": 4}},
-                                "tail_extended_dates": len(business)}}
-    base_doc = {"data_quality": {"tail_extended_dates": len(bdays)}}
+                                "intersection_dates": len(business), "tail_extended_dates": 0}}
+    base_doc = {"data_quality": {"intersection_dates": len(bdays) - 1, "tail_extended_dates": 1}}
     out = mechanism_business_day_calendar(base, arm, arm_doc, base_doc, business)
     assert out["pass"] is True
     assert out["weekday_rows_outside_business_days"] == {"base": 4, "arm": 0}
     assert out["rows_dropped_total"] == 8 and out["calendar_len"]["shrank"] is True
+    assert out["calendar_len"] == {"base": len(bdays), "arm": len(business), "shrank": True}
     # arm still carrying a holiday row -> FAIL
     leaky = _cal_res(business.union(holidays[:1]), business)
     assert mechanism_business_day_calendar(base, leaky, arm_doc, base_doc, business)["pass"] is False
