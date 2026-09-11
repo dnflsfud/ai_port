@@ -1,0 +1,5 @@
+﻿START 2026-09-11T15:20:03 variant=variants/s18_6_business_day_calendar.yaml
+VINTAGE_PRE  workbook=2026-09-11T13:34:45 index=2026-09-11T11:00:19
+VINTAGE_POST workbook=2026-09-11T13:34:45 index=2026-09-11T11:00:19
+EXIT 0 2026-09-11T15:50:40
+DONE

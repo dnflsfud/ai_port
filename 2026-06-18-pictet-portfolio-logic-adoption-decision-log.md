@@ -9010,3 +9010,52 @@ TG/PX 트레일링 252 중앙값 250종 전부 0.97~1.66 · 유령 접두 45종 
 (배터리 조건 해제·12h 한도, `ai_port_s18_2_chain` 설정 복제). 기동 시 AC·디스크·리프레시 창 밖 확인. 운영 주의: 같은 시각 `run_regime_rl.py --stage train`
 (별개 프로젝트, WS 1.3GB, 여유 RAM 2.1GB)이 돌고 있어 페이징 지연·OS 킬 위험 — 킬되면 같은 빈티지 쌍에서 재기동(§S17.1-D 선례, 1 trial 유지).
 **인벤토리 474 불변**(재인증·정확성 모두 비계수). 결과는 아래 "§S18.7 결과".
+
+### §S18.7 결과 — s18_7 재인증(새 S0′) + s18_6 영업일 캘린더 arm (2026-09-11 14:25~15:51, `outputs/s18_6_run_chain.bat`, 판정 `scripts/eval_s18_arm.py --arm s18_6_business_day_calendar`)
+
+**운영**: schtasks `ai_port_s18_6_chain` 14:24:59 기동, s18_7 EXIT 0(3,290초 — 동시 실행된 별개 프로젝트 `run_regime_rl.py` 학습 경합으로 평소의 2.5배)
+→ s18_6 EXIT 0(1,824초) → 15:50:40 DONE. 양쪽 VINTAGE_PRE/POST = 워크북 2026-09-11 13:34:45 / Index 2026-09-11 11:00:19 동일. 결과 전 판정 스크립트
+수정 1건(커밋 36fe62f): 캘린더 길이 키를 `tail_extended_dates`(연장 날짜 수 0/1)에서 `intersection_dates + tail_extended_dates` 로 정정 — 기전 정의 불변.
+
+**① 새 기준선 S0′ = `outputs/s18_7_s0recert`**: **IR 1.7167 / TE 3.78% / active 6.49% / β 1.061 / avg_ic 0.017709 / turnover 0.797 / Pictet AS 20.42% /
+MaxDD −32.9% / 퇴화 12/33 / ECOS 194·fallback 0 / 캘린더 3,295(꼬리 연장 0)**. 09-04 워크북의 1.7197 대비 −0.003(동일 config, 워크북 4영업일 추가 +
+High-1 컷오프). **1.7197 은퇴 — 이 빈티지의 arm 비교는 1.7167 만.** High-1 효과 확인: `tail_ffill_days` 1 → 0(부분일 마지막 행이 컷오프로 사라져 꼬리
+ffill 연장이 불필요해짐).
+
+**② arm s18_6 (base = s18_7)**: G0 PASS(빈티지 동일; alpha_identical=False 프레임이라 avg_ic·퇴화 동일 미요구).
+
+| 항목 | S0′ (s18_7) | **arm** s18_6 (BusinessDays 캘린더) |
+|---|---:|---:|
+| IR (full) | 1.7167 | **1.7512** (ΔIR +0.0345, 관측) |
+| 3분할 ΔIR (공통 1,915일) | — | +0.148 / −0.187 / +0.176 |
+| TE | 3.778% | 3.790% |
+| turnover (비) | 0.797 | 0.790 (0.991×) |
+| Pictet AS | 20.42% | 20.45% (+0.03%p) |
+| avg_ic | 0.017709 (n 96) | 0.012600 (n 91) — 아래 해석 |
+| 퇴화 | 12/33 | 14/31 |
+| MaxDD | −32.93% | −32.88% |
+| β | 1.061 | 1.051 |
+| 캘린더 / 리밸 / 리트레인 | 3,295 / 97 / 33 | **3,176** / 92 / 31 |
+| 백테스트 창 | 2018-11-26~ (2,034일) | 2019-01-29~ (1,915일) |
+| 라이브 모델 | fit 2025-06-02, 나이 5 | fit 2026-05-05, 나이 1 |
+| E2 do-no-harm | — | **PASS 4/4**(TE ≤ 4.5% · AS ±3%p · turnover ≤ 1.25× · fallback 0, ECOS 184) |
+| 기전 `mechanism_business_day_calendar` | — | **PASS**: 진단 enabled·Daily_Returns 재계산 ∧ arm 날짜 3,176 전부 BusinessDays 안 ∧ BusinessDays 밖 평일 행 **base 119 → arm 0** ∧ 캘린더 3,295 → 3,176(사전 기대 ~3,17x 적중) |
+| formal E1 / no-harm | — | FAIL / PASS |
+| **flip 후보(정확성 프레임 = G0 ∧ 기전 ∧ E2)** | — | **TRUE** |
+
+**해석**
+- 기전은 사전등록대로 완전 작동: 미 휴일 평일 119행이 모델 캘린더에서 사라졌고(52시트 총 71,398행 드롭 = 주말 1,322 + 휴일 ~120 × 시트), 비US 종목의
+  휴일 이동은 다음 거래일 수익률에 복리 합산됐다(Daily_Returns 재계산). 리스크 계량은 전부 밴드 안(TE +0.01%p·AS +0.03%p·turnover −1%).
+- **avg_ic −29% 는 성과 해석 대상이 아님**: 리트레인 격자(`retrain_freq 63`·`train_window 1260`·`val_window 126`)가 **행 기준**이라 휴일 행 제거로
+  첫 리트레인이 2018-11-23 → 2019-01-28 로 밀리고 이후 33 → 31 리트레인의 시점이 전부 이동 → 모델 실현이 달라진 것(§S7 시드 운 ±0.19 IR·§S17.1-D
+  colsample 재실현과 같은 급). IC 관측 91·96개 표준편차 0.13~0.15 → Δ0.005 는 SE(≈0.015)의 1/3. IC 시계열 인덱스도 리밸일이 전부 달라 직접 비교 불가.
+  같은 이유로 full-period IR 은 창이 다르고(2,034 vs 1,915일) 3분할 판정만 공통 창이다.
+- 퇴화 14/31(45%)은 base 36%와 같은 구조적 조기종료 현상(§S13.8)이며 HOLD 게이트(`max_degenerate_model_rate 0.25`, fail_on False)는 양쪽 다 이미 초과.
+- 부수 관측: 라이브 모델이 base 는 2025-06 적합(퇴화 재사용 나이 5), arm 은 2026-05 적합(나이 1) — 리트레인 격자 이동의 우연한 결과이며 §S16.3(신선
+  재적합 IR 무비용)에 따라 채택 근거 아님.
+
+**판정**: 정확성 트랙 flip 후보 **TRUE**. 채택 근거는 데이터 정확성(§S18.6 Medium-2: US 종목 100% stale·비US 실수익률의 비대칭 휴일 행이 학습·타깃·
+리밸 주기에 들어가던 결함 해소)이고 ΔIR +0.035 는 관측. **flip 은 사용자 결정(§8)** — 채택 시 체크리스트(variant 1줄 + acceptance allowlist +
+`test_s18_fixes.py` 핀 + 전체 스위트 + DSR 비계수 기록 + 이 런이 새 S0′ 1.7512). 주의(채택 시 운영 영향): 리밸 주기 21행이 이제 거래일 21일이라
+라이브 리밸일 격자가 이동하고, 다음 스케줄 런의 expected_rebalance 가 새 격자를 따른다. **인벤토리 474 불변**(재인증·정확성 비계수).
+결과물: `outputs/s18_7_s0recert/{metrics,experiment_manifest}.json`, `outputs/s18_6_business_day_calendar/{metrics,e1_summary,experiment_manifest}.json`.
