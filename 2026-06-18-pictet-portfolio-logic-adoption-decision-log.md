@@ -9129,3 +9129,40 @@ ERROR: portfolio bundle validation failed - aborting before upload
 
 **부수 관찰(비액션)**: `scripts/export_operating_data.py` 의 `rebalance_calendar` 는 상수 `"weekday_index"` — flip 후 실제 캘린더(BusinessDays)와 라벨이 어긋나지만 두 번들 동일 상수라
 검증엔 무해. 라벨 정정은 후속 후보로만 기록.
+
+### §S18.8 결과 — 챌린저 캘린더 정합 런 (2026-09-14 14:08~14:37, schtasks `ai_port_s18_8_chain`, 판정 C1~C4 + `pytest tests -q`)
+
+**실행**: 챌린저 런 14:08:13~14:28:58(1,227.7s, EXIT 0, manifest git d6fffc9 = 사전등록 커밋) → export 14:28:58~14:36:57(EXIT 0) → 검증기 14:36:57~14:36:58(EXIT 0,
+`OK: 2 portfolios, as_of=2026-09-10, gate=RESEARCH/FAIL`, `outputs/portfolio_registry.json` 14:36:58 재기록). 빈티지 쌍 VINTAGE_PRE == POST == (워크북 2026-09-11T13:34:45,
+Index 2026-09-14T11:00:57) — production 12:02 런과 동일 쌍. production 재실행 없음. 디스크: 사용자 승인으로 **옛 빈티지(09-04 워크북) S18 런 pkl 6개 삭제**(s18_s0recert·s18_1_tilt_negative_equity·
+s18_2_tg_basis_events·s18_3_static_execution·s18_4_flip2_recert·s18_5_static_execution_eta042 의 `backtest_result.pkl`, 약 1.57GB; metrics/manifest/log 유지, 수치 전부 은퇴 상태) → 여유 2.6GB 후 기동.
+남은 pkl = codex_causal_rank_65·iter15·s18_6_business_day_calendar·s18_7_s0recert·s17_5_nominal_price·s17_2_s0recert.
+
+**판정**
+- **C1 PASS**: `data_quality.business_day_calendar.enabled` True(business_days 3,191, 2014-01-02~2026-09-10, Daily_Returns 재계산), **캘린더 3,176 == production 3,176**, weekend_dates_removed 0, ECOS 184 / fallback 0.
+- **C2 PASS**: 공통 필드 12종 전부 일치 — last 2026-09-04 / previous 2026-08-06 / next 2026-10-06 / rows_since 3 / rows_until 18 / data_as_of 2026-09-10 / freq 21 / calendar "weekday_index" / is_rebalance_data_as_of False.
+- **C3 PASS**: registry roles [challenger, production]; `production_gate` **PRODUCTION 8/8**(estimated_te·name/sector active risk·stale_depth·live_model_age·realized_te·stale_tail·tg_px_ratio 전부 OK).
+- **C4 PASS**: 815 passed(54.8s).
+→ **정합 복구 완료**: 09-14 스케줄 런의 [7/10] 중단 원인 해소. 라이브 확인은 다음 스케줄 런(09-15 11:30)이 [8/10] commit·[9/10] push 까지 완주하는지로 한다.
+
+**관측(채택 근거 아님 · 원인 미확정)**: Legacy 챌린저 수치가 크게 이동했다.
+| | 옛 격자(09-14 12:02 런, 3,29x행) | 새 캘린더(본 런, 3,176행) |
+|---|---:|---:|
+| IR | 1.5049 | **0.8122** |
+| TE | 4.06% | 3.86% |
+| active | — | 3.14% |
+| turnover | 1.019 | 0.984 |
+| avg_ic | 0.0261 | 0.0371 |
+| realized β | 1.052 | 1.0595 |
+| 퇴화 | 14/33 | 9/31 |
+| 서브 IR | — | 0.436 / 0.327 / 1.543 |
+| MaxDD | — | −33.1% |
+ΔIR −0.69 는 production 의 같은 캘린더 이동(§S18.7, +0.035)과 부호·크기가 다르고 세 서브기간 모두 낮다. avg_ic 는 +42% 인데 IR 은 반토막 — IC→IR 전달 단절(§S13.12 패턴). 후보 설명은 행 기준 리트레인 격자 이동
+(33→31, 첫 리트레인 이동)에 따른 Legacy 모델 재실현(§S7 시드 운 ±0.19 를 크게 넘음)이나 **분해 미수행**. Legacy 챌린저는 §S15~§S18 정확성·성능 수정이 하나도 없는 참조 게이트이므로 이 수치로 production 이나
+캘린더 flip 을 재평가하지 않는다. **옛 격자 챌린저 수치(1.5049 · 커밋본 1.5033) 은퇴 — 이후 챌린저 비교는 3,176행 캘린더 기준으로만.** 비교 게이트 `evaluate_challenger` = RESEARCH/FAIL(production 유지;
+IR·active·β 0.95~1.05·서브기간 승 0/3 미충족, TE·turnover·MaxDD 충족)은 정상 방향. 대시보드 챌린저 번들(`outputs/operating`): top OW SNDK +3.8% / MPC +2.3% / HPE +1.9%, est TE 4.50%(캡 바인딩), as_of 09-04 리밸, 다음 10-06.
+
+**§8 체크리스트**: ① variant 1줄+주석(d6fffc9) ② acceptance allowlist — 해당 없음(챌린저는 arm 비교 대상 아님) ③ 핀 `test_challenger_variant_pins_s18_8_calendar_alignment`(d6fffc9) ④ 815 PASS ⑤ 본 절.
+롤백 = `variants/iter15_65tkr_reb21_vtg.yaml` 1줄 삭제(단, 그러면 레지스트리 불일치가 재발하므로 production 과 함께 되돌려야 한다).
+
+**잔여**: 09-11 이후 커밋(8091ddc·36fe62f·846b6fa·e67baa4·d6fffc9·본 결과 커밋) origin 미푸시 — 사용자 결정. `export_operating_data.rebalance_calendar` 상수 라벨 정정은 후속 후보. 챌린저 ΔIR −0.69 분해는 사용자가 원할 때 별도 사전등록.

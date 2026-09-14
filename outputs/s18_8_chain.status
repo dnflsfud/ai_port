@@ -1,0 +1,8 @@
+[2026-09-14 14:08:12.04] s18_8 chain start 
+[2026-09-14 14:08:12.05] start backtest iter15_65tkr_reb21_vtg 
+[2026-09-14 14:28:58.19] end backtest 
+[2026-09-14 14:28:58.19] start export outputs\operating 
+[2026-09-14 14:36:57.36] export EXIT 0 
+[2026-09-14 14:36:57.36] start validate 
+[2026-09-14 14:36:58.57] validate EXIT 0 
+[2026-09-14 14:36:58.57] DONE 
