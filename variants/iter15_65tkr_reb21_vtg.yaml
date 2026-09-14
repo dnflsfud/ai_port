@@ -121,3 +121,17 @@ overrides:
   # Engine + harness remain available for research:
   #   scripts/run_dr_alpha.py (single/grid), scripts/run_dr_ablation.py (2x2).
   dr_alpha_enabled: false
+
+  # S18.8 challenger calendar alignment (2026-09-14, user-approved). The S18.7
+  # production flip moved codex_causal_rank_65 onto the BusinessDays calendar
+  # (3,176 rows, holiday weekdays 0) while this Legacy challenger stayed on
+  # the weekday-only grid, so the 21-row rebalance grids diverged
+  # (challenger last rebalance 2026-08-18 vs production 2026-09-04) and the
+  # 2026-09-14 scheduled run aborted at scripts/validate_portfolio_bundles.py
+  # build_registry: "portfolio last_rebalance_date mismatch". The registry
+  # requires both bundles to share last/previous/next rebalance dates and
+  # rows_since/until, i.e. the same calendar. This flag is the only S18 flip
+  # applied to the challenger; it stays Legacy for every performance flip.
+  # Decision log S18.8. Rollback = delete this line (default-OFF, raw dict
+  # byte-identical restore certified by tests/test_data_loader.py).
+  business_day_calendar_enabled: true

@@ -9087,3 +9087,45 @@ BusinessDays 시트 부재 시 로더가 ValueError 로 fail-fast(단위테스�
 
 **§S18.6 잔여(비액션)**: Medium-3 `days_to_earnings` 실현 발표일(OFF arm 전용) · Medium-4 추정치 유령 접두(VST/LSEG/ZS) · Low 5건은 보고 상태 그대로.
 S18.6 생산 측 수정(re_study 3파일+테스트)은 pythonProject 루트 레포에 **미커밋** — 별도 정리 필요.
+
+## S18.8 챌린저 캘린더 정합 — iter15 `business_day_calendar_enabled` (사용자 승인, 2026-09-14, 측정 전 단독 커밋)
+
+**지시**: 사용자 "1번 승인할게"(세션 첫 보고의 다음 작업 1번 = 챌린저 캘린더 정합 복구). 메인 단독(에이전트 0, 착수 시 백테스트 0).
+
+**발단 — 09-14 스케줄 런 중단**: `run_and_upload.bat` 11:30 기동(실측 Phase 2 12:02 시작) — [3/10] 챌린저 런·[4/10] export·[5/10] production 런·[6/10] export 까지 완료,
+**[7/10] `validate_portfolio_bundles.py` 에서 중단** → commit·push·대시보드 미실행(`logs/scheduled_run_last.log` 12:24:33).
+```
+[bundle-validator] ERROR: portfolio last_rebalance_date mismatch: ['2026-08-18', '2026-09-04']
+ERROR: portfolio bundle validation failed - aborting before upload
+```
+- production 런(`outputs/codex_causal_rank_65`, git e67baa4, 워크북 2026-09-11 13:34:45 / Index 2026-09-14 11:00:57): IR **1.7512088728** / TE 3.790% / avg_ic 0.0126001 / turnover 0.7899 /
+  β 1.0507 — §S18.7 S0′(`s18_6_business_day_calendar`)와 소수점 끝까지 동일(E0 비트 재현, §S13.47). 라이브 파이프라인이 새 캘린더 기준선 위에 있음을 확인.
+- 챌린저 런(`outputs/iter15_65tkr_reb21_vtg`, 옛 격자 마지막): IR 1.5049 / TE 4.06% / turnover 1.019 / avg_ic 0.0261 / β 1.052 — **본 절 이후 은퇴**.
+- 부수: 09-11 커밋 4건(8091ddc·36fe62f·846b6fa·e67baa4)이 origin 미푸시(스케줄 push 단계 미도달). 별도 처리.
+
+**원인**: `scripts/validate_portfolio_bundles.py::build_registry` 는 두 번들의 공통 필드 12종(`data_as_of`·`last/previous/next_expected_rebalance_date`·`rebalance_freq_days`·
+`rebalance_calendar`·`rows_since/until_next_rebalance`·`is_rebalance_data_as_of` 등) 일치를 요구한다. §S18.7 flip 은 production 만 BusinessDays 캘린더(3,176행)로 옮겨 21행 리밸 격자가
+**09-04 리밸·다음 10-06(rows_since 3)** 이 됐고, 챌린저 iter15 는 주말만 제거한 옛 캘린더(3,29x행)라 **08-18 리밸·다음 09-16(rows_since 17)** 에 머묾. §S18.7 flip 절은 HOLD 게이트
+(`evaluate_production`)만 점검했고 이 교차 번들 검사를 놓쳤다(기록 정정).
+
+**결정(사용자 승인)**: `variants/iter15_65tkr_reb21_vtg.yaml` 에 `business_day_calendar_enabled: true` 1줄 + 근거 주석. 근거: 캘린더 정확성 수정(§S18.6 Medium-2)은 두 번들에
+동일 적용이 맞고, 검증기의 공통 필드에서 리밸 필드를 빼는 완화안은 격자 불일치를 무음 허용하므로 기각. 챌린저는 **그 외 S18 flip(틸트 마스크·TG 기저·정적 집행)과 S15~S17 성능/정확성 flip 을
+갖지 않는 Legacy 상태 유지** — 핀 테스트로 고정. `PipelineConfig` 기본값 False 불변. DSR 비계수·인벤토리 474 불변(정합 트랙, production 무변경).
+
+**TDD**: `tests/test_s18_fixes.py::test_challenger_variant_pins_s18_8_calendar_alignment` 신설 → RED 확인(`assert None is True`) → variant 1줄 → GREEN → **전체 815 PASS**(98.4s).
+
+**합격기준(측정 전 확정, 판정은 결과 절)**
+- **C1** 챌린저 런 `EXIT 0`(`outputs/iter15_65tkr_reb21_vtg_run.status`), VINTAGE_PRE == VINTAGE_POST == (워크북 2026-09-11T13:34:45, Index 2026-09-14T11:00:57),
+  `metrics.json data_quality.business_day_calendar` 존재, **캘린더 행 수 == production 3,176**(휴일 평일 0).
+- **C2** export 후 `outputs/operating/portfolio.json` 공통 필드 == `outputs/operating_codex_causal_rank_65/portfolio.json`: last 2026-09-04 / previous 2026-08-06 / next 2026-10-06 /
+  rows_since 3 / rows_until 18 / data_as_of 2026-09-10 / freq 21.
+- **C3** `validate_portfolio_bundles.py --bundle outputs/operating --bundle outputs/operating_codex_causal_rank_65` **exit 0**, `outputs/portfolio_registry.json` 갱신(production 1·challenger 1).
+- **C4** `PYTHONPATH=. <PY> -m pytest tests -q` 전체 PASS(815).
+- 관측만(채택 근거 아님): 챌린저 IR/TE/turnover/avg_ic 이동, `evaluate_challenger` 게이트 결과. 이후 챌린저 수치 비교는 이 캘린더 기준으로만.
+
+**실행**: `outputs/s18_8_challenger_chain.bat`(schtasks `ai_port_s18_8_chain`; 챌린저 런 → export(기본 variant=iter15, `outputs/operating`) → 검증기; production 은 재실행 안 함 — 12:02 런이 비트 재현).
+착수 조건: 전원 연결(BatteryStatus 2, 77%) · 빈티지 쌍 불변 · **C: 여유 1.2GB(§S13.35 규칙 ≥2GB 미달)** — pytest 임시 172MB 삭제, 09-09 워크북 중단 잔존 tmp 13파일(271MB)은 도구 권한 거부로 미삭제;
+추가 확보(은퇴 런 pkl 정리)는 사용자 결정.
+
+**부수 관찰(비액션)**: `scripts/export_operating_data.py` 의 `rebalance_calendar` 는 상수 `"weekday_index"` — flip 후 실제 캘린더(BusinessDays)와 라벨이 어긋나지만 두 번들 동일 상수라
+검증엔 무해. 라벨 정정은 후속 후보로만 기록.

@@ -395,3 +395,22 @@ def test_eval_s18_frames():
     assert FRAMES["s18_3_static_execution"]["frame"] == "execution"
     assert FRAMES["s18_3_static_execution"]["alpha_identical"] is True
     assert {"ABBV", "ORCL", "DELL", "CL"} <= set(NEG_EQUITY_NAMES)
+
+
+def test_challenger_variant_pins_s18_8_calendar_alignment():
+    """§8/S18.8: 챌린저 캘린더 정합 핀(사용자 승인, 2026-09-14).
+
+    §S18.7 flip 은 production 만 거래일 캘린더로 옮겼고, 챌린저 iter15 는 옛 격자에 남아
+    09-14 스케줄 런의 레지스트리 빌드(`validate_portfolio_bundles.build_registry` 공통 필드)가
+    `portfolio last_rebalance_date mismatch: ['2026-08-18', '2026-09-04']` 로 중단됐다.
+    챌린저도 business_day_calendar_enabled=True 여야 두 번들이 같은 21행 리밸 격자에 놓인다.
+    챌린저는 그 외 S18 flip(틸트 마스크·TG 기저·정적 집행)을 갖지 않는 Legacy 상태를 유지하고,
+    PipelineConfig 기본값은 여전히 False(§8 default-OFF 유지)."""
+    prod = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/codex_causal_rank_65.yaml", encoding="utf-8"))["overrides"]
+    chal = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/iter15_65tkr_reb21_vtg.yaml", encoding="utf-8"))
+    assert chal["portfolio_role"] == "challenger"
+    assert chal["overrides"].get("business_day_calendar_enabled") is True
+    assert chal["overrides"]["business_day_calendar_enabled"] == prod["business_day_calendar_enabled"]
+    assert chal["overrides"].get("rebalance_freq") == prod.get("rebalance_freq") == 21
+    assert {k for k in S18_PRODUCTION_FLIPS if k in chal["overrides"]} == {"business_day_calendar_enabled"}
+    assert PipelineConfig().business_day_calendar_enabled is False
