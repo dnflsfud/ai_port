@@ -1,0 +1,118 @@
+{
+  "production": {
+    "same_recorded_vintage": true,
+    "comparison_limit": "Old artifacts have mtime/size only; content hashes are verified for the new run.",
+    "metrics": {
+      "information_ratio": {
+        "before": 1.7512088728132356,
+        "after": 1.7512115303940652
+      },
+      "tracking_error": {
+        "before": 0.03790206108597148,
+        "after": 0.0379020890738312
+      },
+      "avg_annual_turnover": {
+        "before": 0.7899266510736802,
+        "after": 0.7899265455277726
+      },
+      "avg_ic": {
+        "before": 0.012600058852893566,
+        "after": 0.012597686194548844
+      },
+      "max_drawdown": {
+        "before": -0.32877804493227114,
+        "after": -0.3287780571104283
+      },
+      "active_return": {
+        "before": 0.06637442567166252,
+        "after": 0.06637457541211611
+      }
+    },
+    "pre_overlay_predictions_identical": true,
+    "model_panel_identical": true,
+    "post_overlay_changed_cells": 84,
+    "post_overlay_max_abs_change": 0.242285714285714,
+    "optimizer_solver_counts": {
+      "ECOS": 184
+    },
+    "optimizer_failures": 0,
+    "earnings_calendar": {
+      "source_events": 12022,
+      "represented_events": 11975,
+      "mapped_flags": 11974,
+      "shifted_events": 10,
+      "outside_calendar_events": 47
+    },
+    "run_contract_version": 1,
+    "tg_basis_guard_ok": true,
+    "pending_tg_names": [],
+    "schedule_intervals": 91,
+    "schedule_mismatches_known_calendar": [],
+    "schedule_mismatches_exchange_extension": []
+  },
+  "challenger": {
+    "same_recorded_vintage": true,
+    "comparison_limit": "Old artifacts have mtime/size only; content hashes are verified for the new run.",
+    "metrics": {
+      "information_ratio": {
+        "before": 0.8122285605678928,
+        "after": 0.8122668252427951
+      },
+      "tracking_error": {
+        "before": 0.03861351749472497,
+        "after": 0.03861487362000894
+      },
+      "avg_annual_turnover": {
+        "before": 0.9844453361524329,
+        "after": 0.984503767306482
+      },
+      "avg_ic": {
+        "before": 0.037094875716029534,
+        "after": 0.03711338412625911
+      },
+      "max_drawdown": {
+        "before": -0.33077971238642223,
+        "after": -0.33077989135854124
+      },
+      "active_return": {
+        "before": 0.03136300173320361,
+        "after": 0.03136558080247642
+      }
+    },
+    "pre_overlay_predictions_identical": true,
+    "model_panel_identical": true,
+    "post_overlay_changed_cells": 66,
+    "post_overlay_max_abs_change": 0.2014285714285714,
+    "optimizer_solver_counts": {
+      "ECOS": 184
+    },
+    "optimizer_failures": 3,
+    "earnings_calendar": {
+      "source_events": 12022,
+      "represented_events": 11975,
+      "mapped_flags": 11974,
+      "shifted_events": 10,
+      "outside_calendar_events": 47
+    },
+    "run_contract_version": 1,
+    "tg_basis_guard_ok": false,
+    "pending_tg_names": [
+      "RR/",
+      "AZN",
+      "SHEL",
+      "HSBA",
+      "RIO",
+      "LSEG",
+      "ULVR",
+      "REL"
+    ],
+    "schedule_intervals": 91,
+    "schedule_mismatches_known_calendar": [],
+    "schedule_mismatches_exchange_extension": [],
+    "optimizer_failures_before": 3,
+    "optimizer_fallback_reasons_before": {
+      "mvo:infeasible": 3,
+      "projection_mvo:infeasible": 3
+    }
+  }
+}

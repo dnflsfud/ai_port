@@ -3470,7 +3470,7 @@
   "last_rebalance_date": "2026-09-04",
   "previous_rebalance_date": "2026-08-06",
   "next_expected_rebalance_date": "2026-10-06",
-  "rebalance_calendar": "weekday_index",
+  "rebalance_calendar": "XNYS",
   "rows_since_last_rebalance": 3,
   "rows_until_next_rebalance": 18,
   "rebalance_overdue": false,

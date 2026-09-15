@@ -5,12 +5,12 @@
   "active_share_one_way": 0.2142,
   "concentration": {
     "top5_weight": 0.286792,
-    "top10_weight": 0.420633,
+    "top10_weight": 0.420632,
     "effective_names": 40.51,
     "max_name_weight": 0.083401,
     "max_name_active_abs": 0.032676,
-    "top5_active_budget_share": 0.216683,
-    "top10_active_budget_share": 0.343186
+    "top5_active_budget_share": 0.216682,
+    "top10_active_budget_share": 0.343187
   },
   "top_ow": [
     {
@@ -143,7 +143,7 @@
     },
     {
       "ticker": "MA",
-      "weight": 0.0027,
+      "weight": 0.00269,
       "bm_weight": 0.00687,
       "active": -0.00418,
       "sector": "Financials"
@@ -1328,7 +1328,7 @@
     },
     {
       "ticker": "QCOM",
-      "weight": 0.00171,
+      "weight": 0.00172,
       "bm_weight": 0.0024,
       "active": -0.00068,
       "sector": "Technology"
@@ -1825,7 +1825,7 @@
     },
     {
       "ticker": "CAT",
-      "weight": 0.00197,
+      "weight": 0.00196,
       "bm_weight": 0.00507,
       "active": -0.0031,
       "sector": "Industrials"
@@ -1888,7 +1888,7 @@
     },
     {
       "ticker": "MA",
-      "weight": 0.0027,
+      "weight": 0.00269,
       "bm_weight": 0.00687,
       "active": -0.00418,
       "sector": "Financials"

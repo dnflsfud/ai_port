@@ -1,0 +1,208 @@
+{
+  "synthetic_calendar": {
+    "stock_ret_after_holiday": 0.20999999999999996,
+    "factor_ret_after_holiday": 0.10000000000000009,
+    "factor_ret_from_kept_prices": 0.20999999999999996,
+    "earnings_before": 1,
+    "earnings_after": 0
+  },
+  "synthetic_schedule": {
+    "last_rebalance_date": "2026-07-02",
+    "previous_rebalance_date": "2026-07-02",
+    "next_expected_rebalance_date": "2026-07-03",
+    "rebalance_freq_days": 1,
+    "rebalance_calendar": "weekday_index",
+    "rows_since_last_rebalance": 0,
+    "rows_until_next_rebalance": 1,
+    "rebalance_overdue": false,
+    "is_rebalance_data_as_of": true,
+    "next_rebalance_is_estimate": true,
+    "next_date_in_supplied_business_calendar": "2026-07-06"
+  },
+  "repeated_vintage_gate": [
+    {
+      "jumps": {
+        "AAA": {
+          "previous": 1.0,
+          "now": 1.5
+        }
+      },
+      "status": "HOLD",
+      "checks": {
+        "estimated_te_ok": true,
+        "name_active_risk_ok": true,
+        "sector_active_risk_ok": true,
+        "stale_depth_ok": true,
+        "live_model_age_ok": null,
+        "realized_te_within_guard": true,
+        "stale_tail_ok": true,
+        "tg_px_ratio_ok": false
+      }
+    },
+    {
+      "jumps": {},
+      "status": "PRODUCTION",
+      "checks": {
+        "estimated_te_ok": true,
+        "name_active_risk_ok": true,
+        "sector_active_risk_ok": true,
+        "stale_depth_ok": true,
+        "live_model_age_ok": null,
+        "realized_te_within_guard": true,
+        "stale_tail_ok": true,
+        "tg_px_ratio_ok": true
+      }
+    }
+  ],
+  "cache_compatibility": {
+    "accepted": true,
+    "cached_dates": [
+      "2026-07-02",
+      "2026-07-03",
+      "2026-07-06"
+    ],
+    "current_dates": [
+      "2026-07-02",
+      "2026-07-06"
+    ],
+    "cached_last_return": 0.1,
+    "current_last_return": 0.20999999999999996,
+    "scope": "Compatibility guard only; full export may reject changed P&L during later reconciliation."
+  },
+  "actual_earnings": {
+    "source_sheet": "Earnings_Timeline",
+    "weekday_holiday_events_lost": 10,
+    "names_affected": 7,
+    "by_name": {
+      "WMB": 2,
+      "HSBA": 2,
+      "IFX": 2,
+      "PG": 1,
+      "RIO": 1,
+      "SNPS": 1,
+      "MDT": 1
+    },
+    "recent_examples": [
+      {
+        "date": "2014-11-27",
+        "ticker": "IFX"
+      },
+      {
+        "date": "2015-11-26",
+        "ticker": "IFX"
+      },
+      {
+        "date": "2018-12-05",
+        "ticker": "SNPS"
+      },
+      {
+        "date": "2019-02-18",
+        "ticker": "HSBA"
+      },
+      {
+        "date": "2020-01-20",
+        "ticker": "PG"
+      },
+      {
+        "date": "2022-02-21",
+        "ticker": "WMB"
+      },
+      {
+        "date": "2022-02-21",
+        "ticker": "HSBA"
+      },
+      {
+        "date": "2023-01-16",
+        "ticker": "RIO"
+      },
+      {
+        "date": "2023-02-20",
+        "ticker": "WMB"
+      },
+      {
+        "date": "2023-02-20",
+        "ticker": "MDT"
+      }
+    ],
+    "backtest_start": "2019-01-29",
+    "events_lost_in_backtest_period": 7,
+    "names_in_backtest_period": [
+      "HSBA",
+      "MDT",
+      "PG",
+      "RIO",
+      "WMB"
+    ]
+  },
+  "actual_factors": {
+    "scope": "Percentage-return factor columns only; level-change columns excluded.",
+    "ret_minus_price_ret_cells_gt_1bp": 0,
+    "by_factor": {},
+    "max_abs_error": {},
+    "raw_ret_vs_raw_price_max_error": 4.440892098500626e-16
+  },
+  "source": {
+    "path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
+    "size": 366939766,
+    "mtime_ns": 1789101285760723900,
+    "unchanged_during_read": true,
+    "calendar_start": "2014-01-02",
+    "calendar_end": "2026-09-10"
+  },
+  "actual_schedule": {
+    "intervals": 91,
+    "mismatches": 60,
+    "examples": [
+      {
+        "as_of": "2025-05-05",
+        "forecast": "2025-06-03",
+        "actual_next": "2025-06-04"
+      },
+      {
+        "as_of": "2025-06-04",
+        "forecast": "2025-07-03",
+        "actual_next": "2025-07-07"
+      },
+      {
+        "as_of": "2025-08-05",
+        "forecast": "2025-09-03",
+        "actual_next": "2025-09-04"
+      },
+      {
+        "as_of": "2025-11-03",
+        "forecast": "2025-12-02",
+        "actual_next": "2025-12-03"
+      },
+      {
+        "as_of": "2025-12-03",
+        "forecast": "2026-01-01",
+        "actual_next": "2026-01-05"
+      },
+      {
+        "as_of": "2026-01-05",
+        "forecast": "2026-02-03",
+        "actual_next": "2026-02-04"
+      },
+      {
+        "as_of": "2026-02-04",
+        "forecast": "2026-03-05",
+        "actual_next": "2026-03-06"
+      },
+      {
+        "as_of": "2026-03-06",
+        "forecast": "2026-04-06",
+        "actual_next": "2026-04-07"
+      },
+      {
+        "as_of": "2026-05-06",
+        "forecast": "2026-06-04",
+        "actual_next": "2026-06-05"
+      },
+      {
+        "as_of": "2026-06-05",
+        "forecast": "2026-07-06",
+        "actual_next": "2026-07-08"
+      }
+    ]
+  }
+}

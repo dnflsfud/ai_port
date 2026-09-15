@@ -351,26 +351,13 @@ def restrict_to_business_days(
     the next kept row rather than lost. Meta/summary sheets are untouched.
     The input dict is not mutated.
     """
-    if "BusinessDays" not in raw:
-        raise ValueError(
-            "business_day_calendar_enabled=True requires a BusinessDays sheet "
-            "in the workbook."
-        )
-    bd_sheet = raw["BusinessDays"]
-    bd_values = (
-        bd_sheet["BusinessDay"] if "BusinessDay" in bd_sheet.columns
-        else pd.Series(bd_sheet.index)
-    )
-    business_days = pd.DatetimeIndex(
-        pd.to_datetime(bd_values, errors="coerce").dropna()
-    ).normalize().unique().sort_values()
-    if len(business_days) == 0:
-        raise ValueError("BusinessDays sheet has no valid dates.")
+    from src.trading_calendar import business_days_from_raw
+    business_days = business_days_from_raw(raw)
 
     out: Dict[str, pd.DataFrame] = {}
     dropped: Dict[str, int] = {}
     for name, df in raw.items():
-        if name in SKIP_SHEETS:
+        if name in SKIP_SHEETS or name == "Earnings_Date":
             out[name] = df
             continue
         dates = pd.DatetimeIndex(pd.to_datetime(df.index, errors="coerce"))
@@ -1837,8 +1824,14 @@ class UniverseData:
         df = _standardize_index(df)
         df = _filter_tickers(df, tickers=self.full_universe)
         df = df.fillna(0).astype(int)
-        common = df.index.intersection(self.dates)
-        df = df.loc[common]
+        if getattr(getattr(self, "config", None), "business_day_calendar_enabled", False):
+            from src.trading_calendar import align_earnings_events
+            self.raw_earnings_timeline = df.copy()
+            df, diagnostics = align_earnings_events(df, self.dates)
+            self.data_quality["earnings_calendar"] = diagnostics
+        else:
+            common = df.index.intersection(self.dates)
+            df = df.loc[common]
         n_events = int((df == 1).sum().sum())
         print(f"  [O] Earnings_Timeline 로드: {df.shape}, 총 {n_events}개 발표일")
         return df

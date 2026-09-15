@@ -363,6 +363,21 @@ def test_registry_rejects_rebalance_schedule_mismatch(tmp_path):
         build_registry([production, challenger])
 
 
+def test_registry_requires_same_calendar_even_when_each_schedule_is_valid(tmp_path):
+    from src.trading_calendar import forecast_session
+    production = _write_bundle(tmp_path, "prod", "production")
+    challenger = _write_bundle(tmp_path, "legacy", "challenger")
+    next_date, _ = forecast_session("2026-06-11", 21, calendar_name="XNYS")
+    for name in ("portfolio.json", "operations.json"):
+        path = production / name
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload["rebalance_calendar"] = "XNYS"
+        payload["next_expected_rebalance_date"] = str(next_date)[:10]
+        path.write_text(json.dumps(payload), encoding="utf-8")
+    with pytest.raises(ValueError, match="mismatch"):
+        build_registry([production, challenger])
+
+
 def test_production_gate_holds_on_sector_active_risk_breach(tmp_path):
     production = _write_bundle(
         tmp_path, "prod", "production",
@@ -516,6 +531,9 @@ def test_bundle_accepts_overdue_rebalance_counters(tmp_path):
         payload["rows_since_last_rebalance"] = 25
         payload["rows_until_next_rebalance"] = 17
         payload["rebalance_overdue"] = True
+        payload["next_expected_rebalance_date"] = (
+            pd.Timestamp(payload["data_as_of"]) + pd.offsets.BDay(17)
+        ).strftime("%Y-%m-%d")
         path.write_text(json.dumps(payload), encoding="utf-8")
     assert validate_bundle(bundle)["id"] == "prod"
 

@@ -1,0 +1,1 @@
+{"data_quality": {"currency": {"tg_px_ratio_median": {"AAA": 1.5}, "tg_px_ratio_suspect": {}, "tg_px_ratio_jump_vs_prev": {}}, "tail_ffill_days": 0, "max_tail_ffill_days": 10}}

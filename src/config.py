@@ -1589,6 +1589,7 @@ def dump_experiment_manifest(
     config: PipelineConfig = DEFAULT_CONFIG,
     output_dir: Optional[str] = None,
     extra: Optional[Dict] = None,
+    data_vintage: Optional[Dict] = None,
 ) -> Path:
     """Write an experiment manifest JSON snapshot.
 
@@ -1611,7 +1612,7 @@ def dump_experiment_manifest(
         "git_hash": _git_hash(),
         "git_dirty": _git_dirty(),
         "config": asdict(config),
-        "data_vintage": data_vintage_fingerprint(config),
+        "data_vintage": data_vintage if data_vintage is not None else data_vintage_fingerprint(config),
     }
     if extra:
         manifest["extra"] = extra

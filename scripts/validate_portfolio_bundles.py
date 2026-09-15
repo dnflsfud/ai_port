@@ -476,6 +476,12 @@ def validate_bundle(bundle_dir: Path) -> dict:
         )
     if freq <= 0 or rows_since < 0 or rows_until <= 0 or not counters_ok:
         raise ValueError(f"{bundle_dir}: inconsistent rebalance row counters")
+    from src.trading_calendar import forecast_session
+    expected_next, _ = forecast_session(
+        returns_as_of, rows_until, calendar_name=meta["rebalance_calendar"],
+    )
+    if next_rebalance != expected_next:
+        raise ValueError(f"{bundle_dir}: next_expected_rebalance_date mismatch with its trading calendar")
     expected_is_rebalance = returns_as_of == meta["last_rebalance_date"]
     if bool(meta["is_rebalance_data_as_of"]) != expected_is_rebalance:
         raise ValueError(f"{bundle_dir}: is_rebalance_data_as_of mismatch")
@@ -694,7 +700,8 @@ def evaluate_production(record: dict) -> dict:
         ),
         "tg_px_ratio_ok": (
             None if not isinstance(tg_suspect, dict)
-            else (len(tg_suspect) == 0 and len(tg_jump) == 0)
+            else (len(tg_suspect) == 0 and len(tg_jump) == 0
+                  and currency.get("tg_basis_guard_ok", True) is True)
         ),
     }
     # Fail-closed (2026-07-21): PRODUCTION requires every check explicitly

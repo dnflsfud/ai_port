@@ -329,8 +329,11 @@ def run(manifest_path: Path, no_cache: bool = False) -> int:
     from src.data_loader import UniverseData
     from src.target_engine import build_targets
     from src.harness import sub_period_irs
+    from src.run_integrity import (capture_run_inputs, verify_run_inputs,
+                                   build_run_contract, vintage_from_inputs)
 
     t0 = time.time()
+    input_snapshot = capture_run_inputs(cfg)
 
     # ------------------------------------------------------------------
     # Checkpoint reuse safety check
@@ -481,6 +484,7 @@ def run(manifest_path: Path, no_cache: bool = False) -> int:
         print("[run_variant] no checkpoints found — running full pipeline")
         data_path = cfg.data_path
         data = UniverseData(data_path, config=cfg)
+        verify_run_inputs(cfg, input_snapshot)
         result = run_backtest(data, config=cfg)
 
     residual_sleeve_attribution = None
@@ -558,12 +562,11 @@ def run(manifest_path: Path, no_cache: bool = False) -> int:
             result, n_dates=getattr(cfg, "alpha_attribution_n_dates", 8)
         )
 
-    # §S18.1 (decision log §S18 P1): cross-vintage target-price basis check —
-    # compare this run's per-ticker median(TG / local price) with the previous
-    # metrics.json in the same out_dir (the daily production run overwrites it,
-    # so "previous" is the prior vintage). A 252d median jumping by more than
-    # TG_PX_RATIO_JUMP_MAX in log terms is a vendor basis change (APH 1.16 ->
-    # 2.33 on the 2026-09-03 workbook), never analyst drift. Diagnostic only.
+    # Bind the result to what was actually read, not to an end-of-run vintage.
+    verify_run_inputs(cfg, input_snapshot)
+    result.run_contract = build_run_contract(cfg, data, input_snapshot)
+    input_vintage = vintage_from_inputs(input_snapshot)
+    # Keep unresolved anomalies independently of the overwritten run metrics.
     annotate_tg_ratio_jump(out_dir, getattr(result, "data_quality", None))
 
     # Persist artifacts
@@ -584,7 +587,8 @@ def run(manifest_path: Path, no_cache: bool = False) -> int:
                 "elapsed_sec": round(time.time() - t0, 1),
                 # Source-data vintage (§S13.47): two runs are only comparable
                 # when this (workbook, Index.xlsx) mtime pair matches.
-                "data_vintage": data_vintage_fingerprint(cfg),
+                "data_vintage": input_vintage,
+                "run_contract": result.run_contract,
             },
             fh,
             indent=2,
@@ -597,11 +601,13 @@ def run(manifest_path: Path, no_cache: bool = False) -> int:
     dump_experiment_manifest(
         config=cfg,
         output_dir=str(out_dir),
+        data_vintage=input_vintage,
         extra={
             "variant_label": label,
             "tuning_mode": tuning_mode,
             "manifest_path": str(manifest_path),
             "description": manifest.get("description", ""),
+            "run_contract": result.run_contract,
         },
     )
 
@@ -615,35 +621,11 @@ TG_PX_RATIO_JUMP_MAX = 0.25  # |log(now / previous)| of the 252d median TG/price
 
 
 def annotate_tg_ratio_jump(out_dir: Path, data_quality) -> dict:
-    """Write ``data_quality['currency']['tg_px_ratio_jump_vs_prev']`` from the
-    previous metrics.json in ``out_dir`` (empty when there is no previous run,
-    no ratios, or no jump). Returns the jump dict. Never raises."""
-    if not isinstance(data_quality, dict) or not isinstance(data_quality.get("currency"), dict):
-        return {}
-    currency = data_quality["currency"]
-    now = currency.get("tg_px_ratio_median") or {}
-    prev_path = Path(out_dir) / "metrics.json"
-    prev = {}
-    try:
-        if prev_path.exists():
-            prev_doc = json.loads(prev_path.read_text(encoding="utf-8"))
-            prev = (prev_doc.get("data_quality", {}).get("currency", {})
-                    .get("tg_px_ratio_median") or {})
-    except (OSError, ValueError, AttributeError):
-        prev = {}
-    jumps = {}
-    for ticker, value in now.items():
-        old = prev.get(ticker)
-        try:
-            new_f, old_f = float(value), float(old)
-        except (TypeError, ValueError):
-            continue
-        if new_f > 0 and old_f > 0 and abs(math.log(new_f / old_f)) > TG_PX_RATIO_JUMP_MAX:
-            jumps[str(ticker)] = {"previous": old_f, "now": new_f}
-    currency["tg_px_ratio_jump_vs_prev"] = jumps
+    """Persist unresolved jumps against their last normal reference (S19)."""
+    from src.tg_basis_guard import annotate_basis_guard
+    jumps = annotate_basis_guard(out_dir, data_quality, TG_PX_RATIO_JUMP_MAX)
     if jumps:
-        print(f"[run_variant] WARNING: target-price/price basis jump vs previous run "
-              f"(|dlog| > {TG_PX_RATIO_JUMP_MAX}) for {sorted(jumps)} — vendor basis change?")
+        print(f"[run_variant] WARNING: unresolved target-price basis anomalies: {sorted(jumps)}")
     return jumps
 
 

@@ -413,9 +413,13 @@ def test_cached_result_compatibility_accepts_exact_universe_and_asof():
     data_returns = pd.DataFrame(
         0.0, index=[pd.Timestamp("2026-06-11")], columns=tickers
     )
-    validate_cached_result_compatibility(
-        _cached_result(tickers), tickers, data_returns
-    )
+    from src.run_integrity import build_run_contract
+    from src.config import PipelineConfig
+    cached = _cached_result(tickers)
+    contract = build_run_contract(PipelineConfig(), types.SimpleNamespace(
+        tickers=tickers, returns=data_returns), {"code_sha256": "test", "data": {}, "fx": {}})
+    cached.run_contract = contract
+    validate_cached_result_compatibility(cached, tickers, data_returns, current_contract=contract)
 
 
 def test_provenance_meta_copies_run_manifest_git_and_checksums(tmp_path):

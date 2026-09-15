@@ -61,6 +61,9 @@ from scripts.validate_portfolio_bundles import (  # noqa: E402
     MAX_CONSECUTIVE_STALE_RETRAINS,
     max_stale_depth,
 )
+from src.trading_calendar import business_days_from_raw
+from src.run_integrity import (capture_run_inputs, verify_run_inputs,
+                               build_run_contract, validate_run_contract)
 
 DEFAULT_VARIANT = ROOT / "variants" / "iter15_65tkr_reb21_vtg.yaml"
 DEFAULT_OPERATING_DIR = ROOT / "outputs" / "operating"
@@ -131,8 +134,10 @@ def _safe_float(x, ndigits: Optional[int] = 6):
     return round(v, ndigits) if ndigits is not None else v
 
 
-def build_rebalance_metadata(rebalance_dates, portfolio_dates, rebalance_freq: int) -> dict:
-    """Return auditable latest/next rebalance metadata on a weekday-row calendar."""
+def build_rebalance_metadata(rebalance_dates, portfolio_dates, rebalance_freq: int,
+                             *, calendar_dates=None, calendar_name="weekday_index") -> dict:
+    """Use the engine's calendar, with exchange sessions for its future tail."""
+    from src.trading_calendar import forecast_session
     dates = pd.DatetimeIndex(portfolio_dates).sort_values().unique()
     rebalances = pd.DatetimeIndex(rebalance_dates).sort_values().unique()
     freq = int(rebalance_freq)
@@ -162,20 +167,23 @@ def build_rebalance_metadata(rebalance_dates, portfolio_dates, rebalance_freq: i
     next_pos = last_pos + freq * (rows_since // freq + 1)
     if next_pos < len(dates):
         next_expected = pd.Timestamp(dates[next_pos])
+        is_estimate = False
     else:
-        next_expected = pd.Timestamp(dates[-1]) + pd.offsets.BDay(rows_until)
+        next_expected, is_estimate = forecast_session(
+            dates[-1], rows_until, calendar_dates=calendar_dates, calendar_name=calendar_name,
+        )
 
     return {
         "last_rebalance_date": last.strftime("%Y-%m-%d"),
         "previous_rebalance_date": previous.strftime("%Y-%m-%d"),
         "next_expected_rebalance_date": next_expected.strftime("%Y-%m-%d"),
         "rebalance_freq_days": freq,
-        "rebalance_calendar": "weekday_index",
+        "rebalance_calendar": calendar_name,
         "rows_since_last_rebalance": int(rows_since),
         "rows_until_next_rebalance": int(rows_until),
         "rebalance_overdue": bool(rebalance_overdue),
         "is_rebalance_data_as_of": bool(pd.Timestamp(dates[-1]) == last),
-        "next_rebalance_is_estimate": bool(next_pos >= len(dates)),
+        "next_rebalance_is_estimate": is_estimate,
     }
 
 
@@ -1100,6 +1108,7 @@ def validate_cached_result_compatibility(
     data_returns: pd.DataFrame,
     *,
     variant_path: Optional[Path] = None,
+    current_contract: Optional[dict] = None,
 ) -> None:
     """Fail fast when a stale/65-name result is paired with current 100-name data."""
     expected = list(data_tickers)
@@ -1137,7 +1146,16 @@ def validate_cached_result_compatibility(
             problems.append(
                 f"cached result as_of={result_as_of.date()} but current data as_of={data_as_of.date()}"
             )
+        cached_dates = pd.DatetimeIndex(port_returns.index)
+        current_dates = pd.DatetimeIndex(data_returns.index)
+        expected_dates = current_dates[(current_dates >= cached_dates.min()) & (current_dates <= cached_dates.max())]
+        if not cached_dates.equals(expected_dates):
+            problems.append("cached portfolio calendar differs from current data calendar")
 
+    try:
+        validate_run_contract(getattr(result, "run_contract", None), current_contract)
+    except ValueError as exc:
+        problems.append(str(exc))
     if problems:
         variant_arg = str(variant_path) if variant_path is not None else "<variant.yaml>"
         raise ValueError(
@@ -1333,8 +1351,9 @@ def build_feature_attribution(result) -> dict:
 
 def main(argv=None) -> int:
     import yaml
-    from src.harness import build_override_config, inject_config, sub_period_irs
-    from src.backtest import run_backtest, get_benchmark_fn, get_sector_map
+    from src.harness import inject_config, sub_period_irs
+    from src.backtest import get_benchmark_fn, get_sector_map
+    from run_variant import compose_config
     from src.data_loader import UniverseData
     from src.attribution import compute_feature_importance
     from src.portfolio_optimizer import estimate_covariance
@@ -1347,8 +1366,7 @@ def main(argv=None) -> int:
     variant = _rooted(args.variant).resolve()
     out = _rooted(args.operating_dir).resolve()
     manifest = yaml.safe_load(variant.read_text(encoding="utf-8")) or {}
-    overrides = manifest.get("overrides", {})
-    cfg = build_override_config(dict(overrides))
+    cfg = compose_config(manifest)
     inject_config(cfg)
 
     # Prefer the cached full result pkl (run_variant saves it) — loading it is
@@ -1359,7 +1377,14 @@ def main(argv=None) -> int:
     run_dir = _rooted(Path(manifest.get("out_dir") or f"outputs/{label}")).resolve()
     pkl = run_dir / "backtest_result.pkl"
     metrics_path = run_dir / "metrics.json"
-    data = UniverseData(cfg.data_path, config=cfg)   # needed for sector map + benchmark weights
+    # Every exported result must first go through the single verified writer.
+    if not pkl.exists():
+        from run_variant import run
+        run(variant, no_cache=True)
+    input_snapshot = capture_run_inputs(cfg)
+    data = UniverseData(cfg.data_path, config=cfg)
+    verify_run_inputs(cfg, input_snapshot)
+    current_contract = build_run_contract(cfg, data, input_snapshot)
     if pkl.exists():
         import pickle
         print(f"[export] loading cached backtest_result.pkl ({pkl.stat().st_size//1_000_000}MB)…")
@@ -1374,12 +1399,19 @@ def main(argv=None) -> int:
             data.tickers,
             data.returns,
             variant_path=variant_hint,
+            current_contract=current_contract,
         )
         print(f"[export] loaded in {time.time()-t0:.0f}s")
     else:
-        print("[export] no cached result — running production backtest (single-thread BLAS)…")
-        res = run_backtest(data, config=cfg)
-        print(f"[export] backtest done in {time.time()-t0:.0f}s")
+        raise ValueError("Backtest result disappeared during export; re-run --no-cache")
+
+    # Resolve the schedule before writing any bundle files: a missing exchange
+    # calendar must not leave a partially refreshed operating bundle.
+    rebalance_meta = build_rebalance_metadata(
+        sorted(res.portfolio_weights), res.portfolio_returns.dropna().index, cfg.rebalance_freq,
+        calendar_dates=(business_days_from_raw(data.raw) if cfg.business_day_calendar_enabled else None),
+        calendar_name=("XNYS" if cfg.business_day_calendar_enabled else "weekday_index"),
+    )
 
     out.mkdir(parents=True, exist_ok=True)
     tickers = list(data.tickers)
@@ -1472,11 +1504,6 @@ def main(argv=None) -> int:
     # ---- holdings.json (latest rebalance OW/UW) ---------------------------
     reb_dates = sorted(res.portfolio_weights.keys())
     last = reb_dates[-1]
-    rebalance_meta = build_rebalance_metadata(
-        reb_dates,
-        port.index,
-        getattr(cfg, "rebalance_freq", 21),
-    )
     w = res.portfolio_weights[last].reindex(tickers).fillna(0.0)
     bm_w = pd.Series(np.asarray(bm_fn(last, tickers, len(tickers)), dtype=float), index=tickers)
     active = w - bm_w
@@ -2138,6 +2165,7 @@ def main(argv=None) -> int:
             if metrics_path.exists() else None
         ),
         **build_provenance_meta(run_dir),
+        "verified_run_contract": True,
         "causal_validation_enabled": bool(getattr(cfg, "causal_validation_enabled", False)),
         "causal_validation_ok": model_quality.get("causal_validation_ok"),
         "execution_signal_lag_days": int(getattr(cfg, "execution_signal_lag_days", 0)),

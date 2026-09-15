@@ -9166,3 +9166,41 @@ IR·active·β 0.95~1.05·서브기간 승 0/3 미충족, TE·turnover·MaxDD �
 롤백 = `variants/iter15_65tkr_reb21_vtg.yaml` 1줄 삭제(단, 그러면 레지스트리 불일치가 재발하므로 production 과 함께 되돌려야 한다).
 
 **잔여**: 09-11 이후 커밋(8091ddc·36fe62f·846b6fa·e67baa4·d6fffc9·본 결과 커밋) origin 미푸시 — 사용자 결정. `export_operating_data.rebalance_calendar` 상수 라벨 정정은 후속 후보. 챌린저 ΔIR −0.69 분해는 사용자가 원할 때 별도 사전등록.
+
+## S19 구조 감사 4건 수정 — 2026-09-14 (사용자 직접 수정 승인)
+
+사용자가 2026-09-14 코드 리뷰의 1~4번 전부 수정을 지시했다. 성능 탐색이 아닌 정확성·운영 정합 수정이며 파라미터 스윕과 DSR 후보 선택을 수행하지 않는다.
+
+- 목표주가 기저 경고: metrics 덮어쓰기와 독립된 정상 기준·미해결 상태를 원자적으로 저장. 같은 이상값 재실행으로 HOLD 해제 금지, 정상 범위 회복 시에만 자동 해제. 기존 미해결 jump의 원래 previous 값도 이관.
+- 캐시: 실행 전/로딩 후/저장 전 입력 파일 SHA-256·코드 지문 확인, resolved config·전체 입력 날짜·종목 계약을 결과에 저장. export 시 일치해야 캐시 재사용 가능. 구형 캐시는 새 인증 런으로 교체.
+- 달력: 엔진 BusinessDays 해석을 공통화, 미래는 XNYS(exchange-calendars)로 확장. §S18.8의 교차 번들 공통 일정 검증을 그대로 유지.
+- 발표일: business_day_calendar_enabled 경로에서 원본 이벤트를 첫 거래 가능 날짜로 매핑. 미래 이벤트 역행 금지·충돌 OR·원본/이동/범위 밖 이벤트 집계. 기존 OFF 경로 보존. 새로운 성능 플래그·variant 파라미터 변경 없음.
+
+검증: 수정 전 새 재현 테스트 7 FAIL 확인 → 수정 및 경계 테스트 추가 → 전체 832 PASS(56.27초). 기존 발표일 핀·S18 설정 핀 통과. 재학습·실제 데이터 검증 결과는 아래 후속 절에 기재한다.
+
+측정 기준: 같은 워크북/Index 입력 지문, 단일 ECOS, 단일 foreground. 수정 전 운영·비교 pkl 및 metrics는 outputs/review_20260914/*_before*에 보존. 신호/리스크/회전율/IR 변화는 정확성 수정의 영향 확인용이며 성능 우위를 주장하는 채택 근거로 사용하지 않는다. 커밋·푸시는 수행하지 않는다.
+
+### S19.1 운영 포트폴리오 검증 결과 (2026-09-15 확인)
+
+새 전체 실행은 EXIT 0, 입력 로딩 전/후 및 저장 전 내용 해시·코드 지문 검사 통과. 수정 전후 기록된 워크북/Index mtime·size 쌍은 동일하다. 구형 산출물에는 내용 해시가 없으므로 과거 입력 바이트까지 증명한다는 주장은 하지 않는다.
+
+- 모델 입력 panel 및 pre_overlay_predictions: 수정 전후 완전 동일. 최종 오버레이/지연 후 점수는 84셀 변경, 최대 절대 변화 0.2422857143.
+- 발표일: source_events 12,022 / represented_events 11,975 / binary flags 11,974 / shifted_events 10 / 범위 밖 47. 같은 거래일로 모이는 이벤트는 OR하므로 원본 이벤트 수와 binary flag 수를 구분한다.
+- IR 1.7512088728 → 1.7512115304, TE 0.0379020611 → 0.0379020891, 연 회전율 0.7899266511 → 0.7899265455, avg_ic 0.0126000589 → 0.0125976862. MaxDD -0.3287780449 → -0.3287780571. 정확성 수정의 영향 관측이며 성능 개선 주장 아님.
+- ECOS 184 solve / optimizer_failures 0. 새 run_contract schema 1 저장. tg_basis_guard_ok True, 미해결 기저 종목 없음.
+- 과거 리밸 구간 91개: 원본 거래일 및 XNYS 확장 경로 모두 다음 실제 리밸과 불일치 0. 이전 감사에서 확인한 평일 추정 불일치 60/91 해소.
+- 상세 증거: outputs/review_20260914/fix_validation_production.json. 운영 실행 로그: logs/s19_fixes_production_20260914.log.
+
+현재 코드 기준 운영 S0′는 위 새 수치다. 비교 포트폴리오 및 번들 검증 결과는 후속 절에 기재한다.
+
+### S19.2 비교 포트폴리오 및 번들 최종 검증 (2026-09-15 완료)
+
+- 비교 전체 실행 및 두 export 모두 EXIT 0. 반복적인 Excel 재해석을 줄이기 위해 검증용 단일 프로세스에서 파일 SHA-256·size·mtime가 같은 원본만 메모리에 보관하고, 각 UniverseData에는 독립된 deep copy를 제공했다. 모델/타깃 체크포인트 재사용은 활성화하지 않았다. 각 실행과 export는 별도로 입력 계약을 검증했다.
+- 비교 모델 panel·pre_overlay_predictions도 수정 전과 완전 동일. 최종 점수 66셀 변경(최대 0.2014285714). IR 0.8122285606 → 0.8122668252, TE 0.0386135175 → 0.0386148736, 연 회전율 0.9844453362 → 0.9845037673, avg_ic 0.0370948757 → 0.0371133841. 큰 성과 변화 없음.
+- 비교 포트폴리오의 리밸런싱 폴백은 수정 전 3건 → 수정 후 3건(원래 mvo/projection infeasible 각 3개 기록). 과거 문서의 'solver fallback 0'과 리밸런싱 폴백 횟수를 혼동하지 않는다. 기존 GBP/GBp 비율 경고 8종목도 유지되며, 이번 요청 외의 Legacy 설정을 변경하거나 경고를 임의 해제하지 않았다.
+- 양쪽 모두 휴장일 발표 10건 이동·보존. 91개 리밸 구간의 다음 날짜는 원본 거래일/거래소 확장 경로 모두 불일치 0.
+- 두 운영 번들의 verified_run_contract=True. 공통 일정: data_as_of 2026-09-10 / last 2026-09-04 / next 2026-10-06 / calendar XNYS / rows_until 18.
+- validate_portfolio_bundles.py EXIT 0, outputs/portfolio_registry.json 갱신. 운영 PRODUCTION, 8개 check 모두 True. 비교 RESEARCH/FAIL은 기존 승격 평가 상태이며 번들 검증 실패가 아니다.
+- 테스트: 전체 832 PASS 후 명시적 기저 확인 명령 테스트 1개 추가, 해당 회귀 모듈 17 PASS. 고유 테스트 총 833 PASS. git diff --check 통과. 커밋·외부 업로드 없음.
+
+최종 증거: outputs/review_20260914/fix_validation.json, 수정 설명: outputs/review_20260914/fixes.md. 원시 로그는 logs/s19_fixes_*.log에 보관. 검증 중 장시간 실행 지연이 포함됐으므로 elapsed_sec로 계산 속도를 비교하지 않는다. 네 수정 및 현재 운영 데이터 갱신 완료.
