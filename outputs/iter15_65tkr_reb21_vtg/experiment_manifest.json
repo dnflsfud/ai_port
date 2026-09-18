@@ -330,11 +330,11 @@
     "winner_trim_quantile": 0.8
   },
   "data_vintage": {
-    "data_mtime_utc": "2026-09-11T04:34:45Z",
+    "data_mtime_utc": "2026-09-15T06:24:36Z",
     "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
-    "data_size_bytes": 366939766,
-    "fx_mtime_utc": "2026-09-15T02:05:42Z",
-    "fx_size_bytes": 92326404,
+    "data_size_bytes": 367245776,
+    "fx_mtime_utc": "2026-09-18T01:48:00Z",
+    "fx_size_bytes": 92399154,
     "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx"
   },
   "extra": {
@@ -3518,21 +3518,23 @@
         "2026-09-04T00:00:00",
         "2026-09-08T00:00:00",
         "2026-09-09T00:00:00",
-        "2026-09-10T00:00:00"
+        "2026-09-10T00:00:00",
+        "2026-09-11T00:00:00",
+        "2026-09-14T00:00:00"
       ],
       "inputs": {
         "code_sha256": "e9dfc217ba32e710ea2c408722e5df6c1830afbba2de49f049b75aa4efcc7ae1",
         "data": {
-          "mtime_ns": 1789101285760723900,
+          "mtime_ns": 1789453476346160000,
           "path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
-          "sha256": "c42795c45d34285126a5bacdfa1a7bb5257ed3a6f64955d9cccd7e1a5201f081",
-          "size": 366939766
+          "sha256": "45863ce296d86647f17783a71eedf4c8f32041e7e4af2168b909dfbe2bbf71fc",
+          "size": 367245776
         },
         "fx": {
-          "mtime_ns": 1789437942061003900,
+          "mtime_ns": 1789696080735284700,
           "path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
-          "sha256": "288f6bf3bd01e3b56c021c9df5ca75ad9a9d469ae4edcdbefe50a3914543dc81",
-          "size": 92326404
+          "sha256": "d13dcd9cd26266b7b77598ce3d4ad00fb18c21cf0df0ff32d567c54be9a5f93e",
+          "size": 92399154
         }
       },
       "schema_version": 1,
@@ -3792,7 +3794,7 @@
     "tuning_mode": "production",
     "variant_label": "iter15_65tkr_reb21_vtg"
   },
-  "git_dirty": true,
-  "git_hash": "614b25d51c6eb20f83c1ccc93f7abae00a51313e",
-  "timestamp_utc": "2026-09-15T02:50:24Z"
+  "git_dirty": false,
+  "git_hash": "bf6e055e0d0ea3c7175cd224f9cb6b49cb496f9b",
+  "timestamp_utc": "2026-09-18T02:48:57Z"
 }
