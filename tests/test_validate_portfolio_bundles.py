@@ -76,6 +76,7 @@ def _write_bundle(
         "source_metrics_sha256": metrics_hash, "causal_validation_enabled": role == "challenger",
         "causal_validation_ok": True if role == "challenger" else None,
         "execution_signal_lag_days": 1 if role == "challenger" else 0,
+        "git_dirty": False,  # §S22 D-01 provenance (export copies the run manifest's)
     }
     (bundle / "portfolio.json").write_text(json.dumps(meta), encoding="utf-8")
     (bundle / "performance.json").write_text(json.dumps(perf), encoding="utf-8")
@@ -177,6 +178,8 @@ def _write_bundle(
     for fname in ("features.json", "contribution.json", "monitoring.json", "feature_attribution.json"):
         (bundle / fname).write_text("{}", encoding="utf-8")
     risk_payload = {"guardrails": risk_guardrails} if risk_guardrails is not None else {}
+    # §S22 D-02: export always writes the option-vol channel state.
+    risk_payload.update(option_vol_cov_scaling_enabled=False, option_vol_cov_scaling_applied=False)
     (bundle / "risk.json").write_text(json.dumps(risk_payload), encoding="utf-8")
     returns = {"date": [as_of], "portfolio_ret": [0.0]}
     for column in (

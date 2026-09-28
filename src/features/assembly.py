@@ -730,7 +730,7 @@ def build_all_features(
 
     # S13.25: fwd sales term-structure slope block (S8 idiom); admission is
     # gated at the core-whitelist filter below, so OFF stays byte-identical.
-    fwd_sales_slope = build_fwd_sales_slope_features(all_features, data)
+    fwd_sales_slope = build_fwd_sales_slope_features(all_features, data, config=config)
     feature_groups["FwdSalesSlope"] = list(fwd_sales_slope.keys())
     all_features.update(fwd_sales_slope)
 

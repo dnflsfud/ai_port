@@ -1990,7 +1990,11 @@ def run_backtest(
                   f"(weight={config.pead_boost_weight}, decay_days={config.pead_decay_days}, "
                   f"max_days={config.pead_max_days})")
         else:
-            print("[Backtest] REDESIGN U: PEAD boost SKIPPED (earnings_timeline not loaded)")
+            # §S22 D-02: an enabled production channel must not degrade to a
+            # print line when its source sheet is absent.
+            raise ValueError(
+                "pead_boost_enabled but earnings_timeline is not loaded "
+                "(Earnings_Timeline/Earnings_Date sheet missing)")
 
     # REDESIGN iter19 (2026-04-17): Growth/Revision tilt.
     # Tilts OW toward growing + revised-up names, away from pure quality/margin plays.
@@ -2116,11 +2120,11 @@ def run_backtest(
     if getattr(config, "option_vol_covariance_enabled", False):
         try:
             _iv_sheet = data.get_sheet(OPTION_VOL_SHEET)
-        except KeyError:
-            _iv_sheet = None
-            logger.warning(
-                "[S13.41] option_vol_covariance_enabled but %r sheet is "
-                "missing — diagonal scaling stays inert.", OPTION_VOL_SHEET)
+        except KeyError as exc:
+            # §S22 D-02: fail loudly instead of running with the risk channel inert.
+            raise KeyError(
+                f"[S13.41] option_vol_covariance_enabled but {OPTION_VOL_SHEET!r} "
+                f"sheet is missing") from exc
         if _iv_sheet is not None:
             # Structural review 2026-08-27 (config.option_vol_scale_fix_enabled):
             # OFF keeps the historical call byte-identical. ON (a) estimates the
@@ -2141,10 +2145,10 @@ def run_backtest(
                 if callable(_mask_fn):
                     _optvol_mask = _mask_fn(OPTION_VOL_SHEET)
                 if _optvol_mask is None:
-                    logger.warning(
-                        "[S13.41] option_vol_scale_fix_enabled but the %r "
-                        "observed mask is unavailable — coverage guard stays "
-                        "off.", OPTION_VOL_SHEET)
+                    # §S22 D-02: the fix's coverage guard must not switch off silently.
+                    raise ValueError(
+                        f"[S13.41] option_vol_scale_fix_enabled but the "
+                        f"{OPTION_VOL_SHEET!r} observed mask is unavailable")
                 else:
                     print(f"[Backtest] S13.41 fix: iv30_z observed coverage "
                           f"{float(_optvol_mask.values.mean()):.1%} "

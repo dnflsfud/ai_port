@@ -1556,6 +1556,12 @@ class UniverseData:
         except KeyError:
             return
         local = self.local_prices
+        # §S22 A-02: divide by the same panel tg_upside does — the dividend-
+        # unadjusted nominal price when config.nominal_price_source is set
+        # (features.sellside._local_price_panel) — or a distribution spin-off
+        # that shifts only the consumer's basis stays invisible to the guard.
+        if getattr(getattr(self, "config", None), "nominal_price_source", None):
+            local = self.local_prices_nominal
         target_prices = target_prices.reindex(
             index=local.index, columns=local.columns
         )

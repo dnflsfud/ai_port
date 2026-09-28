@@ -47,6 +47,9 @@ def annotate_basis_guard(out_dir, data_quality, threshold=0.25):
     reference. A clean first-ever observation establishes a baseline. Invalid
     state is fatal; invalid/missing observations never clear pending names.
     No automatic acknowledgement of a persistent new basis is performed.
+    §S22 A-04: a pending name absent from a non-empty observation set (left the
+    universe, no TG/price overlap) cannot reach the book and is released; its
+    baseline is kept, so a return on the same abnormal basis is flagged again.
     """
     if not isinstance(data_quality, dict) or not isinstance(data_quality.get("currency"), dict):
         return {}
@@ -96,6 +99,8 @@ def annotate_basis_guard(out_dir, data_quality, threshold=0.25):
         else:
             baseline[ticker] = value
             pending.pop(ticker, None)
+    if now:
+        pending = {ticker: event for ticker, event in pending.items() if ticker in now}
     state = {"schema_version": 1, "baseline": baseline, "pending": pending}
     _save(path, state)
     currency["tg_px_ratio_jump_vs_prev"] = pending

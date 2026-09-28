@@ -17,36 +17,56 @@ set "GH_URL=https://github.com/dnflsfud/ai_port.git"
 echo [1/10] Environment check...
 if not exist "%PY%" (echo ERROR: python not found: %PY% & exit /b 1)
 "%PY%" -c "import cvxpy; assert 'ECOS' in cvxpy.installed_solvers(), 'ECOS missing'"
-if errorlevel 1 (echo ERROR: cvxpy/ECOS check failed & exit /b 1)
+if !errorlevel! neq 0 (echo ERROR: cvxpy/ECOS check failed & exit /b 1)
+REM S22 D-01: production is computed from the working tree and step 8 stages
+REM the whole tree, so code outside outputs\ must be committed before the run.
+REM Same pathspec as src/config.py _git_dirty (the manifest's git_dirty).
+set "DIRTY="
+for /f "delims=" %%L in ('git status --porcelain -- . ":(exclude)outputs"') do set "DIRTY=1"
+if defined DIRTY (
+  echo ERROR: uncommitted changes outside outputs\ - commit or stash them before the run
+  git status --short -- . ":(exclude)outputs"
+  exit /b 1
+)
 
+REM S22 D-05: `if errorlevel 1` means >= 1 and passes a native crash
+REM (negative NTSTATUS exit code) as success; test for any non-zero code.
 echo [2/10] Running test suite...
 "%PY%" -m pytest tests/ -q
-if errorlevel 1 (echo ERROR: tests failed - aborting before backtest/upload & exit /b 1)
+if !errorlevel! neq 0 (echo ERROR: tests failed - aborting before backtest/upload & exit /b 1)
 
 echo [3/10] Running Legacy S0 challenger backtest - full pipeline, about 4 min...
 "%PY%" run_variant.py --variant variants\iter15_65tkr_reb21_vtg.yaml --no-cache
-if errorlevel 1 (echo ERROR: Legacy S0 challenger backtest failed - aborting before upload & exit /b 1)
+if !errorlevel! neq 0 (echo ERROR: Legacy S0 challenger backtest failed - aborting before upload & exit /b 1)
 
 echo [4/10] Refreshing Legacy S0 challenger operating dashboard data...
 "%PY%" scripts\export_operating_data.py
-if errorlevel 1 (echo ERROR: Legacy S0 challenger operating data export failed - aborting before upload & exit /b 1)
+if !errorlevel! neq 0 (echo ERROR: Legacy S0 challenger operating data export failed - aborting before upload & exit /b 1)
 
 echo [5/10] Running Causal Rank 65 production - full pipeline...
 "%PY%" run_variant.py --variant variants\codex_causal_rank_65.yaml --no-cache
-if errorlevel 1 (echo ERROR: Causal Rank 65 production backtest failed - aborting before upload & exit /b 1)
+if !errorlevel! neq 0 (echo ERROR: Causal Rank 65 production backtest failed - aborting before upload & exit /b 1)
 
 echo [6/10] Refreshing Causal Rank 65 production operating dashboard data...
 "%PY%" scripts\export_operating_data.py --variant variants\codex_causal_rank_65.yaml --operating-dir outputs\operating_codex_causal_rank_65
-if errorlevel 1 (echo ERROR: Causal Rank 65 production operating export failed - aborting before upload & exit /b 1)
+if !errorlevel! neq 0 (echo ERROR: Causal Rank 65 production operating export failed - aborting before upload & exit /b 1)
 
 echo [7/10] Validating both portfolio bundles and publishing registry...
 "%PY%" scripts\validate_portfolio_bundles.py --bundle outputs\operating --bundle outputs\operating_codex_causal_rank_65
-if errorlevel 1 (echo ERROR: portfolio bundle validation failed - aborting before upload & exit /b 1)
+if !errorlevel! neq 0 (echo ERROR: portfolio bundle validation failed - aborting before upload & exit /b 1)
 
 echo [8/10] Git commit - ai_port standalone repo...
 if not exist ".git" (
   git init -b main
   if errorlevel 1 (echo ERROR: git init failed & exit /b 1)
+)
+REM S22 D-01: re-check so code edited during the run is not swept into the commit.
+set "DIRTY="
+for /f "delims=" %%L in ('git status --porcelain -- . ":(exclude)outputs"') do set "DIRTY=1"
+if defined DIRTY (
+  echo ERROR: uncommitted changes outside outputs\ appeared during the run - commit skipped
+  git status --short -- . ":(exclude)outputs"
+  exit /b 1
 )
 git add -A
 git diff --cached --quiet

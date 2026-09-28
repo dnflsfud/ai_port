@@ -45,15 +45,22 @@ def admitted_fwd_sales_slope_features(config) -> set:
 def build_fwd_sales_slope_features(
     all_features: Dict[str, pd.DataFrame],
     data,
+    config=None,
 ) -> Dict[str, pd.DataFrame]:
     """slope 시트에서 선형 2 + min-confirm 비선형 2 피처를 만든다.
 
     파트너 피처가 아직 없으면 해당 confirm만 건너뛴다(§9: 추정으로 메우지
     않음). 레벨·Δ63은 assembly의 공통 CS z-score를 그대로 따른다.
+    §S22 D-02: flag ON(승인 피처)인데 시트·파트너가 없으면 건너뛰지 않고 raise.
     """
+    admitted = admitted_fwd_sales_slope_features(config)
     try:
         raw = data.get_sheet(FWD_SALES_SLOPE_SHEET)
     except KeyError:
+        if admitted:
+            raise KeyError(
+                f"fwd_sales_slope_features_enabled but {FWD_SALES_SLOPE_SHEET} "
+                f"sheet is missing") from None
         print(f"[FwdSalesSlope] {FWD_SALES_SLOPE_SHEET} sheet not found — skipping")
         return {}
 
@@ -68,6 +75,10 @@ def build_fwd_sales_slope_features(
     slope_z = cross_sectional_zscore(slope)
     for name, parent in NL_CONFIRM_PARENTS.items():
         if parent not in all_features:
+            if name in admitted:
+                raise KeyError(
+                    f"fwd_sales_slope_features_enabled but parent {parent} "
+                    f"is missing for {name}")
             print(f"[FwdSalesSlope] parent {parent} missing — skipping {name}")
             continue
         parent_z = cross_sectional_zscore(

@@ -573,6 +573,10 @@ def validate_bundle(bundle_dir: Path) -> dict:
         "_risk_guardrails": risk_guardrails,
         "_model_quality": model_quality,
         "_run_config_drift": config_drift,
+        "_option_vol_cov": {
+            "enabled": risk.get("option_vol_cov_scaling_enabled"),
+            "applied": risk.get("option_vol_cov_scaling_applied"),
+        },
     }
 
 
@@ -676,6 +680,12 @@ def evaluate_production(record: dict) -> dict:
     currency = data_quality.get("currency") if isinstance(data_quality.get("currency"), dict) else {}
     tg_suspect = currency.get("tg_px_ratio_suspect")
     tg_jump = currency.get("tg_px_ratio_jump_vs_prev") or {}
+    # §S22 D-01: the run must come from committed code (manifest git_dirty,
+    # outputs/ excluded). §S22 D-02: an enabled option-vol risk channel must
+    # actually be applied to the published book, not silently inert.
+    git_dirty = record.get("git_dirty")
+    optvol = record.get("_option_vol_cov") or {}
+    optvol_enabled, optvol_applied = optvol.get("enabled"), optvol.get("applied")
 
     checks = {
         "estimated_te_ok": _not_breached("estimated_te_breached"),
@@ -702,6 +712,11 @@ def evaluate_production(record: dict) -> dict:
             None if not isinstance(tg_suspect, dict)
             else (len(tg_suspect) == 0 and len(tg_jump) == 0
                   and currency.get("tg_basis_guard_ok", True) is True)
+        ),
+        "clean_tree_ok": None if not isinstance(git_dirty, bool) else not git_dirty,
+        "option_vol_applied_ok": (
+            None if not isinstance(optvol_enabled, bool) or not isinstance(optvol_applied, bool)
+            else optvol_applied or not optvol_enabled
         ),
     }
     # Fail-closed (2026-07-21): PRODUCTION requires every check explicitly
