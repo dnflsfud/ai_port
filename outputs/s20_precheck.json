@@ -1,0 +1,277 @@
+{
+  "preregistration": "decision log §S20 (2026-09-19)",
+  "pkl": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\c2\\ai_port\\outputs\\codex_causal_rank_65\\backtest_result.pkl",
+  "bundle_mtime": "2026-09-18 14:13",
+  "target": "20d fwd (production forward_horizon)",
+  "nw_lag": 20,
+  "t_bar": 2.0,
+  "gates": {
+    "G1": "resid IC vs executable score NW|t|>=2",
+    "G2": "resid IC vs score + FY1 counterpart NW|t|>=2 (decision gate)"
+  },
+  "selfcheck_fy1_reconstruction": {
+    "median_cs_spearman": 0.9846,
+    "pooled_pearson_raw": 0.9252,
+    "pooled_pearson_cs_zscored": 0.9865,
+    "aligned_cells": 748152
+  },
+  "candidates": {
+    "C1_fy2_ma_63d": {
+      "coverage_days": 2906,
+      "nonnan_share": 0.941,
+      "raw_ic_mean": 0.0214,
+      "raw_ic_t_nw": 2.9,
+      "resid_ic_mean": 0.02313,
+      "resid_ic_t_nw": 2.55,
+      "resid_ic_thirds": [
+        0.04335,
+        0.00282,
+        0.02322
+      ],
+      "G1": "PASS",
+      "resid_ic_vs_score_fy1_mean": 0.00545,
+      "resid_ic_vs_score_fy1_t_nw": 0.78,
+      "resid_ic_vs_score_fy1_thirds": [
+        0.01244,
+        4e-05,
+        0.00388
+      ],
+      "cs_spearman_vs_fy1_counterpart": 0.874,
+      "G2": "FAIL",
+      "gate": "SHELVE",
+      "top3_corr_active": [
+        [
+          "sales_rev_ma_63d",
+          0.866
+        ],
+        [
+          "nl_fslope_rev_confirm",
+          0.688
+        ],
+        [
+          "fin_sales_chg_63d",
+          0.666
+        ]
+      ]
+    },
+    "C2_fy2_level": {
+      "coverage_days": 2906,
+      "nonnan_share": 0.948,
+      "raw_ic_mean": 0.01739,
+      "raw_ic_t_nw": 2.42,
+      "resid_ic_mean": 0.01406,
+      "resid_ic_t_nw": 1.55,
+      "resid_ic_thirds": [
+        0.03349,
+        -0.0139,
+        0.0226
+      ],
+      "G1": "FAIL",
+      "resid_ic_vs_score_fy1_mean": 0.00117,
+      "resid_ic_vs_score_fy1_t_nw": 0.16,
+      "resid_ic_vs_score_fy1_thirds": [
+        0.00866,
+        -0.01376,
+        0.00859
+      ],
+      "cs_spearman_vs_fy1_counterpart": 0.845,
+      "G2": "FAIL",
+      "gate": "SHELVE",
+      "top3_corr_active": [
+        [
+          "fin_sales_chg_63d",
+          0.687
+        ],
+        [
+          "sales_rev_ma_63d",
+          0.663
+        ],
+        [
+          "best_sales_accel",
+          -0.579
+        ]
+      ]
+    },
+    "C3_fy2_trend": {
+      "coverage_days": 2906,
+      "nonnan_share": 0.941,
+      "raw_ic_mean": -0.00429,
+      "raw_ic_t_nw": -0.87,
+      "resid_ic_mean": -0.01102,
+      "resid_ic_t_nw": -1.85,
+      "resid_ic_thirds": [
+        -0.00808,
+        -0.0213,
+        -0.00368
+      ],
+      "G1": "FAIL",
+      "resid_ic_vs_score_fy1_mean": -0.01169,
+      "resid_ic_vs_score_fy1_t_nw": -1.88,
+      "resid_ic_vs_score_fy1_thirds": [
+        -0.00408,
+        -0.02168,
+        -0.00931
+      ],
+      "cs_spearman_vs_fy1_counterpart": 0.734,
+      "G2": "FAIL",
+      "gate": "SHELVE",
+      "top3_corr_active": [
+        [
+          "eps_rev_trend",
+          0.357
+        ],
+        [
+          "fin_sales_chg_63d",
+          0.203
+        ],
+        [
+          "tg_mom_63d",
+          0.202
+        ]
+      ]
+    },
+    "C4_fy2_diff_21d": {
+      "coverage_days": 2906,
+      "nonnan_share": 0.941,
+      "raw_ic_mean": -6e-05,
+      "raw_ic_t_nw": -0.01,
+      "resid_ic_mean": -0.00282,
+      "resid_ic_t_nw": -0.51,
+      "resid_ic_thirds": [
+        0.00849,
+        -0.01797,
+        0.00102
+      ],
+      "G1": "FAIL",
+      "resid_ic_vs_score_fy1_mean": -0.00698,
+      "resid_ic_vs_score_fy1_t_nw": -1.34,
+      "resid_ic_vs_score_fy1_thirds": [
+        -0.00582,
+        -0.02084,
+        0.0057
+      ],
+      "cs_spearman_vs_fy1_counterpart": 0.648,
+      "G2": "FAIL",
+      "gate": "SHELVE",
+      "top3_corr_active": [
+        [
+          "sales_rev_ma_63d",
+          -0.201
+        ],
+        [
+          "ma_cross_21_50",
+          0.173
+        ],
+        [
+          "eps_rev_trend",
+          0.171
+        ]
+      ]
+    },
+    "C5_spread_ma_63d": {
+      "coverage_days": 2906,
+      "nonnan_share": 0.941,
+      "raw_ic_mean": -0.00236,
+      "raw_ic_t_nw": -0.49,
+      "resid_ic_mean": -0.00434,
+      "resid_ic_t_nw": -0.81,
+      "resid_ic_thirds": [
+        -0.0088,
+        0.00116,
+        -0.00538
+      ],
+      "G1": "FAIL",
+      "resid_ic_vs_score_fy1_mean": 0.00545,
+      "resid_ic_vs_score_fy1_t_nw": 0.78,
+      "resid_ic_vs_score_fy1_thirds": [
+        0.01244,
+        4e-05,
+        0.00388
+      ],
+      "cs_spearman_vs_fy1_counterpart": -0.308,
+      "G2": "FAIL",
+      "gate": "SHELVE",
+      "top3_corr_active": [
+        [
+          "sales_rev_ma_63d",
+          -0.294
+        ],
+        [
+          "nl_fslope_rev_confirm",
+          -0.23
+        ],
+        [
+          "eps_rev_ma_63d",
+          -0.158
+        ]
+      ]
+    },
+    "C6_spread_level": {
+      "coverage_days": 2906,
+      "nonnan_share": 0.948,
+      "raw_ic_mean": -0.00624,
+      "raw_ic_t_nw": -1.3,
+      "resid_ic_mean": -0.00874,
+      "resid_ic_t_nw": -1.49,
+      "resid_ic_thirds": [
+        -0.01303,
+        -0.00734,
+        -0.00586
+      ],
+      "G1": "FAIL",
+      "resid_ic_vs_score_fy1_mean": 0.00117,
+      "resid_ic_vs_score_fy1_t_nw": 0.16,
+      "resid_ic_vs_score_fy1_thirds": [
+        0.00866,
+        -0.01376,
+        0.00859
+      ],
+      "cs_spearman_vs_fy1_counterpart": -0.343,
+      "G2": "FAIL",
+      "gate": "SHELVE",
+      "top3_corr_active": [
+        [
+          "sales_rev_ma_63d",
+          -0.195
+        ],
+        [
+          "eps_rev",
+          -0.161
+        ],
+        [
+          "nl_fslope_rev_confirm",
+          -0.154
+        ]
+      ]
+    },
+    "REF_fy1_ma_63d_in_production": {
+      "coverage_days": 2906,
+      "nonnan_share": 0.942,
+      "raw_ic_mean": 0.02244,
+      "raw_ic_t_nw": 3.44,
+      "resid_ic_mean": 0.02393,
+      "resid_ic_t_nw": 3.07,
+      "resid_ic_thirds": [
+        0.04181,
+        0.00434,
+        0.02563
+      ],
+      "G1": "PASS",
+      "top3_corr_active": [
+        [
+          "sales_rev_ma_63d",
+          0.985
+        ],
+        [
+          "nl_fslope_rev_confirm",
+          0.779
+        ],
+        [
+          "fin_sales_chg_63d",
+          0.607
+        ]
+      ]
+    }
+  },
+  "verdict": "SHELVE (no candidate passes G2)"
+}

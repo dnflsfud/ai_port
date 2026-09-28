@@ -9204,3 +9204,124 @@ IR·active·β 0.95~1.05·서브기간 승 0/3 미충족, TE·turnover·MaxDD �
 - 테스트: 전체 832 PASS 후 명시적 기저 확인 명령 테스트 1개 추가, 해당 회귀 모듈 17 PASS. 고유 테스트 총 833 PASS. git diff --check 통과. 커밋·외부 업로드 없음.
 
 최종 증거: outputs/review_20260914/fix_validation.json, 수정 설명: outputs/review_20260914/fixes.md. 원시 로그는 logs/s19_fixes_*.log에 보관. 검증 중 장시간 실행 지연이 포함됐으므로 elapsed_sec로 계산 속도를 비교하지 않는다. 네 수정 및 현재 운영 데이터 갱신 완료.
+---
+
+## S20 — Sales_Revision(FY2) 사전점검 (2026-09-19, read-only · arm 0 · production 무변경 · 인벤토리 불변)
+
+사용자 질문 "Sales_Revision(FY2) 데이터로 성과를 더 개선할 수 있나"에 대한 착수 자격 게이트.
+백테스트 0회 — 표준 데이터원(§S15 관용구) = 09-18 production pkl
+(`outputs/codex_causal_rank_65/backtest_result.pkl`: targets 20d fwd·executable predictions·
+panel·활성 62피처, 09-15 번들 빈티지) + 09-18 ai_signal_data 번들(14:13, 58시트)의
+`Factset_Sales_Revision`(FY1, production 사용 중)·`Factset_Sales_Revision_FY2`(신규, 09-17
+배선). 스크립트 `scripts/precheck_s20_fy2_sales_revision.py` → `outputs/s20_precheck.json`
+(단위 테스트 `tests/test_precheck_s20_fy2_sales_revision.py` 4 PASS).
+
+**배경(포함 검증, 09-19)**: FY2 시트는 5,008행·250/250·2013-01-01..2026-09-17·NaN 6.1%,
+원천 D_ 워크북 마지막 행과 셀 불일치 0, production config 로 UniverseData 로드 시 교집합
+3,181일(09-18 런 3,178 + 09-15~17)로 FY2 가 캘린더를 줄이지 않음. 소비 측(SHEET_CATEGORY·
+CALENDAR_EXEMPT_SHEETS)은 미배선 — `Factset_EPS_Est_StdDev` 와 동일한 "적재만" 상태.
+
+**방법(측정 전 고정)**: 클리닝은 production 경로 그대로(`get_cleaned_revision`:
+reversion_gated 15/50/0.5·연장 상한 21BD) → `build_bounded_revision_features` 로 FY1 과
+동일 피처족 생성. 후보 6종 = FY1 활성 피처의 FY2 판(C1 ma_63d, C2 level, C3 trend, C4
+diff_21d) + 리비전 기간구조(C5 ma_63d 스프레드 FY2−FY1, C6 level 스프레드).
+- G1 (§S13.36/§S16.8 관용구): 일별 횡단면 rank IC 의 executable score 잔차, NW(lag20) |t| ≥ 2.
+- **G2 (결정 게이트)**: score **+ FY1 대응 피처** 동시 잔차 NW |t| ≥ 2 — FY1 이 이미
+  production 에 있으므로 FY1 을 넘는 증분만 새 정보로 인정.
+- P1 중복(비게이트): FY1 대응·활성 62피처와 per-date Spearman 중앙값(21일 표본).
+- P2 3분할 부호(비게이트). 자기검증: 재구성 FY1 `sales_rev_ma_63d` vs production panel 열.
+- 판정 규칙: G2 PASS 후보가 1개라도 있으면 단일 사전등록 arm 상신, 없으면 SHELVE.
+
+### §S20 측정 결과 (2026-09-19) — 전 후보 G2 FAIL → SHELVE
+
+자기검증 PASS: 재구성 FY1 ma_63d vs panel per-date Spearman 중앙값 **0.985**, per-date
+z-score 후 pooled Pearson 0.987(panel 열은 횡단면 z-score 형태) — 재구성이 production 피처와
+rank 동치.
+
+| 후보 | 원시 IC (NW t) | G1 잔차 IC vs score (t) | **G2** vs score+FY1 (t) | ρ(FY1 대응) | 3분할(G1) | 판정 |
+|---|---:|---:|---:|---:|---|---|
+| C1 fy2_ma_63d | +0.0214 (+2.90) | +0.0231 (**+2.55**, PASS) | **+0.78 FAIL** | 0.874 | +0.043/+0.003/+0.023 | SHELVE |
+| C2 fy2_level | +0.0174 (+2.42) | +0.0141 (+1.55) | +0.16 | 0.845 | +0.033/−0.014/+0.023 | SHELVE |
+| C3 fy2_trend | −0.0043 (−0.87) | −0.0110 (−1.85) | −1.88 | 0.734 | −0.008/−0.021/−0.004 | SHELVE |
+| C4 fy2_diff_21d | −0.0001 (−0.01) | −0.0028 (−0.51) | −1.34 | 0.648 | +0.008/−0.018/+0.001 | SHELVE |
+| C5 spread_ma_63d (FY2−FY1) | −0.0024 (−0.49) | −0.0043 (−0.81) | +0.78 | −0.308 | −0.009/+0.001/−0.005 | SHELVE |
+| C6 spread_level (FY2−FY1) | −0.0062 (−1.30) | −0.0087 (−1.49) | +0.16 | −0.343 | −0.013/−0.007/−0.006 | SHELVE |
+| REF fy1_ma_63d (production 활성) | +0.0224 (+3.44) | +0.0239 (+3.07) | — | — | +0.042/+0.004/+0.026 | 참조 |
+
+n = 2,906일(2014-04~2026-09-14), 활성 피처 최대 상관: C1 ↔ `sales_rev_ma_63d` 0.866,
+`nl_fslope_rev_confirm` 0.688, `fin_sales_chg_63d` 0.666.
+
+**판정: SHELVE — FY2 리비전 축 종결(새 사전등록 없이는 재도전 금지).** 결론 3줄:
+1. **FY2 리비전은 FY1 리비전의 0.87 rank 복사본**이다. C1 의 G1 통과(t 2.55)는 FY1 에서
+   상속된 것이며, FY1 대응 피처를 함께 통제하면 t 0.78 로 소멸 — FY2 시트에는 production
+   이 이미 쓰는 정보 외의 **증분 정보가 없다**.
+2. **리비전 기간구조(FY2−FY1)는 예측력 0**(C5/C6 원시·잔차 모두 |t| < 1.5, 3분할 부호
+   비일관). §S13.25 에서 채택된 것은 *매출 레벨* 기간구조(Fwd_Sales_Slope)였고, *리비전*
+   차원의 기간구조는 잡음이다. 단기 동학(C3/C4)도 잡음 또는 약음 — 활성 whitelist 의
+   "Sellside: drop short-window revision noise" 정책과 정합.
+3. **부수 관찰(비액션)**: REF — production 활성 피처 `sales_rev_ma_63d` 자체가 executable
+   score 잔차 IC t +3.07(3분할 전부 양)을 남긴다. 즉 현 모델은 FY1 매출 리비전의 선형
+   성분을 완전히 흡수하지 못한다. 이는 FY2 정보가 아니라 기존 피처의 활용도 문제이며,
+   §S13.12(전달률 ~9%)·§S16.8(잔차 t 2.97 → ΔIR −0.178) 전례상 잔차 IC 만으로 IR 이득을
+   보장하지 않는다. 재도전은 별도 사전등록(예: 리비전 틸트 경로 점검) 필요.
+
+production 무변경(`Factset_Sales_Revision_FY2` 는 적재만, 피처 미사용). 인벤토리 불변
+(read-only 비계수). 커밋 미실시.
+
+---
+
+## S21 — FY2 매출 리비전 확장 사전점검 사전등록 (2026-09-28, read-only · arm 0 · production 무변경 · 인벤토리 불변) — 측정 전 단독 커밋
+
+사용자 지시(09-28): "ai_signal_data 에 새롭게 추가된 데이터 set 이 유효한 feature 가 될 가능성을 보여줘"
+→ §S20 이 시험하지 않은 **조건부·비선형·기간** 형태 4종을 새로 사전등록한다(§S20 "새 사전등록 없이
+재도전 금지" 준수). 백테스트 0회, 오프라인 재해만.
+
+**데이터(측정 전 스냅샷 고정, 2026-09-28 10:33)** — §S20 과 동일 파일:
+- pkl = 09-18 production `outputs/codex_causal_rank_65/backtest_result.pkl`
+  (SHA-256 `4fa3df6854d5905c81f59f80bebc34e937df1a7812a8cd2d9fb653dac123765d`)
+- 번들 = 09-18 14:13 `ai_signal_data.xlsx`
+  (SHA-256 `7b330ca7c8b9044c96a9d8e49e9699092eef1495b099b64c84e4ed81b9223d32`)
+- 사본을 세션 scratchpad `snap/` 에 두고 스크립트는 `--snapshot-dir` 로 읽는다(11:30 스케줄 런의
+  pkl 덮어쓰기·당일 번들 재생성과 분리).
+
+**공통 처리**: §S20 경로 그대로(시트를 targets 인덱스에 reindex → production cfg 로
+`get_cleaned_revision` → `build_bounded_revision_features`). **§S20 대비 변경 1건: 모든 후보 피처에
+1영업일 지연(`shift(1)`)** — production `predictions` 는 `apply_execution_signal_lag` 후 점수(t−1 정보)
+이고 targets[t] 는 t+1..t+20 이므로 피처도 실행 가능 정보 집합에 맞춘다(§S20 은 무지연 → 피처가 점수보다
+하루 신선했음; SHELVE 방향으로는 보수적). 비교용으로 §S20 C1 을 지연 적용해 재계산한다(REF1).
+
+**후보 4종 (각 단일 정의, 파라미터 스윕 없음)**
+- **K1 NTM 시간가중 블렌드**: `(1−p)·FY1_ma63 + p·FY2_ma63`, p = ((month(t) − m_roll) mod 12)/12.
+  m_roll(종목별 FY1 롤 월) = BEST_SALES_1FY/2FY 롤일 검출(|log(1FY_d/2FY_{d−1})| < 0.03 ·
+  |log(1FY_d/1FY_{d−1})| > 0.05 · |log(2FY_{d−1}/1FY_{d−1})| > 0.04, 300일 내 중복 제거)의 최빈 월
+  (검출 ≥ 2회), 미검출 종목은 12월 결산 기본값 m_roll = 2. m_roll 은 전 표본 추정이지만 결산월은
+  사전 공개된 정적 속성이라 룩어헤드로 보지 않는다. 가설: FY1 은 회계연도 후반에 실현치로 수렴해 정보가
+  줄고 FY2 가 대체한다.
+- **K2 장기 듀레이션 조건부**: FY2_ma63 의 G2 증분을 Technology + Communication Services(90종)
+  부분집합 안에서만 측정(부분집합 내 횡단면 잔차·IC). 가설: 아웃이어 현금흐름 비중이 큰 종목은 FY2
+  리비전이 가치에 더 중요하다.
+- **K3 느린 호라이즌**: FY2_ma63 의 G2 증분을 60BD 타깃으로 측정(T60 ≈ T20(t)+T20(t+20)+T20(t+40),
+  PCA 잔차 가법 근사), NW lag 60. 가설: 아웃이어 정보는 20일보다 느리게 반영된다(§S11.8 느린 알파).
+- **K4 호라이즌 합의 게이트**: `FY1_ma63 · 1[sign(FY1_ma63) = sign(FY2_ma63)]`. 가설: 두 회계연도에
+  걸친 리비전은 영구적 뉴스이고, 불일치 시 FY1 신호는 축소돼야 한다(선형 G2 가 못 잡는 비선형).
+
+**결정 게이트 G2\* (측정 전 고정)**: score + FY1_ma63 동시 잔차 IC(K3 는 T60)의 NW |t| ≥ **2.81**
+AND 3분할 평균 부호가 전부 전체 평균과 동일. 2.81 = 양측 α 0.05 를 FY2 데이터셋 가족 10검정
+(§S20 6 + §S21 4)으로 Bonferroni 보정(0.005). |t| ≥ 2 는 "명목(비액션)" 등급으로만 표기한다.
+- 판정: G2\* PASS 후보 ≥ 1 → 해당 후보 **단일** arm 을 사전등록 상신(사용자 결정, 채택 바 = CLAUDE.md
+  §2.4). 0개 → FY2 데이터셋 10형태 전부 종결.
+
+**자기검증(실패 시 해당 후보 INVALID = 판정 불가로 보고)**
+- S1: 재구성 FY1 ma63 vs panel `sales_rev_ma_63d` per-date Spearman 중앙값 ≥ 0.98(§S20 0.985).
+- S2(K1 전제): 검증 종목 검출 m_roll 이 허용 집합(결산월~보고월 ±1) 안 — AAPL{9,10,11,12} ·
+  MSFT{6,7,8} · NVDA{1,2,3} · WMT{1,2,3} · ORCL{5,6,7} · CSCO{7,8,9} · COST{8,9,10} ·
+  AVGO{10,11,12,1} · NKE{5,6,7} · ADBE{11,12,1} · JPM{12,1,2} · GOOGL{12,1,2}; 유니버스에 있는
+  종목의 ≥ 80% 일치, 기본값 할당 종목 ≤ 25%.
+- S3: 스냅샷 SHA-256 이 위 값과 일치.
+
+**진단(비게이트, 보고서용)**: FY2_ma63 G2 잔차 IC 의 p 사분위별·섹터군별 분해, 호라이즌 프로파일
+(T20/T40/T60), FY1–FY2 per-date Spearman 시계열, 후보별 누적 잔차 IC.
+
+**산출**: `scripts/precheck_s21_fy2_conditional.py` → `outputs/s21_precheck.json`, 단위 테스트
+`tests/test_precheck_s21_fy2_conditional.py`(합성 데이터: 롤 검출·p·T60 체인·합의 게이트).
+전례상 잔차 IC PASS 는 IR 이득을 보장하지 않는다(§S13.12 전달률 ~9%, §S16.8 잔차 t 2.97 → ΔIR −0.178).
