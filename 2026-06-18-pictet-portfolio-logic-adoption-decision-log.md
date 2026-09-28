@@ -9432,3 +9432,43 @@ arm → ④ A-01·A-02·D-02 가드 수정(산출 불변) → ⑤ D-04 shift(1) 
 영향: 다음 런부터 metrics.json 의 `tg_px_ratio_median` 과 `tg_basis_state.json` baseline 이 새 분모 값으로 바뀐다(중앙
 0.7% 이동, 예상된 진단 변화). 스케줄 런은 outputs/ 밖 미커밋 변경이 있으면 전체 중단(푸시 없음) — 연구 작업은 커밋 후
 런 시각(11:30)을 맞을 것. 롤백은 해당 커밋 revert.
+
+---
+
+## S23.1 — §S22 2·3단계 사전등록 (2026-09-28, 측정 전 단독 커밋 · 정확성 트랙 · 인벤토리 비계수)
+
+사용자 지시(09-28 "이제 2,3단계 수정을 하자") + 역질문 결정: **채택 기준 = 정확성 + 무해성**, **측정 구조 = 공통
+기준 병렬 측정 + flip 후 결합 재인증**. 코드 준비 커밋 b8b4845(측정 전).
+
+**2단계 A-01(데이터 정확성 계층, §2.1 예외 — default 경로 수정)**: Index.xlsx 외부 호가 우선, 원천 ffill 된 워크북
+FX 는 외부에 없는 날짜·통화만 보충, 신선도는 외부 관측일 기준. 현 빈티지에서 HEAD 대비 환율 패널 **비트 동일**·진단
+동일(워크북 FX 날짜 3,196개 전부 외부에 포함, 값 차이 0, staleness 전 통화 0) → 산출 불변, 측정·flip 불필요.
+
+**3단계 후보(각 단일 사전등록 파라미터, 스윕 없음)**:
+| arm | 변경(production 대비 1필드) | 결함 |
+|---|---|---|
+| `s23_m01_no_slope` | `fwd_sales_slope_features_enabled: false` | M-01 슬로프 원천 = 수집 시점 고정 회계연도 이력·결산 보고마다 과거 재작성 |
+| `s23_b01_label_uncentered` | `pca_target_uncentered_enabled: true` (잔차 = (I−P)·fwd) | B-01 라벨 (I−P)(fwd − μ_daily) 의 가짜 반-모멘텀 항 |
+| `s23_d04_optvol_lag` | `option_vol_scale_lag_enabled: true` (스케일 1행 지연) | D-04 Σ 스케일이 t 종가 정보 사용 |
+
+**기준·실행**: `s23_s0recert` = production 사본. 빈티지 동결 = 워크북 2026-09-18T05:13:24Z / Index 2026-09-28T02:23:35Z
+(09-28 12:00 스케줄 런과 동일). `outputs/s23_run_chain.bat`(schtasks `s23_chain`, `run_variant_task.ps1`) 순차 4런,
+`--no-cache`, 단일 ECOS, VINTAGE_PRE/POST 기록.
+
+**판정(`scripts/eval_s23_arm.py`, 재실행 가능)** — flip 후보 = G0 ∧ 기전 ∧ E2 ∧ 무해성:
+- G0: base·arm data_vintage 동일 ∧ base IR 이 12:00 스케줄 production IR **1.693143983245076** 을 1e-9 이내 재현.
+  불일치 시 §9 — 판정 중단·보고.
+- 기전: M-01 모델 피처 = base − 슬로프 4피처(그 외 증감 0) · B-01 유한 타깃 셀 ≥99% 변경 ∧ 날짜별
+  Spearman(base−arm, momentum_252d) 중앙값 ≤ −0.3 · D-04 pre_overlay_predictions 비트 동일 ∧ 목표비중 변화.
+- E2: TE ≤ 4.5% · |ΔAS| ≤ 3%p · 회전율 ≤ 1.25× · solver fallback 0.
+- 무해성: ΔIR > −0.36 ∧ 3분할 전부 음은 아님. formal E1(ΔIR > +0.36 ∧ 3분할 전부 양)은 병기만(채택 근거 아님).
+
+**flip·재인증**: 통과 후보를 M-01 → B-01 → D-04 순으로 후보별 독립 커밋(§8 체크리스트). 이후 production 사본
+`s23_combined_recert` 1런(같은 빈티지)을 같은 판정(G0 ∧ E2 ∧ 무해성, 기준 s23_s0recert)으로 확인 → 통과 시 그 IR 이 새
+S0′. 실패 시 이번 flip 커밋을 모두 revert 해 production 을 s23_s0recert 상태로 되돌리고 사용자에게 보고한다.
+
+**DSR·다중성**: 정확성 트랙 → `experiment_inventory` 비계수(§S16.1·S16.2 선례), 인벤토리 불변. 후보 3개 각 단일
+파라미터, 선택은 사전등록 규칙으로만.
+
+**§9 관찰(측정과 무관, 보고)**: 워크북 `ai_signal_data.xlsx` 가 09-18 14:13 이후 갱신되지 않아 production 이 09-17
+데이터로 계속 돌고 있다(스케줄 런은 성공하지만 data_as_of 정체). 원천 생성 작업 점검은 사용자 몫.
