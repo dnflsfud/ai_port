@@ -1,0 +1,85 @@
+{
+ "probe": "M-01 BF-bracketing PIT test",
+ "tolerance": 0.02,
+ "tickers": 250,
+ "by_year": [
+  {
+   "year": 2014,
+   "valid_cells": 412,
+   "share_inside": 0.0364,
+   "median_abs_log_bf_over_1fy": 0.26
+  },
+  {
+   "year": 2015,
+   "valid_cells": 1885,
+   "share_inside": 0.0334,
+   "median_abs_log_bf_over_1fy": 0.343
+  },
+  {
+   "year": 2016,
+   "valid_cells": 2506,
+   "share_inside": 0.0411,
+   "median_abs_log_bf_over_1fy": 0.471
+  },
+  {
+   "year": 2017,
+   "valid_cells": 4867,
+   "share_inside": 0.0836,
+   "median_abs_log_bf_over_1fy": 0.416
+  },
+  {
+   "year": 2018,
+   "valid_cells": 10348,
+   "share_inside": 0.0491,
+   "median_abs_log_bf_over_1fy": 0.351
+  },
+  {
+   "year": 2019,
+   "valid_cells": 15047,
+   "share_inside": 0.028,
+   "median_abs_log_bf_over_1fy": 0.365
+  },
+  {
+   "year": 2020,
+   "valid_cells": 24445,
+   "share_inside": 0.0151,
+   "median_abs_log_bf_over_1fy": 0.345
+  },
+  {
+   "year": 2021,
+   "valid_cells": 37230,
+   "share_inside": 0.0356,
+   "median_abs_log_bf_over_1fy": 0.28
+  },
+  {
+   "year": 2022,
+   "valid_cells": 45195,
+   "share_inside": 0.0639,
+   "median_abs_log_bf_over_1fy": 0.222
+  },
+  {
+   "year": 2023,
+   "valid_cells": 57243,
+   "share_inside": 0.055,
+   "median_abs_log_bf_over_1fy": 0.159
+  },
+  {
+   "year": 2024,
+   "valid_cells": 63528,
+   "share_inside": 0.0717,
+   "median_abs_log_bf_over_1fy": 0.103
+  },
+  {
+   "year": 2025,
+   "valid_cells": 64767,
+   "share_inside": 0.3449,
+   "median_abs_log_bf_over_1fy": 0.033
+  },
+  {
+   "year": 2026,
+   "valid_cells": 46500,
+   "share_inside": 0.9591,
+   "median_abs_log_bf_over_1fy": 0.024
+  }
+ ]
+}
