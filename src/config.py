@@ -252,6 +252,11 @@ class PipelineConfig:
     # structure instead of vol magnitude, then rescale the specific return
     # back to return units. OFF preserves the certified raw-returns PCA.
     pca_vol_standardize: bool = False
+    # §S22 B-01 (decision log §S23): sklearn's transform/inverse_transform
+    # centre the 20-day forward return on the DAILY window mean, so the legacy
+    # label is (I-P)(fwd - mu_daily) — a spurious anti-momentum term. ON
+    # projects the raw forward return: residual = (I-P) fwd. OFF byte-identical.
+    pca_target_uncentered_enabled: bool = False
     forward_horizon: int = 20
 
     # ------------------------------------------------------------------
@@ -1000,6 +1005,11 @@ class PipelineConfig:
     # 바이트 동일. production 수치를 바꾸므로 §8 사용자 결정 대상이다
     # (§S15 fix-pack과 동일한 "정확성 근거 채택" 트랙).
     option_vol_scale_fix_enabled: bool = False
+    # §S22 D-04 (decision log §S23): the scale row for rebalance date t used
+    # close-t data (iv30_z[t], r[t]) while the covariance window and the alpha
+    # are <= t-1. ON lags the scale panel one row (backtest and export mirror).
+    # OFF byte-identical.
+    option_vol_scale_lag_enabled: bool = False
 
     # ------------------------------------------------------------------
     # S15 (2026-08-27) — structural-review correctness fix pack (decision

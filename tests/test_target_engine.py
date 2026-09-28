@@ -169,3 +169,65 @@ def test_pca_vol_standardize_guards_zero_vol_column():
     assert np.isfinite(
         got.iloc[KW["lookback"]: len(returns) - KW["horizon"]].values
     ).all()
+
+
+# ---------------------------------------------------------------------------
+# §S22 B-01 (decision log §S23): pca.transform/inverse_transform centre the
+# 20-day forward return on the DAILY window mean, so the legacy label is
+# (I-P)(fwd - mu_daily) — a spurious anti-momentum term. The flag projects the
+# raw forward return: residual = (I-P) fwd.
+# ---------------------------------------------------------------------------
+def _reference_uncentered(returns, n_components, n_remove, lookback, horizon):
+    dates = returns.index
+    tickers = returns.columns
+    cum = (1 + returns).cumprod()
+    fwd = cum.shift(-horizon) / cum - 1
+    out = pd.DataFrame(np.nan, index=dates, columns=tickers)
+    for t in range(lookback, len(dates) - horizon):
+        hist = returns.iloc[t - lookback: t]
+        hist_clean = hist.loc[hist.notna().all(axis=1)]
+        if len(hist_clean) < lookback // 2:
+            continue
+        actual_n = min(n_components, len(tickers) - 1)
+        pca = PCA(n_components=actual_n)
+        pca.fit(hist_clean.values)
+        fwd_t = fwd.iloc[t].values.reshape(1, -1)
+        if np.any(np.isnan(fwd_t)):
+            continue
+        comps = pca.components_[:min(n_remove, actual_n)]
+        out.iloc[t] = (fwd_t - (fwd_t @ comps.T) @ comps).flatten()
+    return out
+
+
+def test_uncentered_target_flag_default_off():
+    assert PipelineConfig().pca_target_uncentered_enabled is False
+
+
+def test_uncentered_target_matches_projection_reference():
+    returns = _panel()
+    on = PipelineConfig(pca_target_uncentered_enabled=True)
+    for kw in (KW, dict(KW, n_remove=3)):  # partial and full removal
+        got = compute_specific_returns(returns, config=on, **kw)
+        ref = _reference_uncentered(returns, **kw)
+        assert np.allclose(got.values, ref.values, atol=1e-12, equal_nan=True)
+        legacy = _reference_full_basis(returns, **kw)
+        finite = ~np.isnan(ref.values)
+        assert not np.allclose(ref.values[finite], legacy.values[finite], atol=1e-10)
+
+
+def test_uncentered_target_is_zero_when_forward_returns_are_zero():
+    lookback, horizon = 10, 2
+    returns = _panel(n_dates=lookback + horizon + 1)
+    returns.iloc[lookback:] = 0.0  # forward window of the only target date is flat
+    kw = dict(n_components=3, n_remove=1, lookback=lookback, horizon=horizon)
+    legacy = compute_specific_returns(returns, **kw).iloc[lookback]
+    fixed = compute_specific_returns(
+        returns, config=PipelineConfig(pca_target_uncentered_enabled=True), **kw).iloc[lookback]
+    assert legacy.abs().max() > 1e-6          # label from the window mean alone
+    assert fixed.abs().max() < 1e-15
+
+
+def test_phase3_cache_token_covers_uncentered_flag():
+    from run_variant import phase3_cache_token
+    assert phase3_cache_token(PipelineConfig()) != phase3_cache_token(
+        PipelineConfig(pca_target_uncentered_enabled=True))

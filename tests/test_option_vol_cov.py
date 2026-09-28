@@ -144,3 +144,36 @@ def test_production_variant_pins_s15_2_flip_state():
     overrides = manifest.get("overrides") or {}
     assert overrides.get("option_vol_scale_fix_enabled") is True
     assert overrides.get("calendar_exempt_sheets_enabled") in (None, False)
+
+
+# §S22 D-04 (decision log §S23): scale row t used close-t data (iv30_z[t] and
+# r[t]) while every other optimizer input is <= t-1. lag_days=1 shifts it.
+def test_optvol_lag_flag_default_off():
+    assert PipelineConfig().option_vol_scale_lag_enabled is False
+
+
+def test_lag_zero_is_identical_and_lag_one_is_the_shifted_panel():
+    ret, z = _synthetic()
+    base = build_option_vol_scale(ret, z)
+    assert build_option_vol_scale(ret, z, lag_days=0).equals(base)
+    assert build_option_vol_scale(ret, z, lag_days=1).equals(base.shift(1).fillna(1.0))
+
+
+def test_lagged_scale_row_ignores_close_t_data():
+    ret, z = _synthetic()
+    row = 400
+    lagged = build_option_vol_scale(ret, z, lag_days=1)
+    z2 = z.copy()
+    z2.iloc[row] += 3.0
+    ret2 = ret.copy()
+    ret2.iloc[row] *= 8.0
+    assert build_option_vol_scale(ret, z2, lag_days=1).iloc[row].equals(lagged.iloc[row])
+    assert build_option_vol_scale(ret2, z, lag_days=1).iloc[row].equals(lagged.iloc[row])
+
+
+def test_backtest_and_export_apply_the_same_lag():
+    import inspect
+    from scripts.export_operating_data import _load_optvol_scale
+    from src.backtest import run_backtest
+    for fn in (run_backtest, _load_optvol_scale):
+        assert "option_vol_scale_lag_enabled" in inspect.getsource(fn)

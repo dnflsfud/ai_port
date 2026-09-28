@@ -227,8 +227,10 @@ def _load_optvol_scale(data, tickers, cfg) -> Optional[pd.DataFrame]:
         iv_sheet = None
     if iv_sheet is None:
         return None
+    # §S22 D-04: same one-row lag as the backtest branch.
+    lag_days = 1 if getattr(cfg, "option_vol_scale_lag_enabled", False) else 0
     if not getattr(cfg, "option_vol_scale_fix_enabled", False):
-        return build_option_vol_scale(data.returns[list(tickers)], iv_sheet)
+        return build_option_vol_scale(data.returns[list(tickers)], iv_sheet, lag_days=lag_days)
     mask_fn = getattr(data, "raw_sheet_observed_mask", None)
     mask = mask_fn(OPTION_VOL_SHEET) if callable(mask_fn) else None
     if mask is None:
@@ -236,7 +238,8 @@ def _load_optvol_scale(data, tickers, cfg) -> Optional[pd.DataFrame]:
               f"{OPTION_VOL_SHEET!r} observed mask is unavailable — "
               f"coverage guard stays off")
     return build_option_vol_scale(
-        _production_risk_source(data, tickers), iv_sheet, observed_mask=mask)
+        _production_risk_source(data, tickers), iv_sheet, observed_mask=mask,
+        lag_days=lag_days)
 
 
 def _apply_optvol_scale(cov: np.ndarray, optvol_scale, date, tickers):

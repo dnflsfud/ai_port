@@ -74,6 +74,7 @@ def compute_specific_returns(
     tickers = returns.columns
     n_dates = len(dates)
     vol_standardize = bool(getattr(config, "pca_vol_standardize", False))
+    uncentered = bool(getattr(config, "pca_target_uncentered_enabled", False))
 
     # Forward cumulative returns
     fwd_ret = compute_forward_returns(returns, horizon)
@@ -138,7 +139,11 @@ def compute_specific_returns(
         fwd_fit = fwd_t / sigma if sigma is not None else fwd_t
         factors = pca.transform(fwd_fit)  # shape (1, actual_n)
 
-        if n_remove < actual_n:
+        if uncentered:
+            # §S22 B-01: project the raw forward return (no daily-mean centring).
+            comps = pca.components_[:min(n_remove, actual_n)]
+            common = (fwd_fit @ comps.T) @ comps
+        elif n_remove < actual_n:
             # Partial PCA: PC1~PC(n_remove)만 제거, 나머지는 유지
             factors_partial = factors.copy()
             factors_partial[:, n_remove:] = 0  # n_remove 이후 성분은 0으로

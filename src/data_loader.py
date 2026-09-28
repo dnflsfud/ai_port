@@ -1015,9 +1015,11 @@ def build_fx_rates_usd_per_local(
 ) -> Tuple[pd.DataFrame, Dict]:
     """Build date x currency USD-per-local levels with freshness diagnostics.
 
-    Factor_PX_LAST is preferred wherever it has an observed value. The
-    external source fills missing currencies/dates, including its fresher tail.
-    Forward fill is time-series-only and guarded by calendar-day staleness.
+    The external Index.xlsx quote is preferred wherever it has a value;
+    Factor_PX_LAST (forward-filled at source) fills only the currencies/dates
+    the external source lacks (§S22 A-01). Forward fill is time-series-only
+    and guarded by calendar-day staleness measured on external observations
+    (workbook dates only when a currency has no external quotes at all).
     """
     target_index = pd.DatetimeIndex(target_index).sort_values().unique()
     required = list(dict.fromkeys(str(c).upper() for c in currencies))
@@ -1066,11 +1068,23 @@ def build_fx_rates_usd_per_local(
             if currency in external_levels.columns
             else pd.Series(dtype=float)
         )
-        observations = factor_series.combine_first(external_series)
+        # §S22 A-01 (decision log §S23): the workbook column is forward-filled
+        # at source (create_ai_signal_data), so a stale workbook copy must not
+        # override a fresher Index.xlsx quote, and its filled dates must not
+        # count as observations for the staleness guard. External quotes win;
+        # the workbook fills only dates/currencies the external source lacks.
+        observations = external_series.combine_first(factor_series)
         observations = observations[~observations.index.duplicated(keep="last")]
         observations = observations.sort_index().dropna()
         if len(target_index):
             observations = observations.loc[observations.index <= target_index.max()]
+        fresh_source = external_series.dropna()
+        if fresh_source.empty:
+            fresh_source = observations
+        fresh_dates = fresh_source.index[~fresh_source.index.duplicated(keep="last")]
+        if len(target_index):
+            fresh_dates = fresh_dates[fresh_dates <= target_index.max()]
+        fresh_dates = fresh_dates.sort_values()
         source_parts = []
         if not factor_series.dropna().empty:
             source_parts.append("Factor_PX_LAST")
@@ -1088,11 +1102,14 @@ def build_fx_rates_usd_per_local(
         union_index = observations.index.union(target_index).sort_values()
         aligned = observations.reindex(union_index).ffill().reindex(target_index)
         observed_dates = pd.Series(
-            observations.index,
-            index=observations.index,
+            fresh_dates,
+            index=fresh_dates,
             dtype="datetime64[ns]",
         )
-        last_observed = observed_dates.reindex(union_index).ffill().reindex(target_index)
+        last_observed = (
+            observed_dates.reindex(observed_dates.index.union(target_index).sort_values())
+            .ffill().reindex(target_index)
+        )
         age_days = pd.Series(
             (target_index - pd.DatetimeIndex(last_observed)).days,
             index=target_index,

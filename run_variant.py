@@ -213,6 +213,7 @@ _PHASE3_TOKEN_FIELDS = (
     "multi_horizon_targets_enabled",
     "multi_horizon_weights",
     "regime_pca_weighted_enabled",
+    "pca_target_uncentered_enabled",  # §S22 B-01 (decision log §S23)
 )
 
 

@@ -331,3 +331,36 @@ def test_best_px_bps_is_optional_so_pm_survives_and_all_usd_needs_no_fx_file(
     ]
     assert data.currency_map == {"AAPL": "USD", "PM": "USD"}
     assert np.allclose(data.fx_rates_usd_per_local.to_numpy(), 1.0)
+
+
+# §S22 A-01 (decision log §S23): the workbook FX column is forward-filled at
+# source, so it must neither override a fresher Index.xlsx quote nor count as
+# a fresh observation for the staleness guard.
+def test_fresh_external_quote_beats_stale_workbook_fx():
+    target = pd.to_datetime(["2026-09-11", "2026-09-14"])
+    workbook = pd.DataFrame({"EURUSD Curncy": [1.10, 1.10]}, index=target)
+    external = pd.DataFrame({"EURUSD Curncy": [1.10, 1.13]}, index=target)
+    rates, _ = build_fx_rates_usd_per_local(
+        target, ["EUR"], config=PipelineConfig(fx_source_path="missing.xlsx"),
+        factor_prices=workbook, external_quotes=external)
+    assert rates.loc["2026-09-14", "EUR"] == pytest.approx(1.13)
+
+
+def test_fx_staleness_counts_external_observations_not_workbook_fill():
+    dates = pd.bdate_range("2026-09-01", "2026-09-14")
+    workbook = pd.DataFrame({"EURUSD Curncy": 1.10}, index=dates)
+    external = pd.DataFrame({"EURUSD Curncy": [1.10]}, index=pd.to_datetime(["2026-09-01"]))
+    with pytest.raises(ValueError, match="stale>7d=.*EUR"):
+        build_fx_rates_usd_per_local(
+            dates, ["EUR"], config=PipelineConfig(fx_source_path="missing.xlsx"),
+            factor_prices=workbook, external_quotes=external)
+
+
+def test_fx_without_external_quotes_keeps_workbook_series():
+    target = pd.to_datetime(["2026-09-11", "2026-09-14"])
+    workbook = pd.DataFrame({"EURUSD Curncy": [1.10, 1.12]}, index=target)
+    rates, diag = build_fx_rates_usd_per_local(
+        target, ["EUR"], config=PipelineConfig(fx_source_path="missing.xlsx"),
+        factor_prices=workbook, external_quotes=pd.DataFrame())
+    assert rates["EUR"].tolist() == pytest.approx([1.10, 1.12])
+    assert diag["stale_currencies"] == []

@@ -57,7 +57,8 @@ def _predict_scale_block(coef_a, coef_b, trail_block: pd.DataFrame,
 
 def build_option_vol_scale(returns: pd.DataFrame,
                            iv_z: pd.DataFrame,
-                           observed_mask: pd.DataFrame = None) -> pd.DataFrame:
+                           observed_mask: pd.DataFrame = None,
+                           lag_days: int = 0) -> pd.DataFrame:
     """워크포워드 대각 스케일 패널 (dates×tickers). 커버리지 밖은 1.0.
 
     ``observed_mask`` (구조 리뷰 2026-08-27, config.option_vol_scale_fix_enabled)
@@ -100,4 +101,8 @@ def build_option_vol_scale(returns: pd.DataFrame,
         block = _predict_scale_block(
             coef_a, coef_b, trail.iloc[e:end], iv_z.iloc[e:end])
         scale.iloc[e:end] = block.values
+    if lag_days:
+        # §S22 D-04 (config.option_vol_scale_lag_enabled): row t built from
+        # iv30_z[t-lag] / r[<=t-lag], matching the <= t-1 covariance window.
+        scale = scale.shift(lag_days).fillna(1.0)
     return scale

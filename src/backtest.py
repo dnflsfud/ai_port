@@ -2154,7 +2154,8 @@ def run_backtest(
                           f"{float(_optvol_mask.values.mean()):.1%} "
                           f"(imputed cells forced inert)")
             _optvol_scale = build_option_vol_scale(
-                _optvol_src, _iv_sheet, observed_mask=_optvol_mask)
+                _optvol_src, _iv_sheet, observed_mask=_optvol_mask,
+                lag_days=1 if getattr(config, "option_vol_scale_lag_enabled", False) else 0)
             _nontrivial = float((_optvol_scale.values != 1.0).mean())
             print(f"[Backtest] S13.41 option-vol cov scaling ON: "
                   f"non-inert cells {_nontrivial:.1%}")
