@@ -9393,3 +9393,42 @@ option-vol Σ 스케일이 t 종가 정보를 같은 날 사용(나머지는 t�
 → ② M-01 원천 재수집 방식 결정(롤링 FY1/FY2) 전까지 슬로프 4피처 롤백 arm 을 같은 빈티지에서 측정 → ③ B-01 라벨 수정
 arm → ④ A-01·A-02·D-02 가드 수정(산출 불변) → ⑤ D-04 shift(1) arm. 성과 수치(IR 1.7512)는 M-01·B-01 해소 전까지
 해석에 주의.
+
+---
+
+## S23 — §S22 1단계 산출 불변 가드 5건 (D-01·D-05·D-02·A-02·A-04) (2026-09-28, 사용자 직접 수정 지시 · arm 0 · 백테스트 0 · variant 무변경 · 인벤토리 불변)
+
+사용자 지시(09-28 "1번을 수정해줘" — §S22 후속 권고의 1단계 = 산출 불변 가드 5건). 정확성·운영 가드이며 성능 플래그·
+파라미터·production variant 를 바꾸지 않는다. 가중치·예측·IR 경로는 원천이 정상일 때 코드상 불변이다.
+
+- **D-01** `run_and_upload.bat`: [1/10] 끝과 [8/10] `git add` 직전에 `git status --porcelain -- . ":(exclude)outputs"`
+  (`src/config.py:_git_dirty` 와 같은 pathspec)가 비어 있지 않으면 exit 1 — 미커밋 코드로 production 을 계산·푸시하지
+  않는다. 검증기 production 게이트에 `clean_tree_ok`(번들 `git_dirty` 가 False 여야 함, 결측 → fail-closed HOLD) 추가.
+- **D-05**: Python 단계 7개의 `if errorlevel 1`(= ≥1, 음수 NTSTATUS 크래시 코드를 성공으로 통과) → `if !errorlevel! neq 0`.
+  git 단계 검사는 범위 밖(무변경).
+- **D-02**: production-ON 채널의 원천 누락을 경고 대신 raise — PEAD(Earnings_Timeline 미로드), S13.41 `iv30_z` 시트,
+  `option_vol_scale_fix` 관측 마스크, slope 시트·NL 파트너(`build_fwd_sales_slope_features(..., config=)`, 승인 피처일
+  때만). flag OFF 경로의 기존 건너뜀은 유지. 검증기에 `option_vol_applied_ok`(enabled 이면 applied 필수) 추가.
+  주의: `PipelineConfig` 기본 `pead_boost_enabled=True` 이므로 Earnings_Timeline 이 없는 워크북으로 돌리는 연구
+  스크립트도 이제 실패한다(현 워크북은 보유).
+- **A-02**: TG 기저 가드 분모 = `nominal_price_source` 설정 시 `local_prices_nominal`(소비자 `_local_price_panel` 과
+  같은 규칙), 미설정 시 기존 PX_LAST. 진단 dict 만 바뀌고 패널은 불변.
+- **A-04**: 비어 있지 않은 관측 집합에 없는 종목의 pending 은 해제하되 baseline 은 유지 → 같은 이상 기저로 돌아오면
+  재플래그. 빈 관측 집합은 기존대로 pending 유지(기존 테스트 통과).
+
+검증:
+- TDD: 신규 테스트 12개(배치 3 · D-02 4 · 게이트 2 · A-02 2 · A-04 1) 중 11개 수정 전 FAIL 확인(A-02 OFF 경로 1개는
+  수정 전부터 PASS가 정상) → 수정 후 전체 **854 PASS**. 번들 테스트 픽스처에 실제 export 형식대로 `git_dirty: False`·
+  option-vol 키를 추가.
+- 실제 데이터(현 워크북, production variant, 백테스트 0): D-02 네 원천 모두 존재 → raise 없음, slope 4피처 포함
+  모델 피처 65개(09-28 12:00 스케줄 런과 동일). A-02 새 분모: |log(nominal/adjusted)| 중앙 0.0067 · 최대 0.0443(PUB),
+  suspect 0, production 가드 상태 사본 대비 pending 0 → 다음 런 HOLD 없음.
+- D-05: `ExitProcess(0xC0000005)` 종료코드 −1073741819 에서 기존 패턴 CONTINUES → 새 패턴 ABORTS, 정상 종료 CONTINUES.
+- D-01: 임시 git 저장소 행동 테스트 — outputs/ 밖 파일이 있으면 [2/10] 전에 exit 1, outputs/ 만 바뀌면 가드 통과.
+- 독립 최종 검증(계획·diff·합격기준만 수령) **8/8 PASS**: 854 PASS 재현, HEAD 코드에서 신규 테스트 정확히 11 FAIL,
+  실제 데이터 스모크 재현, 현 production 번들이 새 게이트에서 PRODUCTION(clean_tree_ok·option_vol_applied_ok True).
+  잔여: git 자체가 없거나 실패하면 가드는 통과시키지만 [8/10] git 단계가 같은 이유로 실패해 푸시되지 않는다.
+
+영향: 다음 런부터 metrics.json 의 `tg_px_ratio_median` 과 `tg_basis_state.json` baseline 이 새 분모 값으로 바뀐다(중앙
+0.7% 이동, 예상된 진단 변화). 스케줄 런은 outputs/ 밖 미커밋 변경이 있으면 전체 중단(푸시 없음) — 연구 작업은 커밋 후
+런 시각(11:30)을 맞을 것. 롤백은 해당 커밋 revert.
