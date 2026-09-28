@@ -24,7 +24,7 @@
 ## High
 
 ### M-01 — `Fwd_Sales_Slope_1FY2FY` 는 롤링 FY1→FY2 가 아니라 "수집 시점 고정 회계연도" 이력이고, 회계연도 보고 때마다 과거 전체가 다시 쓰인다
-- 위치: `venv_vf_new/price_v4.py:405-432`(BDH 에 `BEST_FPERIOD_OVERRIDE="1FY"/"2FY"`), `:582`(`start_date="20140101"` 전체 재수집), `re_study/create_ai_signal_data.py:694-734`(`_mask_backfilled_prefix` 는 평탄 백필 접두만 제거), 소비 `src/features/fwd_sales_slope.py:61-76`(production 4피처: level·chg_63d·nl_fslope_rev_confirm·nl_fslope_growth_confirm).
+- 위치: `venv_vf_new/price_v4.py:405-432`(BDH 에 `BEST_FPERIOD_OVERRIDE="1FY"/"2FY"`), `:580`(`start_date="20140101"` 전체 재수집), `re_study/create_ai_signal_data.py:694-734`(`_mask_backfilled_prefix` 는 평탄 백필 접두만 제거), 소비 `src/features/fwd_sales_slope.py:61-76`(production 4피처: level·chg_63d·nl_fslope_rev_confirm·nl_fslope_growth_confirm).
 - 결함: 상대 기간 `1FY` 가 호출 시점에 한 번 해석되어, 시트 전체가 "현재 FY1(예: FY2026)·FY2(FY2027) 추정치의 과거 이력"이 된다.
 - 증거 1 (PIT 브래킷 검정, `M/pit_bf_between_v2.py`): 롤링 PIT 라면 블렌디드 선행(1BF)은 [1FY, 2FY] 안에 있어야 한다. 슬로프 유효 셀 기준 포함 비율 2019 2.8% · 2020 1.5% · 2021 3.6% · 2022 6.4% · 2023 5.5% · 2024 7.2% · **2025 34.5% · 2026 95.9%**. 중앙값 |log(BF/1FY)| 2016 0.47 → 2020 0.35 → 2024 0.10 → 2026 0.02(고정 미래 연도와의 거리 축소 패턴).
 - 증거 2 (빈티지 재작성, `M/slope_vintage_zs.py`): 7월 결산 ZS 가 9월 초 연간 실적을 보고한 뒤, 09-03 번들(s17_2) → 09-11 번들(s18_7) 사이에 ZS 슬로프 z 가 2021–2026 **모든 날짜에서** 바뀜(|Δz| 중앙값 2021 0.83 · 2022 0.41 · 2024 0.20). 대조군 AAPL·MSFT 는 0.0003–0.01(재정규화 잔향). 250종 중 이 구간 변화 종목은 ZS 1개(`M/slope_vintage_rewrite.py`).
@@ -49,7 +49,7 @@
 - 수정: 가드 분모를 소비자와 같은 `_local_price_panel(data, config)` 로.
 
 ### D-01 — 스케줄 작업이 미커밋 작업트리 코드로 production 을 계산하고 그대로 커밋·푸시한다
-- 위치: `run_and_upload.bat:35`(작업트리로 production 백테스트), `:51` `git add -A`, `:84` push; `scripts/validate_portfolio_bundles.py:645-729` 에 provenance 검사 없음; `export_operating_data.py:113-114` 는 git_dirty 를 기록만 함.
+- 위치: `run_and_upload.bat:35`(작업트리로 production 백테스트), `:51` `git add -A`, `:90` push; `scripts/validate_portfolio_bundles.py:645-729` 에 provenance 검사 없음; `export_operating_data.py:113-114` 는 git_dirty 를 기록만 함.
 - 증거: `D/p3_scheduled_sweep.py` — c28ecf9(09-09, src 2파일+테스트+variant)·bf6e055(09-15, §S19 수정 13파일; fixes.md:49,73 은 "커밋·업로드 안 함") 둘 다 `git_dirty=True` 로 PRODUCTION 발행·origin 푸시. `validator checks git_dirty: False`.
 - 수정: 단계 [2] 전에 `git status --porcelain` 이 outputs/ 밖에서 비어 있지 않으면 중단(또는 HEAD 의 깨끗한 worktree 에서 실행) + `evaluate_production` 에 `git_dirty is False` 검사.
 
