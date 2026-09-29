@@ -9527,3 +9527,19 @@ A-01 실데이터 불변 재현, 결정 로그 수치 일치.
   (09-29 11:15~11:30) 전에 끝낼 수 없어 수행하지 않았다. 세 flip 이 모두 들어간 첫 production 은 09-29 11:30 스케줄
   런(새 Index 빈티지)이며, 그 IR 을 현 production 수치로 기록한다. 1.6235 는 "M-01+B-01, 09-28 빈티지" 기준선으로만
   유효하고, 이후 arm 비교는 새 빈티지에서 production 재인증부터 다시 한다.
+
+## S23.4 — M-01 슬로프 원천 재정의: 롤링 1BF/2BF (2026-09-29, 사용자 선택 ① · 코드만 · production 무변경)
+
+사용자 선택(09-29): 슬로프 원천을 `BEST_SALES_2BF`(BDH `BEST_FPERIOD_OVERRIDE="2BF"`)로 추가 수집하고
+slope = (2BF − 1BF)/1BF(1BF = 기본 `BEST_SALES`)로 만든다. BF 는 날짜별 롤링이라 호출 시점 고정 회계연도(M-01) 문제가 없다.
+정의가 "FY1→FY2" 에서 "12개월 → 24개월 blended forward" 로 바뀌므로 §S13.25 채택 근거(+0.266)는 승계하지 않는다.
+
+- 상위 저장소(pythonProject, 기존 미커밋 변경 공존 → 미커밋): `price_v4.py` FIELDS_DICT·FPERIOD_OVERRIDE_SHEETS 에
+  `BEST_SALES_2BF: "2BF"` (1FY/2FY 는 new_ai_port·§S21 호환으로 유지). `create_ai_signal_data.py` 가 `Fwd_Sales_Slope_1BF2BF`
+  시트를 추가 생성(2BF 미수집이면 경고 후 생략, 다른 오류는 그대로 raise). 테스트 price_v4 16 · 생성기 25 PASS.
+- ai_port 794cdb8: 소비 시트 = `Fwd_Sales_Slope_1BF2BF`, `BLOOMBERG_EQUITY_SHEETS` 등록. production 슬로프 OFF(§S23.2) 그대로 — 산출 불변.
+
+**재채택 절차(순서 고정)**: ① 워크북 생성 파이프라인 복구(09-18 이후 미갱신) → ② `price_v4.py` 로 `BEST_SALES_2BF` 수집
+(Bloomberg 단말, 사용자) → ③ 원천 검증: 2BF 가 오류·전결측이 아닌지, 연도별 유효 셀이 최근 연도에 몰리지 않는지,
+결산 보고를 사이에 둔 두 수집에서 과거 구간이 재작성되지 않는지 → ④ 새 사전등록(단일 파라미터) → 같은 빈티지 기준
+재인증 + arm → §8 flip. 검증 전에는 `fwd_sales_slope_features_enabled` 를 켜지 않는다(켜면 시트 부재 시 §S23 D-02 raise).
