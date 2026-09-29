@@ -9512,3 +9512,18 @@ avg_ic 0.0159, 퇴화 11/31, MaxDD −32.4%, ECOS 184 / fallback 0. G0 PASS · E
 독립 최종 검증(계획·diff·합격기준만 수령) **8/8 PASS**: 871 PASS 재현, 사전등록 커밋(16:07:48)이 첫 런 START(16:08:09)보다
 앞섬, 5런 EXIT 0·빈티지 동일, G0 비트 재현, 판정 4건 재실행 동일(e1_summary sha256 불변), variant 설정 차이 정확,
 A-01 실데이터 불변 재현, 결정 로그 수치 일치.
+
+## S23.3 Production flip — D-04 `option_vol_scale_lag_enabled` (2026-09-29, 사용자 결정 · 사전등록 규칙 override)
+
+사용자 지시(09-29): "D-04 … 성과와 무관하게 정확성 근거로 채택하려면 한 줄로 켜줘". §S23.1 사전등록 판정은 무해성 FAIL
+(3분할 전부 음 −0.019/−0.010/−0.022, ΔIR −0.018)이었으므로 이 flip 은 **규칙 통과가 아니라 사용자 명시 결정**이다
+(§S13.25·§S13.47 사용자 override 선례와 같은 성격). 근거는 정확성: Σ 스케일 행 t 가 t 종가 정보(iv30_z[t]·r[t])를
+쓰고 나머지 최적화 입력은 모두 t−1 이하. 측정 증거(같은 빈티지 arm): 기전 PASS(알파 비트 동일, 목표비중 최대 1.0%p
+이동), E2 PASS(TE 3.80%, 회전율 1.005×, AS −0.05%p, fallback 0). IR 변화는 노이즈 범위의 소폭 음.
+
+- 커밋 1f1213c: production variant 1줄+주석, acceptance allowlist 5 + residual sleeve, 동결 S17/S18 비교 기준에 추가,
+  production 상태 핀(`test_production_variant_pins_s23_d04_flip_state`). 전체 872 PASS. 롤백 = 줄 삭제.
+- **재인증 공백(§9 보고)**: 결합 재인증 1.6235 는 D-04 를 포함하지 않는다. 같은 빈티지 재인증은 Index.xlsx 갱신
+  (09-29 11:15~11:30) 전에 끝낼 수 없어 수행하지 않았다. 세 flip 이 모두 들어간 첫 production 은 09-29 11:30 스케줄
+  런(새 Index 빈티지)이며, 그 IR 을 현 production 수치로 기록한다. 1.6235 는 "M-01+B-01, 09-28 빈티지" 기준선으로만
+  유효하고, 이후 arm 비교는 새 빈티지에서 production 재인증부터 다시 한다.
