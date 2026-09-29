@@ -351,3 +351,17 @@ overrides:
   # days. Rollback = delete this line (default-OFF, byte-identical restore
   # certified by tests/test_data_loader.py + tests/test_s18_fixes.py).
   business_day_calendar_enabled: true
+
+  # S23.2 (2026-09-29): uncentered PCA residual label (structural audit r6 B-01:
+  # sklearn transform/inverse_transform centred the 20-day forward return on the
+  # DAILY window mean, so the label carried a spurious anti-momentum term
+  # -(I-P) mu_daily). Adopted on correctness grounds, pre-registered S23.1 arm
+  # outputs/s23_b01_label_uncentered vs s23_s0recert (workbook 2026-09-18
+  # 14:13:24 / Index 2026-09-28 11:23:35): mechanism PASS (100% of labels
+  # changed, median Spearman(legacy - fixed, momentum_252d) -0.81), E2 PASS
+  # (TE 3.78%, turnover 0.96x, AS +0.2pp, fallback 0), IR 1.6931 -> 1.7103
+  # (dIR +0.017, splits +0.030/+0.147/-0.125, no-harm PASS; degenerate
+  # retrains 12/31 -> 9/31). New S0' = S23.2 combined re-certification.
+  # Rollback = delete this line (default-OFF, byte-identical restore certified
+  # by tests/test_target_engine.py).
+  pca_target_uncentered_enabled: true

@@ -231,3 +231,16 @@ def test_phase3_cache_token_covers_uncentered_flag():
     from run_variant import phase3_cache_token
     assert phase3_cache_token(PipelineConfig()) != phase3_cache_token(
         PipelineConfig(pca_target_uncentered_enabled=True))
+
+
+def test_production_variant_pins_s23_b01_flip_state():
+    """§8/§S23.2: B-01 flip(2026-09-29) — production uses the uncentered PCA label;
+    PipelineConfig keeps the default OFF (§8)."""
+    import yaml
+
+    with open("variants/codex_causal_rank_65.yaml", encoding="utf-8") as fh:
+        overrides = yaml.safe_load(fh).get("overrides") or {}
+    assert overrides.get("pca_target_uncentered_enabled") is True
+    assert PipelineConfig().pca_target_uncentered_enabled is False
+    # D-04 failed the pre-registered do-no-harm rule (all three splits negative): not promoted.
+    assert overrides.get("option_vol_scale_lag_enabled") in (None, False)
