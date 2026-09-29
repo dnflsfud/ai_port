@@ -82,6 +82,7 @@ def test_arm_variant_differs_from_production_by_exactly_the_flag():
         "static_execution_enabled",  # S18.3 promotion (2026-09-10); partial_rebalance_eta 0.50 -> 0.42 pinned pre-flip above
         "business_day_calendar_enabled",  # S18.7 promotion (2026-09-11)
         "pca_target_uncentered_enabled",  # S23.2 promotion (2026-09-29)
+        "option_vol_scale_lag_enabled",  # S23.3 promotion (2026-09-29)
     }
     assert not [
         key for key in prod

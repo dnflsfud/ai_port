@@ -91,6 +91,7 @@ def test_default_off_and_variant_has_one_semantic_delta():
             "partial_rebalance_eta",  # S18.3 promotion (2026-09-10): 0.50 -> 0.42
             "business_day_calendar_enabled",  # S18.7 promotion (2026-09-11)
             "pca_target_uncentered_enabled",  # S23.2 promotion (2026-09-29)
+            "option_vol_scale_lag_enabled",  # S23.3 promotion (2026-09-29)
             "rank_eval_at",  # S13.47 promotion (2026-08-20): [5, 10] -> [20]
             "expected_universe_size",  # S14.2 (2026-08-25): 200 -> 250
         ):

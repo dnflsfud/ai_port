@@ -365,3 +365,14 @@ overrides:
   # Rollback = delete this line (default-OFF, byte-identical restore certified
   # by tests/test_target_engine.py).
   pca_target_uncentered_enabled: true
+
+  # S23.3 (2026-09-29): lag the S13.41 option-vol covariance scale one row
+  # (structural audit r6 D-04: scale row t used close-t iv30_z / returns while
+  # the covariance window and the alpha are <= t-1). Adopted by USER DECISION on
+  # correctness grounds, overriding the pre-registered do-no-harm rule it missed
+  # (S23.1 arm outputs/s23_d04_optvol_lag vs s23_s0recert: mechanism PASS -- alpha
+  # bit-identical, weights move <= 1.0pp; E2 PASS -- TE 3.80%, turnover 1.005x,
+  # AS -0.05pp, fallback 0; IR 1.6931 -> 1.6751, dIR -0.018 with all three splits
+  # negative -0.019/-0.010/-0.022). Decision log S23.3. Rollback = delete this
+  # line (default-OFF, byte-identical restore certified by tests/test_option_vol_cov.py).
+  option_vol_scale_lag_enabled: true

@@ -242,5 +242,3 @@ def test_production_variant_pins_s23_b01_flip_state():
         overrides = yaml.safe_load(fh).get("overrides") or {}
     assert overrides.get("pca_target_uncentered_enabled") is True
     assert PipelineConfig().pca_target_uncentered_enabled is False
-    # D-04 failed the pre-registered do-no-harm rule (all three splits negative): not promoted.
-    assert overrides.get("option_vol_scale_lag_enabled") in (None, False)

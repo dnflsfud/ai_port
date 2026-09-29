@@ -282,7 +282,8 @@ S18_PRE_FLIP_VALUES = {"partial_rebalance_eta": 0.50}
 # B-01 added pca_target_uncentered_enabled. Arm comparisons use production as it was
 # before S23.2; the production state pins below read the live file.
 S23_2_PRE_FLIP_VALUES = {"fwd_sales_slope_features_enabled": True}
-S23_2_ADDED_FLAGS = ("pca_target_uncentered_enabled",)
+S23_2_ADDED_FLAGS = ("pca_target_uncentered_enabled",
+                     "option_vol_scale_lag_enabled")  # S23.3 flip (2026-09-29)
 
 
 def _production_overrides_pre_s23_2():

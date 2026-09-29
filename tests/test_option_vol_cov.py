@@ -177,3 +177,15 @@ def test_backtest_and_export_apply_the_same_lag():
     from src.backtest import run_backtest
     for fn in (run_backtest, _load_optvol_scale):
         assert "option_vol_scale_lag_enabled" in inspect.getsource(fn)
+
+
+def test_production_variant_pins_s23_d04_flip_state():
+    """§8/§S23.3: D-04 flip(2026-09-29, user decision on correctness grounds) — production
+    lags the option-vol scale one row; PipelineConfig keeps the default OFF (§8)."""
+    import yaml
+
+    with open("variants/codex_causal_rank_65.yaml", encoding="utf-8") as fh:
+        overrides = yaml.safe_load(fh).get("overrides") or {}
+    assert overrides.get("option_vol_scale_lag_enabled") is True
+    assert overrides.get("option_vol_covariance_enabled") is True
+    assert PipelineConfig().option_vol_scale_lag_enabled is False
