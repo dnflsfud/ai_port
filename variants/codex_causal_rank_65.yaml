@@ -131,9 +131,17 @@ overrides:
   dr_alpha_enabled: false
 
   # Fwd sales term-structure slope feature block (4 features), adopted by user
-  # override 2026-08-04 — decision log S13.25 Production flips. Rollback = delete
-  # this line (default-OFF, byte-identical parity certified by unit tests).
-  fwd_sales_slope_features_enabled: true
+  # override 2026-08-04 — decision log S13.25 Production flips.
+  # S23.2 (2026-09-29): ROLLED BACK on correctness grounds (structural audit r6
+  # M-01: the Fwd_Sales_Slope_1FY2FY source is a pull-time fixed-fiscal-year
+  # history rewritten on every fiscal-year report). Pre-registered S23.1 arm
+  # outputs/s23_m01_no_slope vs s23_s0recert (workbook 2026-09-18 14:13:24 /
+  # Index 2026-09-28 11:23:35): mechanism PASS (exactly the 4 slope features
+  # removed), E2 PASS (TE 3.71%, turnover 1.03x, AS -0.2pp, fallback 0),
+  # IR 1.6931 -> 1.8138 (dIR +0.121, splits +0.146/+0.148/+0.039, no-harm
+  # PASS). New S0' = S23.2 combined re-certification. Rollback = set true
+  # (re-adopt only after the source is re-pulled as rolling FY1/FY2).
+  fwd_sales_slope_features_enabled: false
 
   # Vol-tercile quality tilt (score' = score + 0.25*sd*z_q inside the top
   # idio-vol tercile), adopted by user decision 2026-08-05 — decision log

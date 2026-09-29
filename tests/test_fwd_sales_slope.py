@@ -100,3 +100,13 @@ def test_month_end_rebal_check_hits_last_trading_day_of_month():
         if check(i, dates[i], 0, 21, state)
     }
     assert hits == expected_eom  # 마지막 날짜(08-06)는 월말 판정 불가 -> 미포함
+
+
+def test_production_variant_pins_s23_m01_rollback_state():
+    """§8/§S23.2: M-01 rollback flip(2026-09-29) — the slope source is a pull-time
+    fixed-fiscal-year history, so production runs without the four slope features."""
+    import yaml
+
+    with open("variants/codex_causal_rank_65.yaml", encoding="utf-8") as fh:
+        overrides = yaml.safe_load(fh).get("overrides") or {}
+    assert overrides.get("fwd_sales_slope_features_enabled") is False

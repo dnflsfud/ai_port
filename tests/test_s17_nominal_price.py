@@ -295,8 +295,12 @@ def test_arm_variant_equals_production_after_the_s17_3_flip():
     post_s17_3_flips = {"vol_quality_tilt_negative_equity_mask", "tg_basis_events", "static_execution_enabled",
                         "business_day_calendar_enabled"}
     # S18.3 flip (2026-09-10) also moved partial_rebalance_eta 0.50 -> 0.42; the frozen arm keeps 0.50.
+    # S23.2 (2026-09-29): B-01 added pca_target_uncentered_enabled; M-01 rolled the slope
+    # block back to false (the frozen arm keeps true).
+    post_s17_3_flips |= {"pca_target_uncentered_enabled"}
     expected = {k: v for k, v in prod.items() if k not in post_s17_3_flips}
     expected["partial_rebalance_eta"] = 0.50
+    expected["fwd_sales_slope_features_enabled"] = True
     assert arm == expected
 
 

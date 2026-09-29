@@ -277,6 +277,21 @@ S18_PRODUCTION_FLIPS = {
 S18_PRE_FLIP_VALUES = {"partial_rebalance_eta": 0.50}
 
 
+# S23.2 flips (2026-09-29, decision log §S23.2) postdate every S18 arm / re-certification
+# variant, which stay frozen: M-01 set fwd_sales_slope_features_enabled back to false and
+# B-01 added pca_target_uncentered_enabled. Arm comparisons use production as it was
+# before S23.2; the production state pins below read the live file.
+S23_2_PRE_FLIP_VALUES = {"fwd_sales_slope_features_enabled": True}
+S23_2_ADDED_FLAGS = ("pca_target_uncentered_enabled",)
+
+
+def _production_overrides_pre_s23_2():
+    prod = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/codex_causal_rank_65.yaml", encoding="utf-8"))["overrides"]
+    prod = {k: v for k, v in prod.items() if k not in S23_2_ADDED_FLAGS}
+    prod.update(S23_2_PRE_FLIP_VALUES)
+    return prod
+
+
 def _production_pre_s18_flips(prod):
     pre = {k: v for k, v in prod.items() if k not in S18_PRODUCTION_FLIPS}
     pre.update(S18_PRE_FLIP_VALUES)
@@ -285,7 +300,7 @@ def _production_pre_s18_flips(prod):
 
 @pytest.mark.parametrize("label", sorted(ARMS))
 def test_arm_variant_is_production_plus_exactly_one_parameter(label):
-    prod = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/codex_causal_rank_65.yaml", encoding="utf-8"))["overrides"]
+    prod = _production_overrides_pre_s23_2()
     prod_pre_flip = _production_pre_s18_flips(prod)
     arm = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/{label}.yaml", encoding="utf-8"))
     assert arm["out_dir"] == f"outputs/{label}"
@@ -311,7 +326,7 @@ def test_s18_4_recert_variant_is_a_byte_copy_of_production():
 
     S18.3 flip(2026-09-10) 이후 production 은 static_execution_enabled·eta 0.42 를 더 가지며,
     역사적 재인증 variant 는 수정하지 않는다."""
-    prod = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/codex_causal_rank_65.yaml", encoding="utf-8"))
+    prod = {"overrides": _production_overrides_pre_s23_2()}
     rec = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/s18_4_flip2_recert.yaml", encoding="utf-8"))
     pre_s18_3 = {k: v for k, v in prod["overrides"].items()
                  if k not in ("static_execution_enabled", "business_day_calendar_enabled")}
@@ -325,7 +340,7 @@ def test_s18_4_recert_variant_is_a_byte_copy_of_production():
 def test_reattempt_variant_is_current_production_plus_the_preregistered_delta(label):
     """§S18.3: 재도전 arm = (flip 전) production + 사전등록 델타 2개. S18.3 flip(2026-09-10) 이후에는
     production 이 이 arm 과 overrides 가 동일하다(arm 런이 새 S0′ 산출물, §S17.3·§S18.2 선례)."""
-    prod = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/codex_causal_rank_65.yaml", encoding="utf-8"))["overrides"]
+    prod = _production_overrides_pre_s23_2()
     arm = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/{label}.yaml", encoding="utf-8"))
     assert arm["out_dir"] == f"outputs/{label}"
     pre = _production_pre_s18_flips(prod)
@@ -353,7 +368,7 @@ def test_production_variant_pins_s18_3_flip_state():
 @pytest.mark.parametrize("label", sorted(CALENDAR_ARMS))
 def test_calendar_arm_variant_is_current_production_plus_exactly_the_flag(label):
     """§S18.7: s18_6 = 현 production(세 S18 flip 포함) + business_day_calendar_enabled 1개."""
-    prod = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/codex_causal_rank_65.yaml", encoding="utf-8"))["overrides"]
+    prod = _production_overrides_pre_s23_2()
     arm = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/{label}.yaml", encoding="utf-8"))
     assert arm["out_dir"] == f"outputs/{label}"
     assert arm["tuning_mode"] == "production" and arm["portfolio_role"] == "diagnostic"
@@ -368,7 +383,7 @@ def test_calendar_arm_variant_is_current_production_plus_exactly_the_flag(label)
 
 def test_s18_7_recert_variant_is_a_byte_copy_of_production():
     """§S18.7 재인증 런(09-11 워크북): overrides 가 현 production 과 동일, out_dir 만 다름."""
-    prod = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/codex_causal_rank_65.yaml", encoding="utf-8"))
+    prod = {"overrides": _production_overrides_pre_s23_2()}
     rec = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/s18_7_s0recert.yaml", encoding="utf-8"))
     # S18.7 flip (2026-09-11): the re-certification predates the calendar flag; never edited.
     assert rec["overrides"] == {k: v for k, v in prod["overrides"].items() if k != "business_day_calendar_enabled"}
