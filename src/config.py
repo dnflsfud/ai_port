@@ -919,8 +919,10 @@ class PipelineConfig:
 
     # ------------------------------------------------------------------
     # S13.25 (2026-07-31) — fwd sales term-structure slope features.
-    # Four preregistered features from the Fwd_Sales_Slope_1FY2FY sheet
-    # (FY1→FY2 implied sales growth): level, Δ63, and two S13.15-idiom
+    # Four preregistered features from the slope sheet (§S23.4: now
+    # Fwd_Sales_Slope_1BF2BF, rolling 1BF->2BF implied sales growth; the
+    # original 1FY2FY source was a pull-time fixed fiscal year, §S22 M-01):
+    # level, Δ63, and two S13.15-idiom
     # soft-AND confirmations. OFF by default: byte-identical panel via the
     # core-whitelist filter.
     # ------------------------------------------------------------------

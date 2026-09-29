@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 """§S13.25: Fwd Sales 기간구조 slope 피처 (4개).
 
-``Fwd_Sales_Slope_1FY2FY`` 시트(BEST_SALES_1FY/2FY에서 유도한 FY1→FY2 내재
-매출 성장률 ``(2FY−1FY)/1FY``)를 소비한다. 선형 2(레벨·Δ63) + 비선형 2 —
+``Fwd_Sales_Slope_1BF2BF`` 시트(롤링 blended forward BEST_SALES 1BF/2BF에서 유도한
+내재 매출 성장률 ``(2BF−1BF)/1BF``)를 소비한다. §S23.4: 옛 ``Fwd_Sales_Slope_1FY2FY``
+(BDH "1FY"/"2FY" 가 호출 시점에 고정되는 회계연도 이력 — §S22 M-01)는 더 읽지 않는다.
+선형 2(레벨·Δ63) + 비선형 2 —
 트리 랭커는 단일 피처의 단조 변환에 불변이므로, 실질 비선형은 S13.15
 soft-AND(min-confirm) 2변수 결합으로만 만든다.
 
@@ -19,7 +21,7 @@ import pandas as pd
 from src.features.nonlinear_confirmation import _soft_and
 from src.features.utils import cross_sectional_zscore
 
-FWD_SALES_SLOPE_SHEET = "Fwd_Sales_Slope_1FY2FY"
+FWD_SALES_SLOPE_SHEET = "Fwd_Sales_Slope_1BF2BF"
 
 FWD_SALES_SLOPE_FEATURES = (
     "fwd_sales_slope_level",

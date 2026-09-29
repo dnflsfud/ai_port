@@ -175,12 +175,15 @@ def test_calendar_exempt_flag_default_off():
 
 
 def test_live_sheets_are_not_calendar_exempt():
-    """production variant가 실제로 소비하는 시트는 절대 면제되면 안 된다.
-    Fwd_Sales_Slope_1FY2FY = §S13.25 (fwd_sales_slope_features_enabled: true),
+    """production variant가 소비하거나 재채택 대상인 시트는 면제되면 안 된다.
+    Fwd_Sales_Slope_1BF2BF = §S13.25 슬로프 피처의 §S23.4 롤링 원천
+    (fwd_sales_slope_features_enabled, §S23.2 롤백 후 재채택 대기),
     iv30_z = §S13.41 공분산 대각 (option_vol_covariance_enabled: true)."""
-    from src.data_loader import CALENDAR_EXEMPT_SHEETS
+    from src.data_loader import BLOOMBERG_EQUITY_SHEETS, CALENDAR_EXEMPT_SHEETS
 
-    assert "Fwd_Sales_Slope_1FY2FY" not in CALENDAR_EXEMPT_SHEETS
+    assert "Fwd_Sales_Slope_1BF2BF" not in CALENDAR_EXEMPT_SHEETS
+    # 열이 "AAPL US Equity" 형식이라 티커 리네임 대상이어야 한다(누락 시 피처 전부 NaN).
+    assert "Fwd_Sales_Slope_1BF2BF" in BLOOMBERG_EQUITY_SHEETS
     assert "iv30_z" not in CALENDAR_EXEMPT_SHEETS
     # essential 시트(유니버스 멤버십 정의)도 면제 대상이 아니다.
     for essential in ("PX_LAST", "Daily_Returns", "CUR_MKT_CAP", "BEST_EPS"):

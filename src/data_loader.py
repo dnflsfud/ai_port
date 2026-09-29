@@ -232,7 +232,8 @@ LISTING_REMASK_EXEMPT_SHEETS = {"Daily_Returns"}
 # variant consumes it. Each entry names the arm that owns it.
 #
 # Deliberately NOT exempt (production consumes them today):
-#   Fwd_Sales_Slope_1FY2FY  -> fwd_sales_slope_features_enabled: true (§S13.25)
+#   Fwd_Sales_Slope_1BF2BF  -> fwd_sales_slope_features_enabled (§S13.25; §S23.4 rolling
+#                              source, re-adoption pending after the §S23.2 rollback)
 #   iv30_z                  -> option_vol_covariance_enabled: true  (§S13.41)
 # Both are pinned by tests/test_data_loader.py.
 CALENDAR_EXEMPT_SHEETS = frozenset({
@@ -273,6 +274,7 @@ FACTOR_SHEETS = {"Factor_PX_LAST", "Factor_Returns", "Factor_Meta"}
 BLOOMBERG_EQUITY_SHEETS = {
     "SHORT_INT_RATIO",
     "Fwd_Sales_Slope_1FY2FY",
+    "Fwd_Sales_Slope_1BF2BF",  # §S23.4 rolling 1BF/2BF slope source
     # S13.34: 종목 레벨 IV 서피스 시트 5종 (features/implied_vol.py 소비).
     # 유니버스 교집합은 essential 시트만 쓰므로 리네임은 티커 셋에 inert.
     "30DAY_IMPVOL_100.0%MNY_DF",

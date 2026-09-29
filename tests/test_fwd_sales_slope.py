@@ -110,3 +110,9 @@ def test_production_variant_pins_s23_m01_rollback_state():
     with open("variants/codex_causal_rank_65.yaml", encoding="utf-8") as fh:
         overrides = yaml.safe_load(fh).get("overrides") or {}
     assert overrides.get("fwd_sales_slope_features_enabled") is False
+
+
+def test_slope_sheet_is_the_rolling_blended_forward_source():
+    """§S23.4 (M-01): the slope sheet is (2BF - 1BF)/1BF from rolling blended-forward
+    sales; the old Fwd_Sales_Slope_1FY2FY (pull-time fixed fiscal year) is not read."""
+    assert FWD_SALES_SLOPE_SHEET == "Fwd_Sales_Slope_1BF2BF"
