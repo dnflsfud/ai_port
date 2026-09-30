@@ -307,9 +307,21 @@ overrides:
   # (outputs/s18_4_flip2_recert, decision log S18.2 result); 1.6373 (arm 1
   # alone) is then retired. Rollback = delete these five lines (default-{},
   # byte-identical restore certified by tests/test_s18_fixes.py).
+  # S24.3 (2026-09-30): RTX and T REMOVED on correctness grounds (user
+  # decision (a), decision log S23.5/S23.6/S24.3). From the 2026-09-29
+  # Bloomberg pull PX_LAST_UNADJ is itself spin-adjusted for the Abnormal
+  # class (RTX/T/TT/MRK), so the S18.2 inverse factors double-corrected:
+  # tg_upside z pre-event sat at +5.00 (RTX, clip) / +2.62 (T). Certified
+  # same-vintage arm outputs/s24_3_tg_events_a vs outputs/s24_g0_new
+  # (workbook 2026-09-30 14:27:35 / Index 11:31:05): mechanism PASS (RTX
+  # +5.00 -> +0.16, T +2.62 -> -0.33, DELL/DHR drift <= 0.03, post-2022-07
+  # TG features and all 59 other features bit-identical), E2 PASS (TE 3.79%,
+  # turnover 1.0045x, AS -0.13pp, ECOS 184 / fallback 0), IR 1.6952 ->
+  # 1.8328 (dIR +0.138, splits +0.165/+0.083/+0.135, no-harm PASS; formal
+  # E1 reported only). New S0' on this vintage = 1.8328. DELL/DHR stay
+  # (Split class, raw TG/UNADJ step still present). Rollback = re-add
+  #   RTX: {"2020-04-03": 1.696} / T: {"2022-04-11": 1.324}.
   tg_basis_events:
-    RTX: {"2020-04-03": 1.696}
-    T: {"2022-04-11": 1.324}
     DELL: {"2021-11-02": 0.506}
     DHR: {"2016-07-05": 0.758}
 

@@ -286,10 +286,21 @@ S23_2_ADDED_FLAGS = ("pca_target_uncentered_enabled",
                      "option_vol_scale_lag_enabled")  # S23.3 flip (2026-09-29)
 
 
+# S24.3 flip (2026-09-30, decision log §S24.3): RTX/T removed from tg_basis_events on
+# correctness grounds (vendor UNADJ became spin-adjusted -> double correction). Frozen
+# S18/S23 arm variants keep the four-name S18.2 state; the helper below restores it.
+S24_3_PRE_FLIP_TG_BASIS_EVENTS = {
+    "RTX": {"2020-04-03": 1.696}, "T": {"2022-04-11": 1.324},
+    "DELL": {"2021-11-02": 0.506}, "DHR": {"2016-07-05": 0.758},
+}
+S24_3_TG_BASIS_EVENTS = {"DELL": {"2021-11-02": 0.506}, "DHR": {"2016-07-05": 0.758}}
+
+
 def _production_overrides_pre_s23_2():
     prod = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/codex_causal_rank_65.yaml", encoding="utf-8"))["overrides"]
     prod = {k: v for k, v in prod.items() if k not in S23_2_ADDED_FLAGS}
     prod.update(S23_2_PRE_FLIP_VALUES)
+    prod["tg_basis_events"] = dict(S24_3_PRE_FLIP_TG_BASIS_EVENTS)
     return prod
 
 
@@ -318,7 +329,10 @@ def test_production_variant_pins_s18_2_flip_state():
     prod = yaml.safe_load(open(f"{AI_PORT_VARIANTS}/codex_causal_rank_65.yaml", encoding="utf-8"))["overrides"]
     assert prod.get("vol_quality_tilt_negative_equity_mask") is True
     assert PipelineConfig().vol_quality_tilt_negative_equity_mask is False
-    assert prod.get("tg_basis_events") == ARMS["s18_2_tg_basis_events"]["tg_basis_events"]
+    # S24.3 (2026-09-30): T/RTX removed (double correction after the vendor basis switch);
+    # DELL/DHR kept. Historical arm comparisons restore the S18.2 four-name state.
+    assert prod.get("tg_basis_events") == S24_3_TG_BASIS_EVENTS
+    assert set(S24_3_PRE_FLIP_TG_BASIS_EVENTS) == set(ARMS["s18_2_tg_basis_events"]["tg_basis_events"])
     assert PipelineConfig().tg_basis_events == {}
 
 
