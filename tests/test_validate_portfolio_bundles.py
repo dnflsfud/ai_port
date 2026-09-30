@@ -40,7 +40,8 @@ def _write_bundle(
         "sub_period_ir": {"P1_ir": 1.0, "P2_ir": 1.0, "P3_ir": 1.0},
         "data_quality": {"tail_ffill_days": 1, "max_tail_ffill_days": 10,
                          # §S18.1 target-price basis guard input (clean vintage)
-                         "currency": {"tg_px_ratio_suspect": {}}},
+                         "currency": {"tg_px_ratio_suspect": {},
+                                      "tg_basis_events_consistent_ok": True}},  # §S24.4
     }
     meta = {
         "schema_version": 1, "id": name, "display_name": name,

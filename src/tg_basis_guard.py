@@ -7,6 +7,8 @@ import os
 import tempfile
 from pathlib import Path
 
+import pandas as pd
+
 
 def _positive(value):
     try:
@@ -107,3 +109,79 @@ def annotate_basis_guard(out_dir, data_quality, threshold=0.25):
     currency["tg_basis_guard_state"] = state
     currency["tg_basis_guard_ok"] = bool(valid and not pending and not suspect)
     return pending
+
+
+# §S24.4 (b) — registered-event consistency (decision log §S24.4). A registered
+# tg_basis_events factor is only right while the VENDOR's raw TG/price ratio
+# still shows the matching step around the event date. When the vendor moves to
+# the other basis (RTX/T on the 2026-09-29 pull, §S23.5/§S23.6) the step
+# disappears and the factor silently double-corrects; the reverse (a step that
+# re-appears for a de-registered name) is the §S18.1 suspect/jump guard's job.
+EVENT_WINDOW = 60   # business rows on each side of the event
+EVENT_GAP = 5       # rows skipped next to the event (announcement-day noise)
+EVENT_MIN_OBS = 20  # minimum valid rows per side, else "insufficient" -> None
+EVENT_TOL_LOG = 0.20  # |log(step * factor)| bar (DELL/DHR measure 0.013/0.018; RTX/T post-switch 0.37/0.48)
+
+
+def event_consistency(ratio, events, window=EVENT_WINDOW, gap=EVENT_GAP,
+                      min_obs=EVENT_MIN_OBS, tol_log=EVENT_TOL_LOG):
+    """Compare each registered (ticker, date, factor) with the raw TG/price ratio step.
+
+    ratio: DataFrame (date x ticker) of RAW target price / nominal price (events NOT applied).
+    Returns {"params", "events": [...], "n_events", "n_inconsistent", "n_insufficient", "ok"} where
+    ok is True (all registered events consistent, or none registered), False (any inconsistent),
+    None (any event that could not be judged: insufficient rows, invalid date/factor).
+    """
+    rows = []
+    if not isinstance(events, dict):
+        events = {}
+    for ticker in sorted(events):
+        per_date = events[ticker]
+        if not isinstance(per_date, dict):
+            rows.append({"ticker": str(ticker), "date": None, "factor": None, "status": "invalid_date"})
+            continue
+        for date_str in sorted(per_date, key=str):
+            rec = {"ticker": str(ticker), "date": str(date_str), "factor": _positive(per_date[date_str])}
+            if rec["factor"] is None:
+                rec["status"] = "invalid_factor"
+                rows.append(rec)
+                continue
+            try:
+                event = pd.Timestamp(date_str)
+                if pd.isna(event):
+                    raise ValueError(date_str)
+            except (TypeError, ValueError):
+                rec["status"] = "invalid_date"
+                rows.append(rec)
+                continue
+            if ratio is None or str(ticker) not in getattr(ratio, "columns", []):
+                rec["status"] = "not_in_universe"
+                rows.append(rec)
+                continue
+            series = ratio[str(ticker)]
+            pos = int(series.index.searchsorted(event))
+            before = series.iloc[max(0, pos - gap - window): max(0, pos - gap)].dropna()
+            after = series.iloc[pos + gap: pos + gap + window].dropna()
+            rec["n_before"], rec["n_after"] = int(len(before)), int(len(after))
+            if len(before) < min_obs or len(after) < min_obs:
+                rec["status"] = "insufficient"
+                rows.append(rec)
+                continue
+            med_b, med_a = _positive(before.median()), _positive(after.median())
+            if med_b is None or med_a is None:
+                rec["status"] = "insufficient"
+                rows.append(rec)
+                continue
+            step = med_b / med_a
+            resid = math.log(step * rec["factor"])
+            rec.update({"median_before": round(med_b, 6), "median_after": round(med_a, 6),
+                        "raw_step": round(step, 6), "implied_factor": round(1.0 / step, 6),
+                        "log_residual": round(resid, 6),
+                        "status": "consistent" if abs(resid) <= tol_log else "inconsistent"})
+            rows.append(rec)
+    n_inconsistent = sum(1 for r in rows if r["status"] == "inconsistent")
+    n_unjudged = sum(1 for r in rows if r["status"] in ("insufficient", "invalid_date", "invalid_factor"))
+    ok = None if n_unjudged else n_inconsistent == 0
+    return {"params": {"window": window, "gap": gap, "min_obs": min_obs, "tol_log": tol_log},
+            "events": rows, "n_events": len(rows), "n_inconsistent": n_inconsistent,
+            "n_insufficient": n_unjudged, "ok": ok}

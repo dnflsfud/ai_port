@@ -9880,3 +9880,37 @@ VINTAGE_PRE == POST(워크북 2026-09-30 14:27:35 / Index 11:31:05). ECOS 184/18
 - 운영: 다음 스케줄 런(10-01 11:30)부터 T·RTX 이중 보정 이력 없이 발행. 남은 HOLD 요인은 Tech 섹터 리스크 몫(§S24.1) — 이 flip 은 섹터 몫에
   대한 판정 항목이 없으므로 발행 시 레지스트리에서 확인. TG 가드(`tg_basis_state.json`)는 최근 252일 비율 기반이라 불변.
 - 잔여: (b) 벤더 기저 재변경 시 무음 과소 보정 위험은 남는다(정합 가드 미도입, 별도 결정).
+
+## S24.4 — (b) 등록 이벤트 정합 가드 (2026-09-30 20:52, 사용자 지시 "(b) 정합 가드도 진행해줘" · 진단 계층 · 산출 불변 · 게이트 fail-closed)
+
+**목적**: `tg_basis_events` 에 등록된 factor 는 벤더의 raw TG/가격 비율에 이벤트일 전후 단절이 **남아 있을 때만** 옳다. 벤더가 기저를 바꾸면
+(09-29 수집분의 RTX·T, §S23.5/§S23.6) 단절이 사라지고 등록 factor 는 이중 보정이 되는데, 기존 §S18.1 가드(최근 252일 중앙값·jump)는 이를
+탐지하지 못했다(§S23.5 "가드 설계 한계"). (a) 제거(§S24.3) 뒤에도 DELL·DHR 이 남아 있고 앞으로 등록될 이벤트에도 같은 위험이 있다.
+
+**구현**(코드 4파일 + 테스트 1파일, 전체 928 PASS):
+- `src/tg_basis_guard.event_consistency(ratio, events, window=60, gap=5, min_obs=20, tol_log=0.20)` — 이벤트마다 raw 비율의 [−65, −5) /
+  (+5, +65] 행 창 중앙값으로 `raw_step = before/after`, `log_residual = log(raw_step × factor)`; |잔차| ≤ 0.20 이면 consistent, 아니면
+  inconsistent; 창 유효 행 < 20·날짜/factor 무효면 insufficient/invalid(판정 불가 → ok None); 유니버스 밖 종목은 not_in_universe(무시).
+  ok = True(전부 consistent 또는 등록 0) / False(하나라도 inconsistent) / None(판정 불가 존재).
+- `data_loader._check_target_price_unit_ratio` 가 tg_upside 와 같은 분모(명목가 `PX_LAST_UNADJ`)·관측 마스크 후 **이벤트 적용 전 raw TG** 로
+  전 이력 비율을 만들어 호출 → `data_quality.currency.tg_basis_events_check`(전체 기록)·`tg_basis_events_consistent_ok`(플래그) 발행,
+  True 가 아니면 경고 로그. 패널·피처·비중은 건드리지 않는다(산출 불변; 기존 가드 테스트·§S22 shell 테스트 전부 통과).
+- `validate_portfolio_bundles.evaluate_production` 검사 `tg_basis_events_consistent_ok`(bool 아니면 None = fail-closed) + values
+  `tg_basis_events_inconsistent`(종목@날짜 목록). exporter 는 로더 `data_quality` 를 통째로 performance.json 에 싣으므로 추가 배선 없음.
+- 허용오차 0.20 의 근거: 실측 잔차가 정합 이벤트 0.010~0.022, 벤더 전환 이벤트 0.37~0.48 로 한 자릿수 이상 분리된다.
+
+**실데이터 검증(09-30 14:27 워크북, production config, 로더만 413s)**:
+
+| 이벤트 | factor | raw_step(전/후 중앙) | implied factor | log 잔차 | 판정 |
+|---|---:|---:|---:|---:|---|
+| DELL 2021-11-02 | 0.506 | 1.9564 (2.302 / 1.177) | 0.511 | −0.0101 | consistent |
+| DHR 2016-07-05 | 0.758 | 1.2900 (1.390 / 1.077) | 0.775 | −0.0224 | consistent |
+| RTX 2020-04-03 (은퇴 맵, 대조군) | 1.696 | 0.9498 | 1.053 | **+0.4767** | **inconsistent** |
+| T 2022-04-11 (은퇴 맵, 대조군) | 1.324 | 1.0957 | 0.913 | **+0.3721** | **inconsistent** |
+
+→ production(DELL·DHR) `tg_basis_events_consistent_ok = True`; §S18.2 의 4종목 맵을 같은 패널에 넣으면 `False`(RTX·T) — 09-29 이후의 이중
+보정을 이 가드가 잡는다. 참고: MRK(factor 1.0) 잔차 0.026 consistent, TT 는 2020-03 전후 TG 창이 부족해 insufficient(미등록이라 무관).
+
+**운영**: 기존 production pkl(12:21 런)에는 키가 없어 다음 `--no-cache` 런(10-01 11:30) 전까지 이 검사는 None→HOLD 요인(D-03 과 같은 구조;
+현재 이미 섹터 몫 HOLD 라 실질 변화 없음). 이후 벤더가 DELL·DHR 기저를 바꾸면 무음 이중 보정 대신 HOLD 가 난다. 반대 방향(미등록
+종목에 새 단절 출현)은 §S18.1 suspect/jump 가드 담당. 롤백 = 이 커밋 revert(진단 키 2개·게이트 검사 1개 제거).

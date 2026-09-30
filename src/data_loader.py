@@ -1641,6 +1641,25 @@ class UniverseData:
                 .cummax(axis=0)
             )
             target_prices = target_prices.where(covered)
+        # §S24.4 (b): registered tg_basis_events must still match the vendor's
+        # raw step around each event date; a vanished step (vendor basis
+        # switch, RTX/T 2026-09-29) means the factor now double-corrects.
+        # Diagnostic only (no panel modified); fail-closed at the production
+        # gate via tg_basis_events_consistent_ok (None when not judgeable).
+        from src.tg_basis_guard import event_consistency
+        events = getattr(getattr(self, "config", None), "tg_basis_events", None) or {}
+        event_check = event_consistency(
+            target_prices / local.replace(0, np.nan), events
+        )
+        self.data_quality["currency"]["tg_basis_events_check"] = event_check
+        self.data_quality["currency"]["tg_basis_events_consistent_ok"] = event_check["ok"]
+        if event_check["ok"] is not True:
+            logger.warning(
+                "[UniverseData] tg_basis_events consistency %s — %s (§S24.4)",
+                "FAILED" if event_check["ok"] is False else "not judgeable",
+                [(e["ticker"], e["date"], e["status"]) for e in event_check["events"]
+                 if e["status"] not in ("consistent", "not_in_universe")],
+            )
         ratio = target_prices.tail(252) / local.tail(252).replace(0, np.nan)
         medians = ratio.median().dropna()
         self.data_quality["currency"]["tg_px_ratio_median"] = {

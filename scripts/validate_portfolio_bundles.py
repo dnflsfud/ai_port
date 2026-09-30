@@ -688,6 +688,15 @@ def evaluate_production(record: dict) -> dict:
     currency = data_quality.get("currency") if isinstance(data_quality.get("currency"), dict) else {}
     tg_suspect = currency.get("tg_px_ratio_suspect")
     tg_jump = currency.get("tg_px_ratio_jump_vs_prev") or {}
+    # §S24.4 (b): every registered tg_basis_events factor must still match the
+    # vendor's raw step (loader event_consistency). Fail-closed on missing.
+    tg_events_ok = currency.get("tg_basis_events_consistent_ok")
+    tg_events_check = currency.get("tg_basis_events_check") if isinstance(
+        currency.get("tg_basis_events_check"), dict) else {}
+    tg_events_bad = [
+        f"{e.get('ticker')}@{e.get('date')}" for e in (tg_events_check.get("events") or [])
+        if isinstance(e, dict) and e.get("status") == "inconsistent"
+    ]
     # §S22 D-01: the run must come from committed code (manifest git_dirty,
     # outputs/ excluded). §S22 D-02: an enabled option-vol risk channel must
     # actually be applied to the published book, not silently inert.
@@ -727,6 +736,7 @@ def evaluate_production(record: dict) -> dict:
             else (len(tg_suspect) == 0 and len(tg_jump) == 0
                   and currency.get("tg_basis_guard_ok", True) is True)
         ),
+        "tg_basis_events_consistent_ok": tg_events_ok if isinstance(tg_events_ok, bool) else None,
         "clean_tree_ok": None if not isinstance(git_dirty, bool) else not git_dirty,
         "option_vol_applied_ok": (
             None if not isinstance(optvol_enabled, bool) or not isinstance(optvol_applied, bool)
@@ -761,6 +771,7 @@ def evaluate_production(record: dict) -> dict:
         "max_tail_ffill_days": max_tail_days,
         "tg_px_ratio_suspect": tg_suspect if isinstance(tg_suspect, dict) else None,
         "tg_px_ratio_jump_vs_prev": tg_jump,
+        "tg_basis_events_inconsistent": tg_events_bad,
         "latest_rebalance_used_fallback": used_fallback if isinstance(used_fallback, bool) else None,
         "turnover_two_way_latest": latest_turnover,
         "max_two_way_turnover": turnover_cap,
