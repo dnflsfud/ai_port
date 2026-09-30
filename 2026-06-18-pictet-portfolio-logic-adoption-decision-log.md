@@ -9823,3 +9823,33 @@ ECOS 184/184 · fallback 0. 판정 `scripts/eval_s24_slope_arm.py` → `outputs/
   결론은 불변이며, 이 축의 이득은 재현 가능한 신호가 아니었다.
 - 별개 발견(기록): `price_v4` 의 전역 `bfill` 은 모든 원천 시트에 적용되므로 소비 측 상장 마스크(§S11 PIT 이중 마스킹·`listing_mask_enabled`)가
   막지 못하는 "상장 후 관측 시작 전" 뒤채움이 다른 시트에도 있을 수 있다 — 09-09 감사 Medium-4(추정치 시트 유령 접두)와 같은 계열. 별도 점검 후보.
+
+## S24.3 — T·RTX `tg_basis_events` 제거 (a) 사전등록 (2026-09-30 19:06, 사용자 결정 "(a) 제거로 진행" · 정확성 트랙 · 인벤토리 비계수 · 측정 전 단독 커밋)
+
+배경(§S23.5 후속·§S23.6): 09-29 수집분부터 Bloomberg `PX_LAST_UNADJ` 가 Abnormal 분사(RTX 2020-04-03 Carrier/Otis, T 2022-04-11 WBD, TT, MRK)를
+소급 조정해 FactSet TG 와 기저가 일치하게 됐고, §S18.2 에서 등록한 역수 계수(RTX ×1.696, T ×1.324)가 이제 **이중 보정**이 됐다. 현 빈티지
+(09-30 14:27 워크북) production 패널 실측: `tg_upside` z 중앙값 이벤트 전 **RTX +5.000(클립 상한, n=1,559일) · T +2.616(n=2,068일)** vs
+이벤트 후 −0.20 / −0.28. DELL(VMware 2021-11-02, 0.506)·DHR(Fortive 2016-07-05, 0.758)은 Split 클래스라 여전히 필요(raw TG/UNADJ 단절
+잔존, §S23.6). 사용자 결정: (a) T·RTX 항목 제거, DELL·DHR 유지.
+
+- **arm `s24_3_tg_events_a`** = production overrides 바이트 사본 + `tg_basis_events` 를 {DELL, DHR} 로 축소(1필드). overrides diff 검증
+  완료(그 외 0). variant sha256 `92959299a4063067a09399ffae6fc6b8f0a0a03dfc04258a28e631a6c8ef9e71`.
+- **기준** = `outputs/s24_g0_new`(IR 1.6951803327080086, 워크북 2026-09-30 14:27:35 / Index 11:31:05). 실행 = `outputs/run_variant_task.ps1
+  -Label s24_3_tg_events_a`(schtasks `s24_3_tg_events`), `--no-cache`, 단일 ECOS, VINTAGE_PRE/POST 기록.
+- **판정(`scripts/eval_s24_3_arm.py`, 정확성 트랙 = §S23.1 과 동일 프레임)** — flip 후보 = G0 ∧ 기전 ∧ E2 ∧ 무해성; formal E1 은 병기만.
+  - G0: base·arm data_vintage 동일 ∧ base IR 재현(1e-9).
+  - 기전(production 패널 `tg_upside`·`tg_mom_63d` z, 클립 ±5): ① RTX 이벤트 전 중앙 z base ≥ 2.0 → arm |z| ≤ 1.0, T base ≥ 1.5 → arm |z| ≤ 1.0
+    ② DELL·DHR 이벤트 전 중앙 z 변화 |Δ| ≤ 0.1(단면 정규화 잔차만 허용) ③ 2022-07-15 이후(두 이벤트 + 63BD 창 경과) 모든 종목의 TG 파생
+    2피처 비트 동일(|Δ| ≤ 1e-9) ④ TG 외 59피처는 전 구간 비트 동일 ⑤ 피처 집합 동일(61).
+  - E2: TE ≤ 4.5% · |ΔAS| ≤ 3%p · 회전율 ≤ 1.25× · fallback 0. 무해성: ΔIR > −0.36 ∧ 3분할 전부 음 아님.
+- **flip 절차(통과 시, §8 체크리스트)**: production yaml 에서 RTX·T 두 줄 삭제 + 주석 갱신(이 절 번호·새 수치·롤백 = 두 줄 복원) → 핀
+  `tests/test_s18_fixes.py::test_production_variant_pins_*`(현 4종목 == S18.2 arm 정의) 를 (a) 상태로 갱신(역사적 arm 파일·`eval_s18_arm` 게이트
+  무수정) → 전체 pytest → 독립 커밋. arm 과 flip 후 production 은 overrides 가 바이트 동일하므로 별도 재인증 런 없이 arm 수치가 새 S0′
+  (§S13.25 선례: 재실행 EXACT 재현 확인은 다음 스케줄 런의 metrics 로 대체 검증).
+- 판정 스크립트 sha256 `a165dfc47e5c491f996c09e6f539b91ad744e8ed7d77b30cc9a9475b6b458f4c`(테스트 `tests/test_eval_s24_3_arm.py` 6 PASS). 런 기동 19:07:55(schtasks `s24_3_tg_events`),
+  VINTAGE_PRE 워크북 14:27:35 / Index 11:31:05 확인. 이 절은 결과 전 단독 커밋.
+- DSR: 정확성 트랙 → 인벤토리 475 불변.
+- 미검증 잔여: TT·MRK 는 미등록이라 영향 없음. 벤더가 기저를 다시 되돌리면 (b) 정합 가드가 없는 상태에서는 무음으로 과소 보정이 된다 —
+  (b) 가드는 별도 결정.
+
+결과: (측정 후 기록)
