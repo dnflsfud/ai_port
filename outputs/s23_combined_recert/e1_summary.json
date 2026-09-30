@@ -1,0 +1,102 @@
+{
+  "arm": "s23_combined_recert",
+  "frame": "correctness",
+  "adoption_basis": "correctness + do-no-harm (dIR > -0.36, not all splits negative) with mechanism, E2 and G0; formal E1 reported only",
+  "preregistration": "decision log §S23.1 (2026-09-28)",
+  "base_dir": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\c2\\ai_port\\outputs\\s23_s0recert",
+  "vintage": {
+    "base_pkl_mtime": "2026-09-28 16:34:32",
+    "arm_pkl_mtime": "2026-09-29 10:39:41",
+    "base_data_vintage": {
+      "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
+      "data_mtime_utc": "2026-09-18T05:13:24Z",
+      "data_size_bytes": 371934079,
+      "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
+      "fx_mtime_utc": "2026-09-28T02:23:35Z",
+      "fx_size_bytes": 92599962
+    },
+    "arm_data_vintage": {
+      "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
+      "data_mtime_utc": "2026-09-18T05:13:24Z",
+      "data_size_bytes": 371934079,
+      "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
+      "fx_mtime_utc": "2026-09-28T02:23:35Z",
+      "fx_size_bytes": 92599962
+    }
+  },
+  "g0": {
+    "vintage_equal": true,
+    "base_reproduces_scheduled_production": true,
+    "g0_pass": true
+  },
+  "full_period": {
+    "ir_base": 1.6931,
+    "ir_arm": 1.6235,
+    "delta_ir": -0.0697,
+    "e1_bar": 0.36
+  },
+  "subperiods": [
+    {
+      "split": 1,
+      "start": "2019-01-29",
+      "end": "2021-08-11",
+      "ir_base": 1.4877,
+      "ir_arm": 1.1974,
+      "delta": -0.2903
+    },
+    {
+      "split": 2,
+      "start": "2021-08-12",
+      "end": "2024-02-28",
+      "ir_base": 1.4782,
+      "ir_arm": 1.4505,
+      "delta": -0.0277
+    },
+    {
+      "split": 3,
+      "start": "2024-02-29",
+      "end": "2026-09-17",
+      "ir_base": 2.004,
+      "ir_arm": 2.1023,
+      "delta": 0.0983
+    }
+  ],
+  "e1_formal_pass": false,
+  "no_harm_pass": true,
+  "mechanism": {
+    "note": "combined flips: judged on G0 + E2 + do-no-harm",
+    "pass": true
+  },
+  "e2": {
+    "te_ok": true,
+    "active_share_ok": true,
+    "turnover_ok": true,
+    "fallback_zero": true
+  },
+  "e2_pass": true,
+  "flip_candidate": true,
+  "companions": {
+    "te_base": 0.03771,
+    "te_arm": 0.03737,
+    "turnover_base": 0.7847,
+    "turnover_arm": 0.8003,
+    "turnover_ratio": 1.0199,
+    "active_share_base": 0.20441,
+    "active_share_arm": 0.20437,
+    "realized_beta_base": 1.0546347133277538,
+    "realized_beta_arm": 1.0517378198319907,
+    "avg_ic_base": 0.01274929924014725,
+    "avg_ic_arm": 0.015861493445266012,
+    "max_drawdown_base": -0.32897421990044773,
+    "max_drawdown_arm": -0.32363142165739345,
+    "degenerate": {
+      "base": "12/31",
+      "arm": "11/31"
+    },
+    "fallback_arm": 0.0,
+    "solver_counts_arm": {
+      "ECOS": 184
+    },
+    "elapsed_sec_arm": 1420.5
+  }
+}

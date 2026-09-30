@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-09-28T03:20:49.290399+00:00",
+  "generated_at_utc": "2026-09-30T03:21:32.941002+00:00",
   "stale_after_hours": 96,
-  "data_as_of": "2026-09-17",
+  "data_as_of": "2026-09-28",
   "comparison_gate": {
     "status": "RESEARCH/FAIL",
     "passed": false,
@@ -18,7 +18,7 @@
     "subperiod_ir_wins": 0
   },
   "production_gate": {
-    "status": "PRODUCTION",
+    "status": "HOLD",
     "checks": {
       "estimated_te_ok": true,
       "name_active_risk_ok": true,
@@ -27,23 +27,42 @@
       "live_model_age_ok": true,
       "realized_te_within_guard": true,
       "stale_tail_ok": true,
-      "tg_px_ratio_ok": true
+      "tg_px_ratio_ok": false,
+      "clean_tree_ok": true,
+      "option_vol_applied_ok": true
     },
     "values": {
       "top_sector": "Technology",
-      "top_sector_active_risk_share": 0.800037,
+      "top_sector_active_risk_share": 0.809077,
       "top_name": "STX",
-      "top_name_active_risk_share": 0.244528,
-      "degenerate_rate": 0.3870967741935484,
-      "max_stale_depth": 3,
+      "top_name_active_risk_share": 0.27315,
+      "degenerate_rate": 0.25806451612903225,
+      "max_stale_depth": 2,
       "max_consecutive_stale_retrains": 7,
-      "live_model_age_retrains": 1.0,
+      "live_model_age_retrains": 2.0,
       "max_live_model_age_retrains": 3,
-      "tracking_error": 0.03771436492575157,
+      "tracking_error": 0.03785538653493518,
       "tail_ffill_days": 0.0,
       "max_tail_ffill_days": 10.0,
-      "tg_px_ratio_suspect": {},
-      "tg_px_ratio_jump_vs_prev": {}
+      "tg_px_ratio_suspect": {
+        "285A": 3.8563087797303632,
+        "8035": 5.278933725829942,
+        "8316": 2.222811020232458
+      },
+      "tg_px_ratio_jump_vs_prev": {
+        "285A": {
+          "previous": 1.2553905126976521,
+          "now": 3.8563087797303632
+        },
+        "8035": {
+          "previous": 1.0589888085145143,
+          "now": 5.278933725829942
+        },
+        "8316": {
+          "previous": 1.121103739950395,
+          "now": 2.222811020232458
+        }
+      }
     }
   },
   "portfolios": [
@@ -313,23 +332,23 @@
         "WELL"
       ],
       "universe_hash": "94bb572a48453a5c2a7d07e17f18632ccd7476deb7f14673c9e8329a33416890",
-      "data_as_of": "2026-09-17",
+      "data_as_of": "2026-09-28",
       "last_rebalance_date": "2026-09-04",
       "previous_rebalance_date": "2026-08-06",
       "next_expected_rebalance_date": "2026-10-06",
       "rebalance_freq_days": 21,
       "rebalance_calendar": "XNYS",
-      "rows_since_last_rebalance": 8,
-      "rows_until_next_rebalance": 13,
+      "rows_since_last_rebalance": 15,
+      "rows_until_next_rebalance": 6,
       "rebalance_overdue": false,
       "is_rebalance_data_as_of": false,
       "next_rebalance_is_estimate": true,
-      "exported_at_utc": "2026-09-28T03:20:46.273255+00:00",
-      "source_metrics_sha256": "c963b2cc5afeeed377e48973ea0e463d6655c8174b3cdc0367b5b82476a2f5b2",
-      "source_metrics_mtime_utc": "2026-09-28T03:14:10.941849+00:00",
+      "exported_at_utc": "2026-09-30T03:21:30.286641+00:00",
+      "source_metrics_sha256": "5ccbaab1fdd6a055927c12841dddbef15bd3d28b8ad9f0267d569dcd90489030",
+      "source_metrics_mtime_utc": "2026-09-30T03:15:01.762910+00:00",
       "portfolio_version": "universe250-usd-pit-sp500-v2",
-      "source_manifest_sha256": "463b797228205746ac3761012fc321fb58f84016294238ca4cf921188e1ff728",
-      "git_hash": "6bc138716e87b568c8a62f82ce1a4de94d39ce71",
+      "source_manifest_sha256": "fa1d8dd7445c693b0ce5c4cf22388be231833f0c5d5f458c3df343ac8a8fd4bc",
+      "git_hash": "4247a86278acb3efdc425e15c4b20287227b3e18",
       "git_dirty": false,
       "verified_run_contract": true,
       "causal_validation_enabled": true,
@@ -359,14 +378,14 @@
         "missing_essential_sheets": []
       },
       "data_freshness": {
-        "data_as_of": "2026-09-17",
-        "fx_data_as_of": "2026-09-17",
+        "data_as_of": "2026-09-28",
+        "fx_data_as_of": "2026-09-28",
         "fx_missing_currencies": [],
         "fx_stale_currencies": [],
         "tail_ffill_days": 0,
         "max_tail_ffill_days": 10
       },
-      "status": "PRODUCTION"
+      "status": "HOLD"
     },
     {
       "schema_version": 1,
@@ -634,23 +653,23 @@
         "WELL"
       ],
       "universe_hash": "94bb572a48453a5c2a7d07e17f18632ccd7476deb7f14673c9e8329a33416890",
-      "data_as_of": "2026-09-17",
+      "data_as_of": "2026-09-28",
       "last_rebalance_date": "2026-09-04",
       "previous_rebalance_date": "2026-08-06",
       "next_expected_rebalance_date": "2026-10-06",
       "rebalance_freq_days": 21,
       "rebalance_calendar": "XNYS",
-      "rows_since_last_rebalance": 8,
-      "rows_until_next_rebalance": 13,
+      "rows_since_last_rebalance": 15,
+      "rows_until_next_rebalance": 6,
       "rebalance_overdue": false,
       "is_rebalance_data_as_of": false,
       "next_rebalance_is_estimate": true,
-      "exported_at_utc": "2026-09-28T02:54:18.666133+00:00",
-      "source_metrics_sha256": "4c2421418d09fe46ed8fbd011ef5af252a4a5e43c0e0ceaf1675ed9186f8ec0b",
-      "source_metrics_mtime_utc": "2026-09-28T02:47:20.976018+00:00",
+      "exported_at_utc": "2026-09-30T02:54:06.751320+00:00",
+      "source_metrics_sha256": "bea25b846f1f0ef0c0cdb512187a7cfa769db6472d2bfb8d6d2b1401086e20af",
+      "source_metrics_mtime_utc": "2026-09-30T02:47:42.104865+00:00",
       "portfolio_version": "universe250-usd-pit-sp500-v2",
-      "source_manifest_sha256": "6fc4459293fb78e4b4487a8b8f63129245d1dc83ee8ecfb0226b8a8c59d46de2",
-      "git_hash": "6bc138716e87b568c8a62f82ce1a4de94d39ce71",
+      "source_manifest_sha256": "e7fc078dff6ae10be8b5b23aa442d84a3d6d5e74095c45c8e6474548f689dd3a",
+      "git_hash": "4247a86278acb3efdc425e15c4b20287227b3e18",
       "git_dirty": false,
       "verified_run_contract": true,
       "causal_validation_enabled": true,
@@ -680,8 +699,8 @@
         "missing_essential_sheets": []
       },
       "data_freshness": {
-        "data_as_of": "2026-09-17",
-        "fx_data_as_of": "2026-09-17",
+        "data_as_of": "2026-09-28",
+        "fx_data_as_of": "2026-09-28",
         "fx_missing_currencies": [],
         "fx_stale_currencies": [],
         "tail_ffill_days": 0,

@@ -90,7 +90,7 @@
     "fwd_opcf_rev_126d_feature_enabled": false,
     "fwd_opcf_rev_252d_feature_enabled": false,
     "fwd_opcf_rev_63d_feature_enabled": false,
-    "fwd_sales_slope_features_enabled": true,
+    "fwd_sales_slope_features_enabled": false,
     "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
     "growth_tilt_enabled": true,
     "growth_tilt_eps_skew": 0.5,
@@ -207,6 +207,7 @@
     "option_risk_features_enabled": false,
     "option_vol_covariance_enabled": true,
     "option_vol_scale_fix_enabled": true,
+    "option_vol_scale_lag_enabled": true,
     "output_dir": "./outputs",
     "partial_rebalance_eta": 0.42,
     "pca_components": 5,
@@ -216,6 +217,7 @@
     "pca_n_remove": 2,
     "pca_regime_vol_col": "VIX",
     "pca_regime_vol_threshold": 1.0,
+    "pca_target_uncentered_enabled": true,
     "pca_vol_standardize": false,
     "pead_boost_enabled": true,
     "pead_boost_weight": 0.3,
@@ -342,18 +344,18 @@
     "winner_trim_quantile": 0.8
   },
   "data_vintage": {
-    "data_mtime_utc": "2026-09-18T05:13:24Z",
+    "data_mtime_utc": "2026-09-29T06:53:44Z",
     "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
-    "data_size_bytes": 371934079,
-    "fx_mtime_utc": "2026-09-28T02:23:35Z",
-    "fx_size_bytes": 92599962,
+    "data_size_bytes": 372835857,
+    "fx_mtime_utc": "2026-09-30T02:31:05Z",
+    "fx_size_bytes": 97194523,
     "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx"
   },
   "extra": {
     "description": "Fixed-250 causal production portfolio. Uses date-grouped LightGBM rank_xendcg, purged/embargoed validation, and a one-trading-day execution signal lag. The legacy label/output path is retained for automation compatibility; the universe is the validated 250-name Universe_Meta set (decision log \u00a7S14.2). The adopted four-feature forward-sales-slope block is enabled per S13.25; benchmark, overlays, optimizer and transaction-cost assumptions remain pinned to the canonical iter15_65tkr_reb21_vtg portfolio design.\n",
     "manifest_path": "variants\\codex_causal_rank_65.yaml",
     "run_contract": {
-      "config_sha256": "a0e4549ee51c45411d16dbff366fd0ef958ee01b3ade6fb97ef5916584d43eff",
+      "config_sha256": "16198b0841cef10b35f9227e60f61b85645f762c54ed49e17ad805e9e0c3e8b9",
       "data_dates": [
         "2014-01-24T00:00:00",
         "2014-01-27T00:00:00",
@@ -3535,21 +3537,28 @@
         "2026-09-14T00:00:00",
         "2026-09-15T00:00:00",
         "2026-09-16T00:00:00",
-        "2026-09-17T00:00:00"
+        "2026-09-17T00:00:00",
+        "2026-09-18T00:00:00",
+        "2026-09-21T00:00:00",
+        "2026-09-22T00:00:00",
+        "2026-09-23T00:00:00",
+        "2026-09-24T00:00:00",
+        "2026-09-25T00:00:00",
+        "2026-09-28T00:00:00"
       ],
       "inputs": {
-        "code_sha256": "e9dfc217ba32e710ea2c408722e5df6c1830afbba2de49f049b75aa4efcc7ae1",
+        "code_sha256": "5059f5d18e466efb224fdf09143a2e02bbda0a40c136fbe4ecc7ca9fea28c69d",
         "data": {
-          "mtime_ns": 1789708404895624300,
+          "mtime_ns": 1790664824297453700,
           "path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
-          "sha256": "7b330ca7c8b9044c96a9d8e49e9699092eef1495b099b64c84e4ed81b9223d32",
-          "size": 371934079
+          "sha256": "2a6142a011b00d37c71820a3198207c574e7df5e512d6b9dd697cdc985697751",
+          "size": 372835857
         },
         "fx": {
-          "mtime_ns": 1790562215321633400,
+          "mtime_ns": 1790735465110548300,
           "path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
-          "sha256": "7c62fec1a5fad41531c6a603ac8a2832e19cf935c34898f28e36dcbca2688549",
-          "size": 92599962
+          "sha256": "15d8e68356149858b7006d59e616a1255609c126796fff586b0196b395fc4031",
+          "size": 97194523
         }
       },
       "schema_version": 1,
@@ -3810,6 +3819,6 @@
     "variant_label": "codex_causal_rank_65"
   },
   "git_dirty": false,
-  "git_hash": "6bc138716e87b568c8a62f82ce1a4de94d39ce71",
-  "timestamp_utc": "2026-09-28T03:14:13Z"
+  "git_hash": "4247a86278acb3efdc425e15c4b20287227b3e18",
+  "timestamp_utc": "2026-09-30T03:15:02Z"
 }
