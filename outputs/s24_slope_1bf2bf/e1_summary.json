@@ -1,0 +1,139 @@
+{
+  "arm": "s24_slope_1bf2bf",
+  "frame": "performance",
+  "adoption_basis": "formal E1 (dIR > +0.36 and all 3 splits positive) with G0, mechanism, E2; override candidate (dIR > 0, all splits positive, gates) reported only — user decision + DSR haircut",
+  "preregistration": "decision log §S24.2 (2026-09-30)",
+  "base_dir": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\c2\\ai_port\\outputs\\s24_g0_new",
+  "vintage": {
+    "base_pkl_mtime": "2026-09-30 16:00:20",
+    "arm_pkl_mtime": "2026-09-30 18:28:00",
+    "base_data_vintage": {
+      "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
+      "data_mtime_utc": "2026-09-30T05:27:35Z",
+      "data_size_bytes": 392851329,
+      "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
+      "fx_mtime_utc": "2026-09-30T02:31:05Z",
+      "fx_size_bytes": 97194523
+    },
+    "arm_data_vintage": {
+      "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
+      "data_mtime_utc": "2026-09-30T05:27:35Z",
+      "data_size_bytes": 392851329,
+      "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
+      "fx_mtime_utc": "2026-09-30T02:31:05Z",
+      "fx_size_bytes": 97194523
+    }
+  },
+  "g0": {
+    "vintage_equal": true,
+    "base_reproduces_reference": true,
+    "g0_pass": true
+  },
+  "full_period": {
+    "ir_base": 1.6952,
+    "ir_arm": 1.5493,
+    "delta_ir": -0.1459,
+    "e1_bar": 0.36
+  },
+  "subperiods": [
+    {
+      "split": 1,
+      "start": "2019-01-29",
+      "end": "2021-08-16",
+      "ir_base": 1.3576,
+      "ir_arm": 1.2591,
+      "delta": -0.0985
+    },
+    {
+      "split": 2,
+      "start": "2021-08-17",
+      "end": "2024-03-07",
+      "ir_base": 1.6615,
+      "ir_arm": 1.6436,
+      "delta": -0.0178
+    },
+    {
+      "split": 3,
+      "start": "2024-03-08",
+      "end": "2026-09-29",
+      "ir_base": 1.9531,
+      "ir_arm": 1.6579,
+      "delta": -0.2952
+    }
+  ],
+  "e1_formal_pass": false,
+  "no_harm_pass": false,
+  "adoption_candidate": false,
+  "override_candidate": false,
+  "mechanism": {
+    "feature_set": {
+      "removed": [],
+      "added": [
+        "fwd_sales_slope_chg_63d",
+        "fwd_sales_slope_level",
+        "nl_fslope_growth_confirm",
+        "nl_fslope_rev_confirm"
+      ],
+      "set_pass": true
+    },
+    "consumption": {
+      "recorded": true,
+      "n_retrains": 31,
+      "consumed_share_by_feature": {
+        "fwd_sales_slope_level": 1.0,
+        "fwd_sales_slope_chg_63d": 1.0,
+        "nl_fslope_rev_confirm": 1.0,
+        "nl_fslope_growth_confirm": 1.0
+      },
+      "block_gain_share_mean": 0.0689,
+      "consumption_pass": true
+    },
+    "pass": true,
+    "base_slope_gain_share_sanity": 0.0
+  },
+  "e2": {
+    "te_ok": true,
+    "active_share_ok": true,
+    "turnover_ok": true,
+    "fallback_zero": true
+  },
+  "e2_pass": true,
+  "companions": {
+    "te_base": 0.03788,
+    "te_arm": 0.03726,
+    "turnover_base": 0.7911,
+    "turnover_arm": 0.7478,
+    "turnover_ratio": 0.9452,
+    "active_share_base": 0.20567,
+    "active_share_arm": 0.20368,
+    "realized_beta_base": 1.0515566588109708,
+    "realized_beta_arm": 1.0544055772302372,
+    "avg_ic_base": 0.01392108012795722,
+    "avg_ic_arm": 0.016784041520935798,
+    "max_drawdown_base": -0.3231272280026999,
+    "max_drawdown_arm": -0.3237496807883392,
+    "sub_periods_metrics_base": {
+      "P1_ir": 1.3319611618423632,
+      "P2_ir": 1.1996202451134745,
+      "P3_ir": 2.4838074995711112,
+      "P4_tail_ir": 1.166219535972964,
+      "sub_period_coverage_end": "2026-09-29"
+    },
+    "sub_periods_metrics_arm": {
+      "P1_ir": 1.3583224231800777,
+      "P2_ir": 1.1732904894577878,
+      "P3_ir": 2.0919193263007507,
+      "P4_tail_ir": 1.1968132143293073,
+      "sub_period_coverage_end": "2026-09-29"
+    },
+    "degenerate": {
+      "base": "10/31",
+      "arm": "12/31"
+    },
+    "fallback_arm": 0.0,
+    "solver_counts_arm": {
+      "ECOS": 184
+    },
+    "elapsed_sec_arm": 1791.5
+  }
+}
