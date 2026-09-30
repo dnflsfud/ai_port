@@ -863,6 +863,9 @@ class BacktestResult:
         self.optimizer_solver_fallbacks: int = 0
         self.optimizer_solver_fallback_rate: float = 0.0
         self.optimizer_fallback_reason_counts: Dict[str, int] = {}
+        # §S22 D-03: rebalance dates whose executed book is a fallback (bm /
+        # projection) — the exporter publishes the LATEST one for the gate.
+        self.optimizer_fallback_dates: List[pd.Timestamp] = []
         self.model_quality: Optional[Dict] = None
         self.data_quality: Optional[Dict] = None
         # Factor-neutral (P3) live loading-coverage telemetry. None unless
@@ -1523,6 +1526,7 @@ def simulate_portfolio(
     weight_history = {}
     weight_history_daily = {}
     optimizer_failures = 0
+    optimizer_fallback_dates: List[pd.Timestamp] = []   # §S22 D-03
     solver_counts: Dict[str, int] = {}
     solver_fallbacks = 0
     fallback_reason_counts: Dict[str, int] = {}
@@ -1564,7 +1568,22 @@ def simulate_portfolio(
     #   4. Transaction cost from the rebalance is charged to today's PnL
     #      (trade executed at close_t; cash leaves the book today)
     # =========================================================================
-    for t_idx in range(start_idx, len(all_dates)):
+    # §S22 C-01 (decision log §S24): a tuning run (enforce_oos_holdout +
+    # train_cutoff_date) stops PREDICTIONS at the cutoff but used to keep
+    # booking the frozen, drifting book's P&L through the reserved OOS window,
+    # so tuner-facing IR/TE contained reserved-window returns. Stop the
+    # simulation at the cutoff. Production (enforce_oos_holdout False) unchanged.
+    end_idx = len(all_dates)
+    cutoff_str = getattr(config, "train_cutoff_date", None)
+    if getattr(config, "enforce_oos_holdout", False) and cutoff_str:
+        cutoff = pd.Timestamp(cutoff_str)
+        end_idx = int(all_dates.searchsorted(cutoff, side="right"))
+        logger.info(
+            "[Backtest] OOS holdout: simulation stops at train_cutoff_date=%s "
+            "(%d of %d rows)", cutoff.date(), end_idx, len(all_dates),
+        )
+
+    for t_idx in range(start_idx, end_idx):
         t_date = all_dates[t_idx]
 
         # --- Step 1: Today's PnL with weights ENTERING the day ----------------
@@ -1592,8 +1611,10 @@ def simulate_portfolio(
 
             # C5: inf/-inf in predictions would corrupt cvxpy silently. Replace
             # non-finite values with NaN so the coverage check below treats them
-            # the same as missing.
-            non_finite_mask = ~np.isfinite(pred_row.astype(float))
+            # the same as missing. §S22 C-04: test for inf only — an ordinary
+            # NaN (listing-masked name) is expected on most rebalances and used
+            # to fire this warning every time.
+            non_finite_mask = np.isinf(pred_row.astype(float))
             if non_finite_mask.any():
                 n_bad = int(non_finite_mask.sum())
                 logger.warning(
@@ -1738,6 +1759,7 @@ def simulate_portfolio(
 
                 if rebal_had_fallback:
                     optimizer_failures += 1
+                    optimizer_fallback_dates.append(t_date)
 
                 # Two-way L1 turnover: sum(|new - old|).
                 # NOTE: industry one-way convention = 0.5 * L1 (halve this).
@@ -1814,6 +1836,7 @@ def simulate_portfolio(
     # Log optimizer failures
     total_rebals = len(weight_history)
     result.optimizer_failures = optimizer_failures
+    result.optimizer_fallback_dates = list(optimizer_fallback_dates)
     result.optimizer_rebalances = total_rebals
     result.optimizer_failure_rate = (
         optimizer_failures / total_rebals if total_rebals > 0 else 0.0
@@ -2060,6 +2083,14 @@ def run_backtest(
     execution_lag = int(getattr(config, "execution_signal_lag_days", 0))
     if execution_lag > 0:
         result.pre_execution_predictions = predictions.copy()
+        if getattr(config, "dr_alpha_enabled", False):
+            # §S22 C-06: the DR overlay (run_variant) feeds raw_predictions
+            # back through a second run_backtest, which lags them again.
+            # Keep the pre-lag prior for it. Only stored on the DR path so
+            # the production pickle is unchanged.
+            result.pre_execution_raw_predictions = (
+                raw_predictions.copy() if raw_predictions is not None else None
+            )
         predictions, raw_predictions = apply_execution_signal_lag(
             predictions, raw_predictions, execution_lag
         )
@@ -2297,6 +2328,10 @@ def run_backtest(
     result.optimizer_solver_fallbacks = sim_result.optimizer_solver_fallbacks
     result.optimizer_solver_fallback_rate = sim_result.optimizer_solver_fallback_rate
     result.optimizer_fallback_reason_counts = sim_result.optimizer_fallback_reason_counts
+    result.optimizer_fallback_dates = sim_result.optimizer_fallback_dates   # §S22 D-03
+    # §S22 C-03: the effective cost rate lived only on the inner result, so
+    # compute_metrics on this object fell back to the import-time ONE_WAY_TC.
+    result.one_way_tc = sim_result.one_way_tc
 
     # Surface factor-neutral live coverage once (review M1). Only when the
     # penalty actually ran (dates>0), so OFF-default runs add no attr/log.

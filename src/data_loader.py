@@ -342,6 +342,7 @@ def load_all_sheets(data_path: str) -> Dict[str, pd.DataFrame]:
 
 def restrict_to_business_days(
     raw: Dict[str, pd.DataFrame],
+    fail_on_tail_truncation: bool = False,
 ) -> Tuple[Dict[str, pd.DataFrame], Dict]:
     """Keep only BusinessDays trading days in every dated raw sheet.
 
@@ -380,6 +381,23 @@ def restrict_to_business_days(
         out["Daily_Returns"] = returns[cols].reindex(orig_dates)
         recomputed = True
 
+    # §S22 A-05 (decision log §S24): a BusinessDays sheet that ends before
+    # the price panel silently drops the NEWEST rows of every sheet (the
+    # tail-ffill guard then sees 0). Report it; the production loader
+    # (UniverseData) passes fail_on_tail_truncation=True and fails closed.
+    tail_rows_dropped = 0
+    tail_dropped_from = None
+    price_last_date = None
+    if "PX_LAST" in raw:
+        px_dates = pd.DatetimeIndex(
+            pd.to_datetime(raw["PX_LAST"].index, errors="coerce")
+        ).dropna().normalize()
+        if len(px_dates):
+            price_last_date = px_dates.max()
+            tail = px_dates[px_dates > business_days.max()]
+            tail_rows_dropped = int(len(tail))
+            tail_dropped_from = tail.min() if len(tail) else None
+
     diagnostics = {
         "enabled": True,
         "business_days": int(len(business_days)),
@@ -387,12 +405,29 @@ def restrict_to_business_days(
         "last": business_days.max().strftime("%Y-%m-%d"),
         "rows_dropped_by_sheet": dropped,
         "daily_returns_recomputed": recomputed,
+        "price_last_date": (
+            price_last_date.strftime("%Y-%m-%d") if price_last_date is not None else None
+        ),
+        "tail_rows_dropped": tail_rows_dropped,
+        "tail_dropped_from": (
+            tail_dropped_from.strftime("%Y-%m-%d") if tail_dropped_from is not None else None
+        ),
     }
     logger.info(
         "[DataLoader] business-day calendar: %d trading days, dropped %d rows "
         "across %d sheet(s), Daily_Returns recomputed=%s",
         len(business_days), sum(dropped.values()), len(dropped), recomputed,
     )
+    if tail_rows_dropped:
+        msg = (
+            f"[DataLoader] BusinessDays sheet ends {diagnostics['last']} but PX_LAST "
+            f"runs to {diagnostics['price_last_date']}: {tail_rows_dropped} newest "
+            f"row(s) from {diagnostics['tail_dropped_from']} would be dropped from "
+            "every sheet (§S22 A-05 tail truncation)"
+        )
+        if fail_on_tail_truncation:
+            raise ValueError(msg)
+        logger.warning(msg)
     return out, diagnostics
 
 
@@ -852,7 +887,12 @@ def align_dates(
         "weekend_dates_removed": int(
             len(weekend_common_dates.append(weekend_tail_dates).unique())
         ),
-        "calendar_type": "weekday_index",
+        # §S22 A-06: report the calendar actually in force (S18.7 flip).
+        "calendar_type": (
+            "business_day"
+            if getattr(config, "business_day_calendar_enabled", False)
+            else "weekday_index"
+        ),
         "max_tail_ffill_days": int(getattr(config, "max_tail_ffill_days", 10)),
         "fail_on_stale_tail_ffill": bool(getattr(config, "fail_on_stale_tail_ffill", False)),
     })
@@ -1196,7 +1236,9 @@ class UniverseData:
         # the raw dict BEFORE listing inference (PX_LAST flat runs) and before
         # raw_returns extraction so every downstream view sees one calendar.
         if getattr(self.config, "business_day_calendar_enabled", False):
-            self.raw, calendar_diag = restrict_to_business_days(self.raw)
+            self.raw, calendar_diag = restrict_to_business_days(
+                self.raw, fail_on_tail_truncation=True
+            )
             self.data_quality["business_day_calendar"] = calendar_diag
         self.meta = load_universe_meta(self.raw)
         self.full_universe = list(self.meta.index)
@@ -1584,6 +1626,21 @@ class UniverseData:
         target_prices = target_prices.reindex(
             index=local.index, columns=local.columns
         )
+        # §S22 A-03 (decision log §S24): _fill_missing puts OTHER names'
+        # target-price LEVELS into a name's pre-coverage cells. tg_upside
+        # re-NaNs them (§S17 T-01) but this guard's 252d median did not
+        # (probe: 16.50 vs 1.10 observed) -> false suspect and a HOLD that
+        # acknowledge cannot clear. Score observed (post-coverage) cells only.
+        mask_fn = getattr(self, "raw_sheet_observed_mask", None)
+        observed = mask_fn("Factset_TG_Price") if callable(mask_fn) else None
+        if observed is not None:
+            covered = (
+                observed.reindex(index=local.index, columns=local.columns)
+                .fillna(False)
+                .astype(bool)
+                .cummax(axis=0)
+            )
+            target_prices = target_prices.where(covered)
         ratio = target_prices.tail(252) / local.tail(252).replace(0, np.nan)
         medians = ratio.median().dropna()
         self.data_quality["currency"]["tg_px_ratio_median"] = {
@@ -1801,9 +1858,11 @@ class UniverseData:
         This mirrors exactly the standardisation that PRECEDES the fill — the
         same idiom as ``_extract_raw_returns`` — and applies the level-sheet
         listing mask so pre-listing backfill is not reported as observed.
-        Returns None when the sheet is absent from the workbook.
+        Returns None when the sheet is absent from the workbook (or when
+        the instance has no raw dict — partially built shells).
         """
-        if name not in self.raw:
+        raw = getattr(self, "raw", None)
+        if not isinstance(raw, dict) or name not in raw:
             return None
         df = self.raw[name].copy()
         df = _standardize_columns(df)

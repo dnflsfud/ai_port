@@ -9544,6 +9544,17 @@ slope = (2BF − 1BF)/1BF(1BF = 기본 `BEST_SALES`)로 만든다. BF 는 날짜
 결산 보고를 사이에 둔 두 수집에서 과거 구간이 재작성되지 않는지 → ④ 새 사전등록(단일 파라미터) → 같은 빈티지 기준
 재인증 + arm → §8 flip. 검증 전에는 `fwd_sales_slope_features_enabled` 를 켜지 않는다(켜면 시트 부재 시 §S23 D-02 raise).
 
+### §S23.4 후속 — 원천 검증 ③ 부분 결과 (2026-09-30 18:10, 09-30 14:27 워크북 · 읽기 전용 · 사용자 질문 "최신 데이터셋의 비선형 요소가 성과 개선에 도움이 되는지")
+
+- `BEST_SALES_2BF` 유효 셀 비율 2014~2026 전 연도 100%(최근 연도 편중 없음), 250종목·마지막 행 결측 0. `Fwd_Sales_Slope_1BF2BF` 연중앙값
+  0.050~0.076(2014→2026 완만 상승), 21BD 단면 순위 자기상관 0.971, |일간 Δ|>0.02 비율 0.4% — 느린 펀더멘털 피처의 정상 성질.
+- **M-01 실측 확증**: 새 롤링 슬로프 vs 구 `Fwd_Sales_Slope_1FY2FY` 의 단면 Spearman(21BD 간격 평균) 2014 0.70 / 2015 −0.11 / 2016 −0.12 /
+  2017 0.09 / 2018 0.51 / 2019~24 0.58~0.67 / 2025 0.87 / 2026 0.96. 구 시트의 과거 단면은 오늘 시점 고정 회계연도 추정치라 별개 객체이며,
+  §S13.25 의 +0.266 은 그 비-PIT 이력 위에서 학습된 수치이므로 새 원천으로 **승계 불가**(§S23.4 결정 재확인).
+- 미완: ③ 의 "결산 보고를 사이에 둔 두 수집에서 과거 재작성 없음" 은 다음 재수집(10월 실적 시즌 이후) 때 09-30 워크북과 대조해야 한다.
+- 측정 준비 상태: 같은 빈티지 기준선은 `outputs/s24_g0_new`(production overrides, IR 1.6952, 09-30 14:27 워크북)가 이미 있으므로 arm 은
+  `fwd_sales_slope_features_enabled: true` 단일 flip 1회 런(~25분)으로 충분. 사전등록·실행은 사용자 결정.
+
 ## S23.5 — 09-29 재생성 워크북 점검 (§9 보고 · 읽기 전용 · 코드·variant 무변경)
 
 대상: `ai_signal_data.xlsx` 09-29 15:53 (S&P500.xlsx 13:45, Index.xlsx 12:12), 09-18 원천 백업 `Data/S&P500.backup_20260918.xlsx` 대비.
@@ -9582,3 +9593,233 @@ slope = (2BF − 1BF)/1BF(1BF = 기본 `BEST_SALES`)로 만든다. BF 는 날짜
   주의: 일본 TG 만 고치고 T·RTX 이벤트를 두면 가드가 통과되어 왜곡된 T·RTX 로 **발행**된다(지금은 일본 HOLD 가 발행을 막는 상태).
 - 후보(사용자 결정, §8): (a) `tg_basis_events` 에서 T·RTX 제거(DELL·DHR 유지) (b) 등록 이벤트 정합 가드 — 이벤트일 전후 TG_ev/UNADJ 단절
   검사로 벤더 기저 재변경 시 무음 이중 보정 대신 HOLD.
+
+### §S23.6 — 09-30 14:27 재생성 워크북 재점검 (2026-09-30 17:00, 사용자 지시 "지금 생성된 ai_signal_data 의 퀄리티를 다시 점검해줘" · 읽기 전용 · 코드·variant 무변경)
+
+대상: `ai_signal_data.xlsx` 09-30 14:27 (S&P500.xlsx 09-30 13:06 · Index.xlsx 11:31 · D_Factset 13:38 · Sentiment 13:52 · RL_Universe_Data 14:05).
+도구: 60시트 전수 로드(세션 scratchpad 피클) + `scripts/audit_ai_signal_data_stability.py` + Bloomberg 원천 09-29 백업
+(`Data/S&P500.backup_20260930.xlsx`) 대비 재작성 비교 + FactSet API 독립 대조(일본 3종목 TG·종가·매출·FCF, 미 4종목 종가) +
+G0 새 코드 런(`outputs/s24_g0_new/metrics.json`)의 로더 진단.
+
+**구조·정합 — 전부 PASS**
+- 60시트, 날짜 시트 전부 last 2026-09-29(인출일 09-30 컷 정상), 09-30 행 0, 중복·역순 0. BusinessDays 3204(2014-01-02→2026-09-29,
+  주말 0, 미 휴일 7종 제외 확인) == Factor_PX_LAST 인덱스. 필수 15시트 250종목·마지막 행 결측 0·last_valid 전부 09-29.
+- Daily_Returns == pct_change(PX_LAST) 4e-16(1,163,250셀). Factor_Returns 72열 pct_change/diff 재현 불일치 0. FX 6페어 Index.xlsx 와
+  3204일 전부 동일(last 09-29). 로더: 영업일 3204·꼬리 절단 0·tail_ffill 0·상장 마스크 250/250(BE 2018-07-25·285A 2024-12-18 등)·
+  FX 7통화 staleness 0·tg_px_ratio suspect {}·jump 없음·guard ok.
+- 마지막 행 장중 스냅샷(09-09 High-1) 재발 없음: PX_LAST/UNADJ 마지막 행 249/250 == 1.0. 직전 행 대비 비율 변동 11종목은 전부 일본
+  (09-29 중간배당 배당락 소급 조정), TTE 0.98848 은 09-30 배당락(전 구간 균일). 09-28·09-29 종가 동일 4종목(COF·APO·ADP·PFE)은 FactSet 도
+  동일 종가·동일 거래량 → 실제. 09-21~23 동일 종가 14~16종목은 일본 실버위크 휴장(로컬 휴일 ffill, 기지 설계).
+- 추정치 신선도: 마지막 행 변동 비율 TG 11%·EPS 리비전 18%·Sales 리비전 12%(직전 5일 6~30% 범위) → ffill 정체 아님.
+  SHORT_INT_RATIO 는 08-31·09-15 결제일 행만 갱신(반월 주기, whitelist 밖).
+- 안정성 감사: Critical 0·High 0·Medium 5·Low 13. Medium = AMD 2016-04-22 +52%·BE 2024-11-15 +59%(실제 사건)·BE 2018-07-25 +67%
+  (IPO 첫날, 직전 공모가 상수 행은 상장 마스크가 제외)·VRT FactSet 커버리지 80%(§S18 P6 기지). Low = 은행 등 선택 시트 열 부재(설계)·
+  옵션 파생 시트 열명 형식(감사기 매칭 한계, 09-09 별도 재현 PASS).
+
+**§S23.5 지적 추적**
+- 일본 분할 3종목 TG 기저 **해소**: 09-29 TG 285A 36,411 · 8035 15,275 · 8316 3,729 vs FactSet API(09-30) 36,433 · 15,175 · 3,729;
+  UNADJ 09-29 17,880 · 11,505 · 3,357 = FactSet 종가와 동일. UNADJ 는 전 구간 분할 소급(09-29 전후 단절 없음). 09-30 재인출에서
+  BEST_EPS(×1/3·1/5·1/2 전 구간)·BEST_PE_RATIO(×3·5·2)·BEST_CALCULATED_FCF(285A ×1/6.33 2026-03-30 까지, 8035 ×1/5.91 전 구간)도
+  분할 기저로 전환 → 09-29 워크북의 FCF ×6.33/×5.92 이상은 벤더 전환 과도기였고 지금은 정합(FactSet FCF 컨센서스 285A FY1 4.5T/
+  FY2 7.4T JPY vs 워크북 BF 6.97T; 8035 0.33T/0.70T vs 0.72T — 정의 차 범위). 2026년 285A EPS·FCF 의 25% 초과 일변동은 02-12·05-18
+  실적일 컨센서스 상향(분할 계수 아님). 285A TG/가격 2.04(마지막 행 2위, FICO 2.08)는 실제 컨센서스(FactSet 평균 36.4k·중앙 37k·SD 14k,
+  15명) — 결함 아님, 252일 중앙값 1.29 로 밴드(0.6~1.7) 내.
+- **T·RTX 이중 보정 — 새 빈티지에서 확정·정량화**: 09-30 UNADJ 는 09-29 와 동일 기저(T·RTX·TT·MRK·DELL·DHR 전 구간 new/old 1.0000).
+  raw TG/UNADJ 는 RTX 2020-04-03 전후 1.138→1.195, T 2022-04-11 전후 1.213→1.110(단절 없음)인데 등록 이벤트(×1.696·×1.324) 적용 후
+  RTX 1.931→1.195, T 1.606→1.110 → 이벤트 전 구간 tg_upside RTX **+0.93 vs +0.19**, T **+0.61 vs +0.11**. DELL(raw 2.296→1.178,
+  이벤트 후 1.162→1.178)·DHR(1.392→1.075 → 1.055→1.075)은 여전히 필요. TT(1.043→1.142)·MRK(1.245→1.213)는 등록 불필요.
+  일본 HOLD 가 풀린 지금 **다음 발행 런부터 T·RTX 왜곡이 그대로 나감** — (a)/(b) 결정 필요(§S23.5 후속).
+- BEST_SALES_2BF **수집됨**(250종목·결측 0, 2BF/1BF 중앙 1.061·<1 비율 4.5%), `Fwd_Sales_Slope_1BF2BF` = (2BF−1BF)/1BF 재현
+  4e-16(1,095,384셀), 1FY2FY 슬로프와 마지막 행 상관 0.79. 슬로프는 production OFF(§S23.4 재채택 절차 대기).
+- days_to_earnings(연구 시트) 마지막 행 전 종목 공백(마지막 값 09-24) — OFF arm 전용, 변화 없음. Earnings_Timeline 은 발표일=1 이력만
+  (미래 없음; production 소비는 과거 이벤트만).
+- 원천 재작성(09-29 → 09-30 재인출): 분할 3종목 외 소폭 벤더 정정(BEST_SALES 8316 2023-12~2024-03 −1.9%, COHR BEST_CALCULATED_FCF
+  2022-01 이후 −9.5% 등). PX_LAST 는 TTE 배당락 외 09-29 행만 갱신(직전 인출의 09-29 행은 미완 → 컷오프 설계대로 09-29 워크북에 미포함).
+
+판정: **워크북 자체 결함 0**(09-09 High-1·§S23.5 production 영향 1 해소, 2BF 수집 완료). 남은 production 리스크는 T·RTX 등록 이벤트
+(데이터가 아니라 `tg_basis_events` 계수 문제)뿐.
+
+---
+
+## S24 — §S22 Medium/Low 잔여 21건 처리 (2026-09-30, 사용자 지시 "medium, low 이슈도 처리해줘" · 산출 불변 수정 15 · default-OFF 플래그 3 · 기록만 3 · production variant 무변경(주석 1줄) · 인벤토리 불변)
+
+§S23(1단계 가드 5건)·§S23.2(M-01·B-01 flip)·§S23.3(D-04 flip)로 High 6건과 Medium 3건이 처리된 뒤 남은 Medium 7건 +
+Low 14건. 원칙은 §S23 과 같다: **산출 불변** 항목은 직접 수정(가드·진단·비prod 경로·문서), **성과 수치를 바꾸는** 항목은
+default-OFF 플래그 + 파리티 테스트 + 사전등록 arm(§8 절차, 측정은 사용자 결정). 코드 정본 `c2/ai_port/src`, 단일 ECOS.
+
+### 처리 표
+
+| ID | 등급 | 처리 | 코드 | 검증 |
+|---|---|---|---|---|
+| A-03 | M | 가드 중앙값을 **관측(커버리지 이후) TG 셀만**으로 계산 — `raw_sheet_observed_mask` 의 cummax 커버리지(§S17 T-01 `_mask_pre_coverage` 와 같은 정의) | `data_loader._check_target_price_unit_ratio` | 프로브 재현: NEW 16.50→1.10, suspect 해제, AAA/BBB 불변 |
+| A-05 | M | `restrict_to_business_days` 가 PX_LAST 마지막 행 > BusinessDays 마지막 행이면 `tail_rows_dropped`·`tail_dropped_from`·`price_last_date` 진단 + 경고; `UniverseData` 경로는 `fail_on_tail_truncation=True` 로 **fail-closed raise** | `data_loader` | 프로브 재현(2행 절단 감지·raise), 정상 캘린더 0 |
+| A-06 | L | `calendar_type` 진단이 `business_day_calendar_enabled` 를 따름(`business_day` / `weekday_index`) | `data_loader.align_dates` | 단위 |
+| A-07 | L | 벤치마크 결측일 ffill(가짜 수익률) 폐지 → 공통 날짜에서만 active 지표, 경고 로그. production 은 동일 인덱스라 불변(pkl 검증: bm·SPX 결측 0/1927) | `src/utils.compute_performance_metrics` | 단위(결측 케이스·파리티) |
+| A-08 | L | **기록만** — 캐시 재사용 분기는 죽은 코드이나 `tests/acceptance/test_phase3_checkpoint.py` 등이 표면을 고정(2026-08-27 리뷰 결정). 무변경 | — | — |
+| B-02 | M | **플래그** `revision_gradual_mask_disabled`(default False) → `clean_revision_spikes(gradual_mask_enabled=)`. OFF 바이트 동일 | `config`, `features/sellside` | 단위: OFF 파리티, ON 시 하락 램프 통과·상승 불변 |
+| B-03 | M | **플래그** `zscore_winsor_first_enabled`(default False) → 날짜별 [1%, 99%] 분위 윈저 후 z(`features/utils.WINSOR_QUANTILE=0.01`, 단일 사전등록값). OFF 는 `standardise_feature` = `cross_sectional_zscore` 그대로 | `config`, `features/utils`, `features/assembly` | 단위: OFF `.equals`, ON 압축 해소(p90-p10 4×↑), NaN 보존 |
+| B-05 | L | **플래그** `label_execution_lag_enabled`(default False) → 라벨창 시작을 `execution_signal_lag_days` 만큼 뒤로(`compute_forward_returns(lag=)`), `effective_label_horizon` 도 +lag(퍼지 정합). 두 호출 지점 모두 | `config`, `target_engine`, `model_trainer` | 단위: lag 공식·helper·horizon 21 |
+| B-06 | L | docstring 정정 — 함수 기본 `down_only` vs config 기본 `reversion_gated`, 패턴 2 캘린더 폴백 실체, 없는 `docs/rollback_log.md` 참조 제거 | `features/sellside` | — |
+| C-01 | M | `simulate_portfolio` 가 `enforce_oos_holdout`+`train_cutoff_date` 이면 **cutoff 에서 P&L 중단**(비prod 튜닝 경로) | `backtest` | 단위: cutoff 이후 행 0, OFF 전 구간·cutoff 전 동일 |
+| C-03 | L | `run_backtest` 가 `sim_result.one_way_tc` 를 복사(production 값 = 기본 0.001 이라 수치 불변; 오버라이드 시 정합) | `backtest` | 소스 핀 + pkl 확인(기존 attr None) |
+| C-04 | L | inf 가드 마스크 `~isfinite` → `isinf` (NaN 은 정상 결측; 리밸마다 울리던 경고 제거) | `backtest` | 단위: NaN 0건·inf 1건 |
+| C-05 | L | **기록·핀** — `subsample 0.8` 은 `subsample_freq`(bagging_freq) 기본 0 이라 무효. 값 유지(인증 params 불변) + 주석(config·production yaml) + 핀 테스트. 배깅 활성화는 별도 arm | `config`, `variants/codex_causal_rank_65.yaml`(주석) | 핀 |
+| C-06 | L | DR 오버레이 prior 를 **pre-lag raw** 로(`result.pre_execution_raw_predictions`, `dr_alpha_enabled` 일 때만 저장 → production pkl 불변); `src/rl` docstring 의 "production variant iter15 가 ON" 서술 정정. 도달 불가 경로 | `backtest`, `run_variant`, `src/rl/__init__` | 소스 핀 |
+| D-03 | M | 백테스트가 폴백 리밸 날짜 `optimizer_fallback_dates` 기록 → exporter `latest_rebalance_used_fallback`·`optimizer_fallback_dates`·`max_two_way_turnover` 발행 → 게이트 `latest_rebalance_no_fallback_ok`·`turnover_within_cap_ok`(결측 None = fail-closed) | `backtest`, `export_operating_data.fallback_operations_fields`, `validate_portfolio_bundles` | 단위 5개 + 픽스처 갱신. 현 production 0.053/0.15, 챌린저 이력 5회 폴백(최대 L1 0.42) |
+| D-06 | M(비prod) | TE 감사 한도 = `effective_te_limit(cfg, data, last)` — 조건화 ON 이면 `max_te_annual × multiplier(as_of)`, OFF 면 기존 값(바이트 동일). ON 일 때만 `te_cap_multiplier`·`max_tracking_error_annual_base` 발행 | `export_operating_data` | 단위(OFF 불변·ON 0.8×) |
+| D-07 | L | 통화 대사에 **독립 항등식** 추가: `fx_effect == fx × (1+local)`(USD 0), 관측 USD 셀(`usd_observed_mask`)만, 허용오차 1e-9. `passed` 에 포함(exporter fail-closed) | `export_operating_data.build_currency_attribution` | 단위: 쓰레기 local → FAIL, 정합 → PASS, 마스크 제외 |
+| D-08 | L | name-risk breach = `share > cap + NAME_RISK_CAP_TOL`(옵티마이저와 같은 0.01, r4 T-03) · 섹터는 tol 0 · `name_active_risk_tolerance` 발행 | `export_operating_data.risk_share_breached` | 단위 + 소스 핀 |
+| D-09 | L | 스케줄 래퍼가 `logs/scheduled_run_<ts>.log` 보존 + `scheduled_run_last.log` 복사 + `scheduled_run_history.log` 1행 append. 운영 기록: 09-30 12:21 런이 09-18 이후 **첫 성공**(HOLD 상태로 발행·푸시 fa3366f) | `run_and_upload_scheduled.bat` | 텍스트 핀(기존 thin-wrapper 핀 유지) |
+| D-10 | L | 대시보드 Universe 칩 `== 150` 하드코딩 → `universe_chip_ok(size, meta)`: 번들 funnel(full=loaded=size, missing 없음) | `streamlit_app` | 단위 |
+| M-02 | L | **기록만** — §S20 C5/C6 의 G2 는 C1/C2 와 수학적으로 동일(FY1 회귀변수 포함 시 FY2−FY1 잔차 = FY2 잔차) → FY2 가족 실질 검정 8개(Bonferroni 2.73). §S21 판정(SHELVE) 불변 | — | — |
+
+테스트: 신규 29개(`tests/test_s24_medium_low_fixes.py` 23 + `tests/test_utils.py` 6) — HEAD 코드에서 28 FAIL 확인(독립 검증자 재확인; 파리티 1개는
+수정 전부터 PASS 가 정상) → 수정 후 전체 **902 PASS**. 기존 테스트 변경은 `tests/test_validate_portfolio_bundles.py` 픽스처에
+D-03 키 2개 추가뿐. `raw_sheet_observed_mask` 는 `raw` 없는 부분 셸에서 None 을 돌려주도록 방어(기존 셸 테스트 3개 보존).
+
+### 사전등록 — B-02 / B-03 / B-05 arm (측정 전 기록 · 실행은 사용자 결정)
+
+| arm | 플래그(단일값) | 정확성 근거 | 판정 |
+|---|---|---|---|
+| s24_b02_no_gradual_mask | `revision_gradual_mask_disabled: true` | 진짜 하향 동결 제거(상향은 이미 통과) | §S23.1 과 동일: G0(같은 빈티지 base 재현) ∧ 기전(마스킹 셀 수 감소·EPS/Sales 리비전 피처 변화) ∧ E2 ∧ 무해성(3분할 ΔIR ≥ −0.02) |
+| s24_b03_winsor_first | `zscore_winsor_first_enabled: true` (q=0.01 고정) | 이상치 1개의 횡단면 압축 제거 | 기전 = 날짜별 p90-p10 확대 |
+| s24_b05_label_lag | `label_execution_lag_enabled: true` (lag = 1 = production `execution_signal_lag_days`) | 라벨창을 실행 가능한 구간으로 | 기전 = 라벨·IC 정의 변화 후 IC→IR 전달 |
+
+측정 순서는 §S23.1 과 같이 공통 기준 병렬 3 arm → flip 후 결합 재인증. **스윕 없음**, IR 최대 선택 없음. 사용자 결정 전에는 세
+플래그 모두 OFF 이며 production 수치에 영향이 없다.
+
+### 실데이터 검증 (2026-09-30)
+
+- exporter 스모크(현 pkl 09-30 12:21 + 새 코드)는 `validate_cached_result_compatibility` 가 중단: 워크북이 **09-30 14:27 재생성**
+  (data_as_of 09-28 → 09-29, `BEST_SALES_2BF`·`Fwd_Sales_Slope_1BF2BF` 시트 신설 60시트)됐고 PipelineConfig 필드 추가로
+  `config_sha256` 이 바뀌어 캐시 pkl 과 불일치 — 설계된 가드이며, 스케줄 런은 `--no-cache` 로 재생성하므로 운영 영향 없음.
+- **G0 파리티 체인** `outputs/s24_g0_parity_chain.ps1`(schtasks `s24_g0_parity`, 15:16 시작): 같은 빈티지(워크북 09-30 14:27:35 /
+  Index 09-30 11:31:05)에서 ① 커밋 HEAD fa3366f 코드(worktree `%TEMP%\ai_port_s24_head`, `variants/s24_g0_old.yaml`) ②
+  작업트리 코드(`variants/s24_g0_new.yaml`, 플래그 전부 OFF). 두 variant 는 production overrides 의 바이트 사본(diagnostic
+  role, 인벤토리 비계수). 판정 = metrics.json(휘발 키 제외)·portfolio_returns·비중·예측·타깃 전부 동일.
+  결과(16:00 완료, 구 15:16→15:36 / 신 15:36→16:00, 두 런 모두 EXIT 0·VINTAGE_PRE==POST): **PASS** — portfolio_returns·benchmark_returns·
+  turnover·리밸 비중·predictions·raw_predictions·targets 전부 identical, 핵심 지표 old==new(IR 1.6952 / TE 3.79% / 회전율 0.791 /
+  beta 1.052 / avg_ic 0.0139), 옵티마이저 폴백 0(신 `optimizer_fallback_dates=[]`), `one_way_tc` 신 0.001(구 attr 없음, C-03),
+  A-03 `tg_px_ratio_median` 변경 종목 0 · suspect {} 양쪽 동일. metrics.json 차이는 진단 키뿐 — `calendar_type`
+  weekday_index→business_day(A-06), `business_day_calendar.price_last_date/tail_rows_dropped(0)/tail_dropped_from(null)`(A-05),
+  code_sha256·elapsed·manifest_path. 이 빈티지(워크북 09-30 14:27)의 production 수치 IR 1.6952 는 §S23.2 S0′ 1.6235(09-18 워크북)와
+  다른 빈티지이므로 직접 비교 금지(§S13.47 빈티지 규칙) — 재인증 수치 갱신은 §S23.6 워크북 재점검·T·RTX 결정 이후.
+- 새 pkl 로 exporter 재실행(`outputs/s24_smoke_operating_new`, 17:16→17:23; operating-dir 은 저장소 안이어야 함 — 기존 `relative_to(ROOT)`):
+  **PASS** — D-07 독립 항등식 `independent_fx_passed=True`(관측 USD 셀 482,000, max|resid| 0.0, tol 1e-9)·`passed=True`; D-03
+  `latest_rebalance_used_fallback=False`·`optimizer_fallback_dates=[]`·`max_two_way_turnover=0.15`(최근 회전율 0.0586); D-08
+  `name_active_risk_tolerance=0.01`(STX 몫 0.233/캡 0.35, breach False); D-06 `te_cap_multiplier` 없음(조건화 OFF). 게이트
+  `evaluate_production` 예외 없이 12검사 중 10 PASS — `latest_rebalance_no_fallback_ok=True`·`turnover_within_cap_ok=True`(D-03 신규 검사 해소),
+  HOLD 요인은 `clean_tree_ok=False`(미커밋 S24 코드, 커밋 시 해소)와 `sector_active_risk_ok=False`(아래 §S24.1 — 데이터 빈티지 효과).
+
+### §S24.1 — 09-30 워크북으로 포트폴리오 갱신 요청 (2026-09-30 17:30, 사용자 지시 "현재 버전의 ai_signal_data로 포트폴리오를 업데이트 해주고, 최신 ow종목들을 알려줘")
+
+- 갱신 경로: `run_and_upload.bat` [3]~[7](챌린저·production `--no-cache` 백테스트 → export → 검증·레지스트리)을 커밋/푸시 없이 재생하는
+  일회성 schtasks 체인(`outputs/s24_prod_refresh_chain.ps1`)을 준비했으나 **auto 모드 분류기가 "Production Deploy" 로 스크립트 작성을
+  차단** → 우회하지 않고 사용자 실행/승인 대기. bat 직접 실행은 D-01 가드(미커밋 S24 코드) 때문에 커밋이 선행돼야 한다.
+- 대신 같은 산출물인 G0 새 런(`outputs/s24_g0_new`: production overrides 바이트 사본 + 현재 워크북 09-30 14:27 + Index 11:31, 코드는
+  HEAD 와 산출 동일)의 exporter 번들(`outputs/s24_smoke_operating_new`)로 OW 를 보고. production 라벨 런과 수치 동일(결정론).
+- **빈티지 비교(발행 12:21 런 = 워크북 09-29 15:53 vs 새 워크북 09-30 14:27, Index 동일)**: full IR 1.7468 → **1.6952**, TE 3.79% 동일,
+  09-04 리밸 비중 L1 차 0.249(편도 12.4%), OW 종목 32 → 38. 큰 이동(pp): LLY −0.02→+2.79, MU +0.37→+1.71, ZTS 0→+1.21, 000660 +0.05→+0.94,
+  WDAY +2.31→+0.78, GEV +1.50→−0.02, NEM +1.32→+0.35, MPC +1.09→+0.23, 285A +1.44→+1.02. 기대 리밸(09-29) 타깃 L1 차 0.250.
+  원인 후보(분해 런 미실행): 일본 분할 3종목 TG 이력 정정(구 워크북에서는 8035·8316 의 tg_upside 가 전 구간 3~5배 부풀어 ±5 클립 상한에
+  고정 → 모델이 tg_upside 관계를 왜곡 학습) + 09-29 1일 추가 + EPS/PE/FCF 분할 기저 전환. 빈티지 규칙(§S13.47)상 두 수치는 직접 비교 대상이
+  아니며, 새 워크북이 정확한 쪽(§S23.6)이다.
+- **새 빈티지의 production 게이트 = HOLD**: `sector_active_risk_ok=False` — Technology 액티브 리스크 몫 **0.913 > 캡 0.85**(발행 런 0.809,
+  breach 없음). OW 액티브 합 21.0pp 중 Technology 14.5pp. 종목 몫은 STX 0.233 < 0.35 정상, 추정 TE 3.20%(캡 3.5%) 정상, 폴백 0.
+  따라서 production 갱신을 돌려도 레지스트리는 HOLD 로 발행된다(§S10 섹터 한도 0.85 는 flip 된 운영 규칙). 해소는 (i) 다음 리밸(10-06)에서
+  옵티마이저의 섹터 리스크 몫 제약이 작동하는지 확인 — 기대 리밸 09-29 의 섹터 몫을 exporter 가 별도 산출하지 않으므로 다음 런에서 판단, (ii) 캡
+  조정은 §8 절차. 데이터 결함이 아니라 포지션 집중의 문제.
+- T·RTX 이중 보정(§S23.6)은 이 빈티지에 그대로 포함 — (a)/(b) 결정 전 발행은 왜곡 이력 포함 상태.
+
+### 독립 검증 판정 (2026-09-30 17:50, 깨끗한 컨텍스트의 Fable 검증자 · 계획·diff·합격기준 7개만 입력)
+
+**VERDICT: PASS** — 7개 기준 전부 직접 재실행. ① 전체 902 passed ② 신규 테스트 HEAD worktree 에서 28 failed / 1 passed(파리티만 통과)
+③ 플래그 기본값 `False False False` ④ production overrides == HEAD ⑤ G0 파리티 전 항목 identical·핵심 5지표 old==new·metrics 차이 7건이
+허용 목록과 일치 ⑥ exporter 스모크 재생성 exit 0, D-07 `independent_fx_passed=True`, D-03 필드 3개, D-08 tol 0.01 ⑦ 게이트 예외 없음,
+D-03 검사 2개 True, status HOLD(sector·clean_tree, 예상대로). 지적 2건: 기존 테스트 변경은 `tests/test_validate_portfolio_bundles.py`
+픽스처 +3줄뿐(D-03 fail-closed 에 필요한 보강, assertion 완화 없음 — 본 절 표와 일치); 브리프의 "27 failed" 는 과소집계(신규 테스트는 29개).
+
+### 운영 영향·주의
+
+- **D-03 게이트는 다음 런까지 HOLD 요인**: 수정 전 pkl 에는 `optimizer_fallback_dates` 가 없어 `latest_rebalance_no_fallback_ok`
+  = None(fail-closed). 다음 스케줄 런(10-01 11:30, `--no-cache`)이 새 pkl 을 만들면 해소. 현재 레지스트리는 이미 일본 분할로 HOLD.
+- **A-03 은 최근 커버리지 시작 종목의 `tg_px_ratio_median` 을 낮출 수 있음** → `tg_basis_state.json` baseline 대비 jump 로 잡히면
+  HOLD(§S18.1 jump 규칙). G0 체인 결과에 변경 종목 수를 기록한다.
+- config 필드 추가 → 모든 캐시 pkl 의 `config_sha256` 불일치(예상된 동작).
+- §S23.5 후속 상태: FactSet 파일(09-30 13:38)·RL_Universe_Data(14:05)·워크북(14:27) 재생성 완료 — 일본 분할 TG 기저는 해소
+  후보(다음 런에서 확인). **T·RTX `tg_basis_events` 는 그대로**이므로 일본 HOLD 가 풀리는 순간 이중 보정된 T·RTX 가 발행된다
+  (§S23.5 경고 유효, 사용자 결정 (a)/(b) 대기).
+- 롤백: 이 절의 커밋 revert(플래그 3개는 default-OFF 라 삭제해도 수치 불변).
+
+## S24.2 — 롤링 1BF/2BF 슬로프 arm 사전등록 (2026-09-30 17:56, 사용자 지시 "1BF2BF 슬로프 arm 사전등록하고 측정해줘" · 성과 트랙 · 인벤토리 474→475 · 측정 전 기록)
+
+- **arm `s24_slope_1bf2bf`** = production overrides(`variants/codex_causal_rank_65.yaml`) 바이트 사본 + `fwd_sales_slope_features_enabled: true`
+  1필드(§S13.25 의 4피처 블록 그대로: fwd_sales_slope_level · fwd_sales_slope_chg_63d · nl_fslope_rev_confirm · nl_fslope_growth_confirm;
+  원천은 §S23.4 의 `Fwd_Sales_Slope_1BF2BF` = (2BF−1BF)/1BF, 09-30 14:27 워크북에서 첫 수집). 파라미터 스윕 없음, 단일 정의.
+  overrides diff 검증: `{'fwd_sales_slope_features_enabled': (False, True)}` 뿐. variant sha256 `4c026765186df99675db923c7312cf0346fc88d31d1eee6cae831f80e0d75e21`.
+- **기준** = `outputs/s24_g0_new`(같은 overrides·같은 코드, IR 1.6951803327080086; §S24 G0 로 HEAD 코드와 산출 동일 증명).
+  빈티지 동결 = 워크북 2026-09-30 14:27:35 / Index 2026-09-30 11:31:05. 실행 = `outputs/run_variant_task.ps1 -Label s24_slope_1bf2bf`
+  (schtasks `s24_slope_arm`), `--no-cache`, 단일 ECOS, VINTAGE_PRE/POST 기록. 빈티지가 바뀌면 판정 중단(§S13.47).
+- **판정(`scripts/eval_s24_slope_arm.py`, 재실행 가능)** — 성과 arm 이므로 채택 후보 = G0 ∧ 기전 ∧ E2 ∧ **formal E1**:
+  - G0: base·arm data_vintage 동일 ∧ base IR 이 1.6951803327080086 을 1e-9 이내 재현.
+  - 기전: 모델 피처 집합 = base + 정확히 슬로프 4피처(그 외 증감 0) ∧ 4피처 모두 소비(재학습별 gain>0 비율 ≥ 0.9; pkl 이 gain 을
+    기록하지 않으면 집합 검사만 하고 소비는 별도 보고).
+  - E2: TE ≤ 4.5% · |ΔAS| ≤ 3%p · 회전율 ≤ 1.25× · solver fallback 0.
+  - formal E1(§2.4): ΔIR > +0.36 ∧ 3분할 전부 양. **오버라이드 후보**(§S13.50 사용자 비준 정책): ΔIR > 0 ∧ 3분할 전부 양 ∧ E2 ∧
+    DSR 해킷이 전례(§S13.25 p 0.1918)보다 강함 — 병기만, 승격은 사용자 결정. 무해성(ΔIR > −0.36 ∧ 3분할 전부 음 아님)은 참고.
+- **flip 조건 추가**: 원천 검증 ③(§S23.4 후속)의 "결산 보고를 사이에 둔 재수집에서 과거 재작성 없음" 은 10월 실적 시즌 후에만 가능하므로,
+  이 arm 이 채택 후보가 되더라도 production flip 은 그 검사 통과 후에 한다.
+- **사전등록 증빙**: "측정 전 단독 커밋" 규칙은 작업트리에 미승인 S24 변경이 남아 있어 지금 적용할 수 없다 → 이 절의 기록 시각과 파일 해시
+  (variant 위, 판정 스크립트 sha256 은 등록 직후 아래 줄에 기록)로 바 선고정을 남기고, 커밋은 S24 커밋 승인과 함께 한다.
+  판정 스크립트 sha256: `51e6d06ef0e37c255cc491958356b95f202956d21c6c50e7ff0f99376e2cb92b` (18:15 갱신 — gain 매핑을 부스터 위치 대신 모델 부착 `_active_features` 기준으로 수정, EWMA 탈락 피처는 gain 0; 판정 규칙·바 불변. 테스트 `tests/test_eval_s24_slope_arm.py` 7 PASS; 런 기동 17:57:58, schtasks `s24_slope_arm`, VINTAGE_PRE 워크북 14:27:35 / Index 11:31:05 확인)
+- DSR: `experiment_inventory.json` 474 → 475(측정 전). 결과 후 `run_selection_bias.py --auto --label s24_slope_1bf2bf` 해킷 병기.
+
+### §S24.2 결과 — 롤링 1BF/2BF 슬로프 arm **SHELVE** (2026-09-30 18:28 런 종료, 18:35 판정, 단일 ECOS)
+
+**실행**: schtasks `s24_slope_arm` 17:57:58 → 18:28:03 EXIT 0(elapsed 1,791s), VINTAGE_PRE == POST(워크북 2026-09-30 14:27:35 / Index 11:31:05).
+ECOS 184/184 · fallback 0. 판정 `scripts/eval_s24_slope_arm.py` → `outputs/s24_slope_1bf2bf/e1_summary.json`.
+
+| 항목 | 기준 s24_g0_new | arm s24_slope_1bf2bf | Δ |
+|---|---:|---:|---:|
+| IR (full) | 1.6952 | **1.5493** | **−0.146** |
+| 3분할 ΔIR (2019-01→2021-08 / →2024-03 / →2026-09) | 1.358 / 1.662 / 1.953 | 1.259 / 1.644 / 1.658 | **−0.099 / −0.018 / −0.295** |
+| TE | 3.79% | 3.73% | −0.06%p |
+| 회전율(two-way) | 0.791 | 0.748 | 0.945× |
+| active share(one-way) | 0.2057 | 0.2037 | −0.2%p |
+| realized beta | 1.052 | 1.054 | +0.003 |
+| avg_ic | 0.0139 | **0.0168** | **+20.6%** |
+| MaxDD | −32.3% | −32.4% | −0.1%p |
+| 퇴화 재학습 | 10/31 | 12/31 | +2 |
+| metrics.json P1/P2/P3/P4_tail | 1.332/1.200/2.484/1.166 | 1.358/1.173/2.092/1.197 | 손실은 P3(2024-03 이후)에 집중 |
+
+- **G0 PASS**(빈티지 동일, 기준 IR 1.6951803327080086 재현). **기전 PASS**: 모델 피처 집합 = 기준 + 정확히 4피처, EWMA 가 매 재학습 3개를
+  떨어뜨리는데도(62/65) 4피처는 **31/31 재학습 전부 소비**(gain>0), 블록 gain 점유 6.9%(§S13.25 의 6.09% 와 같은 급). **E2 PASS 4/4**.
+- **formal E1 FAIL**(ΔIR −0.146 < +0.36) · **무해성 FAIL**(3분할 전부 음) → 채택 후보 아님, 오버라이드 후보 아님. **SHELVE**.
+- **해석**: 모델은 피처를 실제로 쓰고 IC 는 +21% 올랐으나 IR 은 내렸다 — §S13.12 의 IC→IR 전달 실패 패턴 그대로(§S13.13 상호작용 블록과
+  같은 결말). 특히 P3(2024-03 이후) 손실 −0.30 이 크다. 한편 같은 4피처 블록이 구 원천(1FY2FY, 비-PIT 고정 회계연도 이력)에서는 +0.266
+  (§S13.25)이었고, PIT 롤링 원천에서는 −0.146 이다: §S23.6 의 단면 상관(2015~17 ≈0, 2026 0.96)과 합쳐 보면 **구 원천의 이득은 재작성된
+  이력이 미래 정보를 담은 결과였을 가능성이 높다**(가설; 분해 런 미실행). §S23.2 의 슬로프 롤백 결정을 재확인한다.
+- DSR 해킷(`run_selection_bias.py --auto --label s24_slope_1bf2bf`, N=475): 음의 ΔIR 이라 승격 근거로 쓸 일이 없어 참고로만 기록 —
+  `SELECTION BIAS GATE: **FAIL**`. 인벤토리 475 유지(측정 완료).
+- 후속: 이 축(선행 매출 기간구조 슬로프)은 PIT 원천에서 1회 측정으로 SHELVE. 재도전은 새 사전등록만 가능하며, 단일 피처(level 만) 축소나
+  다른 변환은 §2.4 스윕 금지에 따라 사후 선택 불가. 원천 검증 ③(재수집 재작성 검사)은 §S23.4 후속 기록용으로만 남긴다.
+- 산출물: `outputs/s24_slope_1bf2bf/`(metrics.json·backtest_result.pkl·e1_summary.json), `outputs/s24_slope_1bf2bf_run.{status,log}`,
+  `variants/s24_slope_1bf2bf.yaml`(동결 arm 파일, 수정 금지).
+
+### §S24.2 후속 — "구 원천 이득 = 재작성 이력의 미래 정보" 가설 점검 (2026-09-30 18:50, 사용자 지시 · 읽기 전용 · 09-30 워크북 + PIT 선행수익률)
+
+- **T3 수집기**: `price_v4.py:163-166` 은 티커별 `ffill` 뒤 `bfill` — 원천 `BEST_SALES_1FY/2FY` 시트는 첫 관측값이 과거 전 구간으로 뒤채움된다
+  (T1: 첫 유효값부터의 초기 상수 구간 중앙값 1FY 1,718 · 2FY 1,747 영업일, 250종목 중 238·247 종목이 252BD 초과). 이것 자체는 명백한
+  룩어헤드 원천이다.
+- **T1 생성기 마스킹**: `create_ai_signal_data.load_fwd_sales_slope` 는 "백필 마스킹 후" 실데이터 시작을 잡아 뒤채움 구간을 NaN 으로 만든다 →
+  구 `Fwd_Sales_Slope_1FY2FY` 의 초기 상수 구간은 중앙값 32BD(252BD 초과 6종목, 셀 비율 0.9%)뿐. 즉 §S13.25 모델이 본 구 슬로프 시트는
+  뒤채움 상수로 오염되지 않았다. 대신 **커버리지가 늦게 시작**(비결측 비율 2014 1% → 2019 23% → 2021 57% → 2023 88% → 2025 99%,
+  첫 유효일 중앙값 2020-12-21; 신 롤링 슬로프는 2014-01-02 부터 100%).
+- **T2 원시 예측력(21BD 비중첩 단면 순위 IC vs PIT 선행 21BD 수익률)**: 구 슬로프 전체 0.023(t 1.0, 102일) vs 신 슬로프 0.041(t 2.3, 140일);
+  2023 이전 0.013 vs 0.033, 2023 이후 0.037 vs 0.060 — **구 슬로프가 더 잘 맞는 구간이 없다**. 뒤채움 상수 셀만의 IC 는 표본 부족(0).
+- **판정: 가설 불지지**. 구 원천의 +0.266(§S13.25, 07-31 빈티지)은 "미래 정보"로 설명되지 않는다. 남는 설명은 (a) 수집 시점 고정 회계연도
+  쌍 때문에 빈티지마다 이력·커버리지가 다시 쓰이는 **빈티지 불안정**(같은 4피처가 09-18 빈티지에서는 롤백이 +0.121, 즉 ON 이 −0.121 —
+  §S23.2) (b) 늦게 시작하는 희소 커버리지가 만든 학습 표본 편향 (c) 시드·빈티지 노이즈(§S7 ±0.19). 어느 쪽이든 §S23.2 롤백과 §S24.2 SHELVE
+  결론은 불변이며, 이 축의 이득은 재현 가능한 신호가 아니었다.
+- 별개 발견(기록): `price_v4` 의 전역 `bfill` 은 모든 원천 시트에 적용되므로 소비 측 상장 마스크(§S11 PIT 이중 마스킹·`listing_mask_enabled`)가
+  막지 못하는 "상장 후 관측 시작 전" 뒤채움이 다른 시트에도 있을 수 있다 — 09-09 감사 Medium-4(추정치 시트 유령 접두)와 같은 계열. 별도 점검 후보.

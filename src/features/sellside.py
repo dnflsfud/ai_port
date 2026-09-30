@@ -27,14 +27,17 @@ def clean_revision_spikes(
     reversion_ratio: float = 0.5,
     persistent_rollover_extension: bool = False,
     extension_max_days: Optional[int] = None,
+    gradual_mask_enabled: bool = True,
 ) -> pd.DataFrame:
     """실적발표 전후 컨센서스 기간 전환으로 인한 급변 스무딩.
 
     Modes
     -----
-    "down_only" (default, baseline): only mask single-day drops greater than
-        threshold. Preserves up-side moves. This is the original iter15
-        behaviour — see docs/rollback_log.md for context.
+    "down_only" (function default; the original iter15 behaviour): only
+        mask single-day drops greater than threshold. Preserves up-side
+        moves. NOTE: ``PipelineConfig.revision_clean_mode`` — the value every
+        production/research caller passes through ``get_cleaned_revision`` —
+        defaults to ``"reversion_gated"`` (§S22 B-06 docstring fix).
 
     "symmetric": mask ``|daily_diff| > threshold`` in both directions. Use
         this mode to hedge against BOTH Factset rollover drop AND the
@@ -51,7 +54,14 @@ def clean_revision_spikes(
     Pattern 1 handling is mode-dependent (see above). Pattern 2 (gradual
     drops near earnings) always operates on the down-side only — it
     represents a different phenomenon (pre-earnings leak of negative
-    sentiment) that is directional by nature.
+    sentiment) that is directional by nature. With ``earnings_timeline``
+    (never passed on the production path) it is gated on the 5 sessions
+    before an actual event; WITHOUT it the fallback fires in the calendar
+    months {1,2,4,5,7,8,10,11} for every name, with no length cap — so a
+    genuine steady downgrade is held at its pre-decline level for its whole
+    duration (§S22 B-02). ``gradual_mask_enabled=False``
+    (config.revision_gradual_mask_disabled) drops pattern 2 entirely;
+    pattern 1 and the §S15/§S16 extension are unaffected.
 
     처리: 스파이크/급변 구간을 NaN 마킹 후 ffill로 직전 정상값 복원.
 
@@ -88,7 +98,10 @@ def clean_revision_spikes(
         spike_up_mask = is_rollover & (prev < 0)
 
     # -- Pattern 2: gradual pre-earnings drops (down-only, all modes) --------
-    if earnings_timeline is not None:
+    # §S22 B-02: config.revision_gradual_mask_disabled turns this pattern off.
+    if not gradual_mask_enabled:
+        gradual_mask = pd.DataFrame(False, index=cleaned.index, columns=cleaned.columns)
+    elif earnings_timeline is not None:
         common_cols = [c for c in rev.columns if c in earnings_timeline.columns]
         common_dates = rev.index.intersection(earnings_timeline.index)
         earn_aligned = earnings_timeline.reindex(
@@ -224,6 +237,9 @@ def get_cleaned_revision(
             getattr(cfg, "s15_fixpack_enabled", False)
         ),
         extension_max_days=getattr(cfg, "revision_extension_max_days", None),
+        gradual_mask_enabled=not bool(
+            getattr(cfg, "revision_gradual_mask_disabled", False)
+        ),
     )
 
 

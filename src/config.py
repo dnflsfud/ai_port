@@ -258,6 +258,20 @@ class PipelineConfig:
     # projects the raw forward return: residual = (I-P) fwd. OFF byte-identical.
     pca_target_uncentered_enabled: bool = False
     forward_horizon: int = 20
+    # §S22 B-05 (decision log §S24): the label is the forward return from
+    # close t, but with execution_signal_lag_days=1 the book acting on the
+    # signal is set at close t+1, so the first day of the label window can
+    # never be earned. ON starts the label window at t + execution lag
+    # (fwd = cum[t+lag+h] / cum[t+lag] - 1) and widens the causal purge by
+    # the same lag. OFF (or lag 0) byte-identical.
+    label_execution_lag_enabled: bool = False
+    # §S22 B-03 (decision log §S24): the cross-sectional z-score runs on raw
+    # ratios and the ±5 clip only afterwards, so one near-zero-base
+    # pct_change blow-up owns the date's variance and squeezes the other 249
+    # names (p90-p10 2.30 -> 0.15). ON winsorises each date at the 1%/99%
+    # quantiles BEFORE the z-score (features/utils.WINSOR_QUANTILE, single
+    # pre-registered value). OFF byte-identical.
+    zscore_winsor_first_enabled: bool = False
 
     # ------------------------------------------------------------------
     # P2 signal-layer infrastructure (2026-04-20, INFRA, OFF by default)
@@ -344,6 +358,14 @@ class PipelineConfig:
     # See outputs/exp_revision_reversion_gated/metrics.json and
     # docs/BASELINE.md for the authoritative baseline_v2 artifacts.
     revision_clean_mode: str = "reversion_gated"     # {"down_only","symmetric","reversion_gated"}
+    # §S22 B-02 (decision log §S24): the pattern-2 "gradual pre-earnings
+    # drop" mask in features/sellside.clean_revision_spikes fires on the
+    # down-side only, in 8 of 12 calendar months (no Earnings_Timeline is
+    # passed on the production path) and with no length cap, so a genuine
+    # steady downgrade is held at its pre-decline level while the mirror
+    # upgrade flows. ON drops pattern 2 (pattern-1 spike cleaning and the
+    # §S15/§S16 extension are untouched). OFF byte-identical.
+    revision_gradual_mask_disabled: bool = False
     revision_clean_threshold: float = 15.0           # daily-diff magnitude trigger
     revision_clean_extreme_threshold: float = 50.0   # prev-level "extreme" for reversion mode
     revision_clean_reversion_ratio: float = 0.5      # today's |level| < prev × this → collapse
@@ -390,7 +412,11 @@ class PipelineConfig:
         "num_leaves": 31,
         "max_depth": 5,
         "min_child_samples": 60,       # was 20 — V2 value: stronger regularization, less noise splits
-        "subsample": 0.8,             # was 0.7 — V2 value
+        # §S22 C-05 (decision log §S24): LightGBM bagging needs subsample_freq
+        # (bagging_freq) > 0; the sklearn default is 0, so this key is INERT
+        # (documented no-op, kept so the certified params dict is unchanged).
+        # Enabling bagging changes every model -> needs its own default-OFF arm.
+        "subsample": 0.8,             # was 0.7 — V2 value (inert, see C-05)
         "colsample_bytree": 0.8,       # was 0.5 — V2 value: use more features per tree
         "reg_alpha": 0.3,
         "reg_lambda": 2.0,             # was 1.5 — V2 value

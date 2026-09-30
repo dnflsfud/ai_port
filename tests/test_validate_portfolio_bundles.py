@@ -101,6 +101,9 @@ def _write_bundle(
         "turnover_two_way_reconstructed": 0.0,
         "turnover_reconciliation_error": 0.0,
         "turnover_reconciled": True,
+        # §S22 D-03 gate inputs (executed book of the latest rebalance)
+        "latest_rebalance_used_fallback": False,
+        "max_two_way_turnover": 0.15,
         "one_way_transaction_cost_rate": 0.001,
         "one_way_transaction_cost_bps": 10.0,
         "expected_transaction_cost": 0.0,

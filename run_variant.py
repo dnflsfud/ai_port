@@ -522,8 +522,15 @@ def run(manifest_path: Path, no_cache: bool = False) -> int:
         base = result
         print("[run_variant] dr_alpha_enabled — training DR walk-forward on "
               "the harvested LightGBM baseline")
+        # §S22 C-06 (decision log §S24): base.raw_predictions is already
+        # execution-lagged by run_backtest and the second run_backtest below
+        # lags the DR scores again — the LightGBM prior must be the pre-lag
+        # panel or the LightGBM leg is delayed twice.
+        prior = getattr(base, "pre_execution_raw_predictions", None)
+        if prior is None:
+            prior = base.raw_predictions
         rl_pred = run_walkforward(
-            base.panel, base.targets, base.raw_predictions,
+            base.panel, base.targets, prior,
             base.feature_names, cfg,
         )
         # Baseline parity: the LightGBM path EMA-blends predictions inside

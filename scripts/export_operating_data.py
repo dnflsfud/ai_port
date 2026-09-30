@@ -61,6 +61,7 @@ from scripts.validate_portfolio_bundles import (  # noqa: E402
     MAX_CONSECUTIVE_STALE_RETRAINS,
     max_stale_depth,
 )
+from src.portfolio_optimizer import NAME_RISK_CAP_TOL  # noqa: E402  (§S22 D-08)
 from src.trading_calendar import business_days_from_raw
 from src.run_integrity import (capture_run_inputs, verify_run_inputs,
                                build_run_contract, validate_run_contract)
@@ -316,6 +317,70 @@ def _normalise_currency(value) -> Optional[str]:
     return text or None
 
 
+def risk_share_breached(share, cap, tol: float = 0.0) -> bool:
+    """§S22 D-08: an Euler risk share breaches its cap only beyond ``tol``.
+
+    The optimizer enforces the per-name cap to ``cap + NAME_RISK_CAP_TOL``
+    (§S16.7), so the audit must use the same tolerance or it flags books the
+    optimizer legitimately returned (structural review r4 T-03: 12/97
+    "breaches" under a strict cap, 0/97 under the optimizer's tolerance).
+    """
+    if share is None:
+        return False
+    try:
+        value = float(share)
+    except (TypeError, ValueError):
+        return False
+    if value != value:
+        return False
+    return bool(value > float(cap) + float(tol))
+
+
+def fallback_operations_fields(res, last_rebalance, cfg) -> dict:
+    """§S22 D-03: publish whether the LATEST executed rebalance is a fallback
+    book, plus the two-way turnover hard cap, for the production gate.
+
+    ``optimizer_fallback_dates`` exists on results produced after §S24; an
+    older pickle yields None (the gate then fails closed on the missing input).
+    """
+    dates = getattr(res, "optimizer_fallback_dates", None)
+    if dates is None:
+        used = None
+        published = None
+    else:
+        stamps = [str(pd.Timestamp(d))[:10] for d in dates]
+        published = stamps
+        used = str(pd.Timestamp(last_rebalance))[:10] in set(stamps)
+    return {
+        "optimizer_fallback_dates": published,
+        "latest_rebalance_used_fallback": used,
+        "max_two_way_turnover": float(getattr(cfg, "max_single_turnover", 0.15)),
+    }
+
+
+def effective_te_limit(cfg, data, as_of):
+    """§S22 D-06: (limit, base, multiplier) for the TE audit at ``as_of``.
+
+    With ``carry_te_conditioning_enabled`` the optimizer's cap is
+    ``max_te_annual x multiplier(as_of)`` (src.carry_te_conditioning); the
+    risk.json audit used to compare against the static base cap. OFF (or no
+    multiplier available) returns the base cap with multiplier None.
+    """
+    from src.carry_te_conditioning import build_te_cap_multipliers
+
+    base = float(getattr(cfg, "max_te_annual", 0.045))
+    if not getattr(cfg, "carry_te_conditioning_enabled", False):
+        return base, base, None
+    mult_series = build_te_cap_multipliers(getattr(data, "factor_prices", None), cfg)
+    if mult_series is None:
+        return base, base, None
+    value = mult_series.asof(pd.Timestamp(as_of))
+    if value is None or not np.isfinite(float(value)):
+        return base, base, None
+    mult = float(value)
+    return base * mult, base, mult
+
+
 def _attribution_frame(frame, dates, tickers, name: str) -> pd.DataFrame:
     """Return a finite date x ticker frame or fail before publishing bad FX math."""
     if not isinstance(frame, pd.DataFrame):
@@ -360,12 +425,19 @@ def build_currency_attribution(
     portfolio_reported_returns: Optional[pd.Series] = None,
     benchmark_reported_returns: Optional[pd.Series] = None,
     data_quality: Optional[dict] = None,
+    usd_observed_mask: Optional[pd.DataFrame] = None,
 ) -> dict:
     """Build exact arithmetic local/FX attribution for a USD-base portfolio.
 
     ``fx_effect`` is deliberately defined as ``r_usd - r_local``.  It therefore
     includes the local-return/FX interaction and guarantees, name by name and
     day by day, that ``local + fx_effect == USD gross return``.
+
+    §S22 D-07: that identity is a tautology, so ``reconciliation`` also checks
+    the FX effect against the FX return itself — ``usd = (1+local)(1+fx) - 1``
+    implies ``fx_effect == fx * (1 + local)`` (0 for USD names) — on the cells
+    where the USD return was observed (``usd_observed_mask``; cells the
+    caller zero-filled are skipped). ``passed`` requires both.
     """
     tickers = [str(t) for t in tickers]
     dates = pd.DatetimeIndex(dates).sort_values().unique()
@@ -494,6 +566,37 @@ def build_currency_attribution(
 
     # Exact effect, interaction included. Do not substitute raw r_fx here.
     fx_effect = usd - local
+
+    # §S22 D-07 independent identity: fx_effect == fx * (1 + local) for
+    # non-USD names with an FX return, 0 for USD names.
+    if fx_ret.empty:
+        fx_ret_aligned = pd.DataFrame(np.nan, index=dates, columns=tickers)
+    else:
+        fx_ret_aligned = (
+            fx_ret.reindex(index=dates, columns=tickers)
+            .apply(pd.to_numeric, errors="coerce")
+            .replace([np.inf, -np.inf], np.nan)
+            .astype(float)
+        )
+    expected_fx = fx_ret_aligned * (1.0 + local)
+    usd_names = [t for t in tickers if display_currency[t] == "USD"]
+    if usd_names:
+        expected_fx[usd_names] = 0.0
+    checkable = expected_fx.notna()
+    if usd_observed_mask is not None:
+        checkable &= (
+            pd.DataFrame(usd_observed_mask)
+            .reindex(index=dates, columns=tickers)
+            .fillna(False)
+            .astype(bool)
+        )
+    independent_cells = int(checkable.sum().sum())
+    independent_residual = (fx_effect - expected_fx).abs().where(checkable)
+    independent_max = (
+        float(independent_residual.max().max()) if independent_cells else 0.0
+    )
+    independent_tol = 1e-9
+
     port_local_daily = (port_w * local).sum(axis=1)
     port_fx_daily = (port_w * fx_effect).sum(axis=1)
     port_usd_daily = (port_w * usd).sum(axis=1)
@@ -623,6 +726,12 @@ def build_currency_attribution(
             if benchmark_reported_returns is not None else None
         ),
     }
+    reconciliation.update({
+        "independent_fx_tolerance": independent_tol,
+        "independent_fx_cells_checked": independent_cells,
+        "independent_fx_max_abs_residual": _safe_float(independent_max, 12),
+        "independent_fx_passed": bool(independent_max <= independent_tol),
+    })
     reconciliation["passed"] = all(
         abs(float(reconciliation[key] or 0.0)) <= tolerance
         for key in (
@@ -630,7 +739,7 @@ def build_currency_attribution(
             "max_daily_active_error", "period_portfolio_error",
             "period_benchmark_error", "period_active_error",
         )
-    )
+    ) and reconciliation["independent_fx_passed"]
 
     non_usd_target = sum(float(latest_port[t]) for t in non_usd)
     non_usd_benchmark = sum(float(latest_bm[t]) for t in non_usd)
@@ -1582,9 +1691,14 @@ def main(argv=None) -> int:
         portfolio_reported_returns=port,
         benchmark_reported_returns=bm,
         data_quality=getattr(data, "data_quality", None),
+        usd_observed_mask=raw_stock_rets.notna(),   # §S22 D-07
     )
     if currency["reconciliation"].get("passed") is not True:
-        raise ValueError("currency attribution failed exact local + FX = USD reconciliation")
+        raise ValueError(
+            "currency attribution failed exact local + FX = USD reconciliation "
+            f"(independent FX identity: {currency['reconciliation'].get('independent_fx_passed')}, "
+            f"max |residual| {currency['reconciliation'].get('independent_fx_max_abs_residual')})"
+        )
     currency_daily = pd.DataFrame(currency["daily"])
     currency_daily["date"] = pd.to_datetime(currency_daily["date"])
     currency_daily = currency_daily.set_index("date")
@@ -1668,7 +1782,9 @@ def main(argv=None) -> int:
     # expected_rebalance.json: raw-return covariance source + S13.41 IV scale.
     risk_source = _production_risk_source(data, tickers)
     optvol_scale = _load_optvol_scale(data, tickers, cfg)
-    te_limit = float(getattr(cfg, "max_te_annual", 0.045))
+    # §S22 D-06: audit against the cap actually enforced at the latest
+    # rebalance (conditioned when carry_te_conditioning is on).
+    te_limit, te_limit_base, te_cap_mult = effective_te_limit(cfg, data, last)
     risk = {
         "as_of": str(last)[:10],
         "method": (
@@ -1738,18 +1854,18 @@ def main(argv=None) -> int:
             "max_name_active_risk_share": _safe_float(max_name_risk, 6),
             "top_name": top_name.get("ticker"),
             "top_name_active_risk_share": _safe_float(top_name_active_risk_share, 6),
-            "top_name_active_risk_breached": (
-                top_name_active_risk_share is not None
-                and top_name_active_risk_share > max_name_risk
-            ),
+            # §S22 D-08: same tolerance the optimizer enforces (r4 T-03).
+            "name_active_risk_tolerance": NAME_RISK_CAP_TOL,
+            "top_name_active_risk_breached": risk_share_breached(top_name_active_risk_share, max_name_risk, NAME_RISK_CAP_TOL),
             "max_sector_active_risk_share": _safe_float(max_sector_risk, 6),
             "top_sector": top_sector_name,
             "top_sector_active_risk_share": _safe_float(top_sector_active_risk_share, 6),
-            "top_sector_active_risk_breached": (
-                top_sector_active_risk_share is not None
-                and top_sector_active_risk_share > max_sector_risk
-            ),
+            "top_sector_active_risk_breached": risk_share_breached(top_sector_active_risk_share, max_sector_risk, 0.0),
         }
+        if te_cap_mult is not None:
+            # §S22 D-06: conditioned cap actually enforced at this rebalance.
+            risk_guardrails["max_tracking_error_annual_base"] = _safe_float(te_limit_base, 6)
+            risk_guardrails["te_cap_multiplier"] = _safe_float(te_cap_mult, 6)
         risk.update({
             "cov_lookback_days": cov_lookback,
             "option_vol_cov_scaling_enabled": bool(
@@ -2003,6 +2119,7 @@ def main(argv=None) -> int:
         "optimizer_solver_counts": getattr(res, "optimizer_solver_counts", {}),
         "optimizer_solver_fallbacks": getattr(res, "optimizer_solver_fallbacks", None),
         "optimizer_solver_fallback_rate": getattr(res, "optimizer_solver_fallback_rate", None),
+        **fallback_operations_fields(res, last, cfg),   # §S22 D-03
         **operating_quality,
     }
     ops.update(trade_plan)

@@ -322,7 +322,10 @@ def effective_label_horizon(config) -> int:
         weights = getattr(config, "multi_horizon_weights", None) or {}
         if weights:
             horizon = max(horizon, max(int(h) for h in weights))
-    return horizon
+    # §S22 B-05 (decision log §S24): when the label window starts at
+    # t + execution lag, its realisation ends that much later too.
+    from src.target_engine import label_start_lag
+    return horizon + label_start_lag(config)
 
 
 def build_walk_forward_split(

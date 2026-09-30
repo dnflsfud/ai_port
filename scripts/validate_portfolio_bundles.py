@@ -577,6 +577,14 @@ def validate_bundle(bundle_dir: Path) -> dict:
             "enabled": risk.get("option_vol_cov_scaling_enabled"),
             "applied": risk.get("option_vol_cov_scaling_applied"),
         },
+        # §S22 D-03: the executed book of the LATEST rebalance (a benchmark
+        # fallback / projection failure jumps the book to bm with turnover
+        # 4x the hard cap and used to pass every gate check).
+        "_operations": {
+            "latest_rebalance_used_fallback": operations.get("latest_rebalance_used_fallback"),
+            "turnover_two_way_latest": operations.get("turnover_two_way_latest"),
+            "max_two_way_turnover": operations.get("max_two_way_turnover"),
+        },
     }
 
 
@@ -686,6 +694,12 @@ def evaluate_production(record: dict) -> dict:
     git_dirty = record.get("git_dirty")
     optvol = record.get("_option_vol_cov") or {}
     optvol_enabled, optvol_applied = optvol.get("enabled"), optvol.get("applied")
+    # §S22 D-03: a benchmark-fallback book or an executed two-way turnover
+    # above the hard cap is not a production book. Fail-closed on missing.
+    ops = record.get("_operations") if isinstance(record.get("_operations"), dict) else {}
+    used_fallback = ops.get("latest_rebalance_used_fallback")
+    latest_turnover = _num(ops.get("turnover_two_way_latest"))
+    turnover_cap = _num(ops.get("max_two_way_turnover"))
 
     checks = {
         "estimated_te_ok": _not_breached("estimated_te_breached"),
@@ -718,6 +732,13 @@ def evaluate_production(record: dict) -> dict:
             None if not isinstance(optvol_enabled, bool) or not isinstance(optvol_applied, bool)
             else optvol_applied or not optvol_enabled
         ),
+        "latest_rebalance_no_fallback_ok": (
+            None if not isinstance(used_fallback, bool) else not used_fallback
+        ),
+        "turnover_within_cap_ok": (
+            None if latest_turnover is None or turnover_cap is None
+            else latest_turnover <= turnover_cap + 1e-6
+        ),
     }
     # Fail-closed (2026-07-21): PRODUCTION requires every check explicitly
     # True — a missing input (None) is not evidence of passing. S16.3 report-
@@ -740,6 +761,9 @@ def evaluate_production(record: dict) -> dict:
         "max_tail_ffill_days": max_tail_days,
         "tg_px_ratio_suspect": tg_suspect if isinstance(tg_suspect, dict) else None,
         "tg_px_ratio_jump_vs_prev": tg_jump,
+        "latest_rebalance_used_fallback": used_fallback if isinstance(used_fallback, bool) else None,
+        "turnover_two_way_latest": latest_turnover,
+        "max_two_way_turnover": turnover_cap,
     }
     return {"status": status, "checks": checks, "values": values}
 

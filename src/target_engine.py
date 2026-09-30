@@ -30,13 +30,31 @@ PCA_LOOKBACK = DEFAULT_CONFIG.pca_lookback
 FORWARD_HORIZON = DEFAULT_CONFIG.forward_horizon
 
 
-def compute_forward_returns(returns: pd.DataFrame, horizon: int = FORWARD_HORIZON) -> pd.DataFrame:
-    """t~t+horizon 영업일 forward cumulative return 계산 (vectorized)."""
+def compute_forward_returns(
+    returns: pd.DataFrame, horizon: int = FORWARD_HORIZON, lag: int = 0
+) -> pd.DataFrame:
+    """t~t+horizon 영업일 forward cumulative return 계산 (vectorized).
+
+    ``lag`` (§S22 B-05, default 0 = legacy): start the window ``lag`` rows
+    after t — forward return at t = cum[t+lag+horizon] / cum[t+lag] - 1 —
+    so the label only spans returns a book set at close t+lag can earn.
+    """
     cum = (1 + returns).cumprod()
-    # forward return at t = cum[t+horizon] / cum[t] - 1
-    fwd = cum.shift(-horizon) / cum - 1
-    # 마지막 horizon일은 NaN (미래 데이터 없음)
-    return fwd
+    lag = int(lag)
+    if lag <= 0:
+        # forward return at t = cum[t+horizon] / cum[t] - 1
+        return cum.shift(-horizon) / cum - 1
+    # 마지막 horizon+lag일은 NaN (미래 데이터 없음)
+    return cum.shift(-(horizon + lag)) / cum.shift(-lag) - 1
+
+
+def label_start_lag(config) -> int:
+    """§S22 B-05 (decision log §S24): rows between the label date t and the
+    close at which a book acting on the signal is set. 0 unless
+    ``config.label_execution_lag_enabled`` (then ``execution_signal_lag_days``)."""
+    if not getattr(config, "label_execution_lag_enabled", False):
+        return 0
+    return max(int(getattr(config, "execution_signal_lag_days", 0) or 0), 0)
 
 
 def compute_specific_returns(
@@ -77,7 +95,7 @@ def compute_specific_returns(
     uncentered = bool(getattr(config, "pca_target_uncentered_enabled", False))
 
     # Forward cumulative returns
-    fwd_ret = compute_forward_returns(returns, horizon)
+    fwd_ret = compute_forward_returns(returns, horizon, lag=label_start_lag(config))
 
     specific_ret = pd.DataFrame(np.nan, index=dates, columns=tickers)
 
@@ -218,7 +236,7 @@ def compute_specific_returns_regime_weighted(
     # Binary regime label. NaN early periods fall into "normal" bucket (0).
     regime = (vix_z > thr).astype(float).fillna(0.0)
 
-    fwd_ret = compute_forward_returns(returns, horizon)
+    fwd_ret = compute_forward_returns(returns, horizon, lag=label_start_lag(config))
     specific_ret = pd.DataFrame(np.nan, index=dates, columns=tickers)
 
     n_attempted = n_pca_failed = n_skipped = n_fallback_unweighted = 0

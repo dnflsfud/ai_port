@@ -133,6 +133,26 @@ div[data-testid="stTabs"] button[aria-selected="true"] p {
 # ---------------------------------------------------------------------------
 # Pure helpers (no Streamlit) — import-safe, unit-tested.
 # ---------------------------------------------------------------------------
+def universe_chip_ok(universe_size, production_meta) -> bool:
+    """§S22 D-10: the header chip used to be green only for a 150-name
+    universe (stale since §S14). Green when the loaded universe equals the
+    bundle's own funnel (every canonical name loaded, none missing)."""
+    try:
+        size = int(universe_size or 0)
+    except (TypeError, ValueError):
+        return False
+    funnel = (production_meta or {}).get("universe_funnel") or {}
+    if size <= 0 or not isinstance(funnel, dict):
+        return False
+    try:
+        full = int(funnel.get("full_universe_count") or 0)
+        loaded = int(funnel.get("loaded_ticker_count") or 0)
+    except (TypeError, ValueError):
+        return False
+    missing = funnel.get("missing_tickers") or []
+    return size == full == loaded and not missing
+
+
 def list_runs(outputs_dir) -> list:
     """Scan ``<outputs_dir>`` for run folders holding a ``metrics.json``.
 
@@ -733,6 +753,7 @@ def main() -> None:
     production_meta = data["production"].get("meta") or {}
     fx_coverage = (currency or {}).get("coverage") or {}
     universe_size = int(production_meta.get("universe_size") or fx_coverage.get("total") or 0)
+    universe_ok = universe_chip_ok(universe_size, production_meta)
     fx_mapped = int(fx_coverage.get("mapped") or 0)
     fx_gaps = []
     for coverage_key in ("missing", "missing_fx", "stale"):
@@ -768,7 +789,7 @@ def main() -> None:
         f"<span class='chip {'chip-ok' if overlay_ok else 'chip-warn'}'>Overlay {'KEEP all' if overlay_ok else 'Review'}</span>"
         f"<span class='chip {'chip-ok' if factor_ok else 'chip-warn'}'>Factor collapsed={stage3.get('collapsed')}</span>"
         f"<span class='chip chip-ok'>Base currency {(currency or {}).get('base_currency', 'USD')}</span>"
-        f"<span class='chip {'chip-ok' if universe_size == 150 else 'chip-warn'}'>Universe {universe_size or 'n/a'}</span>"
+        f"<span class='chip {'chip-ok' if universe_ok else 'chip-warn'}'>Universe {universe_size or 'n/a'}</span>"
         f"<span class='chip {'chip-ok' if fx_coverage_ok else 'chip-warn'}'>FX mapped {fx_mapped or 'n/a'}/{universe_size or 'n/a'}</span>"
         f"<span class='chip chip-ok'>Non-USD {pct(currency_summary.get('non_usd_target_weight'), 1)}</span>"
         + (f"<span class='chip {'chip-ok' if challenger_meta.get('status') == 'PASS' else 'chip-warn'}'>"

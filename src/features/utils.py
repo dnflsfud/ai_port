@@ -3,6 +3,10 @@
 import pandas as pd
 import numpy as np
 
+# §S22 B-03 (decision log §S24): single pre-registered winsorisation quantile
+# used when config.zscore_winsor_first_enabled is on. Not a sweep parameter.
+WINSOR_QUANTILE = 0.01
+
 
 def cross_sectional_zscore(df: pd.DataFrame) -> pd.DataFrame:
     """Cross-sectional Z-score 정규화 (Round 4 방식).
@@ -12,6 +16,30 @@ def cross_sectional_zscore(df: pd.DataFrame) -> pd.DataFrame:
     mean = df.mean(axis=1)
     std = df.std(axis=1).replace(0, np.nan)
     return df.sub(mean, axis=0).div(std, axis=0)
+
+
+def winsorize_cross_section(df: pd.DataFrame, q: float = WINSOR_QUANTILE) -> pd.DataFrame:
+    """Clip each date's cross-section to its [q, 1-q] quantiles (NaN preserved).
+
+    §S22 B-03: run BEFORE ``cross_sectional_zscore`` so a single blow-up
+    (``safe_pct_change`` on a near-zero base) cannot own the date's variance
+    and compress the rest of the cross-section into a narrow band.
+    """
+    lo = df.quantile(q, axis=1)
+    hi = df.quantile(1.0 - q, axis=1)
+    return df.clip(lower=lo, upper=hi, axis=0)
+
+
+def standardise_feature(df: pd.DataFrame, winsor_first: bool = False) -> pd.DataFrame:
+    """Cross-sectional standardisation used by assembly for every z-scored feature.
+
+    ``winsor_first=False`` is exactly ``cross_sectional_zscore(df)`` (legacy,
+    byte-identical). ``winsor_first=True`` winsorises the raw cross-section at
+    ``WINSOR_QUANTILE`` first (§S22 B-03, config.zscore_winsor_first_enabled).
+    """
+    if winsor_first:
+        df = winsorize_cross_section(df)
+    return cross_sectional_zscore(df)
 
 
 def safe_pct_change(df: pd.DataFrame, periods: int) -> pd.DataFrame:

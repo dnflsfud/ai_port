@@ -26,7 +26,10 @@ from src.data_loader import UniverseData, TICKERS
 from src.features.peer_earnings import build_peer_earnings_features
 from src.features.interactions import build_interaction_features
 from src.features.nonlinear_confirmation import build_nonlinear_confirmation_features
-from src.features.utils import cross_sectional_zscore, clip_outliers, cs_rank, safe_pct_change, rolling_tsz
+from src.features.utils import (
+    cross_sectional_zscore, clip_outliers, cs_rank, safe_pct_change, rolling_tsz,
+    standardise_feature,
+)
 from src.features.accounting import build_accounting_features
 from src.features.price import build_price_features
 from src.features.sellside import build_sellside_features
@@ -834,9 +837,12 @@ def build_all_features(
     # stays the right scale.
     if getattr(config, "s16_unit_fixpack_enabled", False):
         skip_zscore |= set(feature_groups.get("MacroCross", []))
+    # §S22 B-03 (decision log §S24): optional per-date winsorisation BEFORE the
+    # z-score; OFF is exactly cross_sectional_zscore (standardise_feature).
+    winsor_first = bool(getattr(config, "zscore_winsor_first_enabled", False))
     for name, df in list(all_features.items()):
         if name not in skip_zscore:
-            all_features[name] = cross_sectional_zscore(df)
+            all_features[name] = standardise_feature(df, winsor_first=winsor_first)
 
     # Sector Interaction Features (선택적)
     if include_sector_interactions:

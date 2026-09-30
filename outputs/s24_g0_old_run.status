@@ -1,0 +1,5 @@
+﻿START 2026-09-30T15:16:05 wd=C:\Users\westl\AppData\Local\Temp\ai_port_s24_head variant=variants/s24_g0_old.yaml
+VINTAGE_PRE  workbook=2026-09-30T14:27:35 index=2026-09-30T11:31:05
+VINTAGE_POST workbook=2026-09-30T14:27:35 index=2026-09-30T11:31:05
+EXIT 0 2026-09-30T15:36:54
+DONE

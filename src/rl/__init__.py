@@ -8,8 +8,9 @@ turnover-penalised cross-sectional Sharpe (Moody-Saffell Direct Reinforcement),
 run true walk-forward so every emitted score is OOS-by-construction. Its scores
 feed the production MVO via run_backtest(precomputed_predictions=...).
 
-When config.dr_alpha_enabled is set (production variant
-iter15_65tkr_reb21_vtg), run_variant.py and daily_update.py harvest the
+When config.dr_alpha_enabled is set (OFF in both the production and the
+challenger variant since the causal-rank flip; §S22 C-06 docstring fix —
+the DR prior is the pre-lag raw panel), run_variant.py and daily_update.py harvest the
 LightGBM baseline, train the DR walk-forward, then re-run the MVO on the DR
 scores. Modules:
   - dr_alpha       : DRAlphaPolicy + train_fold + xs_zscore

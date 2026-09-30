@@ -1,8 +1,12 @@
 """유틸리티 함수."""
 
+import logging
+
 import pandas as pd
 import numpy as np
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 def ensure_dir(path: str) -> Path:
@@ -53,12 +57,24 @@ def compute_performance_metrics(
     }
 
     if benchmark_returns is not None:
-        # Item 12: ffill before zero-fill. Pure .fillna(0) on a benchmark
-        # series injects a spurious "benchmark is flat today" on missing
-        # dates, which biases active_return / IR. ffill propagates the
-        # last known BM return, then 0 is a last-resort boundary guard.
-        bm = benchmark_returns.reindex(port.index).ffill().fillna(0)
-        active = port - bm
+        # §S22 A-07 (decision log §S24): a benchmark day missing from the
+        # portfolio calendar used to be forward-filled (Item 12) — a repeat
+        # of yesterday's benchmark RETURN is a fabricated return, not an
+        # as-of level. Active metrics now use the common dates only; the
+        # gap is logged. Complete series (production: same index) unchanged.
+        bm = benchmark_returns.reindex(port.index)
+        missing = bm.isna()
+        port_active = port
+        if missing.any():
+            gaps = port.index[missing]
+            logger.warning(
+                "[Metrics] %d portfolio date(s) have no benchmark return "
+                "(%s .. %s) — excluded from active metrics (§S22 A-07)",
+                int(missing.sum()), gaps.min().date(), gaps.max().date(),
+            )
+            bm = bm[~missing]
+            port_active = port[~missing]
+        active = port_active - bm
         active_ret = annualise_return(active, ann_factor)
         active_vol = active.std() * np.sqrt(ann_factor)
         ir = active_ret / active_vol if active_vol > 0 else 0.0
