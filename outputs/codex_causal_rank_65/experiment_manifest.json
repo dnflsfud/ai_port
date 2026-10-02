@@ -106,6 +106,7 @@
     "index_eps_features_enabled": false,
     "index_revision_feature_enabled": false,
     "interaction_features_enabled": false,
+    "label_execution_lag_enabled": false,
     "lgbm_params": {
       "colsample_bytree": 0.8,
       "learning_rate": 0.02,
@@ -283,6 +284,7 @@
     "revision_clean_reversion_ratio": 0.5,
     "revision_clean_threshold": 15.0,
     "revision_extension_max_days": 21,
+    "revision_gradual_mask_disabled": false,
     "risk_aversion": 1.0,
     "s15_fixpack_enabled": true,
     "s16_unit_fixpack_enabled": true,
@@ -310,12 +312,6 @@
       },
       "DHR": {
         "2016-07-05": 0.758
-      },
-      "RTX": {
-        "2020-04-03": 1.696
-      },
-      "T": {
-        "2022-04-11": 1.324
       }
     },
     "trailing_ic_window": 6,
@@ -341,21 +337,22 @@
     "vtg_scale": 0.0,
     "winner_trim_lambda": 1.0,
     "winner_trim_protection_enabled": false,
-    "winner_trim_quantile": 0.8
+    "winner_trim_quantile": 0.8,
+    "zscore_winsor_first_enabled": false
   },
   "data_vintage": {
-    "data_mtime_utc": "2026-09-29T06:53:44Z",
+    "data_mtime_utc": "2026-09-30T05:27:35Z",
     "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
-    "data_size_bytes": 372835857,
-    "fx_mtime_utc": "2026-09-30T02:31:05Z",
-    "fx_size_bytes": 97194523,
+    "data_size_bytes": 392851329,
+    "fx_mtime_utc": "2026-10-02T02:30:43Z",
+    "fx_size_bytes": 97242444,
     "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx"
   },
   "extra": {
     "description": "Fixed-250 causal production portfolio. Uses date-grouped LightGBM rank_xendcg, purged/embargoed validation, and a one-trading-day execution signal lag. The legacy label/output path is retained for automation compatibility; the universe is the validated 250-name Universe_Meta set (decision log \u00a7S14.2). The adopted four-feature forward-sales-slope block is enabled per S13.25; benchmark, overlays, optimizer and transaction-cost assumptions remain pinned to the canonical iter15_65tkr_reb21_vtg portfolio design.\n",
     "manifest_path": "variants\\codex_causal_rank_65.yaml",
     "run_contract": {
-      "config_sha256": "16198b0841cef10b35f9227e60f61b85645f762c54ed49e17ad805e9e0c3e8b9",
+      "config_sha256": "67640ac2e74d694c25824fea7e5691f72fe0060716067df9fb768b94d9aa394f",
       "data_dates": [
         "2014-01-24T00:00:00",
         "2014-01-27T00:00:00",
@@ -3544,21 +3541,22 @@
         "2026-09-23T00:00:00",
         "2026-09-24T00:00:00",
         "2026-09-25T00:00:00",
-        "2026-09-28T00:00:00"
+        "2026-09-28T00:00:00",
+        "2026-09-29T00:00:00"
       ],
       "inputs": {
-        "code_sha256": "5059f5d18e466efb224fdf09143a2e02bbda0a40c136fbe4ecc7ca9fea28c69d",
+        "code_sha256": "727af097c4fb237d410b161ed1c135f5923ab96d8529a9153dd183e4af319e84",
         "data": {
-          "mtime_ns": 1790664824297453700,
+          "mtime_ns": 1790746055470730500,
           "path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
-          "sha256": "2a6142a011b00d37c71820a3198207c574e7df5e512d6b9dd697cdc985697751",
-          "size": 372835857
+          "sha256": "2ef45fad991a3e42284fb083457be35cc5a71427959644cff925ca59dde9d27b",
+          "size": 392851329
         },
         "fx": {
-          "mtime_ns": 1790735465110548300,
+          "mtime_ns": 1790908243077884600,
           "path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
-          "sha256": "15d8e68356149858b7006d59e616a1255609c126796fff586b0196b395fc4031",
-          "size": 97194523
+          "sha256": "6d0c9b439e8f5fd41bb723ac9846ebe166aa0d33801ebba077b63dbfa36cfd88",
+          "size": 97242444
         }
       },
       "schema_version": 1,
@@ -3819,6 +3817,6 @@
     "variant_label": "codex_causal_rank_65"
   },
   "git_dirty": false,
-  "git_hash": "4247a86278acb3efdc425e15c4b20287227b3e18",
-  "timestamp_utc": "2026-09-30T03:15:02Z"
+  "git_hash": "3021cb24f455515a7b9adce02048cc00efc59a00",
+  "timestamp_utc": "2026-10-02T03:16:02Z"
 }
