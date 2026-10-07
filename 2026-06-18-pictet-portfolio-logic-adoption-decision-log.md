@@ -9959,3 +9959,23 @@ data_as_of 09-29 로 경고 없이 발행. `rebalance_overdue` 는 행 수 기�
   한도 또는 소비 측 `raw_sheet_observed_mask` 확장이 필요 — 별도 결정.
 - 기존 미해결: Tech 섹터 리스크 몫 0.928 > 0.85 HOLD(옵티마이저 대응 제약 없음) · B-02/B-03/B-05 미측정 · 상위 저장소 생성기 미커밋.
 - 롤백: ai_port 는 이 커밋 revert(게이트 검사 1개·값 3개·경고 1개 제거), 생성기는 `mask_sheet_prefix`/`load_sp500_sheet` 의 호출 2줄 제거.
+
+### §S25.1 — 현재 워크북(09-30 14:27) 점검 + 생성기 데이터 품질 규칙 3종 (2026-10-07 15:00, 사용자 지시 "지금 ai_signal_data 오류 점검" → "1 경고 기록 · 2 보험사 제외(→ 퇴화 열 자동 제외로 확정) · 3 센티먼트 [-1,1] 밖 NaN")
+
+**점검(읽기 전용, 60시트 캐시 전량, 프로브 `outputs/s25_audit/06~08_workbook_integrity_*.py`)** — PASS: 인덱스 중복·역순·비수치·inf 0 · 전 시트
+마지막 행 09-29 · BusinessDays 3,204 == XNYS 세션(누락·초과 0) · 인출일 컷오프 정상 · 명목가 미조정 분할 0 · Daily_Returns(4e-16)·Factor_Returns
+(레벨 변화 27열, 7e-15)·Fwd_Sales_Slope_1BF2BF(4e-16, 마지막 행 250/250)·iv30(0) 재현 · EQY_REC [1,5] · 센티먼트 트렌드 결측 0 · FactSet
+리비전/TG 공백 0 · 실적일 최근 120일 이벤트 249/250.
+결함: ① **BRK/B Earnings_Date 가 2017-11-03 에서 끝남**(11건) → production ON 인 PEAD·피어 실적 시즌 피처가 2018 이후 BRK/B 를 못 봄(원인은
+Bloomberg ERN_ANN_DT_AND_PER 인출, 재인출 시 확인). ② **AXA(CS) OPER_MARGIN 퇴화**: 12년간 값 3개(100.0 4,266행 → −144 → 100 → 현재 −355.2),
+현재값이 `oper_margin_chg_252d`(gain 3위)·accel 로 유입. 다른 보험사(ZURN·ALV·MUV2·PGR·CB·BRK/B)는 분기 갱신 정상 → 사용자 결정은 "퇴화 열 자동 제외".
+③ NEWS_SENTIMENT_DAILY_AVG 센티널 −134,217.7(DASH 535행 2014~2016-01, RACE 8행 2014; 전부 상장 전이라 상장 마스크로 무해). 확인 필요: GILD
+OPER_MARGIN 2026-06-30 부터 −133.2(직전 37.1 — 대형 IPR&D 상각 가능성, 원천 확인). 무해 기록: FactSet 보조 시트 공백(Fwd_OpCashflow 은행 15 결측+7
+조기 종료, EPS_Surprise 5+11, Sales_Surprise 3+2; production 화이트리스트 미포함) · TTE 조정가/명목가 0.9885(인출일 09-30 배당락, 벤더 선조정) ·
+DELL 05-29·HPE 06-02·TTD 08-07 목표가 급변은 주가와 동방향(기저 단절 아님).
+
+**수정(생성기 `create_universe_data.py`, 코드만, 52 PASS)**: `record_warning`(콘솔 + `re_study/data_quality_warnings.log` 1줄, cp949 안전) ·
+`clean_sheet_values`(접두 마스킹 뒤 적용): `NEWS_SENTIMENT_DAILY_AVG` [-1,1] 밖 → NaN(경고), `OPER_MARGIN` 퇴화 열 → NaN(경고; 규칙 =
+이력 ≥504행에서 고유값 ≤5 또는 정확히 100.0 비율 ≥0.5, 단일 사전등록값·젊은 종목 보호) · `stale_earnings_tickers`(마지막 실적일 > 120일 또는 0건 → 경고,
+중단 없음). 09-30 워크북 드라이런: 센티먼트 접두 마스킹 44,218셀 + 범위 NaN 8셀(RACE) → 잔여 0 · 퇴화 열 ['CS'] 뿐 · 정체 실적일 {BRK/B: 2017-11-03} 뿐.
+발효는 다음 워크북 재생성부터(§S25 와 같은 빈티지 이벤트). 롤백 = `clean_sheet_values`·`stale_earnings_tickers` 호출 2줄 제거.
