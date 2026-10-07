@@ -404,6 +404,11 @@ def test_production_gate_holds_on_sector_active_risk_breach(tmp_path):
     assert registry["production_gate"]["checks"]["sector_active_risk_ok"] is False
 
 
+# §S25: registry generation time pinned to the fixture's data date
+# (2026-06-11 close + 11:30 KST next morning = 06-12 02:30 UTC -> 0 sessions old).
+_FIXTURE_RUN_TIME = datetime(2026, 6, 12, 2, 30, tzinfo=timezone.utc)
+
+
 def _model_quality_from_flags(flags: str):
     """Build a model_quality block whose retrain sequence follows ``flags``
     ('D' = degenerate retrain, '.' = healthy), matching the shapes that
@@ -446,7 +451,8 @@ def test_production_gate_allows_high_rate_when_stale_depth_ok(tmp_path):
         model_quality=_model_quality_from_flags("..DD..D.DDDDDDD.D"),
     )
     challenger = _write_bundle(tmp_path, "causal", "challenger")
-    registry = build_registry([production, challenger])
+    # §S25: pin the generation time to the fixture's data date (fresh data).
+    registry = build_registry([production, challenger], as_of_utc=_FIXTURE_RUN_TIME)
     gate = registry["production_gate"]
     assert gate["status"] == "PRODUCTION"
     assert gate["checks"]["stale_depth_ok"] is True
@@ -465,10 +471,35 @@ def test_production_gate_passes_when_all_clear(tmp_path):
         model_quality=_model_quality_from_flags("...."),
     )
     challenger = _write_bundle(tmp_path, "causal", "challenger")
-    registry = build_registry([production, challenger])
+    registry = build_registry([production, challenger], as_of_utc=_FIXTURE_RUN_TIME)
     prod_entry = next(p for p in registry["portfolios"] if p["portfolio_role"] == "production")
     assert prod_entry["status"] == "PRODUCTION"
     assert registry["production_gate"]["status"] == "PRODUCTION"
+    assert registry["production_gate"]["checks"]["data_as_of_fresh_ok"] is True
+    assert registry["production_gate"]["values"]["data_age_sessions"] == 0
+    assert registry["generated_at_utc"] == _FIXTURE_RUN_TIME.isoformat()
+
+
+def test_production_gate_holds_when_registry_is_built_long_after_data_as_of(tmp_path):
+    # §S25: same all-clear bundle, registry generated 5 sessions after the
+    # 2026-06-11 data date (06-12, 06-15..06-18) -> data_as_of_fresh_ok False.
+    production = _write_bundle(
+        tmp_path, "prod", "production",
+        risk_guardrails={
+            "estimated_te_breached": False,
+            "top_name_active_risk_breached": False,
+            "top_sector_active_risk_breached": False,
+        },
+        model_quality=_model_quality_from_flags("...."),
+    )
+    challenger = _write_bundle(tmp_path, "causal", "challenger")
+    registry = build_registry(
+        [production, challenger], as_of_utc=datetime(2026, 6, 19, 2, 30, tzinfo=timezone.utc)
+    )
+    gate = registry["production_gate"]
+    assert gate["status"] == "HOLD"
+    assert gate["checks"]["data_as_of_fresh_ok"] is False
+    assert gate["values"]["data_age_sessions"] == 5
 
 
 def test_production_gate_fails_closed_when_checks_missing_and_strips_private_keys(tmp_path):

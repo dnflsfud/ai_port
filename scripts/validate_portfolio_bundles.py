@@ -633,6 +633,50 @@ MAX_CONSECUTIVE_STALE_RETRAINS = 7
 MAX_LIVE_MODEL_AGE_RETRAINS = 3
 _REPORT_ONLY_CHECKS = ("live_model_age_ok",)
 
+# §S25 (2026-10-07): the registry's only staleness signal compared its OWN
+# generation time with ``stale_after_hours``; the scheduler regenerates the
+# registry daily, so a workbook frozen at data_as_of 2026-09-29 was published
+# on 10-02/10-05/10-06 without a warning, and the row-count based
+# rebalance_overdue cannot fire while the workbook is frozen. The gate now
+# counts the exchange sessions that closed after data_as_of. The normal cycle
+# (Bloomberg pull in the KST morning -> cutoff = previous US close -> 11:30 KST
+# run) is 0; 3 is the pre-registered ceiling (a long holiday without a pull).
+MAX_DATA_AGE_SESSIONS = 3
+_SESSION_CLOSE_ET = pd.Timedelta(hours=16, minutes=30)   # NYSE close 16:00 + buffer
+
+
+def data_age_sessions(data_as_of, as_of_utc, calendar_name="XNYS"):
+    """Exchange sessions that closed after ``data_as_of`` up to ``as_of_utc``.
+
+    The reference session is the last one that had closed (16:30 ET buffer)
+    at ``as_of_utc``; the result counts sessions in (data_as_of, reference].
+    ``weekday_index`` counts weekdays. None when any input cannot be judged
+    (missing/invalid date, unsupported calendar) — the caller fails closed.
+    """
+    try:
+        data_date = pd.Timestamp(data_as_of)
+        stamp = pd.Timestamp(as_of_utc)
+    except (TypeError, ValueError):
+        return None
+    if pd.isna(data_date) or pd.isna(stamp):
+        return None
+    stamp = stamp.tz_localize("UTC") if stamp.tzinfo is None else stamp.tz_convert("UTC")
+    local = stamp.tz_convert("America/New_York")
+    reference = local.normalize().tz_localize(None)
+    if local - local.normalize() < _SESSION_CLOSE_ET:
+        reference -= pd.Timedelta(days=1)
+    data_date = data_date.normalize()
+    if reference <= data_date:
+        return 0
+    if calendar_name == "weekday_index":
+        sessions = pd.bdate_range(data_date, reference)
+    elif calendar_name == "XNYS":
+        from src.trading_calendar import exchange_sessions
+        sessions = exchange_sessions(data_date.strftime("%Y-%m-%d"), reference.strftime("%Y-%m-%d"))
+    else:
+        return None
+    return int((sessions > data_date).sum())
+
 
 def max_stale_depth(model_quality: dict):
     """Longest run of consecutive degenerate retrains, derived from the
@@ -654,8 +698,12 @@ def max_stale_depth(model_quality: dict):
     return longest
 
 
-def evaluate_production(record: dict) -> dict:
-    """Report-only production HOLD gate. Never raises; never blocks validation."""
+def evaluate_production(record: dict, as_of_utc=None) -> dict:
+    """Report-only production HOLD gate. Never raises; never blocks validation.
+
+    ``as_of_utc`` is the registry generation time (§S25 data-age check);
+    defaults to now.
+    """
     guardrails = record.get("_risk_guardrails") or {}
     model_quality = record.get("_model_quality") or {}
     perf = record.get("performance") or {}
@@ -709,6 +757,13 @@ def evaluate_production(record: dict) -> dict:
     used_fallback = ops.get("latest_rebalance_used_fallback")
     latest_turnover = _num(ops.get("turnover_two_way_latest"))
     turnover_cap = _num(ops.get("max_two_way_turnover"))
+    # §S25: sessions closed since the workbook's data date. Fail-closed on missing.
+    data_as_of = record.get("data_as_of")
+    data_age = data_age_sessions(
+        data_as_of,
+        as_of_utc if as_of_utc is not None else datetime.now(timezone.utc),
+        record.get("rebalance_calendar") or "XNYS",
+    )
 
     checks = {
         "estimated_te_ok": _not_breached("estimated_te_breached"),
@@ -749,6 +804,7 @@ def evaluate_production(record: dict) -> dict:
             None if latest_turnover is None or turnover_cap is None
             else latest_turnover <= turnover_cap + 1e-6
         ),
+        "data_as_of_fresh_ok": None if data_age is None else data_age <= MAX_DATA_AGE_SESSIONS,
     }
     # Fail-closed (2026-07-21): PRODUCTION requires every check explicitly
     # True — a missing input (None) is not evidence of passing. S16.3 report-
@@ -775,11 +831,16 @@ def evaluate_production(record: dict) -> dict:
         "latest_rebalance_used_fallback": used_fallback if isinstance(used_fallback, bool) else None,
         "turnover_two_way_latest": latest_turnover,
         "max_two_way_turnover": turnover_cap,
+        "data_as_of": data_as_of if isinstance(data_as_of, str) else None,
+        "data_age_sessions": data_age,
+        "max_data_age_sessions": MAX_DATA_AGE_SESSIONS,
     }
     return {"status": status, "checks": checks, "values": values}
 
 
-def build_registry(bundle_dirs: list[Path]) -> dict:
+def build_registry(bundle_dirs: list[Path], as_of_utc=None) -> dict:
+    """``as_of_utc`` (default now) is the registry generation time; it also
+    feeds the §S25 data-age check so tests can pin it."""
     records = [validate_bundle(path) for path in bundle_dirs]
     ids = [row["id"] for row in records]
     if len(ids) != len(set(ids)):
@@ -811,7 +872,8 @@ def build_registry(bundle_dirs: list[Path]) -> dict:
     if len(challengers) != 1:
         raise ValueError("exactly one challenger portfolio is required")
     gate = evaluate_challenger(production, challengers[0])
-    production_gate = evaluate_production(production)
+    generated_at = as_of_utc if as_of_utc is not None else datetime.now(timezone.utc)
+    production_gate = evaluate_production(production, as_of_utc=generated_at)
 
     ordered = sorted(records, key=lambda r: (r.get("portfolio_role") != "production", r["id"]))
     entries = []
@@ -821,7 +883,7 @@ def build_registry(bundle_dirs: list[Path]) -> dict:
         entries.append(item)
     return {
         "schema_version": 1,
-        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "generated_at_utc": generated_at.isoformat(),
         "stale_after_hours": 96,
         "data_as_of": production["data_as_of"],
         "comparison_gate": gate,

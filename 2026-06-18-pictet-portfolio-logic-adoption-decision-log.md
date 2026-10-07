@@ -9914,3 +9914,48 @@ VINTAGE_PRE == POST(워크북 2026-09-30 14:27:35 / Index 11:31:05). ECOS 184/18
 **운영**: 기존 production pkl(12:21 런)에는 키가 없어 다음 `--no-cache` 런(10-01 11:30) 전까지 이 검사는 None→HOLD 요인(D-03 과 같은 구조;
 현재 이미 섹터 몫 HOLD 라 실질 변화 없음). 이후 벤더가 DELL·DHR 기저를 바꾸면 무음 이중 보정 대신 HOLD 가 난다. 반대 방향(미등록
 종목에 새 단절 출현)은 §S18.1 suspect/jump 가드 담당. 롤백 = 이 커밋 revert(진단 키 2개·게이트 검사 1개 제거).
+
+
+## S25 — 7차 잔존 점검 + 원천 뒤채움(bfill) 룩어헤드·데이터 신선도 게이트 수정 (2026-10-06 점검 · 2026-10-07 수정, 사용자 지시 "지난번 오류 수정 후 구조적 오류가 남아있는지 체크" → "High 는 ai_signal_data 생성 과정에서, Medium 도 같이 해결")
+
+**점검(10-06, 읽기 전용, 메인 단독)**: §S24.3/§S24.4 는 정상 반영 — 10-02 스케줄 런이 S0′ IR 1.8328 을 그대로 재현, `tg_basis_events_consistent_ok`·
+D-03 두 검사·`clean_tree_ok` True. §S22 이후 코드 diff 1,358줄 재검토 신규 결함 0. 명목가 UNADJ/ADJ 단일일 5% 초과 스텝 49건 전부 TG 정합(|log 잔차| ≤ 0.18,
+2건 표본 부족) → 미등록 T·RTX 형 단절 없음. 10-01 런 실패는 배터리 방전 종료(Kernel-Power 524), 코드 무관. 프로브 팩 `outputs/s25_audit/`.
+
+**F1 (High) — `price_v4.fill_missing_data` 의 티커별 ffill 뒤 bfill**: 상장 후 필드 관측이 시작되기 전 구간이 첫 관측값(미래)으로 채워진다.
+소비 측 상장 마스크(§S11)는 PX_LAST 기준이라 보지 못한다. 09-30 워크북 실측(production 소비 시트) 69종목: UBER BEST_PE_RATIO 21,736 고정
+2019-05-10~2022-12-08(903행, 2020-06-30 횡단면 순위 상위 0.8%) · NET 183,170 · FICO BEST_ROE 69.5 2014~2021-01(1,775행, 순위 상위 6%) ·
+AON EQY_REC_CONS 5.0 2014~2020-03(1,571행) · LIN 13시트 ~1,220행 · VRT 15시트 · 금융주 CAPEX/FCF/EV·EBITDA 2,000~2,900행(하루 평균 11종목,
+2020년까지). 레벨을 직접 쓰는 production 피처(중요도 상위 30 안)로 유입: `fin_roe_pe_gap`·`fin_roe_pb_gap`(cs_rank), `best_roe_level_z`
+(§S13.32 퀄리티 틸트 입력), `analyst_rec_level`, `capex_intensity_z`, `cash_conversion_z`. 같은 원인의 **라이브 꼬리 동결**(무제한 ffill):
+음자본 10종목 P/B 1년 이상 고정(VRSN 2014-07 이후 12년, MSCI·LOW·SBUX·ORLY·BKNG…), RBLX PE 14,847 2022-02 이후, PEG 14·GM 12·CAPEX 7·FCF 5.
+09-09 감사 Medium-4(VST·LSEG·ZS)·§S18 r5 P6(VRT·LIN)이 3~5종목으로 과소 범위화했던 항목. IR 영향 미측정.
+
+**F2 (Medium) — 게이트·대시보드 신선도 검사가 레지스트리 생성 시각(96h)만 봄**: 워크북이 09-30 14:27 이후 미갱신인데 10-02·10-05·10-06 런이
+data_as_of 09-29 로 경고 없이 발행. `rebalance_overdue` 는 행 수 기준이라 워크북이 멈추면 영원히 False(다음 리밸 행 = 10-06 종가).
+
+**수정(10-07)**
+- F1 → **생성기**(사용자 선택: price_v4 가 아니라 ai_signal_data 생성 과정): `universe_config.mask_backfilled_prefix`(슬로프 전용
+  `_mask_backfilled_prefix` 를 공용화, 첫 행이 NaN 이면 불변 → 멱등) + `PREFIX_MASK_EXEMPT_SHEETS={Earnings_Date, SPX Index}`.
+  `create_universe_data.mask_sheet_prefix` 가 S&P500.xlsx 의 모든 종목 시트에 **시총 USD 환산 전** 적용, `create_ai_signal_data.load_sp500_sheet`
+  (SHORT_INT·VOL 5종·PX_VOLUME/PUT_CALL·25Δ·1FY/2FY/1BF/2BF 직접 읽기)도 같은 규칙. 규칙 = 값이 처음 변하는 날짜 전 구간 NaN(첫 관측행
+  포함 — 실측·백필 구분 불가라 보수적), 전 구간 상수 열은 전부 NaN, 내부 평탄 구간 유지. 생성기 테스트 43 → **47 PASS**.
+  09-30 워크북 캐시에 적용한 드라이런(`outputs/s25_audit/`): UBER PE 2022-12-08 까지·FICO ROE 2021-01-21·AON REC 2020-03-31 까지 마스킹,
+  PX_LAST 는 첫 행(2014-01-02)만 213종목 마스킹(로더 상장 추론 2014-01-03 으로 1행 이동 — production 패널 시작 2014-01-24 밖, 산출 영향 0),
+  시트별 상장 후 마스킹 셀: GM 58,069 · CAPEX 33,204 · SHORT_INT 32,592 · EV/EBITDA 32,575 · FCF 28,963 · OPER_MARGIN 27,888(2014 첫 분기 전 종목)
+  · PEG 18,971 · P/B 10,114 · REC 7,897 · PE 7,358 · ROE 5,761.
+- F2 → `validate_portfolio_bundles.data_age_sessions(data_as_of, as_of_utc, calendar)`: 생성 시각(ET 16:30 마감 버퍼) 기준 마지막 마감
+  세션까지 data_as_of 이후 XNYS 세션 수. 검사 `data_as_of_fresh_ok`(≤ `MAX_DATA_AGE_SESSIONS=3`, 사전등록 단일값; 결측·판정 불가 None =
+  fail-closed), values `data_as_of`·`data_age_sessions`·`max_data_age_sessions`. `build_registry(as_of_utc)` 가 같은 시각을 `generated_at_utc`
+  와 게이트에 공급. 대시보드 `data_freshness_warning` 경고. ai_port 전체 **932 PASS**(+4; 기존 변경은 `test_validate_portfolio_bundles.py`
+  의 all-clear 2개에 생성 시각 핀 추가뿐). 실데이터(10-07 11:01 KST): HOLD 요인 = `sector_active_risk_ok` + **`data_as_of_fresh_ok`(5 > 3)**.
+
+**운영 영향·잔여**
+- F1 효과는 **다음 워크북 재생성부터**(Bloomberg 재인출 → `run_data_pipeline.bat`). 새 빈티지이므로 §S13.47 규칙상 S0′ 재인증 필요 —
+  production 수치 변화는 수정 자체(정확성 트랙)와 빈티지 효과가 섞이므로 같은 S&P500 인출분으로 구/신 생성기 워크북 쌍을 만들어 비교하는
+  것이 가장 깨끗하다(사용자 결정). 로더는 새 NaN 접두를 FactSet 시트와 같이 횡단면 중앙값으로 채운다(§S17 T-01 과 같은 계열 — 레벨은 중립,
+  chg 피처는 커버리지 시작일에 1회 블립). 전 구간 상수 열(SHORT_INT 7·GM 3·PEG/CAPEX BN 등)은 "Optional sheet gaps" 로 보고된다.
+- **라이브 꼬리 동결(ffill)은 생성기만으로 못 고친다**: 생성기가 NaN 으로 두어도 로더 `_fill_missing` 이 ffill 로 되살린다. 필드별 정체
+  한도 또는 소비 측 `raw_sheet_observed_mask` 확장이 필요 — 별도 결정.
+- 기존 미해결: Tech 섹터 리스크 몫 0.928 > 0.85 HOLD(옵티마이저 대응 제약 없음) · B-02/B-03/B-05 미측정 · 상위 저장소 생성기 미커밋.
+- 롤백: ai_port 는 이 커밋 revert(게이트 검사 1개·값 3개·경고 1개 제거), 생성기는 `mask_sheet_prefix`/`load_sp500_sheet` 의 호출 2줄 제거.

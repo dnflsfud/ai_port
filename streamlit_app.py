@@ -153,6 +153,29 @@ def universe_chip_ok(universe_size, production_meta) -> bool:
     return size == full == loaded and not missing
 
 
+def data_freshness_warning(production_gate):
+    """§S25: warning text when the DATA date is stale (None when fresh).
+
+    The registry-age warning below only sees the registry's own generation
+    time, which the scheduler refreshes daily even when the workbook is
+    frozen (data_as_of 2026-09-29 published 10-02/10-05/10-06 unflagged)."""
+    if not isinstance(production_gate, dict):
+        return None
+    checks = production_gate.get("checks") or {}
+    values = production_gate.get("values") or {}
+    fresh = checks.get("data_as_of_fresh_ok")
+    if fresh is True:
+        return None
+    if fresh is None:
+        return "Data freshness unknown — production gate HOLD (data_as_of age could not be judged)."
+    return (
+        f"Workbook data as of {values.get('data_as_of', 'n/a')} is "
+        f"{values.get('data_age_sessions', 'n/a')} exchange sessions old "
+        f"(limit {values.get('max_data_age_sessions', 'n/a')}) — production gate HOLD; "
+        "regenerate ai_signal_data before the next scheduled run."
+    )
+
+
 def list_runs(outputs_dir) -> list:
     """Scan ``<outputs_dir>`` for run folders holding a ``metrics.json``.
 
@@ -814,6 +837,9 @@ def main() -> None:
             st.metric(f"{chal_name} holdings as of", challenger_holdings.get("as_of", "n/a"))
         st.metric("Solver", ops.get("solver_protocol", "ECOS"))
 
+        freshness_message = data_freshness_warning(data["registry"].get("production_gate"))
+        if freshness_message:
+            st.warning(freshness_message)
         generated = data["registry"].get("generated_at_utc")
         if generated:
             try:
