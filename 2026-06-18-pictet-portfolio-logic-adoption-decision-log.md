@@ -9979,3 +9979,42 @@ DELL 05-29·HPE 06-02·TTD 08-07 목표가 급변은 주가와 동방향(기저 
 이력 ≥504행에서 고유값 ≤5 또는 정확히 100.0 비율 ≥0.5, 단일 사전등록값·젊은 종목 보호) · `stale_earnings_tickers`(마지막 실적일 > 120일 또는 0건 → 경고,
 중단 없음). 09-30 워크북 드라이런: 센티먼트 접두 마스킹 44,218셀 + 범위 NaN 8셀(RACE) → 잔여 0 · 퇴화 열 ['CS'] 뿐 · 정체 실적일 {BRK/B: 2017-11-03} 뿐.
 발효는 다음 워크북 재생성부터(§S25 와 같은 빈티지 이벤트). 롤백 = `clean_sheet_values`·`stale_earnings_tickers` 호출 2줄 제거.
+
+## S25.2 — 성과 개선 후보 탐색 + G4-01 63BD 라벨 arm 사전등록 (2026-10-07 16:10, 사용자 지시 "성과를 더욱 높일 수 있는 방안" → "3번(느린 알파 포착)을 진행" · 성과 트랙 · 인벤토리 475→476 · 측정 전 단독 커밋)
+
+**후보 탐색(읽기 전용, 백테스트 0)**: `outputs/reports/2026-10-07-performance-candidates-s25-2.md`(진단 `outputs/s25_audit/10_alpha_diagnostics.py`,
+production pkl 10-07 + 캐시 시트, USD 수익률·상장 마스크). 실측 요지 — 액티브 6.8%/yr 의 91% 가 OW 38종목(UW +0.6%) · Brinson 배분 +0.69%(IR 0.71)
+vs 선택 +6.11%(IR 1.79; 배분 제거 시 IR 불변) · Tech 는 선택 수익 60% 이나 순 액티브 비중 평균 +2.4% · 십분위 D9 4.4% vs D8 2.8%(볼록) ·
+**IC 감쇠 단조 증가 h21 0.054 → h63 0.081 → h126 0.104(t 5.2)**, 예측 순위 자기상관 lag21 0.86 · 캡 바인딩 종목 11%/TE 32%. 사전점검 기각: 시간 앙상블
+(ΔIC +0.0006, t 0.27) · UW 단순화(반사실 IR 1.78→1.65) · 종목 캡 완화(바인딩 11%) · 섹터 리스크 몫 강제(IR 레버 아님). 순위: 0 재생성+재인증 →
+1 정확성 arm(B-03·꼬리 동결 마스킹·B-05·B-02) → 2 horizon 분리 2모델 μ 결합 → 3 G4-01 63BD 단독 라벨(2 의 저비용 선행 점검) → 4 섹터 게이트 재정의(거버넌스)
+→ 5 상위 십분위 볼록성(사전점검 먼저). 사용자 결정: **3번(느린 알파 포착) 진행** — 먼저 G4-01 1-arm.
+
+**arm `s25_2_label63`** = production overrides(`variants/codex_causal_rank_65.yaml`) 바이트 사본 + `forward_horizon: 63` 1필드. 라벨 = 63BD PCA 잔차
+(`target_engine` horizon; 인과 분할 purge/embargo 는 `effective_label_horizon` 로 63 자동 — §S11.8(b) 경로, §S11.9 에서 발동 확인됨). 리밸 21BD·실행층·
+오버레이·옵티마이저 불변, 모델·하이퍼파라미터 동일. 파라미터 스윕 없음(63 = §S11.8 진단과 §S11.9 매트릭스가 남긴 단일값). overrides diff 검증:
+`{'forward_horizon': (None, 63)}` 뿐. variant sha256 `ff164c8cca762f3c81d6b85cd10a34e840391eb7995202911d994f63e3c48f5d`(동결, 수정 금지).
+- **가설**: 신호의 IC 가 h 에 단조 증가하므로 63d 라벨로 학습한 랭커가 (i) 63d 라벨 설명력에서 20d 모델을 넘고 (ii) 예측 회전이 줄며 (iii) IR 비손상~개선.
+  §S11.9 블렌드(20/63 = 0.7/0.3) 가 −0.311 로 실패한 원인("라벨 혼합이 기간구조를 학습 전에 붕괴")은 단독 라벨에는 해당하지 않는다는 것이 이 arm 의 검증 대상.
+- **기준** = `outputs/s24_3_tg_events_a`(S0′ IR 1.8327704100987559 / TE 3.79% / 회전 0.795 / AS 20.44% / β 1.049, 워크북 2026-09-30 14:27:35 /
+  Index 2026-09-30 11:31:05). Index.xlsx 는 10-02 11:30 리프레시됐으나 10-02·10-07 production 런이 같은 IR 을 소수점 끝까지 재현 → FX 리프레시는 백테스트
+  창에 불활성. 실행 = `outputs/run_variant_task.ps1 -Label s25_2_label63`(schtasks `s25_2_label63_arm`, `--no-cache`, 단일 ECOS, VINTAGE_PRE/POST).
+  워크북 빈티지가 바뀌면 판정 중단(§S13.47).
+- **판정(`scripts/eval_s25_2_label63_arm.py`, sha256 `3a00f3bbdc73b5b970dcf5a5735817802468adef5cf550863e722e25e9e83b99`, 테스트
+  `tests/test_eval_s25_2_label63_arm.py` 8 PASS)** — 성과 arm 이므로 채택 후보 = G0 ∧ 기전 ∧ E2 ∧ **formal E1**:
+  - G0: base·arm 워크북 빈티지(mtime·size) 동일 ∧ base IR 이 1.8327704100987559 를 1e-9 이내 재현 ∧ Index 빈티지가 다르면 arm 과 같은 (워크북, Index)
+    쌍의 production 런(`outputs/codex_causal_rank_65`)이 같은 IR 재현(FX 불활성 증명).
+  - 기전 (a) 분할 audit 전 재학습 `forward_horizon=63 ∧ embargo_days≥63 ∧ causal_validation_ok`; (b) **63d 라벨 설명력** — 공통 리밸일 Spearman IC
+    (예측 vs arm 의 63d PCA 잔차 라벨, 유효 ≥30종목)의 평균이 arm(63d 모델) > base(20d 모델), 쌍 비교 Δ>0(t·우세 비율은 관측). 두 런의 저장
+    `ic_series`/`avg_ic` 는 라벨이 달라 비교 불가 — 병기만.
+  - E2: TE ≤ 4.5% · |ΔAS| ≤ 3%p · 회전율 ≤ 1.25× · solver fallback 0. 관측: 회전율 ≤ 0.90×(§S11.9 의 "느린 신호" 기전 발현 여부).
+  - formal E1(§2.4): ΔIR > +0.36 ∧ 3분할 전부 양. 오버라이드 후보(§S13.50 정책): ΔIR > 0 ∧ 3분할 전부 양 ∧ 게이트 ∧ DSR 해킷 전례보다 강함 — 병기만,
+    승격은 사용자 결정. 무해성(ΔIR > −0.36 ∧ 3분할 전부 음 아님)은 참고.
+- **해석 매트릭스(사전 고정)**: 기전(b) FAIL → **축 종결**(G4-01 SHELVE, 후보 2 "2모델 μ 결합"도 기각 — 63d 모델이 63d 라벨조차 더 잘 설명하지 못하면
+  결합할 증분 신호가 없다) / 기전 PASS ∧ E1 FAIL → G4-01 불채택, **2모델 μ 결합(0.5·rank₂₀ + 0.5·rank₆₃)이 다음 사전등록**(별도 arm, 인벤토리 +1) /
+  기전 PASS ∧ E2 ∧ E1 → 채택 후보(DSR 해킷 병기, 사용자 결정). G0 FAIL → 판정 중단.
+- **기계적 기대 차이(사전 명시)**: 라벨 테일 NaN 이 20d 대비 43BD 확대 → 마지막 라벨 ≈ 2026-06-30, 공통 리밸일 중 마지막 2~3개는 기전(b) 표본에서 제외.
+  분할의 train_end 가 예측일로부터 63+126+63 BD 앞(현 20+126+20) → 학습 데이터가 ~86BD 더 오래됨(설계의 일부, 보정 없음). `_matured_trailing_ic_mean`
+  은 static execution ON 이라 미소비. 실행시간 ≈ production(≈20~30분).
+- DSR: `experiment_inventory.json` 475 → 476(측정 전). 결과 후 `run_selection_bias.py --auto --label s25_2_label63` 해킷 병기.
+- 이 절·variant·판정 스크립트·테스트·인벤토리·후보 보고서를 **측정 전 단독 커밋**한다(§S13.48 규칙). production variant·config·src 무변경.
