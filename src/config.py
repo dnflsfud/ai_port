@@ -1108,6 +1108,27 @@ class PipelineConfig:
     s17_dead_feature_prune_enabled: bool = False
 
     # ------------------------------------------------------------------
+    # S25.4 (2026-10-08) — stale-run mask for price-dependent ratio sheets
+    # (decision log §S25 F1 follow-up "live tail freeze", §S25.4
+    # preregistration). The vendor feed carries a frozen BEST_PE_RATIO /
+    # BEST_PX_BPS_RATIO / BEST_PEG_RATIO / BEST_EV_TO_BEST_EBITDA value for
+    # months or years after coverage stops (RBLX PE 14,847 since 2022-02,
+    # VRSN P/B since 2014-07) and price_v4 + the loader ffill keep it alive.
+    # A ratio with a daily price in its denominator cannot stay bit-identical
+    # for more than a few sessions, so ON re-NaNs (in get_sheet, for the
+    # listed sheets only) every cell whose value has been unchanged for more
+    # than stale_run_max_days consecutive rows — the first stale_run_max_days
+    # rows of a run are kept; the panel builder's per-date median then
+    # imputes the feature (the §S17 T-01 path). Single preregistered window,
+    # no sweep. OFF (default) returns the untouched sheet object.
+    # ------------------------------------------------------------------
+    stale_run_mask_enabled: bool = False
+    stale_run_mask_sheets: tuple = (
+        "BEST_PE_RATIO", "BEST_PX_BPS_RATIO", "BEST_PEG_RATIO", "BEST_EV_TO_BEST_EBITDA",
+    )
+    stale_run_max_days: int = 21
+
+    # ------------------------------------------------------------------
     # S17.3 (2026-09-03) — G1-01b / M1 nominal price denominator (decision
     # log §S17.3 preregistration). The workbook's PX_LAST and the price-
     # ratio sheets derived from it (BEST_PE_RATIO, BEST_PX_BPS_RATIO,
@@ -1338,6 +1359,8 @@ class PipelineConfig:
             )
         if self.max_tail_ffill_days < 0:
             raise ValueError("max_tail_ffill_days must be >= 0")
+        if int(self.stale_run_max_days) < 1:
+            raise ValueError("stale_run_max_days must be >= 1")
         self.base_currency = str(self.base_currency).upper()
         if self.base_currency != "USD":
             raise ValueError(

@@ -1224,6 +1224,25 @@ def mask_pre_listing(
     return out
 
 
+def mask_stale_runs(df: pd.DataFrame, max_run: int) -> pd.DataFrame:
+    """§S25.4: NaN every cell whose value has been unchanged for more than
+    ``max_run`` consecutive rows (per column), returning a NEW frame.
+
+    A run is a stretch of exactly equal non-NaN values; its first ``max_run``
+    rows are kept and the rest are set to NaN. A NaN breaks the run (the row
+    after it starts a new run). Values that change, however slightly, are
+    never touched — exact equality is the vendor-freeze signature.
+    """
+    out = df.copy()
+    max_run = int(max_run)
+    for col in out.columns:
+        s = out[col]
+        same = s.eq(s.shift()) & s.notna()
+        run = same.groupby((~same).cumsum()).cumsum()
+        out.loc[(run >= max_run).to_numpy(), col] = np.nan
+    return out
+
+
 class UniverseData:
     """전처리된 유니버스 데이터를 담는 컨테이너."""
 
@@ -1880,6 +1899,18 @@ class UniverseData:
         Returns None when the sheet is absent from the workbook (or when
         the instance has no raw dict — partially built shells).
         """
+        df = self._raw_sheet_standardized(name)
+        if df is None:
+            return None
+        return df.notna().reindex(
+            index=self.dates, columns=self.tickers, fill_value=False
+        )
+
+    def _raw_sheet_standardized(self, name: str) -> Optional[pd.DataFrame]:
+        """The raw per-ticker sheet with exactly the standardisation that
+        PRECEDES ``_fill_missing`` (columns, index, ticker filter, numeric,
+        level-sheet listing mask) — the pre-impute values themselves.
+        None when the sheet is absent or the instance has no raw dict."""
         raw = getattr(self, "raw", None)
         if not isinstance(raw, dict) or name not in raw:
             return None
@@ -1898,9 +1929,40 @@ class UniverseData:
         df = df.apply(pd.to_numeric, errors="coerce")
         if self.config.listing_mask_enabled and self.listing_dates:
             df = mask_pre_listing(df, self.listing_dates, inclusive=False)
-        return df.notna().reindex(
-            index=self.dates, columns=self.tickers, fill_value=False
+        return df
+
+    def _stale_run_masked_sheet(self, name: str) -> pd.DataFrame:
+        """§S25.4: ``self.sheets[name]`` with vendor-frozen cells re-NaNed.
+
+        The run test is done on the pre-impute raw values (so the loader's
+        own ffill cannot manufacture a run) and applied to the filled sheet;
+        the result is cached per sheet. Sheets without a raw counterpart are
+        returned untouched. A per-sheet count lands in ``data_quality``.
+        """
+        cache = self.__dict__.setdefault("_stale_run_cache", {})
+        if name in cache:
+            return cache[name]
+        sheet = self.sheets[name]
+        raw = self._raw_sheet_standardized(name)
+        if raw is None:
+            cache[name] = sheet
+            return sheet
+        max_run = int(getattr(self.config, "stale_run_max_days", 21))
+        stale = (raw.notna() & mask_stale_runs(raw, max_run).isna()).reindex(
+            index=sheet.index, columns=sheet.columns, fill_value=False
         )
+        masked = sheet.where(~stale)
+        n_cells = int(stale.to_numpy().sum())
+        per_ticker = stale.sum()
+        dq = self.__dict__.setdefault("data_quality", {})
+        dq.setdefault("stale_run_mask", {})[name] = {
+            "masked_cells": n_cells,
+            "tickers": int((per_ticker > 0).sum()),
+            "top": {str(k): int(v) for k, v in per_ticker.sort_values(ascending=False).head(10).items() if v > 0},
+            "max_run": max_run,
+        }
+        cache[name] = masked
+        return masked
 
     def _load_earnings_timeline(self) -> Optional[pd.DataFrame]:
         """Earnings_Timeline 시트 로드 (date × ticker, 발표일=1).
@@ -1983,6 +2045,11 @@ class UniverseData:
     def get_sheet(self, name: str) -> pd.DataFrame:
         if name not in self.sheets:
             raise KeyError(f"시트 '{name}'을 찾을 수 없습니다. 사용 가능: {list(self.sheets.keys())}")
+        if (
+            getattr(self.config, "stale_run_mask_enabled", False)
+            and name in set(getattr(self.config, "stale_run_mask_sheets", ()))
+        ):
+            return self._stale_run_masked_sheet(name)   # §S25.4, default-OFF
         return self.sheets[name]
 
     def summary(self) -> str:

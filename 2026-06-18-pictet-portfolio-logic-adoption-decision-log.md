@@ -10138,3 +10138,36 @@ VINTAGE_PRE == POST(정본 워크북 2026-10-08 11:27:51 / Index 2026-10-02 11:3
   **production 런이 `s25_3_s0recert` 를 비트 동일 재현**(IR 1.7218790679024922 == 1.7218790679024922, 같은 빈티지) → 결정론 교차검증 PASS, 새 S0′ 확정.
   챌린저(iter15) 1,109s·fallback 2/92(레거시 경로, 기지). 레지스트리 `data_as_of 2026-10-01`, production gate **FAIL = HOLD**: `data_as_of_fresh_ok` False
   (4 세션 > 3 — 신규 인출로만 해소) · `sector_active_risk_ok` False(Tech 몫 0.901 > 0.85, 기지). `ai_port_run_and_upload` 재활성화(다음 10-09 11:30), 일회성 작업 3개 삭제.
+
+## S25.4 — 정확성 arm 4개 사전등록 (2026-10-08 14:40, 사용자 지시 "2번 진행" · 정확성 트랙 · 인벤토리 비계수 · 측정 전 기록, 체인 기동 직후 커밋)
+
+후보 보고서(§S25.2) ②: §S24 에 사전등록만 돼 있던 B-02·B-03·B-05 와 §S25 미해결 항목 "라이브 꼬리 동결" 의 로더 플래그(신규 코드) — 공통 기준 병렬 4 arm
+→ flip 후 결합 재인증(§S23.1 구조). 스윕 없음, 각 arm production overrides 바이트 사본 + 플래그 1줄(overrides diff 검증 완료).
+
+| arm | 플래그(단일값) | 결함 | variant sha256 |
+|---|---|---|---|
+| `s25_4_b02_no_gradual_mask` | `revision_gradual_mask_disabled: true` | §S22 B-02 하락 전용 완만 마스크가 진짜 하향 램프를 동결 | `e4fa2d38b9e96aa2…` |
+| `s25_4_b03_winsor_first` | `zscore_winsor_first_enabled: true` (q=0.01 고정) | §S22 B-03 이상치 1개가 날짜 횡단면 z 를 압축 | `43e7bd721ede89b0…` |
+| `s25_4_b05_label_lag` | `label_execution_lag_enabled: true` (lag = `execution_signal_lag_days` 1) | §S22 B-05 라벨창이 실행 불가 구간(t+1)에서 시작 | `84b5db15e41a2925…` |
+| `s25_4_stale_run_mask` | `stale_run_mask_enabled: true` (`stale_run_max_days 21`, 시트 4종 고정) | §S25 F1 후속 — 벤더 동결값(RBLX PE 14,847 2022-02~, VRSN P/B 2014-07~)을 price_v4·로더 ffill 이 되살림 | `0e74c85380480b7d…` |
+
+- **신규 코드(default-OFF, OFF 파리티)**: `PipelineConfig.stale_run_mask_enabled/stale_run_mask_sheets/stale_run_max_days`(검증 ≥1) · `data_loader.mask_stale_runs`
+  (열별 완전 동일값 연속 구간이 `max_run` 행을 넘으면 그 뒤를 NaN; NaN 이 구간을 끊음) · `UniverseData.get_sheet` 가 ON·대상 시트에서만 `_stale_run_masked_sheet`
+  (임퓨트 전 원시값으로 구간 판정 → 채워진 시트에 적용, 시트별 캐시, `data_quality["stale_run_mask"]` 기록) 반환, OFF 는 같은 객체 반환. `raw_sheet_observed_mask` 는
+  `_raw_sheet_standardized` 로 분리(동작 불변). 테스트 `tests/test_stale_run_mask.py` 6 PASS, 로더·acceptance 211 PASS. 가격이 분모인 비율은 세션이 바뀌면 값이
+  바뀌어야 하므로 21행(1개월) 동일 = 벤더 동결로 본다(단일 사전등록값). 소비자는 feature 빌더 `_get`/`get_sheet` 경유뿐(직접 `data.sheets` 접근 없음 — grep 확인).
+- **기준** = `outputs/s25_3_s0recert`(IR 1.7218790679024922, §S25.3; 13:13 production 런과 비트 동일). 빈티지 동결 = 워크북 2026-10-08 11:27:51 / Index 2026-10-02 11:30:43.
+  실행 = `outputs/s25_4_run_chain.bat`(schtasks `s25_4_chain`, 14:40:01 기동, AC 전원 확인, 순차 b02 → b03 → b05 → stale, 각 `run_variant_task.ps1 --no-cache`,
+  VINTAGE_PRE/POST). 빈티지가 바뀌면 판정 중단(§S13.47).
+- **판정(`scripts/eval_s25_4_arms.py --arm <label>`, sha256 `2347c941c7c37cbb…`, 테스트 `tests/test_eval_s25_4_arms.py` 6 PASS)** — flip 후보 = G0 ∧ 기전 ∧ E2 ∧ 무해성; formal E1 병기만:
+  - G0: data_vintage 동일 ∧ base IR 재현(1e-9) ∧ arm overrides 에 플래그 True.
+  - 기전: **b02** 피처 패널 변화가 리비전 파생 피처("rev" 포함: eps_rev·eps_rev_ma_63d·eps_rev_trend·sales_rev_ma_63d·mc_*_x_eps_rev)에만 있고 비어 있지 않음 /
+    **b03** 날짜별 횡단면 p90−p10 폭의 arm/base 비율 중앙값 > 1.0 ∧ 비율 ≥ 1 인 (날짜,피처) 몫 ≥ 0.9 / **b05** 분할 audit 31/31 forward_horizon = 21 ∧ embargo ≥ 21 ∧
+    causal_ok, 유한 타깃 셀 ≥ 99% 변경, 피처 패널 비트 동일 / **stale** `data_quality.stale_run_mask` 4 시트 전부 masked_cells > 0 ∧ BEST_PE_RATIO/RBLX ·
+    BEST_PX_BPS_RATIO/VRSN 이 상위 종목에 포함 ∧ 피처 패널 변화가 비율 시트 파생 피처(pe/pb/peg/ebitda 토큰)에만 있음. 공통: 피처 집합 동일.
+  - E2: TE ≤ 4.5% · |ΔAS| ≤ 3%p · 회전율 ≤ 1.25× · fallback 0. 무해성: ΔIR > −0.36 ∧ 3분할 전부 음 아님.
+- **flip·재인증**: 통과 후보를 b02 → b03 → b05 → stale 순으로 후보별 독립 커밋(§8 체크리스트: variant 1줄 + 핀 테스트 allowlist + 결정 로그) → production 사본
+  `s25_4_combined_recert` 1런(같은 빈티지)을 G0 ∧ E2 ∧ 무해성(기준 s25_3_s0recert)으로 확인 → 통과 시 그 IR 이 새 S0′. 실패 시 flip 커밋 revert·보고.
+  flip 은 사용자 결정(정확성 근거는 사전 명시했으나 §8 "production flips" 는 사용자 승인).
+- **사전 명시 기대**: b05 는 라벨·IC 정의가 바뀌므로 avg_ic 비교 불가(병기만). stale 은 RBLX·VRSN 등 소수 종목의 레벨 피처가 중앙값으로 대체되는 작은 변화 — ΔIR ≈ 0 기대.
+  b03 은 압축 해소로 많은 피처 z 가 바뀌어 모델 재실현(§S12.3 시드 노이즈 급) — ΔIR 부호는 채택 근거 아님.
