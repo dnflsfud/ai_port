@@ -392,3 +392,16 @@ overrides:
   # negative -0.019/-0.010/-0.022). Decision log S23.3. Rollback = delete this
   # line (default-OFF, byte-identical restore certified by tests/test_option_vol_cov.py).
   option_vol_scale_lag_enabled: true
+
+  # S25.4 (2026-10-08): B-02 — the down-only "gradual pre-earnings drop" mask in
+  # clean_revision_spikes froze genuine consensus downgrade ramps (upgrades already
+  # passed); it touched 495k eps_rev cells and, through the 63d MAs, almost the
+  # whole revision panel. Adopted by user decision on correctness grounds —
+  # decision log S25.4 결과 1 / Production flips. Pre-registered S25.4 arm
+  # outputs/s25_4_b02_no_gradual_mask vs s25_3_s0recert (workbook 2026-10-08
+  # 11:27:51 / Index 2026-10-02 11:30:43): G0 PASS, mechanism PASS (only the 7
+  # revision-derived features change, 54 others bit-identical), E2 PASS (TE 3.79%,
+  # turnover 0.979x, AS +0.05pp, fallback 0), IR 1.7219 -> 1.7500 (dIR +0.028,
+  # splits +0.123/+0.097/-0.125, no-harm PASS; observation only). Rollback =
+  # delete this line (default-OFF, byte-identical restore certified by unit tests).
+  revision_gradual_mask_disabled: true
