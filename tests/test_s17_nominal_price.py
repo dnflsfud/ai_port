@@ -299,6 +299,7 @@ def test_arm_variant_equals_production_after_the_s17_3_flip():
     # block back to false (the frozen arm keeps true).
     post_s17_3_flips |= {"pca_target_uncentered_enabled", "option_vol_scale_lag_enabled"}  # + S23.3
     post_s17_3_flips |= {"revision_gradual_mask_disabled"}  # S25.4 B-02 promotion (2026-10-08)
+    post_s17_3_flips |= {"zscore_winsor_first_enabled"}  # S25.4 B-03 promotion (2026-10-08)
     expected = {k: v for k, v in prod.items() if k not in post_s17_3_flips}
     expected["partial_rebalance_eta"] = 0.50
     expected["fwd_sales_slope_features_enabled"] = True

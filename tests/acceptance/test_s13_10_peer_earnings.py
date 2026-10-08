@@ -94,6 +94,7 @@ def test_arm_variant_differs_from_production_by_exactly_the_flag():
         "pca_target_uncentered_enabled",  # S23.2 promotion (2026-09-29)
         "option_vol_scale_lag_enabled",  # S23.3 promotion (2026-09-29)
         "revision_gradual_mask_disabled",  # S25.4 B-02 promotion (2026-10-08)
+        "zscore_winsor_first_enabled",  # S25.4 B-03 promotion (2026-10-08)
     }
     assert not [
         k for k in prod

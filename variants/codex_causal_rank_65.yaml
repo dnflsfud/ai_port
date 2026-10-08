@@ -405,3 +405,17 @@ overrides:
   # splits +0.123/+0.097/-0.125, no-harm PASS; observation only). Rollback =
   # delete this line (default-OFF, byte-identical restore certified by unit tests).
   revision_gradual_mask_disabled: true
+
+  # S25.4 (2026-10-08): B-03 — per-date [1%, 99%] winsorisation BEFORE the
+  # cross-sectional z (WINSOR_QUANTILE 0.01, single value). One outlier (a
+  # pct-change with a ~0 denominator, the UBER PE 21,736 class) compressed the
+  # whole date cross-section: 14% of all (date, feature) pairs had their p90-p10
+  # spread shrunk >2x (worst best_gross_margin_chg_63d 2024-05-08: 0.0001 -> 0.970,
+  # x16,814). Adopted by user decision on correctness grounds — decision log S25.4
+  # 결과 2 / Production flips. Pre-registered arm outputs/s25_4_b03_winsor_first
+  # vs s25_3_s0recert (same vintage): G0 PASS, mechanism PASS (spread ratio >= 1 on
+  # 100% of pairs, median 1.052), E2 PASS (TE 3.80%, turnover 1.022x, AS -0.37pp,
+  # fallback 0), IR 1.7219 -> 1.9306 (dIR +0.209, splits +0.057/-0.159/+0.623,
+  # no-harm PASS; observation only), degenerate 8 -> 11/31. Rollback = delete this
+  # line (default-OFF, byte-identical restore certified by unit tests).
+  zscore_winsor_first_enabled: true
