@@ -83,6 +83,14 @@ def test_mechanism_stale_mask_requires_every_sheet_and_named_cases():
     assert mechanism_stale_mask({})["pass"] is False
 
 
+def test_ratio_feature_tokens_cover_every_consumer_of_the_four_sheets():
+    from scripts.eval_s25_4_arms import _RATIO_TOKENS
+    consumers = ["best_peg_ratio_level_z", "best_px_bps_ratio_level_z", "best_ev_to_best_ebitda_level_z", "fin_pb_level_z",
+                 "fin_pb_chg_63d", "fin_pe_level_z", "fin_pe_chg_63d", "fin_roe_pb_gap", "fin_roe_pe_gap"]
+    assert all(any(tok in f for tok in _RATIO_TOKENS) for f in consumers)
+    assert not any(tok in "momentum_252d" for tok in _RATIO_TOKENS)
+
+
 def test_verdicts_follow_the_accuracy_frame():
     v = verdicts(g0=True, mechanism=True, e2=True, d_ir=-0.05, split_deltas=[-0.1, 0.02, -0.03])
     assert v["no_harm_pass"] is True and v["flip_candidate"] is True

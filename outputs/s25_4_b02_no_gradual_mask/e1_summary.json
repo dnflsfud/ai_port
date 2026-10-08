@@ -1,0 +1,138 @@
+{
+  "arm": "s25_4_b02_no_gradual_mask",
+  "flag": "revision_gradual_mask_disabled",
+  "frame": "accuracy (G0 + mechanism + E2 + no-harm; formal E1 reported only)",
+  "preregistration": "decision log §S25.4 (2026-10-08)",
+  "base_dir": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\c2\\ai_port\\outputs\\s25_3_s0recert",
+  "vintage": {
+    "base_pkl_mtime": "2026-10-08 12:13:54",
+    "arm_pkl_mtime": "2026-10-08 14:59:11",
+    "base_data_vintage": {
+      "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
+      "data_mtime_utc": "2026-10-08T02:27:51Z",
+      "data_size_bytes": 377224695,
+      "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
+      "fx_mtime_utc": "2026-10-02T02:30:43Z",
+      "fx_size_bytes": 97242444
+    },
+    "arm_data_vintage": {
+      "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
+      "data_mtime_utc": "2026-10-08T02:27:51Z",
+      "data_size_bytes": 377224695,
+      "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
+      "fx_mtime_utc": "2026-10-02T02:30:43Z",
+      "fx_size_bytes": 97242444
+    }
+  },
+  "g0": {
+    "vintage_equal": true,
+    "base_reproduces_reference": true,
+    "flag_on": true,
+    "g0_pass": true
+  },
+  "full_period": {
+    "ir_base": 1.7219,
+    "ir_arm": 1.75,
+    "delta_ir": 0.0281,
+    "no_harm_bar": -0.36
+  },
+  "subperiods": [
+    {
+      "split": 1,
+      "start": "2019-01-29",
+      "end": "2021-08-17",
+      "ir_base": 1.3794,
+      "ir_arm": 1.5021,
+      "delta": 0.1227
+    },
+    {
+      "split": 2,
+      "start": "2021-08-18",
+      "end": "2024-03-08",
+      "ir_base": 1.705,
+      "ir_arm": 1.8018,
+      "delta": 0.0968
+    },
+    {
+      "split": 3,
+      "start": "2024-03-11",
+      "end": "2026-10-01",
+      "ir_base": 1.9594,
+      "ir_arm": 1.8344,
+      "delta": -0.1249
+    }
+  ],
+  "no_harm_pass": true,
+  "e1_formal_pass": false,
+  "flip_candidate": true,
+  "mechanism": {
+    "changed": [
+      "eps_rev",
+      "eps_rev_ma_63d",
+      "eps_rev_trend",
+      "mc_dxy_x_eps_rev",
+      "mc_rate_x_eps_rev",
+      "mc_slope_x_eps_rev",
+      "sales_rev_ma_63d"
+    ],
+    "n_changed_cells": 4339778,
+    "outside": [],
+    "pass": true,
+    "feature_set_equal": true
+  },
+  "mechanism_pass": true,
+  "changed_features_top": {
+    "sales_rev_ma_63d": 792749,
+    "eps_rev_ma_63d": 792747,
+    "eps_rev_trend": 792353,
+    "eps_rev": 494998,
+    "mc_dxy_x_eps_rev": 489267,
+    "mc_slope_x_eps_rev": 489010,
+    "mc_rate_x_eps_rev": 488654
+  },
+  "e2": {
+    "te_ok": true,
+    "active_share_ok": true,
+    "turnover_ok": true,
+    "fallback_zero": true
+  },
+  "e2_pass": true,
+  "companions": {
+    "te_base": 0.03761,
+    "te_arm": 0.03791,
+    "turnover_base": 0.7855,
+    "turnover_arm": 0.7693,
+    "turnover_ratio": 0.9793,
+    "active_share_base": 0.2057,
+    "active_share_arm": 0.20621,
+    "realized_beta_base": 1.0513657212758778,
+    "realized_beta_arm": 1.0521889916863931,
+    "avg_ic_base": 0.01115095709227463,
+    "avg_ic_arm": 0.011642570287968407,
+    "max_drawdown_base": -0.3198083338298975,
+    "max_drawdown_arm": -0.31684908827205394,
+    "sub_periods_metrics_base": {
+      "P1_ir": 1.4517322702737028,
+      "P2_ir": 1.1310329508743608,
+      "P3_ir": 2.4313941193573045,
+      "P4_tail_ir": 1.3660336127402797,
+      "sub_period_coverage_end": "2026-10-01"
+    },
+    "sub_periods_metrics_arm": {
+      "P1_ir": 1.5321671452565915,
+      "P2_ir": 1.3289931175390395,
+      "P3_ir": 2.2753557431682134,
+      "P4_tail_ir": 1.4758119000591703,
+      "sub_period_coverage_end": "2026-10-01"
+    },
+    "degenerate": {
+      "base": "8/31",
+      "arm": "8/31"
+    },
+    "fallback_arm": 0.0,
+    "solver_counts_arm": {
+      "ECOS": 184
+    },
+    "elapsed_sec_arm": 1146.4
+  }
+}

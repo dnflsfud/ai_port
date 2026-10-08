@@ -1,0 +1,218 @@
+{
+  "arm": "s25_4_stale_run_mask",
+  "flag": "stale_run_mask_enabled",
+  "frame": "accuracy (G0 + mechanism + E2 + no-harm; formal E1 reported only)",
+  "preregistration": "decision log §S25.4 (2026-10-08)",
+  "base_dir": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\c2\\ai_port\\outputs\\s25_3_s0recert",
+  "vintage": {
+    "base_pkl_mtime": "2026-10-08 12:13:54",
+    "arm_pkl_mtime": "2026-10-08 15:57:02",
+    "base_data_vintage": {
+      "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
+      "data_mtime_utc": "2026-10-08T02:27:51Z",
+      "data_size_bytes": 377224695,
+      "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
+      "fx_mtime_utc": "2026-10-02T02:30:43Z",
+      "fx_size_bytes": 97242444
+    },
+    "arm_data_vintage": {
+      "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
+      "data_mtime_utc": "2026-10-08T02:27:51Z",
+      "data_size_bytes": 377224695,
+      "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
+      "fx_mtime_utc": "2026-10-02T02:30:43Z",
+      "fx_size_bytes": 97242444
+    }
+  },
+  "g0": {
+    "vintage_equal": true,
+    "base_reproduces_reference": true,
+    "flag_on": true,
+    "g0_pass": true
+  },
+  "full_period": {
+    "ir_base": 1.7219,
+    "ir_arm": 1.6742,
+    "delta_ir": -0.0477,
+    "no_harm_bar": -0.36
+  },
+  "subperiods": [
+    {
+      "split": 1,
+      "start": "2019-01-29",
+      "end": "2021-08-17",
+      "ir_base": 1.3794,
+      "ir_arm": 1.4729,
+      "delta": 0.0934
+    },
+    {
+      "split": 2,
+      "start": "2021-08-18",
+      "end": "2024-03-08",
+      "ir_base": 1.705,
+      "ir_arm": 1.6995,
+      "delta": -0.0055
+    },
+    {
+      "split": 3,
+      "start": "2024-03-11",
+      "end": "2026-10-01",
+      "ir_base": 1.9594,
+      "ir_arm": 1.7567,
+      "delta": -0.2026
+    }
+  ],
+  "no_harm_pass": true,
+  "e1_formal_pass": false,
+  "flip_candidate": true,
+  "mechanism": {
+    "per_sheet": {
+      "BEST_PE_RATIO": {
+        "masked_cells": 5057,
+        "tickers": 19,
+        "top": {
+          "RBLX": 1199,
+          "SPOT": 726,
+          "TSLA": 446,
+          "AMD": 402,
+          "ADSK": 376,
+          "LYV": 376,
+          "BE": 293,
+          "COP": 268,
+          "MU": 197,
+          "DASH": 167
+        },
+        "max_run": 21
+      },
+      "BEST_PX_BPS_RATIO": {
+        "masked_cells": 27880,
+        "tickers": 44,
+        "top": {
+          "VRSN": 3045,
+          "MCD": 2470,
+          "SBUX": 1967,
+          "MSCI": 1878,
+          "LOW": 1438,
+          "RR/": 1369,
+          "FICO": 1230,
+          "HCA": 1196,
+          "MSI": 1187,
+          "MO": 1054
+        },
+        "max_run": 21
+      },
+      "BEST_PEG_RATIO": {
+        "masked_cells": 47664,
+        "tickers": 153,
+        "top": {
+          "BRK/B": 2090,
+          "RIO": 1781,
+          "NEM": 1297,
+          "FCX": 1288,
+          "RR/": 1200,
+          "NRG": 1131,
+          "TTE": 1055,
+          "ZURN": 1016,
+          "TSLA": 1000,
+          "BN": 933
+        },
+        "max_run": 21
+      },
+      "BEST_EV_TO_BEST_EBITDA": {
+        "masked_cells": 11096,
+        "tickers": 20,
+        "top": {
+          "PGR": 3125,
+          "CS": 2465,
+          "ZURN": 2119,
+          "AXP": 1608,
+          "SPOT": 374,
+          "GS": 302,
+          "KKR": 234,
+          "ADSK": 191,
+          "LNG": 163,
+          "LIN": 114
+        },
+        "max_run": 21
+      }
+    },
+    "total_masked_cells": 91697,
+    "missing_sheets": [],
+    "named_cases_missing": [],
+    "pass": true,
+    "feature_subset": {
+      "changed": [
+        "best_ev_to_best_ebitda_level_z",
+        "best_peg_ratio_level_z",
+        "best_px_bps_ratio_level_z",
+        "fin_pb_chg_63d",
+        "fin_pb_level_z",
+        "fin_pe_chg_63d",
+        "fin_pe_level_z",
+        "fin_roe_pb_gap",
+        "fin_roe_pe_gap"
+      ],
+      "n_changed_cells": 6534111,
+      "outside": [],
+      "pass": true
+    },
+    "feature_set_equal": true
+  },
+  "mechanism_pass": true,
+  "changed_features_top": {
+    "fin_roe_pb_gap": 781249,
+    "fin_pb_chg_63d": 778907,
+    "fin_pe_level_z": 734993,
+    "best_ev_to_best_ebitda_level_z": 734806,
+    "best_px_bps_ratio_level_z": 734565,
+    "fin_pb_level_z": 734565,
+    "best_peg_ratio_level_z": 733724,
+    "fin_pe_chg_63d": 663802,
+    "fin_roe_pe_gap": 637500
+  },
+  "e2": {
+    "te_ok": true,
+    "active_share_ok": true,
+    "turnover_ok": true,
+    "fallback_zero": true
+  },
+  "e2_pass": true,
+  "companions": {
+    "te_base": 0.03761,
+    "te_arm": 0.03736,
+    "turnover_base": 0.7855,
+    "turnover_arm": 0.79,
+    "turnover_ratio": 1.0057,
+    "active_share_base": 0.2057,
+    "active_share_arm": 0.20294,
+    "realized_beta_base": 1.0513657212758778,
+    "realized_beta_arm": 1.051676147399417,
+    "avg_ic_base": 0.01115095709227463,
+    "avg_ic_arm": 0.01068324419986408,
+    "max_drawdown_base": -0.3198083338298975,
+    "max_drawdown_arm": -0.31988306731199534,
+    "sub_periods_metrics_base": {
+      "P1_ir": 1.4517322702737028,
+      "P2_ir": 1.1310329508743608,
+      "P3_ir": 2.4313941193573045,
+      "P4_tail_ir": 1.3660336127402797,
+      "sub_period_coverage_end": "2026-10-01"
+    },
+    "sub_periods_metrics_arm": {
+      "P1_ir": 1.4919649599348308,
+      "P2_ir": 1.2375973819336705,
+      "P3_ir": 2.2661073154497773,
+      "P4_tail_ir": 1.1054131325647207,
+      "sub_period_coverage_end": "2026-10-01"
+    },
+    "degenerate": {
+      "base": "8/31",
+      "arm": "9/31"
+    },
+    "fallback_arm": 0.0,
+    "solver_counts_arm": {
+      "ECOS": 184
+    },
+    "elapsed_sec_arm": 1201.9
+  }
+}

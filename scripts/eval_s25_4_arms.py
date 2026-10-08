@@ -40,7 +40,10 @@ SPREAD_SHARE_MIN = 0.9
 LABEL_CHANGED_MIN = 0.99
 STALE_SHEETS = ("BEST_PE_RATIO", "BEST_PX_BPS_RATIO", "BEST_PEG_RATIO", "BEST_EV_TO_BEST_EBITDA")
 STALE_NAMED_CASES = (("BEST_PE_RATIO", "RBLX"), ("BEST_PX_BPS_RATIO", "VRSN"))
-_RATIO_TOKENS = ("pe_", "_pe", "pb_", "_pb", "peg", "ebitda")
+# P/B appears both as "pb" (fin_pb_*) and as the sheet-derived "px_bps" (best_px_bps_ratio_level_z) — both are the
+# BEST_PX_BPS_RATIO consumers named in the pre-registration ("pe/pb/peg/ebitda 토큰"); "bps" added 2026-10-08 16:02 after
+# the first run flagged best_px_bps_ratio_level_z as outside (token list error, intent unchanged; decision log §S25.4 결과 4).
+_RATIO_TOKENS = ("pe_", "_pe", "pb_", "_pb", "bps", "peg", "ebitda")
 
 ARMS = {
     "s25_4_b02_no_gradual_mask": {"flag": "revision_gradual_mask_disabled", "mechanism": "b02"},

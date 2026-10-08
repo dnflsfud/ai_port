@@ -1,0 +1,138 @@
+{
+  "arm": "s25_4_b03_winsor_first",
+  "flag": "zscore_winsor_first_enabled",
+  "frame": "accuracy (G0 + mechanism + E2 + no-harm; formal E1 reported only)",
+  "preregistration": "decision log §S25.4 (2026-10-08)",
+  "base_dir": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\c2\\ai_port\\outputs\\s25_3_s0recert",
+  "vintage": {
+    "base_pkl_mtime": "2026-10-08 12:13:54",
+    "arm_pkl_mtime": "2026-10-08 15:17:54",
+    "base_data_vintage": {
+      "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
+      "data_mtime_utc": "2026-10-08T02:27:51Z",
+      "data_size_bytes": 377224695,
+      "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
+      "fx_mtime_utc": "2026-10-02T02:30:43Z",
+      "fx_size_bytes": 97242444
+    },
+    "arm_data_vintage": {
+      "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
+      "data_mtime_utc": "2026-10-08T02:27:51Z",
+      "data_size_bytes": 377224695,
+      "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
+      "fx_mtime_utc": "2026-10-02T02:30:43Z",
+      "fx_size_bytes": 97242444
+    }
+  },
+  "g0": {
+    "vintage_equal": true,
+    "base_reproduces_reference": true,
+    "flag_on": true,
+    "g0_pass": true
+  },
+  "full_period": {
+    "ir_base": 1.7219,
+    "ir_arm": 1.9306,
+    "delta_ir": 0.2087,
+    "no_harm_bar": -0.36
+  },
+  "subperiods": [
+    {
+      "split": 1,
+      "start": "2019-01-29",
+      "end": "2021-08-17",
+      "ir_base": 1.3794,
+      "ir_arm": 1.4362,
+      "delta": 0.0568
+    },
+    {
+      "split": 2,
+      "start": "2021-08-18",
+      "end": "2024-03-08",
+      "ir_base": 1.705,
+      "ir_arm": 1.5459,
+      "delta": -0.159
+    },
+    {
+      "split": 3,
+      "start": "2024-03-11",
+      "end": "2026-10-01",
+      "ir_base": 1.9594,
+      "ir_arm": 2.5821,
+      "delta": 0.6228
+    }
+  ],
+  "no_harm_pass": true,
+  "e1_formal_pass": false,
+  "flip_candidate": true,
+  "mechanism": {
+    "n_pairs": 165146,
+    "median_ratio": 1.0521,
+    "share_ge_1": 1.0,
+    "p10_ratio": 1.0,
+    "max_ratio": 16814.0672,
+    "pass": true,
+    "changed_features": 49,
+    "feature_set_equal": true
+  },
+  "mechanism_pass": true,
+  "changed_features_top": {
+    "tg_upside": 797750,
+    "analyst_rec_level": 797749,
+    "fin_roe_pb_gap": 797748,
+    "fin_roe_pe_gap": 797698,
+    "capex_intensity_z": 796960,
+    "best_roe_level_z": 794886,
+    "fin_roe_level_z": 794886,
+    "cash_conversion_z": 794682,
+    "eps_rev_ma_63d": 792749,
+    "sales_rev_ma_63d": 792749,
+    "analyst_rec_stability": 792517,
+    "eps_rev_trend": 792500
+  },
+  "e2": {
+    "te_ok": true,
+    "active_share_ok": true,
+    "turnover_ok": true,
+    "fallback_zero": true
+  },
+  "e2_pass": true,
+  "companions": {
+    "te_base": 0.03761,
+    "te_arm": 0.03804,
+    "turnover_base": 0.7855,
+    "turnover_arm": 0.8028,
+    "turnover_ratio": 1.022,
+    "active_share_base": 0.2057,
+    "active_share_arm": 0.20206,
+    "realized_beta_base": 1.0513657212758778,
+    "realized_beta_arm": 1.0537113880027273,
+    "avg_ic_base": 0.01115095709227463,
+    "avg_ic_arm": 0.011602841927845341,
+    "max_drawdown_base": -0.3198083338298975,
+    "max_drawdown_arm": -0.3192062435722015,
+    "sub_periods_metrics_base": {
+      "P1_ir": 1.4517322702737028,
+      "P2_ir": 1.1310329508743608,
+      "P3_ir": 2.4313941193573045,
+      "P4_tail_ir": 1.3660336127402797,
+      "sub_period_coverage_end": "2026-10-01"
+    },
+    "sub_periods_metrics_arm": {
+      "P1_ir": 1.417521838747462,
+      "P2_ir": 0.9563952215244712,
+      "P3_ir": 3.041879091495589,
+      "P4_tail_ir": 2.1220345796741387,
+      "sub_period_coverage_end": "2026-10-01"
+    },
+    "degenerate": {
+      "base": "8/31",
+      "arm": "11/31"
+    },
+    "fallback_arm": 0.0,
+    "solver_counts_arm": {
+      "ECOS": 184
+    },
+    "elapsed_sec_arm": 1115.4
+  }
+}
