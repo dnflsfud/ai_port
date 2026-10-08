@@ -10134,3 +10134,7 @@ VINTAGE_PRE == POST(정본 워크북 2026-10-08 11:27:51 / Index 2026-10-02 11:3
   `RL_Universe_Data{,_oldgen_1002,_0930_1405}.xlsx`. 상위 저장소 생성기 6파일은 여전히 미커밋(사용자 결정).
 - **후속**: ① 스케줄 배치 수동 실행(테스트·챌린저·production·게시) → production 런이 1.7219 를 재현하는지 교차검증(결정론) → `ai_port_run_and_upload` 재활성화. ② 신규 Bloomberg 인출
   (터미널 로그인 필요, ≈5h) 후 `run_data_pipeline.bat` 전체 → 새 빈티지 S0′ 는 스케줄 런으로 인증. ③ F3 생성기 경화는 ② 와 함께.
+- **후속 ① 완료(13:13)**: 스케줄 배치 수동 실행(`run_and_upload_scheduled.bat`, schtasks 일회성, 12:17:47→13:13:15 EXIT 0, 커밋 8075df8 푸시).
+  **production 런이 `s25_3_s0recert` 를 비트 동일 재현**(IR 1.7218790679024922 == 1.7218790679024922, 같은 빈티지) → 결정론 교차검증 PASS, 새 S0′ 확정.
+  챌린저(iter15) 1,109s·fallback 2/92(레거시 경로, 기지). 레지스트리 `data_as_of 2026-10-01`, production gate **FAIL = HOLD**: `data_as_of_fresh_ok` False
+  (4 세션 > 3 — 신규 인출로만 해소) · `sector_active_risk_ok` False(Tech 몫 0.901 > 0.85, 기지). `ai_port_run_and_upload` 재활성화(다음 10-09 11:30), 일회성 작업 3개 삭제.
