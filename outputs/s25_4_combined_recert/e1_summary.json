@@ -1,0 +1,114 @@
+{
+  "arm": "s25_4_combined_recert",
+  "frame": "combined re-certification (G0 + E2 + no-harm vs s25_3_s0recert)",
+  "preregistration": "decision log §S25.4",
+  "vintage": {
+    "base_pkl_mtime": "2026-10-08 12:13:54",
+    "arm_pkl_mtime": "2026-10-08 16:24:45",
+    "data_vintage": {
+      "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
+      "data_mtime_utc": "2026-10-08T02:27:51Z",
+      "data_size_bytes": 377224695,
+      "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
+      "fx_mtime_utc": "2026-10-02T02:30:43Z",
+      "fx_size_bytes": 97242444
+    }
+  },
+  "g0": {
+    "vintage_equal": true,
+    "base_reproduces_reference": true,
+    "flags_on": {
+      "revision_gradual_mask_disabled": true,
+      "zscore_winsor_first_enabled": true,
+      "label_execution_lag_enabled": true,
+      "stale_run_mask_enabled": true
+    },
+    "g0_pass": true
+  },
+  "full_period": {
+    "ir_base": 1.7219,
+    "ir_arm": 1.823,
+    "delta_ir": 0.1011,
+    "no_harm_bar": -0.36
+  },
+  "subperiods": [
+    {
+      "split": 1,
+      "start": "2019-01-29",
+      "end": "2021-08-17",
+      "ir_base": 1.3794,
+      "ir_arm": 1.4479,
+      "delta": 0.0685
+    },
+    {
+      "split": 2,
+      "start": "2021-08-18",
+      "end": "2024-03-08",
+      "ir_base": 1.705,
+      "ir_arm": 1.5123,
+      "delta": -0.1927
+    },
+    {
+      "split": 3,
+      "start": "2024-03-11",
+      "end": "2026-10-01",
+      "ir_base": 1.9594,
+      "ir_arm": 2.3302,
+      "delta": 0.3708
+    }
+  ],
+  "no_harm_pass": true,
+  "e2": {
+    "te_ok": true,
+    "active_share_ok": true,
+    "turnover_ok": true,
+    "fallback_zero": true
+  },
+  "e2_pass": true,
+  "certified": true,
+  "feature_set_equal": true,
+  "split_audit_horizon": [
+    21
+  ],
+  "stale_run_mask_cells": {
+    "BEST_PE_RATIO": 5057,
+    "BEST_PEG_RATIO": 47664,
+    "BEST_PX_BPS_RATIO": 27880,
+    "BEST_EV_TO_BEST_EBITDA": 11096
+  },
+  "new_s0_prime": {
+    "information_ratio": 1.8229575020692097,
+    "tracking_error": 0.03727704435914501,
+    "avg_annual_turnover": 0.7811536364080051,
+    "active_share": 0.20514908651056393,
+    "realized_beta": 1.05835201558069,
+    "avg_ic": 0.0063146224288162245,
+    "max_drawdown": -0.3232950344747224,
+    "sub_periods": {
+      "P1_ir": 1.3944001800595607,
+      "P2_ir": 0.9578525666698405,
+      "P3_ir": 2.8932733285502685,
+      "P4_tail_ir": 1.5869477556228124,
+      "sub_period_coverage_end": "2026-10-01"
+    }
+  },
+  "companions": {
+    "te_base": 0.03761465102641653,
+    "te_arm": 0.03727704435914501,
+    "turnover_ratio": 0.9944,
+    "active_share_base": 0.2056971027358927,
+    "active_share_arm": 0.20514908651056393,
+    "realized_beta_arm": 1.05835201558069,
+    "avg_ic_arm": 0.0063146224288162245,
+    "max_drawdown_arm": -0.3232950344747224,
+    "degenerate": {
+      "base": "8/31",
+      "arm": "7/31"
+    },
+    "fallback_arm": 0.0,
+    "solver_counts_arm": {
+      "ECOS": 184
+    },
+    "elapsed_sec_arm": 1187.3
+  }
+}
