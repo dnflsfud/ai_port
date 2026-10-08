@@ -10059,3 +10059,30 @@ vs 선택 +6.11%(IR 1.79; 배분 제거 시 IR 불변) · Tech 는 선택 수익
   `variants/s25_2_label63.yaml`(동결 arm 파일, 수정 금지).
 - DSR 해킷(`run_selection_bias.py --auto --label s25_2_label63`, N=476): 음의 ΔIR 이라 승격 근거로 쓸 일이 없어 참고로만 기록 — `SELECTION BIAS GATE: **FAIL**`
   (DSR p 0.3256, 조정 SR 0.16, 해킷 1.272; §S24.2 와 같은 급). 인벤토리 476 유지(측정 완료). `outputs/reports/selection_bias_report.md` 는 스크립트 고정 경로라 arm 기준으로 덮어써진 것을 production 버전으로 복원(수치는 이 절에 기록).
+
+## S25.3 — 워크북 재생성(§S25·§S25.1 발효) + 구/신 생성기 쌍 + S0′ 재인증 사전등록 (2026-10-08 10:35, 사용자 지시 "1번 워크북 재생성부터 진행" · 정확성 트랙 · 인벤토리 비계수 · 측정 전 기록)
+
+- **원천**: Bloomberg 터미널이 현재 미실행(wintrv/bbcomm 없음)이라 신규 인출 불가 → `Data/S&P500.xlsx` **2026-10-02 16:10 전체 인출분**(31시트, 전 시트
+  2026-10-02 행까지; Index.xlsx 10-02 11:30 — 같은 날 11:00경 시작한 `price_v4` 전체 런으로 보임, 소요 ≈5h)을 사용. 09-30 14:27 워크북은 이 인출분을
+  아직 반영하지 않았다. 생성기 완료일 컷오프로 패널 마지막 날 = **2026-10-01**. `news_sentiment_trend_analyzer.py`(블룸버그 필요)는 생략하고
+  `Sentiment_Trend_Analysis.xlsx`(09-30 13:52)를 그대로 소비(Sent_Trend 시트는 09-29 까지 → 2일 꼬리 ffill, `max_tail_ffill_days 10` 이내).
+  신규 인출(데이터 10-07 종가까지)은 사용자가 터미널 로그인 후 `run_data_pipeline.bat` 전체 실행으로 — 그때 S0′ 는 스케줄 런으로 다시 인증된다.
+- **쌍 생성**(`scratchpad/regen_pair.sh`, 기록용 사본 `outputs/s25_audit/11_regen_pair.sh`): 같은 인출분에서 ① **구 생성기** = 현 작업트리에서 10-07 호출부
+  2곳만 제거(`create_universe_data` 의 `mask_sheet_prefix`·`clean_sheet_values` 호출, `create_ai_signal_data.load_sp500_sheet` 의 `mask_backfilled_prefix` 블록;
+  `stale_earnings_tickers` 는 경고만이라 유지) → `ai_signal_data_oldgen_1002.xlsx`; ② **신 생성기** = 작업트리 그대로 → 정본 `ai_signal_data.xlsx`.
+  HEAD(08-26)는 9월 변경(완료일 컷오프·1BF2BF 시트)이 없어 구 생성기로 쓸 수 없다. 09-30 워크북은 `ai_signal_data_0930_1427.xlsx` 로 보존.
+- **런**: `variants/s25_3_oldgen_1002.yaml`(production overrides + `data_path` 1필드 → 구 워크북, sha256 `6d6c9aa08751eaf2…`) vs
+  `variants/s25_3_s0recert.yaml`(production overrides 바이트 동일, overrides diff `{}`, sha256 `899ec7332e1cb722…`). 둘 다 `--no-cache`, 단일 ECOS,
+  `run_variant_task.ps1`. 10-08 11:30 스케줄 production 런이 신 워크북으로 먼저 돌면 그 결과(`outputs/codex_causal_rank_65`)와 `s25_3_s0recert` 는 같은
+  config·같은 빈티지라 수치가 일치해야 한다(결정론 교차검증).
+- **판정(정확성 프레임, §S23.1 패턴: 기전 ∧ E2 ∧ 무해성 관측; ΔIR 은 채택 근거 아님)**:
+  - 기전(워크북 수준, `outputs/s25_audit/11_pair_workbook_diff.py`): 구→신 차이는 **"구 비결측 → 신 NaN" 셀뿐**(그 외 값 변화·NaN→값 0), 시트 집합·날짜
+    범위·티커 열 동일. 확인 사례: UBER BEST_PE_RATIO 접두 2022-12 이전 NaN, FICO BEST_ROE 2021-01 이전, AON EQY_REC_CONS 2020-03 이전,
+    CS OPER_MARGIN 전 구간 NaN, NEWS_SENTIMENT [-1,1] 밖 0. 마스킹 셀 수를 시트·티커별로 기록.
+  - 기전(모델 수준): 신 런의 레벨 소비 피처(`fin_roe_pe_gap`·`best_roe_level_z`·`analyst_rec_level` 등) 커버리지 시작일이 구 런과 달라지는 것 외
+    구조 변화 없음(피처 집합 동일).
+  - E2: TE ≤ 4.5% · |ΔAS| ≤ 3%p · 회전율 ≤ 1.25× · fallback 0. 무해성(ΔIR > −0.36 ∧ 3분할 전부 음 아님)은 관측.
+  - 결과와 무관하게 **신 생성기 워크북이 정본**(정확성 수정 — §S25·§S25.1 에서 이미 채택). 신 런의 수치가 **새 S0′**(09-30 빈티지 1.8328 은퇴).
+    무해성이 깨지면 원인(마스킹 셀이 어느 피처로 유입)을 분해해 기록하되 롤백은 하지 않는다(룩어헤드 복원은 선택지가 아님).
+- **알려진 한계(사전 명시)**: 데이터 기준일 10-01 → 10-08 기준 4세션 경과라 `data_as_of_fresh_ok` 는 여전히 False(HOLD) — 신규 인출로만 해소.
+  라이브 꼬리 동결(§S25 미해결)은 이 재생성으로 바뀌지 않는다. 로더가 새 NaN 접두를 횡단면 중앙값으로 채우므로 chg 피처 커버리지 시작일에 1회 블립 가능.
