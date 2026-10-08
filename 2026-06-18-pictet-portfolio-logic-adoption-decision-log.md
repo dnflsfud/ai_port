@@ -10240,3 +10240,4 @@ VINTAGE_PRE == POST(정본 워크북 2026-10-08 11:27:51 / Index 2026-10-02 11:3
 1. **B-02 `revision_gradual_mask_disabled: true`** — 근거 §S25.4 결과 1(정확성: 완만 하락 마스크가 리비전 패널 절반 이상을 동결). 핀: acceptance allowlist 5파일 ·
    `test_residual_sleeve.py` · `test_s17_nominal_price.py` · `test_s18_fixes.py`. 롤백 = yaml 1줄 삭제(default-OFF, 바이트 동일 복원).
 2. **B-03 `zscore_winsor_first_enabled: true`** — 근거 §S25.4 결과 2(정확성: 이상치 1개가 횡단면 14%를 >2× 압축). 같은 핀 8파일. 롤백 = yaml 1줄 삭제.
+3. **B-05 `label_execution_lag_enabled: true`** — 근거 §S25.4 결과 3(정확성: 라벨창을 실행 가능 구간으로, 퍼지/엠바고 21 정합). 같은 핀 8파일. 롤백 = yaml 1줄 삭제.

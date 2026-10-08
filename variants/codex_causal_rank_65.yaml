@@ -419,3 +419,17 @@ overrides:
   # no-harm PASS; observation only), degenerate 8 -> 11/31. Rollback = delete this
   # line (default-OFF, byte-identical restore certified by unit tests).
   zscore_winsor_first_enabled: true
+
+  # S25.4 (2026-10-08): B-05 — the label window started at t+1 while the book can
+  # only trade at t+execution_signal_lag_days (1). ON shifts the label window by
+  # that lag and the causal split purge/embargo by the same amount
+  # (effective_label_horizon 21). Adopted by user decision on correctness grounds —
+  # decision log S25.4 결과 3 / Production flips. Pre-registered arm
+  # outputs/s25_4_b05_label_lag vs s25_3_s0recert (same vintage): G0 PASS,
+  # mechanism PASS (split audit 31/31 horizon 21 / embargo >= 21 / causal_ok, 100%
+  # of label cells changed, feature panel bit-identical), E2 PASS (TE 3.78%,
+  # turnover 0.998x, AS -0.11pp, fallback 0), IR 1.7219 -> 1.7730 (dIR +0.051,
+  # splits -0.009/+0.157/+0.014, no-harm PASS; observation only; avg_ic not
+  # comparable across label definitions). Rollback = delete this line (default-
+  # OFF, byte-identical restore certified by unit tests).
+  label_execution_lag_enabled: true

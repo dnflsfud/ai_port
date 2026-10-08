@@ -285,7 +285,8 @@ S23_2_PRE_FLIP_VALUES = {"fwd_sales_slope_features_enabled": True}
 S23_2_ADDED_FLAGS = ("pca_target_uncentered_enabled",
                      "option_vol_scale_lag_enabled",  # S23.3 flip (2026-09-29)
                      "revision_gradual_mask_disabled",  # S25.4 B-02 promotion (2026-10-08)
-                     "zscore_winsor_first_enabled")  # S25.4 B-03 promotion (2026-10-08)
+                     "zscore_winsor_first_enabled",  # S25.4 B-03 promotion (2026-10-08)
+                     "label_execution_lag_enabled")  # S25.4 B-05 promotion (2026-10-08)
 
 
 # S24.3 flip (2026-09-30, decision log §S24.3): RTX/T removed from tg_basis_events on
