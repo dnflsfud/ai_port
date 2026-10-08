@@ -1,0 +1,152 @@
+{
+  "arm": "s25_2_label63",
+  "frame": "performance",
+  "adoption_basis": "formal E1 (dIR > +0.36 and all 3 splits positive) with G0, mechanism, E2; override candidate (dIR > 0, all splits positive, gates) reported only — user decision + DSR haircut",
+  "interpretation_matrix": {
+    "axis_closed": "mechanism (b) FAIL -> G4-01 SHELVE and the two-model mu combination is rejected too",
+    "two_model_followup": "mechanism PASS and formal E1 missed -> G4-01 not adopted; two-model mu combination is the next pre-registration",
+    "adoption_candidate": "G0, mechanism, E2 and formal E1 -> flip candidate after DSR haircut, user decision"
+  },
+  "preregistration": "decision log §S25.2 (2026-10-07)",
+  "base_dir": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\c2\\ai_port\\outputs\\s24_3_tg_events_a",
+  "vintage": {
+    "base_pkl_mtime": "2026-09-30 19:29:35",
+    "arm_pkl_mtime": "2026-10-08 10:08:25",
+    "base_data_vintage": {
+      "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
+      "data_mtime_utc": "2026-09-30T05:27:35Z",
+      "data_size_bytes": 392851329,
+      "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
+      "fx_mtime_utc": "2026-09-30T02:31:05Z",
+      "fx_size_bytes": 97194523
+    },
+    "arm_data_vintage": {
+      "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
+      "data_mtime_utc": "2026-09-30T05:27:35Z",
+      "data_size_bytes": 392851329,
+      "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
+      "fx_mtime_utc": "2026-10-02T02:30:43Z",
+      "fx_size_bytes": 97242444
+    },
+    "fx_inert_proof_dir": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\c2\\ai_port\\outputs\\s25_2_label63_fx_proof",
+    "fx_inert_proof_vintage": {
+      "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
+      "data_mtime_utc": "2026-09-30T05:27:35Z",
+      "data_size_bytes": 392851329,
+      "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
+      "fx_mtime_utc": "2026-10-02T02:30:43Z",
+      "fx_size_bytes": 97242444
+    },
+    "fx_inert_proof_ir": 1.8327704100987559
+  },
+  "g0": {
+    "workbook_equal": true,
+    "fx_equal": false,
+    "base_reproduces_reference": true,
+    "fx_inert_proven": true,
+    "g0_pass": true
+  },
+  "full_period": {
+    "ir_base": 1.8328,
+    "ir_arm": 1.4544,
+    "delta_ir": -0.3783,
+    "e1_bar": 0.36
+  },
+  "subperiods": [
+    {
+      "split": 1,
+      "start": "2019-01-29",
+      "end": "2021-08-16",
+      "ir_base": 1.5228,
+      "ir_arm": 1.0144,
+      "delta": -0.5084
+    },
+    {
+      "split": 2,
+      "start": "2021-08-17",
+      "end": "2024-03-07",
+      "ir_base": 1.7444,
+      "ir_arm": 1.6901,
+      "delta": -0.0543
+    },
+    {
+      "split": 3,
+      "start": "2024-03-08",
+      "end": "2026-09-29",
+      "ir_base": 2.0879,
+      "ir_arm": 1.5505,
+      "delta": -0.5374
+    }
+  ],
+  "e1_formal_pass": false,
+  "no_harm_pass": false,
+  "adoption_candidate": false,
+  "override_candidate": false,
+  "two_model_followup": false,
+  "axis_closed": true,
+  "turnover_reduced": false,
+  "mechanism": {
+    "split_audit": {
+      "n_retrains": 31,
+      "horizon": 63,
+      "offending_retrains": [],
+      "pass": true
+    },
+    "label_ic_63d": {
+      "n_dates": 89,
+      "ic63_base_mean": 0.02988,
+      "ic63_arm_mean": 0.02734,
+      "delta_mean": -0.00254,
+      "paired_t": -0.473,
+      "share_arm_higher": 0.438,
+      "pass": false
+    },
+    "pass": false,
+    "note": "base predictions (20d model) and arm predictions (63d model) are both scored against the arm's 63d PCA-residual label on the common rebalance dates; the stored ic_series of the two runs use different labels and are NOT comparable"
+  },
+  "e2": {
+    "te_ok": true,
+    "active_share_ok": true,
+    "turnover_ok": true,
+    "fallback_zero": true
+  },
+  "e2_pass": true,
+  "companions": {
+    "te_base": 0.0379,
+    "te_arm": 0.03507,
+    "turnover_base": 0.7947,
+    "turnover_arm": 0.749,
+    "turnover_ratio": 0.9426,
+    "active_share_base": 0.20438,
+    "active_share_arm": 0.20588,
+    "realized_beta_base": 1.049029018816704,
+    "realized_beta_arm": 1.052804570490522,
+    "avg_ic_base_vs_own_20d_label": 0.014495241253020631,
+    "avg_ic_arm_vs_own_63d_label": 0.02733960351966882,
+    "max_drawdown_base": -0.3237472117840491,
+    "max_drawdown_arm": -0.3159144328838689,
+    "sub_periods_metrics_base": {
+      "P1_ir": 1.4648988893809183,
+      "P2_ir": 1.2922517574555858,
+      "P3_ir": 2.600033715142855,
+      "P4_tail_ir": 1.4721575063178862,
+      "sub_period_coverage_end": "2026-09-29"
+    },
+    "sub_periods_metrics_arm": {
+      "P1_ir": 1.0851524195691804,
+      "P2_ir": 0.9239061273982618,
+      "P3_ir": 2.2587985789358522,
+      "P4_tail_ir": 0.9529580309190843,
+      "sub_period_coverage_end": "2026-09-29"
+    },
+    "degenerate": {
+      "base": "12/31",
+      "arm": "8/31"
+    },
+    "fallback_arm": 0.0,
+    "solver_counts_arm": {
+      "ECOS": 184
+    },
+    "elapsed_sec_arm": 64672.9
+  }
+}
