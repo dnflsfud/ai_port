@@ -1,0 +1,334 @@
+{
+  "pair": {
+    "old": "s25_3_oldgen_1002",
+    "new": "s25_3_s0recert"
+  },
+  "frame": "correctness: mechanism and E2 certify the new-generator workbook as S0'; dIR is an observation",
+  "preregistration": "decision log §S25.3 (2026-10-08)",
+  "vintage": {
+    "old_data_vintage": {
+      "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data_oldgen_1002.xlsx",
+      "data_mtime_utc": "2026-10-08T01:58:21Z",
+      "data_size_bytes": 393010875,
+      "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
+      "fx_mtime_utc": "2026-10-02T02:30:43Z",
+      "fx_size_bytes": 97242444
+    },
+    "new_data_vintage": {
+      "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
+      "data_mtime_utc": "2026-10-08T02:27:51Z",
+      "data_size_bytes": 377224695,
+      "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
+      "fx_mtime_utc": "2026-10-02T02:30:43Z",
+      "fx_size_bytes": 97242444
+    },
+    "old_pkl_mtime": "2026-10-08 11:51:10",
+    "new_pkl_mtime": "2026-10-08 12:13:54"
+  },
+  "mechanism": {
+    "workbook": {
+      "probe": {
+        "sheet_sets_equal": true,
+        "other_changes_none": false,
+        "other_changes_sheets": [
+          "Summary_Stats",
+          "downside_skew_z",
+          "iv30_z",
+          "iv_term_structure_z",
+          "vol_risk_premium_z"
+        ],
+        "other_changes_only_derived": true,
+        "z_beyond_other_zero": true,
+        "z_classification": {
+          "iv30_z": {
+            "within_window_changes": 35817,
+            "beyond_window_cells": 6137,
+            "beyond_nan_to_zero": 4614,
+            "beyond_zero_to_nan": 1523,
+            "beyond_other": 0,
+            "beyond_tickers": [
+              "6981",
+              "7011"
+            ]
+          },
+          "iv_term_structure_z": {
+            "within_window_changes": 35558,
+            "beyond_window_cells": 4705,
+            "beyond_nan_to_zero": 4705,
+            "beyond_zero_to_nan": 0,
+            "beyond_other": 0,
+            "beyond_tickers": [
+              "6981",
+              "7011"
+            ]
+          },
+          "downside_skew_z": {
+            "within_window_changes": 35976,
+            "beyond_window_cells": 6822,
+            "beyond_nan_to_zero": 2816,
+            "beyond_zero_to_nan": 4006,
+            "beyond_other": 0,
+            "beyond_tickers": [
+              "6981",
+              "9432"
+            ]
+          },
+          "vol_risk_premium_z": {
+            "within_window_changes": 42067,
+            "beyond_window_cells": 0,
+            "beyond_nan_to_zero": 0,
+            "beyond_zero_to_nan": 0,
+            "beyond_other": 0,
+            "beyond_tickers": []
+          }
+        },
+        "shape_or_index_issues": false
+      },
+      "total_masked_cells": 3762624,
+      "masked_sheet_ticker_pairs": 9589,
+      "masked_by_sheet": {
+        "BEST_SALES_2FY": 635323,
+        "BEST_SALES_1FY": 586000,
+        "BEST_GROSS_MARGIN": 147823,
+        "BEST_CAPEX": 113965,
+        "BEST_EV_TO_BEST_EBITDA": 112201,
+        "BEST_CALCULATED_FCF": 104348,
+        "SHORT_INT_RATIO": 101528,
+        "BEST_PEG_RATIO": 90459,
+        "OPER_MARGIN": 86529,
+        "EQY_REC_CONS": 78066,
+        "BEST_PX_BPS_RATIO": 77584,
+        "BEST_PE_RATIO": 73367,
+        "BEST_ROE": 71765,
+        "vol_risk_premium": 70222,
+        "1M_PUT_IMP_VOL_25DELTA_DFLT": 70049,
+        "1M_CALL_IMP_VOL_25DELTA_DFLT": 70049,
+        "downside_skew": 70049,
+        "downside_skew_chg_5d": 70049,
+        "30DAY_IMPVOL_100.0%MNY_DF": 69884,
+        "3MTH_IMPVOL_100.0%MNY_DF": 69884,
+        "30DAY_IMPVOL_90.0%MNY_DF": 69884,
+        "30DAY_IMPVOL_110.0%MNY_DF": 69884,
+        "iv_term_structure": 69884,
+        "iv30": 69884,
+        "BEST_SALES_2BF": 68366,
+        "BEST_EPS": 66561,
+        "BEST_SALES": 66293,
+        "VOLATILITY_30D": 64076,
+        "PX_VOLUME": 63384,
+        "CUR_MKT_CAP": 63380,
+        "Daily_Returns": 63365,
+        "PX_LAST_UNADJ": 63365,
+        "PX_LAST": 63365,
+        "PUT_CALL_OPEN_INTEREST_RATIO": 57890,
+        "NEWS_SENTIMENT_DAILY_AVG": 44226,
+        "vol_risk_premium_z": 10709,
+        "downside_skew_z": 8632,
+        "iv30_z": 5992,
+        "iv_term_structure_z": 4340
+      },
+      "all_masked_columns": [
+        [
+          "BEST_CAPEX",
+          "BN"
+        ],
+        [
+          "BEST_GROSS_MARGIN",
+          "SCHW"
+        ],
+        [
+          "BEST_GROSS_MARGIN",
+          "ICE"
+        ],
+        [
+          "BEST_GROSS_MARGIN",
+          "MRSH"
+        ],
+        [
+          "OPER_MARGIN",
+          "CS"
+        ],
+        [
+          "SHORT_INT_RATIO",
+          "AZN"
+        ],
+        [
+          "SHORT_INT_RATIO",
+          "ABBN"
+        ],
+        [
+          "SHORT_INT_RATIO",
+          "9432"
+        ],
+        [
+          "SHORT_INT_RATIO",
+          "6758"
+        ],
+        [
+          "SHORT_INT_RATIO",
+          "ASM"
+        ],
+        [
+          "SHORT_INT_RATIO",
+          "6857"
+        ],
+        [
+          "SHORT_INT_RATIO",
+          "8306"
+        ],
+        [
+          "downside_skew_z",
+          "285A"
+        ],
+        [
+          "iv30_z",
+          "285A"
+        ],
+        [
+          "iv_term_structure_z",
+          "285A"
+        ],
+        [
+          "vol_risk_premium_z",
+          "285A"
+        ]
+      ],
+      "expected_cases": {
+        "BEST_PE_RATIO/UBER": {
+          "sheet": "BEST_PE_RATIO",
+          "ticker": "UBER",
+          "masked_cells": 3262,
+          "first_masked": "2014-01-02",
+          "last_masked": "2022-12-07",
+          "first_valid_new": "2022-12-08",
+          "old_value_at_first_masked": 21736.278,
+          "all_masked": false
+        },
+        "BEST_ROE/FICO": {
+          "sheet": "BEST_ROE",
+          "ticker": "FICO",
+          "masked_cells": 2577,
+          "first_masked": "2014-01-01",
+          "last_masked": "2021-01-20",
+          "first_valid_new": "2021-01-21",
+          "old_value_at_first_masked": 69.479,
+          "all_masked": false
+        },
+        "EQY_REC_CONS/AON": {
+          "sheet": "EQY_REC_CONS",
+          "ticker": "AON",
+          "masked_cells": 2281,
+          "first_masked": "2014-01-01",
+          "last_masked": "2020-03-30",
+          "first_valid_new": "2020-03-31",
+          "old_value_at_first_masked": 5.0,
+          "all_masked": false
+        },
+        "OPER_MARGIN/CS": {
+          "sheet": "OPER_MARGIN",
+          "ticker": "CS",
+          "masked_cells": 4634,
+          "first_masked": "2014-01-24",
+          "last_masked": "2026-10-01",
+          "first_valid_new": null,
+          "old_value_at_first_masked": 100.0,
+          "all_masked": true
+        }
+      },
+      "missing_expected": [],
+      "pass": true
+    },
+    "model": {
+      "only_old": [],
+      "only_new": [],
+      "n_old": 61,
+      "n_new": 61,
+      "pass": true
+    },
+    "pass": true
+  },
+  "e2": {
+    "te_ok": true,
+    "active_share_ok": true,
+    "turnover_ok": true,
+    "fallback_zero": true
+  },
+  "e2_pass": true,
+  "full_period": {
+    "ir_old": 1.8009,
+    "ir_new": 1.7219,
+    "delta_ir": -0.079,
+    "no_harm_bar": -0.36
+  },
+  "subperiods": [
+    {
+      "split": 1,
+      "start": "2019-01-29",
+      "end": "2021-08-17",
+      "ir_old": 1.3089,
+      "ir_new": 1.3794,
+      "delta": 0.0706
+    },
+    {
+      "split": 2,
+      "start": "2021-08-18",
+      "end": "2024-03-08",
+      "ir_old": 1.8902,
+      "ir_new": 1.705,
+      "delta": -0.1853
+    },
+    {
+      "split": 3,
+      "start": "2024-03-11",
+      "end": "2026-10-01",
+      "ir_old": 2.0779,
+      "ir_new": 1.9594,
+      "delta": -0.1185
+    }
+  ],
+  "no_harm_pass": true,
+  "certified": true,
+  "new_s0_prime": {
+    "information_ratio": 1.7218790679024922,
+    "tracking_error": 0.03761465102641653,
+    "avg_annual_turnover": 0.7855167439867037,
+    "active_share": 0.2056971027358927,
+    "realized_beta": 1.0513657212758778,
+    "avg_ic": 0.01115095709227463,
+    "max_drawdown": -0.3198083338298975,
+    "sub_periods": {
+      "P1_ir": 1.4517322702737028,
+      "P2_ir": 1.1310329508743608,
+      "P3_ir": 2.4313941193573045,
+      "P4_tail_ir": 1.3660336127402797,
+      "sub_period_coverage_end": "2026-10-01"
+    }
+  },
+  "companions": {
+    "te_old": 0.0379,
+    "te_new": 0.03761,
+    "turnover_old": 0.783,
+    "turnover_new": 0.7855,
+    "turnover_ratio": 1.0032,
+    "active_share_old": 0.20488,
+    "active_share_new": 0.2057,
+    "realized_beta_old": 1.0517126246027917,
+    "realized_beta_new": 1.0513657212758778,
+    "avg_ic_old": 0.01329900273482439,
+    "avg_ic_new": 0.01115095709227463,
+    "max_drawdown_old": -0.3248728468932347,
+    "max_drawdown_new": -0.3198083338298975,
+    "degenerate": {
+      "old": "10/31",
+      "new": "8/31"
+    },
+    "fallback_new": 0.0,
+    "solver_counts_new": {
+      "ECOS": 184
+    },
+    "elapsed_sec": {
+      "old": 1325.6,
+      "new": 1355.3
+    }
+  }
+}

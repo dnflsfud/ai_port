@@ -24,8 +24,16 @@ def std(df):
 
 old_path, new_path, out_csv = sys.argv[1:4]
 t = time.time()
-old = load_all_sheets(old_path); print("old loaded", len(old), round(time.time() - t))
-new = load_all_sheets(new_path); print("new loaded", len(new), round(time.time() - t))
+import pickle, os
+def cached(path, tag):
+    cache = os.path.join(os.path.dirname(out_csv), f"wb_cache_{tag}.pkl")
+    if os.path.exists(cache):
+        return pickle.load(open(cache, "rb"))
+    d = load_all_sheets(path)
+    pickle.dump(d, open(cache, "wb"), protocol=4)
+    return d
+old = cached(old_path, "old"); print("old loaded", len(old), round(time.time() - t))
+new = cached(new_path, "new"); print("new loaded", len(new), round(time.time() - t))
 
 print("sheet sets equal:", set(old) == set(new), "| only old:", sorted(set(old) - set(new)), "| only new:", sorted(set(new) - set(old)))
 rows = []
@@ -41,8 +49,8 @@ for name in sorted(set(old) & set(new)):
     masked = an.notna() & bn.isna()
     unmasked = an.isna() & bn.notna()
     both = an.notna() & bn.notna()
-    changed = both & ~np.isclose(an.fillna(0).to_numpy(), bn.fillna(0).to_numpy(), rtol=0, atol=1e-9, equal_nan=True)
-    n_masked, n_unmasked, n_changed = int(masked.to_numpy().sum()), int(unmasked.to_numpy().sum()), int(changed.sum())
+    changed = both.to_numpy(dtype=bool) & ~np.isclose(an.fillna(0).to_numpy(dtype=float), bn.fillna(0).to_numpy(dtype=float), rtol=0, atol=1e-9, equal_nan=True)
+    n_masked, n_unmasked, n_changed = int(masked.to_numpy(dtype=bool).sum()), int(unmasked.to_numpy(dtype=bool).sum()), int(changed.sum())
     if n_unmasked or n_changed:
         other_changes[name] = (n_unmasked, n_changed)
     if n_masked:
@@ -50,7 +58,7 @@ for name in sorted(set(old) & set(new)):
         per_ticker = per_ticker[per_ticker > 0].sort_values(ascending=False)
         idx = pd.to_datetime(an.index, errors="coerce") if not isinstance(an.index, pd.DatetimeIndex) else an.index
         for tk, cnt in per_ticker.items():
-            m = masked[tk].to_numpy()
+            m = masked[tk].to_numpy(dtype=bool)
             first_masked = idx[m].min(); last_masked = idx[m].max()
             first_new_valid = idx[bn[tk].notna().to_numpy()].min() if bn[tk].notna().any() else pd.NaT
             rows.append({"sheet": name, "ticker": tk, "masked_cells": int(cnt),
@@ -62,6 +70,34 @@ for name in sorted(set(old) & set(new)):
 df = pd.DataFrame(rows)
 df.to_csv(out_csv, index=False)
 print("\nOTHER changes (unmasked / value-changed cells) by sheet:", other_changes or "NONE")
+# Derived 252D rolling z sheets legitimately change in the window after a masked raw prefix; beyond that window the only
+# admissible difference is a NaN<->0.0 flip inside a constant run (pandas rolling-std floating state). Classify and save.
+import json
+Z_PAIRS = {"iv30_z": "iv30", "iv_term_structure_z": "iv_term_structure", "downside_skew_z": "downside_skew", "vol_risk_premium_z": "vol_risk_premium"}
+zclass = {}
+for z, raw in Z_PAIRS.items():
+    if z not in new or raw not in new:
+        continue
+    a, b = std(old[z]).apply(pd.to_numeric, errors="coerce"), std(new[z]).apply(pd.to_numeric, errors="coerce")
+    ra, rb = std(old[raw]).apply(pd.to_numeric, errors="coerce"), std(new[raw]).apply(pd.to_numeric, errors="coerce")
+    masked_raw = (ra.notna() & rb.isna()).to_numpy(dtype=bool)
+    within = np.zeros(a.shape, bool)
+    for j in range(a.shape[1]):
+        m = masked_raw[:, j]
+        last = np.where(m)[0].max() if m.any() else -1
+        within[: last + 253, j] = True
+    status_diff = (a.notna() != b.notna()).to_numpy(dtype=bool)
+    val_diff = (a.notna() & b.notna()).to_numpy(dtype=bool) & ~np.isclose(a.fillna(0).to_numpy(dtype=float), b.fillna(0).to_numpy(dtype=float), atol=1e-9)
+    beyond = ~within & (status_diff | val_diff)
+    av, bv = a.to_numpy(dtype=float), b.to_numpy(dtype=float)
+    nan_to_zero = beyond & np.isnan(av) & (bv == 0.0)
+    zero_to_nan = beyond & np.isnan(bv) & (av == 0.0)
+    other = beyond & ~nan_to_zero & ~zero_to_nan
+    zclass[z] = {"within_window_changes": int(((status_diff | val_diff) & within).sum()), "beyond_window_cells": int(beyond.sum()),
+                 "beyond_nan_to_zero": int(nan_to_zero.sum()), "beyond_zero_to_nan": int(zero_to_nan.sum()), "beyond_other": int(other.sum()),
+                 "beyond_tickers": sorted(set(a.columns[beyond.any(axis=0)]))}
+json.dump(zclass, open(out_csv.replace(".csv", "_zclass.json"), "w", encoding="utf-8"), indent=1)
+print("Z-SHEET CLASSIFICATION:", json.dumps(zclass))
 if len(df):
     print("\nmasked cells by sheet:\n", df.groupby("sheet")["masked_cells"].agg(["sum", "count"]).sort_values("sum", ascending=False).to_string())
     print("\ntop 25 (sheet, ticker):\n", df.sort_values("masked_cells", ascending=False).head(25).to_string(index=False))

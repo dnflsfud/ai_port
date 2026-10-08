@@ -1,0 +1,43 @@
+{
+ "iv30_z": {
+  "within_window_changes": 35817,
+  "beyond_window_cells": 6137,
+  "beyond_nan_to_zero": 4614,
+  "beyond_zero_to_nan": 1523,
+  "beyond_other": 0,
+  "beyond_tickers": [
+   "6981",
+   "7011"
+  ]
+ },
+ "iv_term_structure_z": {
+  "within_window_changes": 35558,
+  "beyond_window_cells": 4705,
+  "beyond_nan_to_zero": 4705,
+  "beyond_zero_to_nan": 0,
+  "beyond_other": 0,
+  "beyond_tickers": [
+   "6981",
+   "7011"
+  ]
+ },
+ "downside_skew_z": {
+  "within_window_changes": 35976,
+  "beyond_window_cells": 6822,
+  "beyond_nan_to_zero": 2816,
+  "beyond_zero_to_nan": 4006,
+  "beyond_other": 0,
+  "beyond_tickers": [
+   "6981",
+   "9432"
+  ]
+ },
+ "vol_risk_premium_z": {
+  "within_window_changes": 42067,
+  "beyond_window_cells": 0,
+  "beyond_nan_to_zero": 0,
+  "beyond_zero_to_nan": 0,
+  "beyond_other": 0,
+  "beyond_tickers": []
+ }
+}

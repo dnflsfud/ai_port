@@ -1,0 +1,87 @@
+old loaded 60 1
+new loaded 60 1
+sheet sets equal: True | only old: [] | only new: []
+
+OTHER changes (unmasked / value-changed cells) by sheet: {'Summary_Stats': (0, 1583), 'downside_skew_z': (2816, 31375), 'iv30_z': (4614, 31375), 'iv_term_structure_z': (4705, 31248), 'vol_risk_premium_z': (0, 31374)}
+Z-SHEET CLASSIFICATION: {"iv30_z": {"within_window_changes": 35817, "beyond_window_cells": 6137, "beyond_nan_to_zero": 4614, "beyond_zero_to_nan": 1523, "beyond_other": 0, "beyond_tickers": ["6981", "7011"]}, "iv_term_structure_z": {"within_window_changes": 35558, "beyond_window_cells": 4705, "beyond_nan_to_zero": 4705, "beyond_zero_to_nan": 0, "beyond_other": 0, "beyond_tickers": ["6981", "7011"]}, "downside_skew_z": {"within_window_changes": 35976, "beyond_window_cells": 6822, "beyond_nan_to_zero": 2816, "beyond_zero_to_nan": 4006, "beyond_other": 0, "beyond_tickers": ["6981", "9432"]}, "vol_risk_premium_z": {"within_window_changes": 42067, "beyond_window_cells": 0, "beyond_nan_to_zero": 0, "beyond_zero_to_nan": 0, "beyond_other": 0, "beyond_tickers": []}}
+
+masked cells by sheet:
+                                  sum  count
+sheet                                      
+BEST_SALES_2FY                635323    250
+BEST_SALES_1FY                586000    250
+BEST_GROSS_MARGIN             147823    238
+BEST_CAPEX                    113965    238
+BEST_EV_TO_BEST_EBITDA        112201    241
+BEST_CALCULATED_FCF           104348    233
+SHORT_INT_RATIO               101528    201
+BEST_PEG_RATIO                 90459    249
+OPER_MARGIN                    86529    250
+EQY_REC_CONS                   78066    250
+BEST_PX_BPS_RATIO              77584    249
+BEST_PE_RATIO                  73367    250
+BEST_ROE                       71765    250
+vol_risk_premium               70222    250
+1M_PUT_IMP_VOL_25DELTA_DFLT    70049    250
+1M_CALL_IMP_VOL_25DELTA_DFLT   70049    250
+downside_skew                  70049    250
+downside_skew_chg_5d           70049    250
+30DAY_IMPVOL_100.0%MNY_DF      69884    250
+3MTH_IMPVOL_100.0%MNY_DF       69884    250
+30DAY_IMPVOL_90.0%MNY_DF       69884    250
+30DAY_IMPVOL_110.0%MNY_DF      69884    250
+iv_term_structure              69884    250
+iv30                           69884    250
+BEST_SALES_2BF                 68366    250
+BEST_EPS                       66561    250
+BEST_SALES                     66293    250
+VOLATILITY_30D                 64076    250
+PX_VOLUME                      63384    250
+CUR_MKT_CAP                    63380    250
+Daily_Returns                  63365    250
+PX_LAST_UNADJ                  63365    250
+PX_LAST                        63365    250
+PUT_CALL_OPEN_INTEREST_RATIO   57890    191
+NEWS_SENTIMENT_DAILY_AVG       44226    250
+vol_risk_premium_z             10709    250
+downside_skew_z                 8632    250
+iv30_z                          5992    250
+iv_term_structure_z             4340    249
+
+top 25 (sheet, ticker):
+                        sheet ticker  masked_cells first_masked last_masked first_valid_new  old_value_at_first_masked  all_masked
+           BEST_GROSS_MARGIN    ICE          4657   2014-01-01  2026-10-01            None                   100.0000        True
+           BEST_GROSS_MARGIN   MRSH          4657   2014-01-01  2026-10-01            None                   100.0000        True
+           BEST_GROSS_MARGIN   SCHW          4657   2014-01-01  2026-10-01            None                   100.0000        True
+                  BEST_CAPEX     BN          4657   2014-01-01  2026-10-01            None                -20000.0000        True
+             SHORT_INT_RATIO   8306          4643   2014-01-15  2026-10-01            None                     1.9020        True
+             SHORT_INT_RATIO   6758          4643   2014-01-15  2026-10-01            None                     1.8760        True
+             SHORT_INT_RATIO   9432          4643   2014-01-15  2026-10-01            None                     0.3900        True
+             SHORT_INT_RATIO   ABBN          4643   2014-01-15  2026-10-01            None                     1.1100        True
+             SHORT_INT_RATIO    AZN          4643   2014-01-15  2026-10-01            None                    31.8850        True
+             SHORT_INT_RATIO   6857          4643   2014-01-15  2026-10-01            None                     0.3440        True
+             SHORT_INT_RATIO    ASM          4643   2014-01-15  2026-10-01            None                     2.1550        True
+                 OPER_MARGIN     CS          4634   2014-01-24  2026-10-01            None                   100.0000        True
+    3MTH_IMPVOL_100.0%MNY_DF   285A          4597   2014-01-02  2026-08-03      2026-08-04                   120.1442       False
+           iv_term_structure   285A          4597   2014-01-02  2026-08-03      2026-08-04                    11.3515       False
+   30DAY_IMPVOL_100.0%MNY_DF   285A          4597   2014-01-02  2026-08-03      2026-08-04                   131.4957       False
+1M_CALL_IMP_VOL_25DELTA_DFLT   285A          4597   2014-01-02  2026-08-03      2026-08-04                   156.8405       False
+   30DAY_IMPVOL_110.0%MNY_DF   285A          4597   2014-01-02  2026-08-03      2026-08-04                   131.2284       False
+                        iv30   285A          4597   2014-01-02  2026-08-03      2026-08-04                   131.4957       False
+        downside_skew_chg_5d   285A          4597   2014-01-07  2026-08-08      2026-08-09                     0.0000       False
+ 1M_PUT_IMP_VOL_25DELTA_DFLT   285A          4597   2014-01-02  2026-08-03      2026-08-04                   166.1597       False
+               downside_skew   285A          4597   2014-01-02  2026-08-03      2026-08-04                     9.3192       False
+    30DAY_IMPVOL_90.0%MNY_DF   285A          4597   2014-01-02  2026-08-03      2026-08-04                   134.9495       False
+            vol_risk_premium   285A          4597   2014-01-02  2026-08-03      2026-08-04                    41.9227       False
+             SHORT_INT_RATIO   ULVR          4368   2014-01-15  2025-12-30      2025-12-31                    77.0200       False
+              BEST_PEG_RATIO   SNDK          4326   2014-01-02  2025-11-05      2025-11-06                     0.3310       False
+
+all-masked columns: [{'sheet': 'BEST_CAPEX', 'ticker': 'BN'}, {'sheet': 'BEST_GROSS_MARGIN', 'ticker': 'SCHW'}, {'sheet': 'BEST_GROSS_MARGIN', 'ticker': 'ICE'}, {'sheet': 'BEST_GROSS_MARGIN', 'ticker': 'MRSH'}, {'sheet': 'OPER_MARGIN', 'ticker': 'CS'}, {'sheet': 'SHORT_INT_RATIO', 'ticker': 'AZN'}, {'sheet': 'SHORT_INT_RATIO', 'ticker': 'ABBN'}, {'sheet': 'SHORT_INT_RATIO', 'ticker': '9432'}, {'sheet': 'SHORT_INT_RATIO', 'ticker': '6758'}, {'sheet': 'SHORT_INT_RATIO', 'ticker': 'ASM'}, {'sheet': 'SHORT_INT_RATIO', 'ticker': '6857'}, {'sheet': 'SHORT_INT_RATIO', 'ticker': '8306'}, {'sheet': 'downside_skew_z', 'ticker': '285A'}, {'sheet': 'iv30_z', 'ticker': '285A'}, {'sheet': 'iv_term_structure_z', 'ticker': '285A'}, {'sheet': 'vol_risk_premium_z', 'ticker': '285A'}]
+check BEST_PE_RATIO/UBER: [{'sheet': 'BEST_PE_RATIO', 'ticker': 'UBER', 'masked_cells': 3262, 'first_masked': datetime.date(2014, 1, 2), 'last_masked': datetime.date(2022, 12, 7), 'first_valid_new': datetime.date(2022, 12, 8), 'old_value_at_first_masked': 21736.278, 'all_masked': False}]
+check BEST_ROE/FICO: [{'sheet': 'BEST_ROE', 'ticker': 'FICO', 'masked_cells': 2577, 'first_masked': datetime.date(2014, 1, 1), 'last_masked': datetime.date(2021, 1, 20), 'first_valid_new': datetime.date(2021, 1, 21), 'old_value_at_first_masked': 69.479, 'all_masked': False}]
+check EQY_REC_CONS/AON: [{'sheet': 'EQY_REC_CONS', 'ticker': 'AON', 'masked_cells': 2281, 'first_masked': datetime.date(2014, 1, 1), 'last_masked': datetime.date(2020, 3, 30), 'first_valid_new': datetime.date(2020, 3, 31), 'old_value_at_first_masked': 5.0, 'all_masked': False}]
+check OPER_MARGIN/CS: [{'sheet': 'OPER_MARGIN', 'ticker': 'CS', 'masked_cells': 4634, 'first_masked': datetime.date(2014, 1, 24), 'last_masked': datetime.date(2026, 10, 1), 'first_valid_new': None, 'old_value_at_first_masked': 100.0, 'all_masked': True}]
+PX_LAST: new date range 2014-01-02 .. 2026-10-01 rows 4656
+BEST_PE_RATIO: new date range 2014-01-02 .. 2026-10-01 rows 4656
+NEWS_SENTIMENT_DAILY_AVG: new date range 2014-01-01 .. 2026-10-01 rows 4657
+elapsed 19
