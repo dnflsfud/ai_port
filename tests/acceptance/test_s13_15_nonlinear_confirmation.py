@@ -86,6 +86,7 @@ def test_arm_variant_differs_from_production_by_exactly_the_flag():
         "revision_gradual_mask_disabled",  # S25.4 B-02 promotion (2026-10-08)
         "zscore_winsor_first_enabled",  # S25.4 B-03 promotion (2026-10-08)
         "label_execution_lag_enabled",  # S25.4 B-05 promotion (2026-10-08)
+        "stale_run_mask_enabled",  # S25.4 stale-run mask promotion (2026-10-08)
     }
     assert not [
         key for key in prod

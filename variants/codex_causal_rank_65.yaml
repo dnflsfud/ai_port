@@ -433,3 +433,22 @@ overrides:
   # comparable across label definitions). Rollback = delete this line (default-
   # OFF, byte-identical restore certified by unit tests).
   label_execution_lag_enabled: true
+
+  # S25.4 (2026-10-08): stale-run mask (decision log S25 F1 follow-up "live tail
+  # freeze"). Vendor-frozen BEST_PE_RATIO / BEST_PX_BPS_RATIO / BEST_PEG_RATIO /
+  # BEST_EV_TO_BEST_EBITDA values (RBLX PE 14,847 since 2022-02; negative-book P/B
+  # of VRSN/MCD/SBUX/MSCI/LOW; financials' EV/EBITDA; 153 names' PEG) were carried
+  # forward by price_v4 and the loader ffill. ON re-NaNs, in get_sheet for those
+  # four sheets only, every cell unchanged for more than stale_run_max_days (21,
+  # single value) consecutive rows; the panel builder's per-date median imputes
+  # the feature. Adopted by user decision on correctness grounds — decision log
+  # S25.4 결과 4 / Production flips. Pre-registered arm outputs/s25_4_stale_run_mask
+  # vs s25_3_s0recert (same vintage): G0 PASS, mechanism PASS (91,697 cells masked:
+  # PE 5,057/19 names, P/B 27,880/44, PEG 47,664/153, EV/EBITDA 11,096/20; only the
+  # 9 ratio-derived features change), E2 PASS (TE 3.74%, turnover 1.006x, AS
+  # -0.28pp, fallback 0), IR 1.7219 -> 1.6742 (dIR -0.048, splits
+  # +0.093/-0.006/-0.203, no-harm PASS; observation only — the recent-split loss is
+  # the removal of stale-value dependence, not of information). Rollback = delete
+  # this line (default-OFF, byte-identical restore certified by
+  # tests/test_stale_run_mask.py).
+  stale_run_mask_enabled: true

@@ -10241,3 +10241,5 @@ VINTAGE_PRE == POST(정본 워크북 2026-10-08 11:27:51 / Index 2026-10-02 11:3
    `test_residual_sleeve.py` · `test_s17_nominal_price.py` · `test_s18_fixes.py`. 롤백 = yaml 1줄 삭제(default-OFF, 바이트 동일 복원).
 2. **B-03 `zscore_winsor_first_enabled: true`** — 근거 §S25.4 결과 2(정확성: 이상치 1개가 횡단면 14%를 >2× 압축). 같은 핀 8파일. 롤백 = yaml 1줄 삭제.
 3. **B-05 `label_execution_lag_enabled: true`** — 근거 §S25.4 결과 3(정확성: 라벨창을 실행 가능 구간으로, 퍼지/엠바고 21 정합). 같은 핀 8파일. 롤백 = yaml 1줄 삭제.
+4. **stale-run mask `stale_run_mask_enabled: true`**(`stale_run_max_days 21`·시트 4종은 config 기본값) — 근거 §S25.4 결과 4(정확성: 벤더 동결값 91,697셀 제거). 같은 핀 8파일.
+   롤백 = yaml 1줄 삭제(`tests/test_stale_run_mask.py` 가 OFF 동일 객체 반환을 인증).

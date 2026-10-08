@@ -95,6 +95,7 @@ def test_default_off_and_variant_has_one_semantic_delta():
             "revision_gradual_mask_disabled",  # S25.4 B-02 promotion (2026-10-08)
             "zscore_winsor_first_enabled",  # S25.4 B-03 promotion (2026-10-08)
             "label_execution_lag_enabled",  # S25.4 B-05 promotion (2026-10-08)
+            "stale_run_mask_enabled",  # S25.4 stale-run mask promotion (2026-10-08)
             "rank_eval_at",  # S13.47 promotion (2026-08-20): [5, 10] -> [20]
             "expected_universe_size",  # S14.2 (2026-08-25): 200 -> 250
         ):
