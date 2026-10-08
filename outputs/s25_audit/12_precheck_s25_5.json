@@ -1,0 +1,252 @@
+{
+ "convexity": {
+  "top10": [
+   1.411,
+   2.49,
+   91
+  ],
+  "top5": [
+   1.399,
+   1.73,
+   91
+  ],
+  "top20n": [
+   1.589,
+   2.43,
+   91
+  ],
+  "b_linear": [
+   2.703,
+   3.35,
+   91
+  ],
+  "d9_minus_d8": [
+   1.419,
+   2.39,
+   91
+  ],
+  "d8_minus_d7": [
+   0.134,
+   0.41,
+   91
+  ]
+ },
+ "sector": [
+  {
+   "date": "2024-10-01",
+   "tech_share": "0.708",
+   "net_tech_active": "0.054",
+   "tech_share_net_neutral": "0.645",
+   "tech_share_no_dispersion": "0.369",
+   "top_sector": "Technology",
+   "max_abs_net_sector": "0.054"
+  },
+  {
+   "date": "2024-10-30",
+   "tech_share": "0.757",
+   "net_tech_active": "0.059",
+   "tech_share_net_neutral": "0.716",
+   "tech_share_no_dispersion": "0.472",
+   "top_sector": "Technology",
+   "max_abs_net_sector": "0.059"
+  },
+  {
+   "date": "2024-11-29",
+   "tech_share": "0.613",
+   "net_tech_active": "0.042",
+   "tech_share_net_neutral": "0.583",
+   "tech_share_no_dispersion": "0.187",
+   "top_sector": "Technology",
+   "max_abs_net_sector": "0.05"
+  },
+  {
+   "date": "2024-12-31",
+   "tech_share": "0.653",
+   "net_tech_active": "0.021",
+   "tech_share_net_neutral": "0.639",
+   "tech_share_no_dispersion": "0.103",
+   "top_sector": "Technology",
+   "max_abs_net_sector": "0.041"
+  },
+  {
+   "date": "2025-02-03",
+   "tech_share": "0.679",
+   "net_tech_active": "0.023",
+   "tech_share_net_neutral": "0.662",
+   "tech_share_no_dispersion": "0.121",
+   "top_sector": "Technology",
+   "max_abs_net_sector": "0.043"
+  },
+  {
+   "date": "2025-03-05",
+   "tech_share": "0.593",
+   "net_tech_active": "0.026",
+   "tech_share_net_neutral": "0.567",
+   "tech_share_no_dispersion": "0.127",
+   "top_sector": "Technology",
+   "max_abs_net_sector": "0.043"
+  },
+  {
+   "date": "2025-04-03",
+   "tech_share": "0.509",
+   "net_tech_active": "0.031",
+   "tech_share_net_neutral": "0.469",
+   "tech_share_no_dispersion": "0.155",
+   "top_sector": "Technology",
+   "max_abs_net_sector": "0.048"
+  },
+  {
+   "date": "2025-05-05",
+   "tech_share": "0.557",
+   "net_tech_active": "0.045",
+   "tech_share_net_neutral": "0.516",
+   "tech_share_no_dispersion": "0.291",
+   "top_sector": "Technology",
+   "max_abs_net_sector": "0.049"
+  },
+  {
+   "date": "2025-06-04",
+   "tech_share": "0.656",
+   "net_tech_active": "0.057",
+   "tech_share_net_neutral": "0.55",
+   "tech_share_no_dispersion": "0.361",
+   "top_sector": "Technology",
+   "max_abs_net_sector": "0.057"
+  },
+  {
+   "date": "2025-07-07",
+   "tech_share": "0.715",
+   "net_tech_active": "0.056",
+   "tech_share_net_neutral": "0.616",
+   "tech_share_no_dispersion": "0.379",
+   "top_sector": "Technology",
+   "max_abs_net_sector": "0.059"
+  },
+  {
+   "date": "2025-08-05",
+   "tech_share": "0.642",
+   "net_tech_active": "0.053",
+   "tech_share_net_neutral": "0.548",
+   "tech_share_no_dispersion": "0.257",
+   "top_sector": "Technology",
+   "max_abs_net_sector": "0.058"
+  },
+  {
+   "date": "2025-09-04",
+   "tech_share": "0.628",
+   "net_tech_active": "0.05",
+   "tech_share_net_neutral": "0.523",
+   "tech_share_no_dispersion": "0.186",
+   "top_sector": "Technology",
+   "max_abs_net_sector": "0.063"
+  },
+  {
+   "date": "2025-10-03",
+   "tech_share": "0.607",
+   "net_tech_active": "0.039",
+   "tech_share_net_neutral": "0.533",
+   "tech_share_no_dispersion": "0.082",
+   "top_sector": "Technology",
+   "max_abs_net_sector": "0.06"
+  },
+  {
+   "date": "2025-11-03",
+   "tech_share": "0.643",
+   "net_tech_active": "0.031",
+   "tech_share_net_neutral": "0.621",
+   "tech_share_no_dispersion": "0.064",
+   "top_sector": "Technology",
+   "max_abs_net_sector": "0.054"
+  },
+  {
+   "date": "2025-12-03",
+   "tech_share": "0.637",
+   "net_tech_active": "0.038",
+   "tech_share_net_neutral": "0.601",
+   "tech_share_no_dispersion": "0.131",
+   "top_sector": "Technology",
+   "max_abs_net_sector": "0.055"
+  },
+  {
+   "date": "2026-01-05",
+   "tech_share": "0.625",
+   "net_tech_active": "0.04",
+   "tech_share_net_neutral": "0.587",
+   "tech_share_no_dispersion": "0.164",
+   "top_sector": "Technology",
+   "max_abs_net_sector": "0.056"
+  },
+  {
+   "date": "2026-02-04",
+   "tech_share": "0.563",
+   "net_tech_active": "0.015",
+   "tech_share_net_neutral": "0.551",
+   "tech_share_no_dispersion": "0.043",
+   "top_sector": "Technology",
+   "max_abs_net_sector": "0.047"
+  },
+  {
+   "date": "2026-03-06",
+   "tech_share": "0.631",
+   "net_tech_active": "0.028",
+   "tech_share_net_neutral": "0.598",
+   "tech_share_no_dispersion": "0.124",
+   "top_sector": "Technology",
+   "max_abs_net_sector": "0.046"
+  },
+  {
+   "date": "2026-04-07",
+   "tech_share": "0.672",
+   "net_tech_active": "0.025",
+   "tech_share_net_neutral": "0.637",
+   "tech_share_no_dispersion": "0.123",
+   "top_sector": "Technology",
+   "max_abs_net_sector": "0.044"
+  },
+  {
+   "date": "2026-05-06",
+   "tech_share": "0.761",
+   "net_tech_active": "0.043",
+   "tech_share_net_neutral": "0.704",
+   "tech_share_no_dispersion": "0.291",
+   "top_sector": "Technology",
+   "max_abs_net_sector": "0.043"
+  },
+  {
+   "date": "2026-06-05",
+   "tech_share": "0.84",
+   "net_tech_active": "0.044",
+   "tech_share_net_neutral": "0.802",
+   "tech_share_no_dispersion": "0.395",
+   "top_sector": "Technology",
+   "max_abs_net_sector": "0.044"
+  },
+  {
+   "date": "2026-07-08",
+   "tech_share": "0.857",
+   "net_tech_active": "0.051",
+   "tech_share_net_neutral": "0.789",
+   "tech_share_no_dispersion": "0.543",
+   "top_sector": "Technology",
+   "max_abs_net_sector": "0.051"
+  },
+  {
+   "date": "2026-08-06",
+   "tech_share": "0.863",
+   "net_tech_active": "0.06",
+   "tech_share_net_neutral": "0.753",
+   "tech_share_no_dispersion": "0.664",
+   "top_sector": "Technology",
+   "max_abs_net_sector": "0.06"
+  },
+  {
+   "date": "2026-09-04",
+   "tech_share": "0.891",
+   "net_tech_active": "0.078",
+   "tech_share_net_neutral": "0.778",
+   "tech_share_no_dispersion": "0.748",
+   "top_sector": "Technology",
+   "max_abs_net_sector": "0.078"
+  }
+ ]
+}
