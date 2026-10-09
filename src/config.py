@@ -239,6 +239,21 @@ class PipelineConfig:
     sector_active_risk_penalty: float = 5.0
 
     # ------------------------------------------------------------------
+    # S25.6 (2026-10-09) — top-decile convexity boost (decision log §S25.5
+    # precheck: the top decile of the post-overlay score earns +1.41%/21d
+    # beyond the linear rank slope, Fama-MacBeth t 2.49; D9-D8 +1.42% vs
+    # D8-D7 +0.13%). A rank-linear mu cannot express that step, so ON adds
+    # kappa * sd_t(mu) to every name at or above the per-date quantile
+    # (mu' = mu + kappa*sd_t*1[mu >= q_t]) after the overlays and before the
+    # optimizer; ranks are preserved, NaN preserved. kappa 0.5 is the single
+    # preregistered value (precheck c/b ~ 0.52), no sweep. OFF (default)
+    # returns the untouched predictions object.
+    # ------------------------------------------------------------------
+    top_decile_boost_enabled: bool = False
+    top_decile_boost_kappa: float = 0.5
+    top_decile_boost_quantile: float = 0.9
+
+    # ------------------------------------------------------------------
     # Target (PCA)
     # ------------------------------------------------------------------
     # REDESIGN L (2026-04-13): n_remove=1 was tested but degraded P1 IR
@@ -1380,6 +1395,10 @@ class PipelineConfig:
             raise ValueError("expected_universe_size must be None or > 0")
         if self.sector_active_risk_penalty <= 0:
             raise ValueError("sector_active_risk_penalty must be > 0")
+        if float(self.top_decile_boost_kappa) <= 0:
+            raise ValueError("top_decile_boost_kappa must be > 0")
+        if not 0.0 < float(self.top_decile_boost_quantile) < 1.0:
+            raise ValueError("top_decile_boost_quantile must be in (0, 1)")
         if self.max_sector_active_risk_share <= 0:
             raise ValueError("max_sector_active_risk_share must be > 0")
         if self.projection_fallback_mode not in ("target", "prev"):

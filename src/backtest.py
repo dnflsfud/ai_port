@@ -52,6 +52,33 @@ from src.utils import annualise_return, compute_performance_metrics, compute_bet
 from src.features.utils import cross_sectional_zscore, cs_rank
 
 
+def apply_top_decile_boost(
+    predictions: pd.DataFrame,
+    config: PipelineConfig,
+) -> pd.DataFrame:
+    """§S25.6: convex mu — add kappa*sd_t(mu) to every name at or above the
+    per-date quantile of the post-overlay score (mu' = mu + kappa*sd_t*1[mu >= q_t]).
+
+    The §S25.5 precheck found the top decile earns +1.41%/21d beyond the linear
+    rank slope (FM t 2.49) while D8-D7 is flat; a rank-linear mu hands the
+    optimizer no reason to prefer D9 over D8. Ranks and NaN are preserved; a
+    date with fewer than two valid names gets no boost. OFF (default) returns
+    the input object so the pipeline is byte-identical.
+    """
+    if not getattr(config, "top_decile_boost_enabled", False):
+        return predictions
+    kappa = float(getattr(config, "top_decile_boost_kappa", 0.5))
+    q = float(getattr(config, "top_decile_boost_quantile", 0.9))
+    thr = predictions.quantile(q, axis=1)
+    sd = predictions.std(axis=1, ddof=1).fillna(0.0)
+    top = predictions.ge(thr, axis=0) & predictions.notna()
+    boosted = predictions.add(top.astype(float).mul(kappa * sd, axis=0))
+    out = boosted.where(predictions.notna())
+    print(f"[Backtest] S25.6 top-decile boost applied (kappa={kappa}, q={q}): "
+          f"{int(top.to_numpy().sum())} cells boosted on {int(top.any(axis=1).sum())} dates")
+    return out
+
+
 def apply_value_trap_gate(
     predictions: pd.DataFrame,
     panel: pd.DataFrame,
@@ -2029,6 +2056,10 @@ def run_backtest(
     # empirically destructive (-1.99%/20d in P3). Panel/model untouched.
     if getattr(config, "value_trap_gate_enabled", False):
         predictions = apply_value_trap_gate(predictions, panel, config)
+
+    # S25.6 (2026-10-09): top-decile convexity boost — mu shape only, after
+    # every score overlay and before the (OFF) mu scaling / calibration steps.
+    predictions = apply_top_decile_boost(predictions, config)
 
     # Signal stability shrinkage (OFF by default, infra added 2026-04-20).
     # Damps retrain-boundary score jumps to reduce turnover. Pure post-process.

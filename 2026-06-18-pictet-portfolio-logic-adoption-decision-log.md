@@ -10291,3 +10291,26 @@ VINTAGE_PRE == POST(정본 워크북 2026-10-08 11:27:51 / Index 2026-10-02 11:3
 - **production 런이 결합 재인증을 비트 동일 재현**: IR 1.8229575020692097 == `s25_4_combined_recert`, 4 플래그 True, 빈티지 워크북 2026-10-08 11:27:51(`elapsed_sec` 39,096 은
   대기 포함, 무의미). 레지스트리 `data_as_of 2026-10-01`, gate **HOLD** = `data_as_of_fresh_ok` False(5세션) · `sector_active_risk_ok` False(Tech 몫 **0.875**, flip 전 0.901).
   11:30 정규 스케줄 런은 같은 config·빈티지로 한 번 더 돌아 동일 결과를 재게시한다(무해, 중복).
+
+## S25.6 — 성과 arm 2개 사전등록: ⑤ 상위 십분위 볼록성 부스트 · ④-b 섹터 리스크 벌점 (2026-10-09 11:35, 사용자 결정 "1·2 모두 승인" · 성과 트랙 · 인벤토리 476→478 · 측정 전 단독 커밋)
+
+- **기준** = `outputs/s25_4_combined_recert`(S0′ IR 1.8229575020692097 / TE 3.73% / 회전 0.781 / AS 20.51% / β 1.058; 10-09 10:58 production 런과 비트 동일). 빈티지 동결 =
+  워크북 2026-10-08 11:27:51 / Index 2026-10-02 11:30:43. 오늘 11:30 스케줄 런은 10:58 수동 배치와 중복이라 **일시 비활성화**(arm 체인 뒤 재활성화).
+- **arm 1 `s25_6_top_decile_boost`** = production 사본 + `top_decile_boost_enabled: true`(κ 0.5 · q 0.9 는 config 기본값, 단일 사전약정 — §S25.5 c/b ≈ 0.52).
+  신규 코드(default-OFF): `PipelineConfig.top_decile_boost_{enabled,kappa,quantile}`(검증 κ>0, 0<q<1) · `backtest.apply_top_decile_boost`(날짜별 μ′ = μ + κ·sd_t(μ)·1[μ ≥ q_t],
+  순위·NaN 보존, 오버레이·값함정 게이트·안정화 뒤·μ 스케일링 앞) — OFF 는 입력 객체 반환. 테스트 `tests/test_top_decile_boost.py` 4 PASS, 전체 966 PASS(OFF 파리티).
+  variant sha256 `6f3b341d5103e35f…`. 가설: §S25.5 의 D9 계단(+1.42%/21d, t 2.39)을 μ 가 표현하면 OW 책이 상위 십분위로 더 모이며 IR ↑. 위험: 집중 ↑(종목 리스크 몫 0.35·4% 캡·TE 가드),
+  2021·2022 의 부호 반전(3분할 조건).
+- **arm 2 `s25_6_sector_risk_penalty`** = production 사본 + `sector_active_risk_penalty_enabled: true`(λ 5.0 config 기본값, 단일값; §S11.5 기존 코드 — Σ_s (m_s∘a)′C(m_s∘a) 볼록 벌점,
+  MVO 목표·사후 투영 양쪽). variant sha256 `0bdda1b3f277c908…`. 목적: 게이트를 바꾸지 않고 옵티마이저가 가드레일을 만족(§S25.5 (b)). 기대 ΔIR ≈ 0~−0.1(§S25.2 배분 성분 제거 시 IR 불변).
+- **실행**: `outputs/s25_6_run_chain.bat`(schtasks `s25_6_chain`, boost → sector 순차, `run_variant_task.ps1 --no-cache`, VINTAGE_PRE/POST, AC 전원 확인). 빈티지 변경 시 판정 중단(§S13.47).
+- **판정(`scripts/eval_s25_6_arms.py --arm <label>`, sha256 `0347e4a43c84d77b…`, `tests/test_eval_s25_6_arms.py` 5 PASS)** — 채택 후보 = G0 ∧ 기전 ∧ E2 ∧ **formal E1**(ΔIR > +0.36 ∧
+  3분할 전부 양); 오버라이드 후보(§S13.50: ΔIR > 0 ∧ 3분할 전부 양 ∧ 게이트 ∧ DSR 해킷 전례보다 강함) 병기만, 승격은 사용자 결정.
+  - G0: data_vintage 동일 ∧ base IR 재현 ∧ 플래그 True.
+  - 기전 **boost**: arm 예측이 base 와 다른 셀 = 정확히 base 의 날짜별 상위 10%(밖 변화 0 · 상위 셀 전부 변화) ∧ 피처 패널·타깃 비트 동일 ∧ 리밸일 포트폴리오 비중 중 base 상위
+    십분위 종목 몫 평균 arm > base. 기전 **sector**: 예측 비트 동일(옵티마이저 전용) ∧ 최근 24회 리밸 Tech Euler 몫(§S25.5 와 같은 LW Σ 126일 레시피, `--raw-cache` 10-08 워크북 캐시)
+    평균 감소 ∧ 0.85 초과 횟수 감소(base 3/24).
+  - E2: TE ≤ 4.5% · |ΔAS| ≤ 3%p · 회전율 ≤ 1.25× · fallback 0. 무해성(ΔIR > −0.36 ∧ 3분할 전부 음 아님) 참고.
+  - 해석 매트릭스(사전 고정): boost 가 기전 PASS·E1 FAIL 이면 "볼록성은 실재하나 옵티마이저 전달 부족" 으로 SHELVE(κ 재선택 불가 — 스윕 금지) / sector 가 기전 PASS·무해성 PASS 면
+    IR 과 무관하게 **HOLD 해소 수단으로 flip 후보**(§S10 거버넌스 선례: 게이트 만족이 목적, ΔIR 은 관측) — 단 사용자 결정.
+- DSR: 인벤토리 476 → 478(측정 전). 결과 후 `run_selection_bias.py --auto --label <arm>` 해킷 병기(각 ≈6분).
