@@ -106,7 +106,7 @@
     "index_eps_features_enabled": false,
     "index_revision_feature_enabled": false,
     "interaction_features_enabled": false,
-    "label_execution_lag_enabled": false,
+    "label_execution_lag_enabled": true,
     "lgbm_params": {
       "colsample_bytree": 0.8,
       "learning_rate": 0.02,
@@ -284,7 +284,7 @@
     "revision_clean_reversion_ratio": 0.5,
     "revision_clean_threshold": 15.0,
     "revision_extension_max_days": 21,
-    "revision_gradual_mask_disabled": false,
+    "revision_gradual_mask_disabled": true,
     "risk_aversion": 1.0,
     "s15_fixpack_enabled": true,
     "s16_unit_fixpack_enabled": true,
@@ -302,6 +302,14 @@
     "signal_stability_lambda": 0.0,
     "sp500_benchmark_enabled": true,
     "sp500_factor_ticker": "SPX",
+    "stale_run_mask_enabled": true,
+    "stale_run_mask_sheets": [
+      "BEST_PE_RATIO",
+      "BEST_PX_BPS_RATIO",
+      "BEST_PEG_RATIO",
+      "BEST_EV_TO_BEST_EBITDA"
+    ],
+    "stale_run_max_days": 21,
     "standard_idio_vol_feature_enabled": false,
     "static_execution_enabled": true,
     "symmetric_rank_loss": "huber",
@@ -338,7 +346,7 @@
     "winner_trim_lambda": 1.0,
     "winner_trim_protection_enabled": false,
     "winner_trim_quantile": 0.8,
-    "zscore_winsor_first_enabled": false
+    "zscore_winsor_first_enabled": true
   },
   "data_vintage": {
     "data_mtime_utc": "2026-10-08T02:27:51Z",
@@ -352,7 +360,7 @@
     "description": "Fixed-250 causal production portfolio. Uses date-grouped LightGBM rank_xendcg, purged/embargoed validation, and a one-trading-day execution signal lag. The legacy label/output path is retained for automation compatibility; the universe is the validated 250-name Universe_Meta set (decision log \u00a7S14.2). The adopted four-feature forward-sales-slope block is enabled per S13.25; benchmark, overlays, optimizer and transaction-cost assumptions remain pinned to the canonical iter15_65tkr_reb21_vtg portfolio design.\n",
     "manifest_path": "variants\\codex_causal_rank_65.yaml",
     "run_contract": {
-      "config_sha256": "67640ac2e74d694c25824fea7e5691f72fe0060716067df9fb768b94d9aa394f",
+      "config_sha256": "227056a3c13921760c1787e4551ce64cc6433b78af9cadb2963050d404087270",
       "data_dates": [
         "2014-01-24T00:00:00",
         "2014-01-27T00:00:00",
@@ -3547,7 +3555,7 @@
         "2026-10-01T00:00:00"
       ],
       "inputs": {
-        "code_sha256": "727af097c4fb237d410b161ed1c135f5923ab96d8529a9153dd183e4af319e84",
+        "code_sha256": "cbad29e09e943fac04aa9629017f448913391f972f32e73a6cfd0f83395a0c6b",
         "data": {
           "mtime_ns": 1791426471744267300,
           "path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
@@ -3819,6 +3827,6 @@
     "variant_label": "codex_causal_rank_65"
   },
   "git_dirty": false,
-  "git_hash": "91129f18b64cbfea62e715c3a42df443c95e32cb",
-  "timestamp_utc": "2026-10-08T04:05:57Z"
+  "git_hash": "0f22909552526cd37d62f8545137a7deff8bdf78",
+  "timestamp_utc": "2026-10-09T01:51:03Z"
 }

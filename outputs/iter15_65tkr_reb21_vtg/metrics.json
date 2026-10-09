@@ -1795,7 +1795,7 @@
     "ECOS": 184
   },
   "optimizer_solver_fallback_rate": 0.0,
-  "elapsed_sec": 1107.3,
+  "elapsed_sec": 1825.9,
   "data_vintage": {
     "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
     "data_mtime_utc": "2026-10-08T02:27:51Z",
@@ -1819,9 +1819,9 @@
         "size": 97242444,
         "mtime_ns": 1790908243077884600
       },
-      "code_sha256": "727af097c4fb237d410b161ed1c135f5923ab96d8529a9153dd183e4af319e84"
+      "code_sha256": "cbad29e09e943fac04aa9629017f448913391f972f32e73a6cfd0f83395a0c6b"
     },
-    "config_sha256": "edd2321a3173c5969dd498384758a61dc2d53c708a7febf214a06ed6300ea16d",
+    "config_sha256": "57837801c240a010bb74640c6bf456b7becb9a967c47cc8598442eb869bbc6b2",
     "data_dates": [
       "2014-01-24T00:00:00",
       "2014-01-27T00:00:00",
