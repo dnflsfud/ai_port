@@ -1795,7 +1795,7 @@
     "ECOS": 184
   },
   "optimizer_solver_fallback_rate": 0.0,
-  "elapsed_sec": 1825.9,
+  "elapsed_sec": 943.7,
   "data_vintage": {
     "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
     "data_mtime_utc": "2026-10-08T02:27:51Z",
