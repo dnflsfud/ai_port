@@ -1,0 +1,122 @@
+
+  [Auto] Loading N_trials from experiment_inventory.json ...
+  [inventory] N_trials_total = 478 from 55 entries
+    grid_search.py                      [coarse                        ]  140
+    grid_search.py                      [fine                          ]  220
+    compare_improvements.py             [pca x sector_interactions     ]    4
+    compare_pca.py                      [pca_n_remove sweep            ]    3
+    compare_max_weight.py               [max_weight sweep              ]    4
+    experiment_te_sensitivity.py        [TE sensitivity                ]    8
+    experiment_monthly_rebal.py         [monthly vs 10d rebalance      ]    2
+    manual_config_tuning                [LightGBM hyperparameter tuning (lr, leaves, depth, child_samples, subsample, colsample, alpha, lambda, n_est)]   15
+    redesign_2026_04_ACDE               [structural redesign: cap-weighted BM (A), lean feature set 239 (C), LightGBM stabilisation (D), optimiser re-tuning (E)]    1
+    redesign_2026_04_11_growth_balance  [C+ follow-up: restore multi-horizon EPS/Sales/FCF growth + add 17 growth composite features (new 'Growth' group) to balance Quality vs Growth style representation]    1
+    redesign_2026_04_11_PM_core_satellite [F: reduce to 81 hand-picked core features + enable core-satellite portfolio style (max_active_share 0.40 L1, max_active_per_stock 0.06)]    1
+    redesign_2026_04_11_PM_score_gated_ow [G: block OW on stocks with z-score < 0 (prevent MVO diversification quirk from overweighting negative signals)]    1
+    redesign_2026_04_12_core_v2         [H: further pruned core features 81 -> 46 based on feature_importance ranking from previous run]    1
+    redesign_2026_04_12_financials_universe [I: restore JPM/GS by switching from all-sheet intersection to essential-sheet intersection. Optional sheets (FCF/CAPEX/EV_EBITDA) have NaN for banks, filled by per-date median. Universe 48 -> 50.]    1
+    rl_hybrid_v1                        [ai_signal_cc2_rl Meta-Controller(4) + Signal Overlay(7 feature groups) PPO. Pretrain cutoff 2024-12-31, walk-forward fine-tune every ~63d (2 episodes). Base config = iter15_65tkr_reb21_vtg.]    1
+    exp_S7_A1_mu_vol_scaling            [S7 AI-logic arm (2026-07-06): Grinold variance-scaling mu_i = z_i * sigma_i / median_CS(sigma). Single pre-registered parameter-free transform, no sweep.]    1
+    exp_S7_A2_confidence_spread_recal   [S7 AI-logic arm (2026-07-06): confidence spread_scale recalibrated from default 0.20 to D0 raw_spread median. Single pre-registered value, no sweep.]    1
+    exp_S7_A3_adaptive_ema              [S7 AI-logic arm (2026-07-06): trailing-IC adaptive prediction EMA, alpha_t=clip(0.5+(tIC-m)/(2*IQR),0.25,0.75) with m/IQR anchored to D0 trailing_ic_dist. Single pre-registered functional form, no sweep. 2-pass injection, src/ untouched.]    1
+    exp_S7_A4_seed_ensemble             [S7 AI-logic arm (2026-07-06): LGBM seed ensemble k=5, seeds {42,43,44,45,46}, finite-mean of pre-EMA z-panels + per-date CS restandardize + EMA(0.5). Single pre-registered config, no k sweep. 2-pass injection, src/ untouched.]    1
+    exp_S8_news_trend_feature           [S8 sentiment feature arm (2026-07-07): single pre-registered feature `news_trend` (NEWS_SENTIMENT_DAILY_AVG 5d-21d rolling-mean spread) conditionally added to the core whitelist via the news_trend_feature_enabled flag. default-OFF, no sweep. Feature-panel change forces a full pipeline re-run (not cache-safe); ECOS solver, src feature code untouched.]    1
+    iter15_65tkr_reb21_vtg_causal_recert [Causal-discipline S0' re-certification (2026-07-10, user-directed): production variant iter15 with causal_validation_enabled=true + execution_signal_lag_days=1 (both correctness fixes flipped simultaneously). New reference baseline under causal discipline. Distinct config (IR changed, NOT a byte-identical OFF-parity recheck like exp_s0_recheck_d2), counted per redesign-precedent (adopted structural baseline change = 1 trial). ECOS, --no-cache.]    1
+    exp_causal_val_only                 [Causal contribution decomposition arm A (2026-07-10): causal_validation_enabled=true only (exec_lag=0) on iter15 base, isolating the val-label leakage (early-stopping) fix. Single-flag diagnostic arm, ECOS, --no-cache.]    1
+    exp_exec_lag_only                   [Causal contribution decomposition arm B (2026-07-10): execution_signal_lag_days=1 only (causal_val off) on iter15 base, isolating the t-close-signal/t-close-fill optimism fix. Single-flag diagnostic arm, ECOS, --no-cache.]    1
+    codex_causal_rank_65                [GPT-5.6 challenger (2026-07-10): rank_xendcg LightGBM objective (model_objective=cross_sectional_rank, metric=ndcg) + causal validation split + 1d execution signal lag. Reuses default-OFF causal infra. Single pre-registered config, no sweep. ECOS, --no-cache full re-run.]    1
+    run_variant.py --variant variants/arm_s10_minchild30.yaml [S10.2 degeneracy arm (2026-07-18, pre-registered in decision log S10.2 before execution)]    1
+    universe_scale_rebaselines_S9_S11_S13 [Adopted structural re-baselines (2026-07-16..07-26): 100-ticker unhedged-USD (S9), 150-ticker + PIT double-masking (S11.4), 200-ticker + SAN (S13.3). 1 trial each per redesign precedent.]    3
+    exp_S11_5_arms                      [S11.5 (2026-07-20): sector_active_risk_penalty lambda=5; val_window 252. Two single pre-registered arms.]    2
+    exp_S11_9_mh_blend                  [S11.9 (2026-07-21): multi-horizon target blend arm.]    1
+    exp_S11_10_lr                       [S11.10 (2026-07-21): lgbm learning_rate 0.03 degeneracy arm.]    1
+    exp_S12_arms                        [S12 (2026-07-22): GPT-review follow-ups - stale-depth gate <=7 + 4 performance arms (objective hypothesis, mu scaling, refresh re-entry, PCA standardization).]    5
+    exp_S13_4_surprise_opcf             [S13.4 (2026-07-26): EPS surprise / sales surprise / Fwd_OpCashflow level - three feature-admission arms on the 200 universe.]    3
+    exp_S13_5_fwd_opcf_rev              [S13.5 (2026-07-26): Fwd_OpCashflow revision windows 63/126/252.]    3
+    exp_S13_6_absent_nan                [S13.6 (2026-07-27): honest-NaN for absent fundamentals (banks) instead of median fill.]    1
+    exp_S13_8_single_eval_metric        [S13.8 (2026-07-27): rank_eval_at [5,10]->[10] after root-causing degeneracy to best_iteration=min(argmax ndcg@5, argmax ndcg@10) (14/14 empirical).]    1
+    exp_S13_9_earnings_calendar         [S13.9 (2026-07-27): admit the 8 existing earnings-calendar conditioning features (model previously saw timing only via PEAD overlay).]    1
+    exp_S13_10_peer_earnings            [S13.10 (2026-07-27): relational peer-earnings cascade (3 features, first non-single-stock block).]    1
+    exp_S13_11_eta_2x2                  [S13.11 (2026-07-27): 2x2 factorial eta {0.5,1.0} x features {S0, S13.9} to isolate execution-signal-speed interaction.]    2
+    exp_S13_13_interaction_block        [S13.13 (2026-07-27): 5-feature nonlinear block - 4 products of core-parent CS z-scores + mom_consistency_252. Pre-checked structurally (persistence/btv/redundancy), IC untouched. NOTE: an initial 4-feature launch was killed UNOBSERVED before the user widened the block (not a trial).]    1
+    exp_S13_14_ix_winner_protect        [S13.14 (2026-07-28): combined arm - interaction block + winner-trim hinge penalty lambda=1.0 on trailing-252d top-quintile (carrier diagnosis: PLTR/NVDA/TSLA composition, not factor exposures).]    1
+    exp_S13_15_nonlinear_confirmation   [S13.15 (2026-07-28): nonlinear-confirmation feature block. One accidental 5-feature result was observed before a wiring/order defect was detected; the formal rerun contained all 6 preregistered features.]    2
+    exp_S13_16_residual_nonlinear_sleeve [S13.16 (2026-07-28): fixed 10% ex-ante variance-reserved explicit OOF nonlinear residual sleeve with A/B/C attribution.]    2
+    exp_S13_24_relative_revision_nonlinear_ai [S13.24 (2026-07-30..08-01): one preregistered relative-revision nonlinear interaction arm with home-index-bucket neutralization and name-level confidence active caps.]    1
+    run_orthogonal_signal_arm.py        [S13.28 (2026-08-04): characteristic-orthogonality diagnostic. Re-MVO of the saved production harvest with the model score split into a characteristic-fitted part and its orthogonal residual.]    2
+    run_variant.py (arm_s13_27a_bmprop / arm_s13_27b_volcap) [S13.27 (2026-08-04): two preregistered optimizer-layer defensive arms against the SHAP-identified high-vol OW concentration. A: enable existing BM-proportional active cap infra (flag only). B: new portfolio-level vol exposure cap vols@w <= 1.05 * vols@bm (new default-OFF infra).]    2
+    run_variant.py (arm_s13_29_pca_volstd) [S13.29 (2026-08-05): pca_vol_standardize retest on the current 200-name slope-ON baseline, prompted by the S13.28 vol-preference mechanism Q&A; primary deliverable was the latest-rebalance OW roster of the standardized version.]    1
+    run_s13_31_quality_tilt_arm.py      [S13.31 (2026-08-05): 63d-horizon quality tilt inside the top idio-vol tercile, re-MVO of the saved production harvest (score' = score + 0.25*sd*z_q within tercile). Gated by the S13.30 preflight (quality defence inside high-vol exists only at 63d; preflight itself was read-only, not counted).]    1
+    run_variant.py (arm_s13_32_volqual_tilt) [S13.32 (2026-08-05): pipeline formalization of the S13.31 quality tilt - new default-OFF PipelineConfig flags (vol_quality_tilt_enabled / vol_quality_tilt_lambda 0.25) wired at the pre-overlay checkpoint, full pipeline rerun (cache disabled, walk-forward retrain).]    1
+    run_variant.py (s13_46_icorr_cov)   [S13.46 (2026-08-20): implied-correlation off-diagonal covariance scaling arm - preregistered single config after the S13.45-C precheck PASS (NW t +8.43, OOS RMSE +11.6%). New default-OFF flag implied_corr_covariance_enabled; per-rebalance scalar s_t = clip(ICorr/rho_trail, 0.5, 2.0) applied to the covariance off-diagonal only (diagonal untouched, eigenvalue floor 1e-8).]    1
+    run_variant.py (s13_47_ndcg20)      [S13.47 (2026-08-20): rank_eval_at [5, 10] -> [20] single replacement arm - preregistered after the S13.45-D usage audit PASS (69.3% of gross OW outside mu-top-5, rank 6-50 contribution +0.304). Variant-only change (existing config key), no src edits. Early stopping becomes argmax@20 (S13.8 capacity-regulator replacement risk preregistered - degeneracy reported alongside E1).]    1
+    run_variant.py (arm_s15_1_monotone_margin) [S15.1 (2026-08-27): monotone(+1) constraints on the three sign-stable margin-axis features (oper_margin_chg_63d/252d, op_leverage_63d) from the S15-B precheck, on top of the adopted S15 fix-pack production config. Map frozen by preregistration, no sweeps.]    1
+    run_variant.py (s16_3_fresh_fixed)  [S16.3 (2026-08-31): degenerate-fallback POLICY arm - fresh_fixed refit at preregistered fixed capacity (degenerate_fresh_trees=67 = median best_iteration of the 19 unique baseline models) instead of reuse_prev, vs the S16.1 unit-fixpack run (only delta). First arm to change the fallback policy itself (S13.8 residual candidate 'explicit capacity regulation').]    1
+    run_variant.py (s16_7_name_risk_cap) [S16.7 (2026-08-31): user-directed risk-discipline arm - enforce the existing report-only guardrail max_name_active_risk_share=0.35 INSIDE the optimiser (sequential convex re-solves shrinking per-name symmetric active bounds; applied at both MVO target and post-execution projection). Motivation: 2026-08-18 book carries 54.3% of ex-ante active risk in STX (0.42 pre-flip, 0.54 post-S16.2).]    1
+    run_variant.py (s16_8a_opcf_level)  [S16.8-A (2026-09-01): user-directed retest of the Fwd_OpCashflow LEVEL axis after the S16.1 unit fix - fwd_opcf_level_z = cs_z(rolling_tsz(OpCF,756,252)), the idiom that revived best_calculated_fcf_level_z. Precheck: raw IC NW t 3.71, residual IC NW t 2.97 (real incremental signal), max redundancy 0.57. First run invalidated by an Index.xlsx mid-refresh vintage fork (fx stat size 0); re-adjudicated on a same-vintage pair vs a bit-faithful S0 recert (not counted).]    1
+    run_variant.py (s17_2_cov_corr_overlap) [S17.1 (2026-09-02): structural-review round-4 M2 Sigma-channel arm - non-synchronous trading understates ASIA x US daily correlations 3.1x on 97/97 rebalance dates (W3 empirical); ON keeps daily variances and re-estimates ONLY the correlation matrix from 5-day overlapping-sum returns (same LW/pairwise branch), Sigma' = D C_K D, PSD repaired, before the mega-cap shrink. Optimizer-only change (avg_ic must be bit-identical).]    0
+    run_variant.py (s17_4_dead_feature_prune) [S17.1 (2026-09-02): structural-review round-4 M4 hygiene arm - nine core features the date-grouped rank_xendcg objective cannot consume (7 per-date-constant broadcast columns with split 0 in 33/33 models, 2 exact duplicates of best_* columns) excluded at the core-whitelist filter (65 -> 56).]    1
+============================================================
+  Phase 5: Selection Bias Check (GATE)
+============================================================
+  [pkl] loading: outputs\s25_6_sector_risk_penalty\backtest_result.pkl
+
+  Active returns: 1930 days
+  Trial count N: 478
+
+[1/5] Deflated Sharpe Ratio...
+  Observed SR: 1.782
+  DSR: 1.444 (p=0.0744) [FAIL]
+
+[2/5] Minimum Track Record Length...
+  Required: 0.8 yrs (214 days)
+  Available: 7.7 yrs (1930 days)
+  [SUFFICIENT]
+
+[3/5] Grid Search Haircut...
+  Haircut: 1.263
+  Adjusted SR: 0.519 [PASS]
+
+[4/5] Universe Survivorship Bias...
+  [survivorship] dataset: C:\Users\westl\PycharmProjects\pythonProject\venv_vf_new\machine\re_study\ai_signal_data.xlsx
+  [O] Earnings_Timeline 로드: (3310, 250), 총 11980개 발표일
+  Late entrants: 24
+    PLTR: data from 2020-10-01
+    GEV: data from 2024-04-03
+    SNDK: data from 2025-02-25
+    CEG: data from 2022-02-03
+    ARM: data from 2023-09-15
+    285A: data from 2024-12-19
+    BN: data from 2022-12-13
+    UMG: data from 2021-09-23
+    ABNB: data from 2020-12-11
+    GE: data from 2024-04-03
+    TT: data from 2020-03-03
+    CRWD: data from 2019-06-13
+    WDC: data from 2025-02-25
+    DDOG: data from 2019-09-20
+    COF: data from 2025-05-20
+    UBER: data from 2019-05-11
+    DASH: data from 2020-12-10
+    RBLX: data from 2021-03-11
+    APP: data from 2021-04-16
+    SNOW: data from 2020-09-17
+    NET: data from 2019-09-14
+    HWM: data from 2020-04-02
+    RDDT: data from 2024-03-22
+    TKO: data from 2023-09-13
+  [WARN (24 late)]
+
+[5/5] Sub-period Stability...
+  Period 1 (2019-01-29~2021-08-16): IR=1.463 [+]
+  Period 2 (2021-08-17~2024-03-07): IR=1.534 [+]
+  Period 3 (2024-03-08~2026-10-01): IR=2.295 [+]
+  [STABLE]
+
+============================================================
+  SELECTION BIAS GATE: **FAIL**
+============================================================
+  WARNING: 관측된 성과가 다중 비교 편향에 의한 것일 수 있습니다.
+
+  Report: outputs\reports\selection_bias_report.md
+  CSV: outputs\csv\selection_bias_metrics.csv

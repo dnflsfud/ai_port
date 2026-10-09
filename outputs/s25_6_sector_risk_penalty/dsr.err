@@ -1,0 +1,4 @@
+[DataLoader] Extending 2 tail dates beyond intersection (2026-09-29 -> 2026-10-01) via ffill.
+[DataLoader] Date intersection (3308) is 66% of longest sheet (5020). Tail-extended to 3310 dates.
+WARNING:src.data_loader:[UniverseData] target-price / local-price ratio outside [0.2, 5] for 8 ticker(s) — likely a quote-unit mismatch: {'RR/': 0.0112, 'AZN': 0.0118, 'SHEL': 0.0114, 'HSBA': 0.0103, 'RIO': 0.0104, 'LSEG': 0.014, 'ULVR': 0.0113, 'REL': 0.0141}
+WARNING:src.data_loader:[UniverseData] target-price / local-price 252d median outside [0.6, 1.7] for 8 ticker(s) — vendor basis mismatch suspected: {'RR/': 0.0112, 'AZN': 0.0118, 'SHEL': 0.0114, 'HSBA': 0.0103, 'RIO': 0.0104, 'LSEG': 0.014, 'ULVR': 0.0113, 'REL': 0.0141}
