@@ -322,6 +322,9 @@
         "2016-07-05": 0.758
       }
     },
+    "top_decile_boost_enabled": false,
+    "top_decile_boost_kappa": 0.5,
+    "top_decile_boost_quantile": 0.9,
     "trailing_ic_window": 6,
     "train_cutoff_date": null,
     "train_window": 1260,
@@ -349,18 +352,18 @@
     "zscore_winsor_first_enabled": true
   },
   "data_vintage": {
-    "data_mtime_utc": "2026-10-08T02:27:51Z",
+    "data_mtime_utc": "2026-10-14T05:02:55Z",
     "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
-    "data_size_bytes": 377224695,
-    "fx_mtime_utc": "2026-10-02T02:30:43Z",
-    "fx_size_bytes": 97242444,
+    "data_size_bytes": 378295942,
+    "fx_mtime_utc": "2026-10-16T02:12:59Z",
+    "fx_size_bytes": 97587724,
     "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx"
   },
   "extra": {
     "description": "Fixed-250 causal production portfolio. Uses date-grouped LightGBM rank_xendcg, purged/embargoed validation, and a one-trading-day execution signal lag. The legacy label/output path is retained for automation compatibility; the universe is the validated 250-name Universe_Meta set (decision log \u00a7S14.2). The adopted four-feature forward-sales-slope block is enabled per S13.25; benchmark, overlays, optimizer and transaction-cost assumptions remain pinned to the canonical iter15_65tkr_reb21_vtg portfolio design.\n",
     "manifest_path": "variants\\codex_causal_rank_65.yaml",
     "run_contract": {
-      "config_sha256": "227056a3c13921760c1787e4551ce64cc6433b78af9cadb2963050d404087270",
+      "config_sha256": "0102f35792e844e2f4c545d2678f529aa11b4c6d00bd110e580315657789d393",
       "data_dates": [
         "2014-01-24T00:00:00",
         "2014-01-27T00:00:00",
@@ -3552,21 +3555,29 @@
         "2026-09-28T00:00:00",
         "2026-09-29T00:00:00",
         "2026-09-30T00:00:00",
-        "2026-10-01T00:00:00"
+        "2026-10-01T00:00:00",
+        "2026-10-02T00:00:00",
+        "2026-10-05T00:00:00",
+        "2026-10-06T00:00:00",
+        "2026-10-07T00:00:00",
+        "2026-10-08T00:00:00",
+        "2026-10-09T00:00:00",
+        "2026-10-12T00:00:00",
+        "2026-10-13T00:00:00"
       ],
       "inputs": {
-        "code_sha256": "cbad29e09e943fac04aa9629017f448913391f972f32e73a6cfd0f83395a0c6b",
+        "code_sha256": "a1ec2a798ffc10f0f96a0db58c67dcf96d3bf9c6ec1d01e8a4f4a765ae20a89c",
         "data": {
-          "mtime_ns": 1791426471744267300,
+          "mtime_ns": 1791954175633196000,
           "path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
-          "sha256": "aef1ec09731242aa8c42d35e544c01b0330a3f690fc19005f61f6bec12d4e781",
-          "size": 377224695
+          "sha256": "22bd2b3bbbc4cb0fbbab14e35c7c98d7d8a4b556f702e46f99c240c531d92132",
+          "size": 378295942
         },
         "fx": {
-          "mtime_ns": 1790908243077884600,
+          "mtime_ns": 1792116779681633900,
           "path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
-          "sha256": "6d0c9b439e8f5fd41bb723ac9846ebe166aa0d33801ebba077b63dbfa36cfd88",
-          "size": 97242444
+          "sha256": "8a1c4845a182c19ce653379e90c39387ea0594e4e95d56a6e9cacb111233e06d",
+          "size": 97587724
         }
       },
       "schema_version": 1,
@@ -3827,6 +3838,6 @@
     "variant_label": "codex_causal_rank_65"
   },
   "git_dirty": false,
-  "git_hash": "e1ca6c28acdef12b8220be9161a1a3d21bc0f4de",
-  "timestamp_utc": "2026-10-09T03:12:23Z"
+  "git_hash": "09957ad1b2119962beddefa8a4afc88f191f837f",
+  "timestamp_utc": "2026-10-16T03:28:59Z"
 }
