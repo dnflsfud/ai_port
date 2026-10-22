@@ -352,9 +352,9 @@
     "zscore_winsor_first_enabled": true
   },
   "data_vintage": {
-    "data_mtime_utc": "2026-10-20T05:22:57Z",
+    "data_mtime_utc": "2026-10-21T05:58:08Z",
     "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
-    "data_size_bytes": 378841225,
+    "data_size_bytes": 378940470,
     "fx_mtime_utc": "2026-10-21T02:18:00Z",
     "fx_size_bytes": 97690899,
     "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx"
@@ -3567,15 +3567,16 @@
         "2026-10-14T00:00:00",
         "2026-10-15T00:00:00",
         "2026-10-16T00:00:00",
-        "2026-10-19T00:00:00"
+        "2026-10-19T00:00:00",
+        "2026-10-20T00:00:00"
       ],
       "inputs": {
         "code_sha256": "a1ec2a798ffc10f0f96a0db58c67dcf96d3bf9c6ec1d01e8a4f4a765ae20a89c",
         "data": {
-          "mtime_ns": 1792473777538050600,
+          "mtime_ns": 1792562288256748200,
           "path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
-          "sha256": "88ee391379e9560cb745a6ac4b4669ecd4f450a5f64c9a160b4ec2210e5f9352",
-          "size": 378841225
+          "sha256": "76515f14009eeecb519c39d5d92cc75157d78d6e68cee60c2a9689b08ae271f5",
+          "size": 378940470
         },
         "fx": {
           "mtime_ns": 1792549080165197400,
@@ -3842,6 +3843,6 @@
     "variant_label": "codex_causal_rank_65"
   },
   "git_dirty": false,
-  "git_hash": "7556e368e2bf9e6e678e242e853ebecb15e745bf",
-  "timestamp_utc": "2026-10-21T03:21:04Z"
+  "git_hash": "16c6ecee3fbe80ea21bb32b4be59c1a86c67be5f",
+  "timestamp_utc": "2026-10-22T03:22:33Z"
 }
