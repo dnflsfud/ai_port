@@ -349,8 +349,8 @@
     "data_mtime_utc": "2026-10-21T05:58:08Z",
     "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
     "data_size_bytes": 378940470,
-    "fx_mtime_utc": "2026-10-21T02:18:00Z",
-    "fx_size_bytes": 97690899,
+    "fx_mtime_utc": "2026-10-26T02:14:37Z",
+    "fx_size_bytes": 97794440,
     "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx"
   },
   "extra": {
@@ -3573,10 +3573,10 @@
           "size": 378940470
         },
         "fx": {
-          "mtime_ns": 1792549080165197400,
+          "mtime_ns": 1792980877629045300,
           "path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
-          "sha256": "bc3402d4f938ae414787e8d9905f336156fab436947bd2ee62db68045e9032ed",
-          "size": 97690899
+          "sha256": "8cf6a4a4b5f075cb88af4a893bf82e6864b653e1162e7c1ea43c83e4170e8eb7",
+          "size": 97794440
         }
       },
       "schema_version": 1,
@@ -3837,6 +3837,6 @@
     "variant_label": "iter15_65tkr_reb21_vtg"
   },
   "git_dirty": false,
-  "git_hash": "fc56a808f82d49d676f002c1a151d3927f5030d9",
-  "timestamp_utc": "2026-10-23T02:47:40Z"
+  "git_hash": "b069ba9bc0a2202a47bb76b0bf1df4d0b3778d8d",
+  "timestamp_utc": "2026-10-26T02:50:38Z"
 }

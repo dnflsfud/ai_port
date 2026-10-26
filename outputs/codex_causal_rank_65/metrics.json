@@ -1857,14 +1857,14 @@
     "ECOS": 186
   },
   "optimizer_solver_fallback_rate": 0.0,
-  "elapsed_sec": 1111.5,
+  "elapsed_sec": 1201.2,
   "data_vintage": {
     "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
     "data_mtime_utc": "2026-10-21T05:58:08Z",
     "data_size_bytes": 378940470,
     "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
-    "fx_mtime_utc": "2026-10-21T02:18:00Z",
-    "fx_size_bytes": 97690899
+    "fx_mtime_utc": "2026-10-26T02:14:37Z",
+    "fx_size_bytes": 97794440
   },
   "run_contract": {
     "schema_version": 1,
@@ -1877,9 +1877,9 @@
       },
       "fx": {
         "path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
-        "sha256": "bc3402d4f938ae414787e8d9905f336156fab436947bd2ee62db68045e9032ed",
-        "size": 97690899,
-        "mtime_ns": 1792549080165197400
+        "sha256": "8cf6a4a4b5f075cb88af4a893bf82e6864b653e1162e7c1ea43c83e4170e8eb7",
+        "size": 97794440,
+        "mtime_ns": 1792980877629045300
       },
       "code_sha256": "a1ec2a798ffc10f0f96a0db58c67dcf96d3bf9c6ec1d01e8a4f4a765ae20a89c"
     },
