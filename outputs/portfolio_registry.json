@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-10-26T03:24:01.389077+00:00",
+  "generated_at_utc": "2026-10-27T03:24:23.189727+00:00",
   "stale_after_hours": 96,
   "data_as_of": "2026-10-20",
   "comparison_gate": {
@@ -33,7 +33,7 @@
       "option_vol_applied_ok": true,
       "latest_rebalance_no_fallback_ok": true,
       "turnover_within_cap_ok": true,
-      "data_as_of_fresh_ok": true
+      "data_as_of_fresh_ok": false
     },
     "values": {
       "top_sector": "Technology",
@@ -55,7 +55,7 @@
       "turnover_two_way_latest": 0.054813244,
       "max_two_way_turnover": 0.15,
       "data_as_of": "2026-10-20",
-      "data_age_sessions": 3,
+      "data_age_sessions": 4,
       "max_data_age_sessions": 3
     }
   },
@@ -337,12 +337,12 @@
       "rebalance_overdue": false,
       "is_rebalance_data_as_of": false,
       "next_rebalance_is_estimate": true,
-      "exported_at_utc": "2026-10-26T03:23:57.956997+00:00",
-      "source_metrics_sha256": "94aa1c8ea003731f49a9f1b01792fd4dea52bb5c514a9a2b46c474a3a8ffe286",
-      "source_metrics_mtime_utc": "2026-10-26T03:17:22.445409+00:00",
+      "exported_at_utc": "2026-10-27T03:24:20.655828+00:00",
+      "source_metrics_sha256": "0129232fb1c2203d091a8b187e0f00c5e424170dccfd22e76698613271f828e3",
+      "source_metrics_mtime_utc": "2026-10-27T03:17:40.546331+00:00",
       "portfolio_version": "universe250-usd-pit-sp500-v2",
-      "source_manifest_sha256": "73df5b50550d660440e23607f8f4251728385f01b69991841fd13a5fcd006b53",
-      "git_hash": "b069ba9bc0a2202a47bb76b0bf1df4d0b3778d8d",
+      "source_manifest_sha256": "d3eb0e4da3149f0a8976c6ec6a4d1a14b60b8c63582ea1ce7e403f89d7ab9326",
+      "git_hash": "e4c453695f8abb2ee59f61bcc4fceae087d51394",
       "git_dirty": false,
       "verified_run_contract": true,
       "causal_validation_enabled": true,
@@ -658,12 +658,12 @@
       "rebalance_overdue": false,
       "is_rebalance_data_as_of": false,
       "next_rebalance_is_estimate": true,
-      "exported_at_utc": "2026-10-26T02:57:16.015702+00:00",
-      "source_metrics_sha256": "33d79afb50337aa5d29d6e646252d53d804e02369dfb5f47250132bff4ff0419",
-      "source_metrics_mtime_utc": "2026-10-26T02:50:37.576330+00:00",
+      "exported_at_utc": "2026-10-27T02:55:21.933478+00:00",
+      "source_metrics_sha256": "fd9b96f0ff906ab0b4ad1eb1f6209a56ce74530e0ef8561bd67e51abe5e4fa41",
+      "source_metrics_mtime_utc": "2026-10-27T02:48:52.838191+00:00",
       "portfolio_version": "universe250-usd-pit-sp500-v2",
-      "source_manifest_sha256": "9de12278779354bcf06f074bd4d2db7efb8719abca02ec177e9c01f893864e62",
-      "git_hash": "b069ba9bc0a2202a47bb76b0bf1df4d0b3778d8d",
+      "source_manifest_sha256": "82ada14c4a7b6261a6704b9221777eef4dd98515471d534439a65349e7237ab1",
+      "git_hash": "e4c453695f8abb2ee59f61bcc4fceae087d51394",
       "git_dirty": false,
       "verified_run_contract": true,
       "causal_validation_enabled": true,
