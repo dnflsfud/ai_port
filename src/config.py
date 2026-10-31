@@ -1144,6 +1144,30 @@ class PipelineConfig:
     stale_run_max_days: int = 21
 
     # ------------------------------------------------------------------
+    # S26 (2026-10-31) — second stale-run group: consensus fundamental
+    # sheets (decision log §S26 preregistration). The same vendor freeze
+    # hits BEST_GROSS_MARGIN / BEST_CALCULATED_FCF / BEST_CAPEX / BEST_ROE
+    # (10-21 workbook: APO frozen for its whole 3,088-row history in all
+    # three, GS gross margin 0.7 for 1,206 rows, C FCF -16,851 for 1,649
+    # rows; 14 names end the sample on a >= 126-row frozen gross margin).
+    # Consensus fields update far more often than that: BEST_EPS / BEST_SALES
+    # show <= 1 run >= 63 rows over 250 names x 12 years, so a half-year
+    # (126 rows — the longest legitimate reporting cadence in the universe,
+    # cf. OPER_MARGIN's semi-annual reporters) of bit-identical values is
+    # the freeze signature. ON applies mask_stale_runs with its own window
+    # to the listed sheets through the same get_sheet hook (downstream the
+    # panel builder's per-date median imputes the feature — NOT the native
+    # NaN path that §S13.6 showed to be harmful); the two sheet groups must
+    # be disjoint. Single preregistered window, no sweep. OFF (default)
+    # returns the untouched sheet object.
+    # ------------------------------------------------------------------
+    stale_run_fund_mask_enabled: bool = False
+    stale_run_fund_mask_sheets: tuple = (
+        "BEST_GROSS_MARGIN", "BEST_CALCULATED_FCF", "BEST_CAPEX", "BEST_ROE",
+    )
+    stale_run_fund_max_days: int = 126
+
+    # ------------------------------------------------------------------
     # S17.3 (2026-09-03) — G1-01b / M1 nominal price denominator (decision
     # log §S17.3 preregistration). The workbook's PX_LAST and the price-
     # ratio sheets derived from it (BEST_PE_RATIO, BEST_PX_BPS_RATIO,
@@ -1376,6 +1400,13 @@ class PipelineConfig:
             raise ValueError("max_tail_ffill_days must be >= 0")
         if int(self.stale_run_max_days) < 1:
             raise ValueError("stale_run_max_days must be >= 1")
+        if int(self.stale_run_fund_max_days) < 1:
+            raise ValueError("stale_run_fund_max_days must be >= 1")
+        _stale_overlap = set(self.stale_run_mask_sheets) & set(self.stale_run_fund_mask_sheets)
+        if _stale_overlap:
+            raise ValueError(
+                f"stale-run sheet groups must be disjoint (one window per sheet): {sorted(_stale_overlap)}"
+            )
         self.base_currency = str(self.base_currency).upper()
         if self.base_currency != "USD":
             raise ValueError(

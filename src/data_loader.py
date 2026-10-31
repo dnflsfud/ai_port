@@ -1931,8 +1931,10 @@ class UniverseData:
             df = mask_pre_listing(df, self.listing_dates, inclusive=False)
         return df
 
-    def _stale_run_masked_sheet(self, name: str) -> pd.DataFrame:
+    def _stale_run_masked_sheet(self, name: str, max_run: Optional[int] = None) -> pd.DataFrame:
         """§S25.4: ``self.sheets[name]`` with vendor-frozen cells re-NaNed.
+        ``max_run`` defaults to ``stale_run_max_days`` (ratio group); the §S26
+        fundamental group passes its own window.
 
         The run test is done on the pre-impute raw values (so the loader's
         own ffill cannot manufacture a run) and applied to the filled sheet;
@@ -1947,7 +1949,9 @@ class UniverseData:
         if raw is None:
             cache[name] = sheet
             return sheet
-        max_run = int(getattr(self.config, "stale_run_max_days", 21))
+        if max_run is None:
+            max_run = int(getattr(self.config, "stale_run_max_days", 21))
+        max_run = int(max_run)
         stale = (raw.notna() & mask_stale_runs(raw, max_run).isna()).reindex(
             index=sheet.index, columns=sheet.columns, fill_value=False
         )
@@ -2050,6 +2054,13 @@ class UniverseData:
             and name in set(getattr(self.config, "stale_run_mask_sheets", ()))
         ):
             return self._stale_run_masked_sheet(name)   # §S25.4, default-OFF
+        if (
+            getattr(self.config, "stale_run_fund_mask_enabled", False)
+            and name in set(getattr(self.config, "stale_run_fund_mask_sheets", ()))
+        ):
+            return self._stale_run_masked_sheet(        # §S26, default-OFF
+                name, max_run=int(getattr(self.config, "stale_run_fund_max_days", 126))
+            )
         return self.sheets[name]
 
     def summary(self) -> str:

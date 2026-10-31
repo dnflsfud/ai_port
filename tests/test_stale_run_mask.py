@@ -88,3 +88,82 @@ def test_on_masks_only_configured_sheets_after_the_run_window(monkeypatch):
     # repeat calls reuse the masked frame
     assert data.get_sheet("BEST_PE_RATIO") is pe
     assert data.data_quality["stale_run_mask"]["BEST_PE_RATIO"]["masked_cells"] == 20
+
+
+# ---------------------------------------------------------------------------
+# §S26 (2026-10-31): second stale-run group — consensus fundamental sheets
+# (BEST_GROSS_MARGIN / BEST_CALCULATED_FCF / BEST_CAPEX / BEST_ROE) at a 126-row
+# window. Reference distribution (10-21 workbook): BEST_EPS / BEST_SALES, the
+# densest consensus fields, have <= 1 run >= 63 rows over 250 names x 12 years,
+# while GM/FCF/CAPEX carry whole-history frozen values (APO 3,088 rows, GS GM
+# 0.7 for 1,206 rows, C FCF -16,851 for 1,649 rows). 126 rows (one half-year,
+# the longest legitimate reporting cadence in the universe) is the single
+# preregistered window. OFF is byte-identical; the ratio group keeps its own
+# 21-row window.
+# ---------------------------------------------------------------------------
+_FUND_SHEETS = ("BEST_GROSS_MARGIN", "BEST_CALCULATED_FCF", "BEST_CAPEX", "BEST_ROE")
+
+
+def _workbook_long(n_dates=200):
+    dates = pd.bdate_range("2021-01-04", periods=n_dates)
+    prices = pd.DataFrame({"AAA": np.linspace(100.0, 199.0, n_dates), "BBB": np.linspace(50.0, 149.0, n_dates)}, index=dates)
+    meta = pd.DataFrame({"Ticker": ["AAA", "BBB"], "Name": ["Alpha", "Beta"], "Sector": ["Test", "Test"]},
+                        index=["AAA US Equity", "BBB US Equity"])
+    # BBB gross margin: 30 changing rows, then frozen at 42.0 for 170 rows
+    gm = pd.DataFrame({"AAA": np.linspace(30.0, 31.99, n_dates),
+                       "BBB": list(np.linspace(40.0, 41.0, 30)) + [42.0] * (n_dates - 30)}, index=dates)
+    # BBB PE: 20 changing rows, then frozen at 21.0 for 180 rows (ratio group, 21-row window)
+    pe = pd.DataFrame({"AAA": np.linspace(10.0, 11.99, n_dates),
+                       "BBB": list(np.linspace(20.0, 21.0, 20)) + [21.0] * (n_dates - 20)}, index=dates)
+    raw = {"Universe_Meta": meta, "PX_LAST": prices,
+           "Daily_Returns": prices.pct_change(fill_method=None).fillna(0.0),
+           "BEST_PE_RATIO": pe, "BEST_GROSS_MARGIN": gm}
+    for sheet in (_ESSENTIAL | set(_FUND_SHEETS)) - set(raw):
+        raw[sheet] = pd.DataFrame(1.0, index=dates, columns=["AAA", "BBB"])
+    return raw
+
+
+def _data_long(monkeypatch, **cfg_kwargs):
+    raw = _workbook_long()
+    monkeypatch.setattr("src.data_loader.load_all_sheets", lambda _path: {k: v.copy() for k, v in raw.items()})
+    return UniverseData("unused.xlsx", config=PipelineConfig(fx_source_path="missing.xlsx", **cfg_kwargs))
+
+
+def test_fund_group_config_defaults_off_and_validates():
+    cfg = PipelineConfig()
+    assert cfg.stale_run_fund_mask_enabled is False
+    assert cfg.stale_run_fund_mask_sheets == _FUND_SHEETS
+    assert cfg.stale_run_fund_max_days == 126
+    with pytest.raises(ValueError):
+        PipelineConfig(stale_run_fund_max_days=0)
+    with pytest.raises(ValueError):          # the two groups must stay disjoint (one window per sheet)
+        PipelineConfig(stale_run_fund_mask_sheets=("BEST_PE_RATIO",))
+
+
+def test_fund_group_off_leaves_fund_sheets_untouched_even_with_ratio_group_on(monkeypatch):
+    data = _data_long(monkeypatch, stale_run_mask_enabled=True)
+    gm = data.get_sheet("BEST_GROSS_MARGIN")
+    assert gm is data.sheets["BEST_GROSS_MARGIN"]
+    assert not gm.isna().any().any()
+    assert "BEST_GROSS_MARGIN" not in data.data_quality.get("stale_run_mask", {})
+
+
+def test_fund_group_on_masks_at_126_rows_and_ratio_group_keeps_its_21_row_window(monkeypatch):
+    data = _data_long(monkeypatch, stale_run_mask_enabled=True, stale_run_fund_mask_enabled=True)
+    gm = data.get_sheet("BEST_GROSS_MARGIN")["BBB"]
+    assert gm.iloc[:30 + 126].notna().all()          # changing rows + the first 126 frozen rows are kept
+    assert gm.iloc[30 + 126:].isna().all()           # the remaining 44 frozen rows are stale
+    assert data.get_sheet("BEST_GROSS_MARGIN")["AAA"].notna().all()
+    pe = data.get_sheet("BEST_PE_RATIO")["BBB"]
+    assert pe.iloc[:19 + 21].notna().all() and pe.iloc[19 + 21:].isna().all()   # ratio group unchanged: 21-row window
+    assert data.get_sheet("OPER_MARGIN") is data.sheets["OPER_MARGIN"]           # constant 1.0 sheet outside both groups
+    dq = data.data_quality["stale_run_mask"]
+    assert dq["BEST_GROSS_MARGIN"]["masked_cells"] == 44 and dq["BEST_GROSS_MARGIN"]["max_run"] == 126
+    assert dq["BEST_PE_RATIO"]["max_run"] == 21
+
+
+def test_fund_group_on_alone_does_not_touch_ratio_sheets(monkeypatch):
+    data = _data_long(monkeypatch, stale_run_fund_mask_enabled=True)
+    assert data.get_sheet("BEST_PE_RATIO") is data.sheets["BEST_PE_RATIO"]
+    fcf = data.get_sheet("BEST_CALCULATED_FCF")      # constant 1.0 for 200 rows: first 126 kept, 74 masked
+    assert fcf["AAA"].iloc[:126].notna().all() and fcf["AAA"].iloc[126:].isna().all()

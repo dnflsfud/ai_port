@@ -10350,3 +10350,80 @@ VINTAGE_PRE == POST(정본 워크북 2026-10-08 11:27:51 / Index 2026-10-02 11:3
 - DSR 해킷(`run_selection_bias.py --auto --label s25_6_sector_risk_penalty`, N=478): 참고 기록 — SELECTION BIAS GATE: **FAIL** (책이 기준과 사실상 동일하므로 기준선 자체의 DSR 과 같다). 인벤토리 478 유지(측정 완료).
 - **§S25.6 종결**: §S25.2 후보 보고서 ②~⑤ 전부 소진(②·① 채택 완료, ③ 라벨 horizon·⑤ μ 볼록성·④-b 섹터 벌점 λ5 SHELVE). 남은 열림 = 신규 Bloomberg 인출(신선도 HOLD)·F3 생성기 std 가드·
   상위 저장소 생성기 커밋·Tech 몫 HOLD(게이트 정당, 책 변화로만 해소). `ai_port_run_and_upload` 재활성화(다음 10-12 11:30), 일회성 작업 삭제.
+
+## S26 — 데이터 정확성 잔여 항목 8차 점검 + 펀더멘털 동결 구간 마스크 arm 사전등록 (2026-10-31 22:10~23:20, 사용자 지시 "4번(데이터 정확성 잔여 항목)을 일단 먼저" · 정확성 트랙 · 인벤토리 비계수(478 불변) · 측정 전 단독 커밋)
+
+**배경**: 2026-10-31 개선안 검토에서 "IR 을 실제로 움직인 유일한 레버 = 데이터 정확성 수정(§S15 +0.166 · §S16.1 +0.160 · §S25.4 B-03 +0.209)" 을 확인하고
+잔여 5항목(로더 ffill 꼬리 동결 확장 · KR/JP 마지막 행 · VRT/LIN 전신 이력 · DTE 섹터 · Fwd_Sales_Slope 커버리지)의 현재 상태를 읽기 전용으로 재점검했다.
+데이터 = 10-21 14:58 워크북(원시 60시트 캐시 `scratchpad/raw_sheets_1021.pkl`, 프로브 `probe_b_census.py` → `probe_b_census.json`; production 로더 경로
+`UniverseData` + production variant 로더 플래그, `stale_run_mask_enabled` 만 OFF 로 두어 미마스킹 원시값 센서스). 3,204 거래일 × 250.
+
+### 8차 점검 결과 (백테스트 0)
+
+| 항목 | 상태 | 근거 |
+|---|---|---|
+| KR/JP 마지막 행 장중 스냅샷(§S18.6 High-1) | **종결** | 인출일 컷오프 발효 — 10-20 점검에서 PX_LAST == PX_LAST_UNADJ 마지막 5행, 전 시트 10-19 종료 |
+| DTE 섹터 오매핑 의심(§S13.50 비액션 관측) | **종결(오탐)** | Universe_Meta: `DTE GR Equity` = **Deutsche Telekom**, EUR, Communication Services — 정확. DTE Energy 가 아님 |
+| Fwd_Sales_Slope 2021 이전 커버리지(§S18 P4) | **무효(moot)** | `fwd_sales_slope_features_enabled: false`(§S23.2 롤백) — production 미소비 |
+| VRT 전신 이력(§S18 P6) | **기록·사용자 결정** | PX_LAST·CUR_MKT_CAP 2018-08-01 부터(GSAH SPAC 셸, 382일, 연 vol **9.2%** vs 상장 후 49.6%, 0-수익률 일 22%); 펀더멘털은 생성기 접두 마스크로 EPS/SALES 2020-03-11·ROE 2020-11-16·OPER_MARGIN 2019-07-01 부터만 유효. 셸 구간 가격 이력은 §S11.4 결정(의도적 보존)대로 잔존 — `listing_dates` VRT → 2020-02-10 는 기본 config 변경 + S0′ 재인증이라 사용자 결정 사항. 영향 0.05% 셀(1종목 382행), 벤치마크 비중 미미 |
+| LIN 전신 이력 | **종결** | BEST_* 1,262행 상수 접두는 생성기 `mask_backfilled_prefix`(§S25, 10-12 이후 워크북)로 NaN; Praxair 가격 이력은 동등 합병 연속성으로 정당 |
+| **로더 ffill 라이브 꼬리 동결 — 비율 4시트 밖**(§S25 미해결) | **열림 → 이번 arm** | 아래 센서스 |
+| BRK/B Earnings_Date 2017-11-03 종료(§S25.1 ①) | **원인 확정·상위 저장소 수정(미커밋)** | 아래 |
+| GILD OPER_MARGIN 2026-06-30 −133.2(직전 37.1) | 기록만 | 단발 손상(IPR&D 상각류) 가능성 — 원천 미확인. CS OPER_MARGIN 은 생성기 퇴화열 제외로 전부 NaN(정상) |
+
+**동결 구간 센서스(미마스킹 원시값, 상장 후 셀 기준; 구간 = 열별 완전 동일값 연속행)**:
+
+| 시트 | 구간 ≥63/≥126/≥252 (개) | 마지막 행 동결 ≥63/≥126/≥252 (종목) | 126행 마스크 시 셀 비율 | 마지막 행 동결 상위(행수·값) |
+|---|---:|---:|---:|---|
+| BEST_GROSS_MARGIN | 196 / **108** / 50 | 22 / **14** / 9 | **3.71%** | APO 3,088(53.97) · GS 1,206(**0.7**) · BN 788 · ALV 537 · BKNG 510(**100.0**) · DTE 451 · HSBA 390 · CME 297(100.0) · AON 285(100.0) · BX 201(100.0) · KKR 148(100.0) |
+| BEST_CALCULATED_FCF | 53 / **36** / 19 | 8 / 8 / 5 | 1.92% | APO 2,585 · **C 1,649(−16,851.8)** · PGR 852 · MS 777 · AXP 655 · ALV 240 |
+| BEST_CAPEX | 48 / **25** / 12 | 9 / 8 / 6 | 1.34% | APO 3,095 · PGR 713 · AXP 655 · MS 655 · BRK/B 612 · MUV2 331 |
+| BEST_ROE | 30 / 14 / 8 | 0 / 0 / 0 | 0.65% | (내부 구간만) |
+| *참조* BEST_EPS / BEST_SALES | 1/0/0 · 1/1/0 | 0 · 0 | 0.00% · 0.005% | 컨센서스 필드의 정상 갱신 빈도 — 63행 이상 동일이 사실상 없음 |
+| *참조* CUR_MKT_CAP · Factset TG/EPS_Rev | 0 · 39/2/0 · 61/5/0 | 0 | ≤0.01% | 정상 |
+| *제외* OPER_MARGIN | 7,164 / 172 / **0** | 194 / 1 / 0 | (0.04%) | 분기 보고 계단(중앙 63행, q99 127행 = 반기 보고자) — 126행 창이 정당한 계단을 자르므로 **대상 아님** |
+| *제외* EQY_REC_CONS | 1,441 / 175 / 22 | 19 / 4 / 1 | (1.40%) | 등급 컨센서스는 수개월 정체가 정당 — **대상 아님** |
+| *production 마스크(21행) 현황* | PE 5,070셀/19 · PEG 46,927/155 · P/B 28,049/44 · EV/EBITDA 11,135/20 | | | §S25.4 flip 작동 확인 |
+
+판독: 컨센서스 필드 가족(EPS·SALES)은 63행 이상 동일값이 사실상 0 인데 GM/FCF/CAPEX/ROE 는 수백~3,000행 동결이 있다 — 벤더 커버리지 중단값을 price_v4·로더
+ffill 이 되살린 §S25 F1 과 같은 결함(대부분 금융·보험: 정의 불가 필드가 100.0/상수로 고정). 레벨 피처(`best_calculated_fcf_level_z`·`best_capex_level_z`·`cash_conversion_z`·
+`capex_intensity_z`·`fin_roe_*`)에는 10년 전 동결값이 2026 횡단면에 그대로 들어가고, chg 피처(`best_gross_margin_chg_*`·`op_leverage_63d`)는 동결 구간 끝에서 가짜 점프
+(GS 0.7 → 실값)를 만든다. 창 126행 = 유니버스의 가장 긴 정당한 보고 주기(반기)이며 EPS/SALES 참조 분포상 정당한 컨센서스 정체가 넘지 않는 값 — **단일 사전등록값, 스윕 없음**
+(63 은 단일 애널리스트 분기 갱신과 겹칠 수 있어 채택하지 않음).
+
+### BRK/B 실적발표일 — 원인 확정 + 상위 저장소 수정
+
+`Earnings_Timeline` BRK/B 이벤트 11건, 마지막 2017-11-03(생성기 경고 로그 10-08~10-21 매회). 원천 `S&P500.xlsx` Earnings_Date 시트는 이미 0/1 피벗(3,344 평일행)이라
+원시 날짜는 없지만, **`price_v4.process_index_list` 가 `pd.bdate_range` 인덱스에 `if d in earn_timeline.index` 로 기록하므로 주말 발표일은 조용히 버려진다** — Berkshire 는
+토요일 발표가 관행. 수정(`venv_vf_new/price_v4.py`, 상위 저장소, **미커밋**): `searchsorted` 로 다음 영업일 행에 기록(인덱스 안의 날짜는 불변; 토 → 월 시뮬레이션 확인).
+발효 = 다음 Bloomberg 재인출 + `run_data_pipeline.bat`. 다른 종목의 주말 발표 유실 규모는 재인출 후 종목별 이벤트 수 비교로 확인. 소비 측 영향 = PEAD 부스트(production ON)
+1종목 2018 이후 맹점.
+
+### arm `s26_stale_fund_mask` 사전등록
+
+- **variant** = production overrides(`variants/codex_causal_rank_65.yaml`) 바이트 사본 + `stale_run_fund_mask_enabled: true` 1줄(시트·창은 config 기본값). overrides diff 검증
+  `{'stale_run_fund_mask_enabled': (None, True)}` 뿐. sha256 `2b2750c6c26785714fc5d2e7ac65808d32ec7badb2c654e09fdc9e0b9cd034aa`(동결, 수정 금지).
+- **신규 코드(default-OFF, OFF 파리티)**: `PipelineConfig.stale_run_fund_mask_enabled / stale_run_fund_mask_sheets=(BEST_GROSS_MARGIN, BEST_CALCULATED_FCF, BEST_CAPEX, BEST_ROE) /
+  stale_run_fund_max_days=126`(검증 ≥1, 비율 그룹과 **서로소** 강제) · `UniverseData.get_sheet` 두 번째 분기 → `_stale_run_masked_sheet(name, max_run=126)`(§S25.4 함수에 창 인자 추가,
+  비율 그룹은 기존 21 유지, 시트별 캐시·`data_quality["stale_run_mask"][sheet]["max_run"]` 기록). 하류는 §S25.4 와 동일 — 패널 빌더의 날짜별 중앙값 임퓨트(§S13.6 이 사후 정당화한
+  인코딩; §S13.6 의 네이티브 NaN 경로가 아님). 테스트 `tests/test_stale_run_mask.py` +4(10) · `tests/test_eval_s26_stale_fund_arm.py` 3 · **전체 973 PASS**. production config 는
+  플래그 False → `get_sheet` 가 같은 객체 반환(바이트 동일).
+- **기준** = `outputs/s26_s0_base`(10-30 12:14 스케줄 production 런 동결 사본; `outputs/codex_causal_rank_65` 는 11-02 11:30 런이 덮어씀): IR **1.7737993717667202** / TE 3.68% /
+  회전 0.780 / AS 20.44% / β 1.056 / avg_ic 0.0098 / 퇴화 9/31. 빈티지 = 워크북 2026-10-21T05:58:08Z(14:58 KST, sha256 `76515f14…`) / Index 2026-10-26T02:14:37Z(11:14 KST).
+  §S13.47: 10-08 S0′ 1.8230(10-08 워크북)과 직접 비교 금지 — 워크북이 10-12·10-14·10-20·10-21 재생성됨(생성기 §S25/§S25.1 규칙 발효분 포함).
+- **실행** = `outputs/s26_register_arm_task.ps1`(schtasks `s26_stale_fund_arm`, §S23.2 등록 형태: 배터리 허용·유휴 중단 없음·12h) → `outputs/s26_run_arm.bat` →
+  `run_variant_task.ps1 -Label s26_stale_fund_mask`(`--no-cache`, VINTAGE_PRE/POST). 기동 전 AC 확인: BatteryStatus 2(AC), 잔량 7% — **런 중 AC 분리 금지**. 토요일 밤이라
+  11:30 스케줄 런과 충돌 없음. 빈티지가 바뀌면 판정 중단.
+- **판정(`scripts/eval_s26_stale_fund_arm.py`, sha256 `e3a0a212e699ea59…`)** — flip 후보 = G0 ∧ 기전 ∧ E2 ∧ 무해성; formal E1 병기만.
+  - G0: data_vintage 동일 ∧ base IR 1.7737993717667202 재현(1e-9) ∧ arm overrides 플래그 True.
+  - 기전: `data_quality.stale_run_mask` 에 펀더멘털 4시트 전부 masked_cells > 0 ∧ max_run == 126 ∧ 사전 명시 사례 **BEST_GROSS_MARGIN/APO · BEST_CALCULATED_FCF/C · BEST_CAPEX/APO**
+    가 상위 종목 안 ∧ 피처 패널 변화가 4시트 파생 피처(토큰 gross_margin / op_leverage / fcf / cash_conversion / capex / roe = 화이트리스트 13피처)에만 있고 비어 있지 않음 ∧ 피처 집합
+    동일. 비율 4시트(21행)는 보고만.
+  - E2: TE ≤ 4.5% · |ΔAS| ≤ 3%p · 회전율 ≤ 1.25× · fallback 0. 무해성: ΔIR > −0.36 ∧ 3분할 전부 음 아님.
+- **사전 명시 기대·위험**: 센서스 기준 마스킹 셀 ≈ GM 3.7% · FCF 1.9% · CAPEX 1.3% · ROE 0.65%(상장 후 셀). 13피처가 바뀌므로 모델이 재실현되어 ΔIR 은 시드 노이즈 대역(±0.19,
+  §S7.A4) 안이 기대값 — **부호는 채택 근거 아님**. 특정 위험: §S13.6 은 금융주 결측 펀더멘털을 NaN 으로 두면 모델이 "결측 = 낮게" 를 학습해 −0.39 였다. 이번 경로는 중앙값
+  임퓨트라 그 기전은 아니지만, 현재 동결 **레벨값**(GS GM 0.7 · C FCF −16,851 · 보험사 GM 100.0)이 사실상 금융 식별자로 쓰이고 있을 수 있어 금융주 예측이 움직일 수 있다 —
+  무해성 게이트가 판정한다. ΔIR 이 음이어도 정확성 근거 flip 후보(§S25.4 stale 선례 −0.048 flip)는 사용자 결정.
+- **flip 절차(통과 시, 사용자 승인 후)**: §8 체크리스트 — production variant 1줄 + 핀 테스트 allowlist(`tests/acceptance/test_s13_{10,13,14,15,6}*.py` · `tests/test_residual_sleeve.py` ·
+  `tests/test_s17_nominal_price.py`) + 결정 로그 flip 절 + 전체 테스트 → 새 S0′ = arm 수치(같은 빈티지, 단일 플래그라 결합 재인증 불요).
+- DSR: 정확성 트랙 비계수, 인벤토리 478 불변. 이 절·src·tests·variant·판정 스크립트·실행 스크립트·기준 사본(metrics.json·manifest; pkl 은 비추적)을 **측정 전 단독 커밋**한다.
