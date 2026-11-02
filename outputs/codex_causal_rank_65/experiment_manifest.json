@@ -302,6 +302,14 @@
     "signal_stability_lambda": 0.0,
     "sp500_benchmark_enabled": true,
     "sp500_factor_ticker": "SPX",
+    "stale_run_fund_mask_enabled": false,
+    "stale_run_fund_mask_sheets": [
+      "BEST_GROSS_MARGIN",
+      "BEST_CALCULATED_FCF",
+      "BEST_CAPEX",
+      "BEST_ROE"
+    ],
+    "stale_run_fund_max_days": 126,
     "stale_run_mask_enabled": true,
     "stale_run_mask_sheets": [
       "BEST_PE_RATIO",
@@ -363,7 +371,7 @@
     "description": "Fixed-250 causal production portfolio. Uses date-grouped LightGBM rank_xendcg, purged/embargoed validation, and a one-trading-day execution signal lag. The legacy label/output path is retained for automation compatibility; the universe is the validated 250-name Universe_Meta set (decision log \u00a7S14.2). The adopted four-feature forward-sales-slope block is enabled per S13.25; benchmark, overlays, optimizer and transaction-cost assumptions remain pinned to the canonical iter15_65tkr_reb21_vtg portfolio design.\n",
     "manifest_path": "variants\\codex_causal_rank_65.yaml",
     "run_contract": {
-      "config_sha256": "0102f35792e844e2f4c545d2678f529aa11b4c6d00bd110e580315657789d393",
+      "config_sha256": "7be43d0779428772cc292f50eabfda837e211789ceaa828a4bb1a7b34635f8de",
       "data_dates": [
         "2014-01-24T00:00:00",
         "2014-01-27T00:00:00",
@@ -3571,7 +3579,7 @@
         "2026-10-20T00:00:00"
       ],
       "inputs": {
-        "code_sha256": "a1ec2a798ffc10f0f96a0db58c67dcf96d3bf9c6ec1d01e8a4f4a765ae20a89c",
+        "code_sha256": "da1b1eff158317445a4f728d2f97c2f0315a937505a351ef63200e26f416b476",
         "data": {
           "mtime_ns": 1792562288256748200,
           "path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
@@ -3843,6 +3851,6 @@
     "variant_label": "codex_causal_rank_65"
   },
   "git_dirty": false,
-  "git_hash": "6a60e3dde45a810760c6c13bea87db3f213395b9",
-  "timestamp_utc": "2026-10-30T03:14:24Z"
+  "git_hash": "cb22a2a832779dac897a0c5acf186e86e4c5d22f",
+  "timestamp_utc": "2026-11-02T03:24:09Z"
 }
