@@ -1,0 +1,144 @@
+{
+  "arm": "s27_om_pit_restamp",
+  "flag": "oper_margin_pit_restamp_enabled",
+  "frame": "look-ahead class (G0 + mechanism + E2; no-harm / dIR / avg_ic observed only, no rollback)",
+  "preregistration": "decision log §S27 (2026-11-03)",
+  "base_dir": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\c2\\ai_port\\outputs\\s26_s0_base",
+  "vintage": {
+    "base_pkl_mtime": "2026-10-31 22:46:04",
+    "arm_pkl_mtime": "2026-11-03 13:25:36",
+    "base_data_vintage": {
+      "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
+      "data_mtime_utc": "2026-10-21T05:58:08Z",
+      "data_size_bytes": 378940470,
+      "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
+      "fx_mtime_utc": "2026-10-26T02:14:37Z",
+      "fx_size_bytes": 97794440
+    },
+    "arm_data_vintage": {
+      "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
+      "data_mtime_utc": "2026-10-21T05:58:08Z",
+      "data_size_bytes": 378940470,
+      "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
+      "fx_mtime_utc": "2026-10-26T02:14:37Z",
+      "fx_size_bytes": 97794440
+    }
+  },
+  "g0": {
+    "vintage_equal": true,
+    "base_reproduces_reference": true,
+    "flag_on": true,
+    "g0_pass": true
+  },
+  "mechanism": {
+    "record": {
+      "changes": 10966,
+      "matched": 10914,
+      "match_rate": 0.9953,
+      "fallback": 52,
+      "not_visible_in_sample": 6,
+      "lag_sessions_median": 21.0,
+      "lag_sessions_p90": 29.0,
+      "quarter_end_3d_share_changes": 0.8409,
+      "quarter_end_3d_share_visible": 0.0057,
+      "quarter_end_3d_share_sessions": 0.0737,
+      "changed_cells": 229751,
+      "changed_to_nan_cells": 5474
+    },
+    "checks": {
+      "present": true,
+      "match_rate_ok": true,
+      "stamp_signature_before": true,
+      "stamp_gone_after": true,
+      "cells_changed": true
+    },
+    "pass": true,
+    "feature_subset": {
+      "changed": [
+        "op_leverage_63d",
+        "oper_margin_accel",
+        "oper_margin_chg_252d",
+        "oper_margin_chg_63d"
+      ],
+      "n_changed_cells": 3016227,
+      "outside": [],
+      "pass": true
+    },
+    "feature_set_equal": true
+  },
+  "mechanism_pass": true,
+  "changed_features_top": {
+    "oper_margin_accel": 767360,
+    "op_leverage_63d": 765614,
+    "oper_margin_chg_63d": 765439,
+    "oper_margin_chg_252d": 717814
+  },
+  "e2": {
+    "te_ok": true,
+    "active_share_ok": true,
+    "turnover_ok": true,
+    "fallback_zero": true
+  },
+  "e2_pass": true,
+  "flip_candidate": true,
+  "observed_only": {
+    "ir_base": 1.7738,
+    "ir_arm": 1.7087,
+    "delta_ir": -0.0651,
+    "subperiods": [
+      {
+        "split": 1,
+        "start": "2019-01-29",
+        "end": "2021-08-23",
+        "ir_base": 1.199,
+        "ir_arm": 1.4152,
+        "delta": 0.2163
+      },
+      {
+        "split": 2,
+        "start": "2021-08-24",
+        "end": "2024-03-21",
+        "ir_base": 1.8756,
+        "ir_arm": 1.7622,
+        "delta": -0.1135
+      },
+      {
+        "split": 3,
+        "start": "2024-03-22",
+        "end": "2026-10-20",
+        "ir_base": 2.1121,
+        "ir_arm": 1.8276,
+        "delta": -0.2845
+      }
+    ],
+    "paired_nw_t": -0.125,
+    "nw_lags": 21,
+    "no_harm_s17_standard": true,
+    "no_harm_s27_proposed": true,
+    "e1_formal_pass": false,
+    "avg_ic_base": 0.009845153566202703,
+    "avg_ic_arm": 0.0038661717445202864
+  },
+  "companions": {
+    "te_base": 0.03675,
+    "te_arm": 0.03775,
+    "turnover_base": 0.7799,
+    "turnover_arm": 0.7636,
+    "turnover_ratio": 0.9791,
+    "active_share_base": 0.2044,
+    "active_share_arm": 0.20594,
+    "realized_beta_base": 1.0557570059861192,
+    "realized_beta_arm": 1.0527019766723615,
+    "max_drawdown_base": -0.32252369875016995,
+    "max_drawdown_arm": -0.319745094092048,
+    "degenerate": {
+      "base": "9/31",
+      "arm": "9/31"
+    },
+    "fallback_arm": 0.0,
+    "solver_counts_arm": {
+      "ECOS": 186
+    },
+    "elapsed_sec_arm": 1318.8
+  }
+}
