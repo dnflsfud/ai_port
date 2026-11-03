@@ -471,3 +471,18 @@ overrides:
   # Rollback = delete this line (default-OFF, byte-identical restore certified by
   # tests/test_om_pit_restamp.py).
   oper_margin_pit_restamp_enabled: true
+
+  # S27.1 (2026-11-03): enforce max_sector_active_risk_share (0.85, the production
+  # gate threshold, zero tolerance) inside the optimiser — the S16.7 re-solve loop
+  # shrinks the symmetric active bounds of a breached sector's same-sign
+  # contributors, at the MVO target and the post-execution projection. The gate
+  # had failed every run since 2026-10-02 (Technology 0.916) without a matching
+  # constraint. Adopted by user decision (risk discipline, user choice (b)) —
+  # decision log S27.1 / Production flip. Pre-registered arm
+  # outputs/s27_1_sector_risk_cap vs s27_om_pit_restamp (same vintage): G0 PASS
+  # (avg_ic bit-identical), G1 PASS (sector share <= 0.85 on 93/93 rebalances vs
+  # 88/93; live book 0.904 -> 0.822; name gate unchanged 100%), G2 PASS (TE 3.76%,
+  # turnover 1.01x, AS -0.11pp, fallback 0, degenerate equal), IR 1.7087 -> 1.7502
+  # (dIR +0.042, paired NW t +1.86; observation only). New S0' = 1.7502.
+  # Rollback = delete this line (default-OFF; tests/test_s27_1_sector_risk_cap.py).
+  sector_risk_share_cap_enabled: true

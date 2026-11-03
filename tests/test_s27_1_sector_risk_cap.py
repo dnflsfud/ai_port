@@ -77,6 +77,17 @@ def _max_name_share(w, bm, cov):
     return float(np.max(a * (cov @ a) / float(a @ cov @ a)))
 
 
+def test_production_variant_pins_s27_1_flip_state():
+    """§8/§S27.1: 사용자 승인 flip(2026-11-03) 이후 production 상태 핀 — sector_risk_share_cap_enabled=True
+    (새 S0′ 1.7502, 'OM-PIT' 1.7087 은퇴), 기본값은 False 유지."""
+    import yaml
+
+    with open("variants/codex_causal_rank_65.yaml", encoding="utf-8") as fh:
+        overrides = yaml.safe_load(fh).get("overrides") or {}
+    assert overrides.get("sector_risk_share_cap_enabled") is True
+    assert PipelineConfig().sector_risk_share_cap_enabled is False
+
+
 def test_default_off_and_tolerance_matches_the_gate():
     assert PipelineConfig().sector_risk_share_cap_enabled is False
     assert PipelineConfig().max_sector_active_risk_share == SECTOR_CAP

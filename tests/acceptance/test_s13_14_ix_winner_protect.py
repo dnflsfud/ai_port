@@ -87,6 +87,7 @@ def test_arm_variant_differs_from_production_by_exactly_the_two_flags():
         "label_execution_lag_enabled",  # S25.4 B-05 promotion (2026-10-08)
         "stale_run_mask_enabled",  # S25.4 stale-run mask promotion (2026-10-08)
         "oper_margin_pit_restamp_enabled",  # S27 OPER_MARGIN PIT restamp promotion (2026-11-03)
+        "sector_risk_share_cap_enabled",  # S27.1 sector risk-share cap promotion (2026-11-03)
     }
     assert not [
         k for k in prod

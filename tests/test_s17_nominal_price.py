@@ -303,6 +303,7 @@ def test_arm_variant_equals_production_after_the_s17_3_flip():
     post_s17_3_flips |= {"label_execution_lag_enabled"}  # S25.4 B-05 promotion (2026-10-08)
     post_s17_3_flips |= {"stale_run_mask_enabled"}  # S25.4 stale-run mask promotion (2026-10-08)
     post_s17_3_flips |= {"oper_margin_pit_restamp_enabled"}  # S27 OPER_MARGIN PIT restamp promotion (2026-11-03)
+    post_s17_3_flips |= {"sector_risk_share_cap_enabled"}  # S27.1 sector risk-share cap promotion (2026-11-03)
     expected = {k: v for k, v in prod.items() if k not in post_s17_3_flips}
     expected["partial_rebalance_eta"] = 0.50
     expected["fwd_sales_slope_features_enabled"] = True

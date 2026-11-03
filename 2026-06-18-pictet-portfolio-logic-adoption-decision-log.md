@@ -10591,3 +10591,13 @@ ffill 이 되살린 §S25 F1 과 같은 결함(대부분 금융·보험: 정의 
   stall(사전 고지 실패 모드)은 실제 책에서 발생하지 않았다.
 - **flip 시 새 기준선** = IR **1.7502193180339451** / TE 3.76% / 회전 0.771 / AS 20.48% / β 1.053 / avg_ic 0.00387(같은 빈티지). 'OM-PIT' 1.7087 은퇴 예정.
   flip 후 다음 스케줄 런의 `sector_active_risk_ok` 회복이 기대되며(라이브 북 0.8225), 남는 HOLD 요인은 `data_as_of_fresh_ok`(워크북 재생성)뿐.
+
+### Production flip — §S27.1 `sector_risk_share_cap_enabled` 채택 (2026-11-03, 사용자 승인 "flip 승인")
+
+- 근거: §S27.1 측정 결과(리스크 규율 프레임 G0 ∧ G1 ∧ G2 ∧ ΔIR > −0.36 PASS). 사용자 결정 ① 게이트 (b).
+- `variants/codex_causal_rank_65.yaml` 1줄(+근거 주석). flip 후 production overrides == `variants/s27_1_sector_risk_cap.yaml` overrides(검증) → arm 런이 곧 새 기준선 인증.
+- 핀: §S27 과 같은 8파일 allowlist +1, `tests/test_s27_1_sector_risk_cap.py::test_production_variant_pins_s27_1_flip_state` 추가. **전체 999 PASS**.
+- **새 S0′ = IR 1.7502193180339451**(TE 3.76% / 회전 0.771 / AS 20.48% / β 1.053 / avg_ic 0.00387; 워크북 10-21 14:58 · Index 10-26 11:14 빈티지,
+  `outputs/s27_1_sector_risk_cap`). **'OM-PIT' 1.708662580837287 은퇴 — 이후 arm 비교에 혼용 금지.**
+- 롤백 = yaml 1줄 삭제(default-OFF; `tests/test_s27_1_sector_risk_cap.py` 가 느슨한 캡·OFF 바이트 동일을 인증). 발효 = 다음 평일 11:30 스케줄 런 — 기대: `sector_active_risk_ok`
+  회복, 남는 HOLD 요인 `data_as_of_fresh_ok`(Bloomberg 재인출 → 워크북 재생성, 다음 격자 리밸 2026-11-04 이후 권장).
