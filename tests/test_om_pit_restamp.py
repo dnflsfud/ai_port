@@ -38,6 +38,17 @@ def test_frozen_rule_constants_and_default_off():
     assert PipelineConfig().oper_margin_pit_restamp_enabled is False
 
 
+def test_production_variant_pins_s27_flip_state():
+    """§8/§S27: 사용자 승인 flip(2026-11-03) 이후 production 상태 핀 — production variant 는
+    oper_margin_pit_restamp_enabled=True(새 S0′ 'OM-PIT' 1.7087, 1.7738 은퇴), 기본값은 False 유지."""
+    import yaml
+
+    with open("variants/codex_causal_rank_65.yaml", encoding="utf-8") as fh:
+        overrides = yaml.safe_load(fh).get("overrides") or {}
+    assert overrides.get("oper_margin_pit_restamp_enabled") is True
+    assert PipelineConfig().oper_margin_pit_restamp_enabled is False
+
+
 def test_matched_change_becomes_visible_the_session_after_the_announcement():
     v = pd.DataFrame({"A": [10.0] * 20 + [12.0] * 100}, index=DATES)    # period-end stamp at row 20
     out, vis, diag = restamp_to_announcements(v, _events(A=[35]), {"A": 38}, 90)

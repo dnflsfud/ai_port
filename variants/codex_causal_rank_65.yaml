@@ -452,3 +452,22 @@ overrides:
   # this line (default-OFF, byte-identical restore certified by
   # tests/test_stale_run_mask.py).
   stale_run_mask_enabled: true
+
+  # S27 (2026-11-03): OPER_MARGIN point-in-time restamp (look-ahead fix). The
+  # workbook stamps each OPER_MARGIN change at the fiscal period END (98.5% of
+  # 11,113 changes precede the next Earnings_Date, median 29 calendar days; at
+  # the 10-21 vintage 20/20 names that reported 10-01..10-19 already carried the
+  # new value from the period end, 0/217 not-yet-reporting names did). ON moves
+  # every change to the first session after its matched announcement (<= 90
+  # sessions; unmatched: frozen per-currency p90 delay); the four OM features and
+  # the value-trap gate follow through get_sheet. Adopted by user decision on
+  # correctness grounds (look-ahead class) — decision log S27 / Production flip.
+  # Pre-registered arm outputs/s27_om_pit_restamp vs s26_s0_base (same vintage):
+  # G0 PASS, mechanism PASS (match 99.53%, quarter-end +-3d share of changes
+  # 84.1% -> 0.57%, only the 4 OM features change), E2 PASS (TE 3.77%, turnover
+  # 0.98x, AS +0.15pp, fallback 0), IR 1.7738 -> 1.7087 (dIR -0.065, paired NW t
+  # -0.13, splits +0.216/-0.114/-0.285; avg_ic 0.0098 -> 0.0039; observation
+  # only, no rollback for a look-ahead removal). New S0' 'OM-PIT' = 1.7087.
+  # Rollback = delete this line (default-OFF, byte-identical restore certified by
+  # tests/test_om_pit_restamp.py).
+  oper_margin_pit_restamp_enabled: true

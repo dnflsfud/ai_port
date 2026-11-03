@@ -287,7 +287,8 @@ S23_2_ADDED_FLAGS = ("pca_target_uncentered_enabled",
                      "revision_gradual_mask_disabled",  # S25.4 B-02 promotion (2026-10-08)
                      "zscore_winsor_first_enabled",  # S25.4 B-03 promotion (2026-10-08)
                      "label_execution_lag_enabled",  # S25.4 B-05 promotion (2026-10-08)
-                     "stale_run_mask_enabled")  # S25.4 stale-run mask promotion (2026-10-08)
+                     "stale_run_mask_enabled",  # S25.4 stale-run mask promotion (2026-10-08)
+                     "oper_margin_pit_restamp_enabled")  # S27 OPER_MARGIN PIT restamp promotion (2026-11-03)
 
 
 # S24.3 flip (2026-09-30, decision log §S24.3): RTX/T removed from tg_basis_events on

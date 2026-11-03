@@ -10524,3 +10524,14 @@ ffill 이 되살린 §S25 F1 과 같은 결함(대부분 금융·보험: 정의 
   관측 항목일 뿐이며, 최근 구간에서 OM 피처의 룩어헤드 기여가 컸을 가능성과 재학습 잡음을 구분할 수 없다. (4) ΔIR > −0.15 → 사전등록대로 VTG 재검증은 **불요**.
 - **flip 시 새 기준선 'OM-PIT S0′'** = IR **1.708662580837287** / TE 3.77% / 회전 0.764 / AS 20.59% / β 1.053 / avg_ic 0.00387(10-21 워크북 · 10-26 Index 빈티지). 1.7738 은퇴 예정.
   유니버스 생존편향(보고서 1.1)은 그대로 남아 있다. flip 은 사용자 승인 후 §8 체크리스트로 별도 커밋.
+
+### Production flip — §S27 `oper_margin_pit_restamp_enabled` 채택 (2026-11-03, 사용자 승인 "flip 승인")
+
+- 근거: §S27 측정 결과(룩어헤드 클래스 G0 ∧ 기전 ∧ E2 PASS). 정확성 채택 — ΔIR −0.065 는 관측 항목이며 롤백 근거가 아님.
+- `variants/codex_causal_rank_65.yaml` 1줄(+근거 주석). flip 후 production overrides == `variants/s27_om_pit_restamp.yaml` overrides(검증) → arm 런이 곧 새 기준선 인증.
+- 핀: `tests/acceptance/test_s13_{10,13,14,15,6}*.py` · `tests/test_residual_sleeve.py` · `tests/test_s17_nominal_price.py` · `tests/test_s18_fixes.py` allowlist +1,
+  `tests/test_om_pit_restamp.py::test_production_variant_pins_s27_flip_state` 추가. **전체 987 PASS**.
+- **새 S0′ 'OM-PIT' = IR 1.708662580837287**(TE 3.77% / 회전 0.764 / AS 20.59% / β 1.053 / avg_ic 0.00387; 워크북 10-21 14:58 · Index 10-26 11:14 빈티지,
+  `outputs/s27_om_pit_restamp`). **1.7737993717667202(s26_s0_base)는 은퇴 — 이후 arm 비교에 혼용 금지.** §S26 arm(`s26_stale_fund_mask`)은 OM 재스탬프 이전 기준이라
+  그대로 flip 판단에 쓸 수 없다(③에서 새 기준 위 재측정 여부 결정).
+- 롤백 = yaml 1줄 삭제(default-OFF, `tests/test_om_pit_restamp.py` 가 OFF 동일 객체 반환을 인증). 발효 = 다음 평일 11:30 스케줄 런.
