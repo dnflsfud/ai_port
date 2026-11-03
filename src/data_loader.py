@@ -1243,6 +1243,107 @@ def mask_stale_runs(df: pd.DataFrame, max_run: int) -> pd.DataFrame:
     return out
 
 
+# §S27 (2026-11-03): OPER_MARGIN point-in-time restamp — frozen from the 10-21
+# workbook delay census (11,113 changes, 98.5% matched to the next
+# Earnings_Date within 90 sessions; matched delay p90 in calendar days by
+# currency with >= 200 matched changes, pooled p90 for the rest). No sweep.
+OM_PIT_MAX_MATCH_SESSIONS = 90
+OM_PIT_FALLBACK_DAYS = {"USD": 38, "EUR": 51, "JPY": 43, "GBP": 54, "CHF": 45}
+OM_PIT_FALLBACK_DAYS_POOLED = 40
+
+
+def _quarter_end_share(dates: pd.DatetimeIndex, days: int = 3) -> float:
+    """Share of ``dates`` within ``days`` calendar days of a calendar quarter end."""
+    if len(dates) == 0:
+        return float("nan")
+    dates = pd.DatetimeIndex(dates).normalize()
+    nxt = dates + pd.offsets.QuarterEnd(0)
+    prv = nxt - pd.offsets.QuarterEnd(1)
+    dist = np.minimum((nxt - dates).days, (dates - prv).days)
+    return float((dist <= days).mean())
+
+
+def restamp_to_announcements(
+    values: pd.DataFrame,
+    events: Optional[pd.DataFrame],
+    fallback_days: Dict[str, int],
+    max_match_sessions: int,
+) -> Tuple[pd.DataFrame, pd.DataFrame, Dict]:
+    """§S27: move each change of a period-end-stamped sheet to the first
+    session after the announcement that published it.
+
+    ``values`` is the forward-filled pre-impute sheet on the session index
+    (NaN = no data yet). A change is a row whose value differs from the
+    previous row's (a ticker's first value included, except on row 0 = data
+    start). A change at session i is matched to the first ``events`` flag at
+    j >= i with j - i <= ``max_match_sessions`` and becomes visible at j + 1;
+    otherwise at the first session strictly after its date +
+    ``fallback_days[ticker]`` calendar days. At every session the restamped
+    value is the value of the LATEST change (by original date) already
+    visible, so a late old change never overwrites a newer one; NaN until the
+    first change is visible. Returns ``(restamped, visible_from, diag)`` —
+    ``visible_from`` holds, at each change row, the session index from which
+    that change is visible (NaN elsewhere).
+    """
+    dates = pd.DatetimeIndex(values.index)
+    n = len(dates)
+    if events is None:
+        ev = np.zeros((n, len(values.columns)), dtype=bool)
+    else:
+        ev = events.reindex(index=dates, columns=values.columns).fillna(0).to_numpy() == 1
+    restamped = np.full(values.shape, np.nan)
+    visible_from = np.full(values.shape, np.nan)
+    n_changes = n_matched = n_never = 0
+    lags: List[int] = []
+    change_dates: List[pd.Timestamp] = []
+    shown_dates: List[pd.Timestamp] = []
+    for k, col in enumerate(values.columns):
+        s = values[col].to_numpy(dtype=float)
+        prev = np.r_[np.nan, s[:-1]]
+        pos = np.flatnonzero(~np.isnan(s) & ~(prev == s))
+        if pos.size == 0:
+            continue
+        ann = np.flatnonzero(ev[:, k])
+        if ann.size:
+            j = np.searchsorted(ann, pos, side="left")
+            a = ann[np.minimum(j, ann.size - 1)]
+            matched = (j < ann.size) & (a - pos <= int(max_match_sessions))
+        else:
+            a = np.zeros_like(pos)
+            matched = np.zeros(pos.size, dtype=bool)
+        fb_at = dates[pos] + pd.Timedelta(days=int(fallback_days[col]))
+        fallback = np.searchsorted(dates.values, fb_at.values, side="right")
+        eff = np.where(matched, a + 1, fallback)
+        eff[pos == 0] = 0                      # data start is not a period-end stamp
+        order = np.argsort(eff, kind="stable")
+        latest = np.maximum.accumulate(pos[order])
+        cnt = np.searchsorted(eff[order], np.arange(n), side="right")
+        hit = cnt > 0
+        restamped[hit, k] = s[latest[cnt[hit] - 1]]
+        visible_from[pos, k] = eff
+        real = pos > 0
+        n_changes += int(real.sum())
+        n_matched += int((matched & real).sum())
+        n_never += int(((eff >= n) & real).sum())
+        lags.extend((eff - pos)[real & (eff < n)].tolist())
+        change_dates.extend(dates[pos[real]])
+        shown_dates.extend(dates[eff[real & (eff < n)]])
+    diag = {
+        "changes": n_changes,
+        "matched": n_matched,
+        "match_rate": round(n_matched / n_changes, 4) if n_changes else None,
+        "fallback": n_changes - n_matched,
+        "not_visible_in_sample": n_never,
+        "lag_sessions_median": float(np.median(lags)) if lags else None,
+        "lag_sessions_p90": float(np.percentile(lags, 90)) if lags else None,
+        "quarter_end_3d_share_changes": round(_quarter_end_share(pd.DatetimeIndex(change_dates)), 4),
+        "quarter_end_3d_share_visible": round(_quarter_end_share(pd.DatetimeIndex(shown_dates)), 4),
+        "quarter_end_3d_share_sessions": round(_quarter_end_share(dates), 4),
+    }
+    return (pd.DataFrame(restamped, index=values.index, columns=values.columns),
+            pd.DataFrame(visible_from, index=values.index, columns=values.columns), diag)
+
+
 class UniverseData:
     """전처리된 유니버스 데이터를 담는 컨테이너."""
 
@@ -1968,6 +2069,44 @@ class UniverseData:
         cache[name] = masked
         return masked
 
+    def _om_pit_restamped_sheet(self) -> pd.DataFrame:
+        """§S27: ``self.sheets["OPER_MARGIN"]`` with every value change moved
+        from its fiscal-period-end stamp to the first session after the
+        announcement (``restamp_to_announcements`` on the forward-filled
+        pre-impute values, ``earnings_timeline`` events, per-currency
+        fallback). Only cells whose public value differs from the stamped one
+        change — to the restamped value, or NaN while a ticker's first value
+        is not yet public (the panel builder's per-date median imputes it, as
+        for the stale-run masks). Cached; diagnostics in ``data_quality``.
+        """
+        name = "OPER_MARGIN"
+        cache = self.__dict__.setdefault("_om_pit_cache", {})
+        if name in cache:
+            return cache[name]
+        sheet = self.sheets[name]
+        raw = self._raw_sheet_standardized(name)
+        if raw is None:
+            cache[name] = sheet
+            return sheet
+        known = raw.reindex(raw.index.union(sheet.index)).ffill().reindex(
+            index=sheet.index, columns=sheet.columns
+        )
+        currency = getattr(self, "_full_currency_map", {})
+        fallback = {
+            t: OM_PIT_FALLBACK_DAYS.get(str(currency.get(t, "")).upper(), OM_PIT_FALLBACK_DAYS_POOLED)
+            for t in sheet.columns
+        }
+        restamped, _, diag = restamp_to_announcements(
+            known, getattr(self, "earnings_timeline", None), fallback, OM_PIT_MAX_MATCH_SESSIONS
+        )
+        moved = known.notna() & ~(restamped == known)
+        out = sheet.mask(moved, restamped)
+        diag["changed_cells"] = int(moved.to_numpy().sum())
+        diag["changed_to_nan_cells"] = int((moved & restamped.isna()).to_numpy().sum())
+        self.__dict__.setdefault("data_quality", {})["oper_margin_pit_restamp"] = diag
+        cache[name] = out
+        return out
+
     def _load_earnings_timeline(self) -> Optional[pd.DataFrame]:
         """Earnings_Timeline 시트 로드 (date × ticker, 발표일=1).
 
@@ -2061,6 +2200,8 @@ class UniverseData:
             return self._stale_run_masked_sheet(        # §S26, default-OFF
                 name, max_run=int(getattr(self.config, "stale_run_fund_max_days", 126))
             )
+        if name == "OPER_MARGIN" and getattr(self.config, "oper_margin_pit_restamp_enabled", False):
+            return self._om_pit_restamped_sheet()       # §S27, default-OFF
         return self.sheets[name]
 
     def summary(self) -> str:

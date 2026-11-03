@@ -1168,6 +1168,22 @@ class PipelineConfig:
     stale_run_fund_max_days: int = 126
 
     # ------------------------------------------------------------------
+    # S27 (2026-11-03) — OPER_MARGIN point-in-time restamp (decision log
+    # §S27 preregistration). The workbook stamps each OPER_MARGIN change at
+    # the fiscal period END, not at the release: 98.5% of the 11,113 changes
+    # in the 10-21 workbook precede the next Earnings_Date (median 29
+    # calendar days, p90 40), and at that vintage 20/20 names that reported
+    # 10-01..10-19 already carry the new value from their period-end date
+    # while 0/217 not-yet-reporting names do. ON moves every change to the
+    # first session after its matched announcement (data_loader
+    # restamp_to_announcements; frozen match window / per-currency fallback
+    # delays live next to it). The derived features (oper_margin_chg_*,
+    # oper_margin_accel, op_leverage_63d) and the value-trap gate follow
+    # through the get_sheet hook. OFF (default) returns the untouched sheet.
+    # ------------------------------------------------------------------
+    oper_margin_pit_restamp_enabled: bool = False
+
+    # ------------------------------------------------------------------
     # S17.3 (2026-09-03) — G1-01b / M1 nominal price denominator (decision
     # log §S17.3 preregistration). The workbook's PX_LAST and the price-
     # ratio sheets derived from it (BEST_PE_RATIO, BEST_PX_BPS_RATIO,
