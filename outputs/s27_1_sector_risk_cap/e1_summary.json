@@ -1,0 +1,184 @@
+{
+  "arm": "s27_1_sector_risk_cap",
+  "flag": "sector_risk_share_cap_enabled",
+  "preregistration": "decision log §S27.1 (2026-11-03)",
+  "frame": "risk discipline (G0 + G1 + G2 + dIR > -0.36; formal E1 / paired t reported only)",
+  "vintage": {
+    "base_pkl_mtime": "2026-11-03 13:25:36",
+    "arm_pkl_mtime": "2026-11-03 14:24:34",
+    "base_data_vintage": {
+      "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
+      "data_mtime_utc": "2026-10-21T05:58:08Z",
+      "data_size_bytes": 378940470,
+      "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
+      "fx_mtime_utc": "2026-10-26T02:14:37Z",
+      "fx_size_bytes": 97794440
+    },
+    "arm_data_vintage": {
+      "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
+      "data_mtime_utc": "2026-10-21T05:58:08Z",
+      "data_size_bytes": 378940470,
+      "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
+      "fx_mtime_utc": "2026-10-26T02:14:37Z",
+      "fx_size_bytes": 97794440
+    }
+  },
+  "g0": {
+    "vintage_equal": true,
+    "avg_ic_bit_identical": true,
+    "base_reproduces_reference": true,
+    "flag_on": true,
+    "g0_pass": true
+  },
+  "g1": {
+    "n_rebalances": 93,
+    "sector_compliance_rate": 1.0,
+    "base_sector_compliance_rate": 0.9462,
+    "sector_live_ok": true,
+    "live_top_sector_share": 0.8225,
+    "base_live_top_sector_share": 0.9037,
+    "name_compliance_rate": 1.0,
+    "base_name_compliance_rate": 1.0,
+    "name_live_ok": true,
+    "g1_pass": true
+  },
+  "g2": {
+    "te_ok": true,
+    "active_share_ok": true,
+    "turnover_ok": true,
+    "fallback_zero": true,
+    "degenerate_equal": true
+  },
+  "g2_pass": true,
+  "flip_candidate": true,
+  "full_period": {
+    "ir_base": 1.7087,
+    "ir_arm": 1.7502,
+    "delta_ir": 0.0416,
+    "no_harm_bar": -0.36,
+    "paired_nw_t": 1.862,
+    "no_harm_s27_proposed": true,
+    "e1_formal_pass": false
+  },
+  "subperiods": [
+    {
+      "split": 1,
+      "start": "2019-01-29",
+      "end": "2021-08-23",
+      "ir_base": 1.4152,
+      "ir_arm": 1.4142,
+      "delta": -0.001
+    },
+    {
+      "split": 2,
+      "start": "2021-08-24",
+      "end": "2024-03-21",
+      "ir_base": 1.7622,
+      "ir_arm": 1.7825,
+      "delta": 0.0204
+    },
+    {
+      "split": 3,
+      "start": "2024-03-22",
+      "end": "2026-10-20",
+      "ir_base": 1.8276,
+      "ir_arm": 1.9219,
+      "delta": 0.0943
+    }
+  ],
+  "rows_tail": {
+    "base": [
+      [
+        "2026-05-06",
+        0.824234,
+        0.348423,
+        "Technology"
+      ],
+      [
+        "2026-06-05",
+        0.892119,
+        0.263303,
+        "Technology"
+      ],
+      [
+        "2026-07-08",
+        0.876973,
+        0.22615,
+        "Technology"
+      ],
+      [
+        "2026-08-06",
+        0.935701,
+        0.24717,
+        "Technology"
+      ],
+      [
+        "2026-09-04",
+        0.88524,
+        0.208923,
+        "Technology"
+      ],
+      [
+        "2026-10-06",
+        0.903718,
+        0.224545,
+        "Technology"
+      ]
+    ],
+    "arm": [
+      [
+        "2026-05-06",
+        0.81842,
+        0.358406,
+        "Technology"
+      ],
+      [
+        "2026-06-05",
+        0.845642,
+        0.233111,
+        "Technology"
+      ],
+      [
+        "2026-07-08",
+        0.829519,
+        0.233967,
+        "Technology"
+      ],
+      [
+        "2026-08-06",
+        0.843457,
+        0.158323,
+        "Technology"
+      ],
+      [
+        "2026-09-04",
+        0.823768,
+        0.126846,
+        "Technology"
+      ],
+      [
+        "2026-10-06",
+        0.822478,
+        0.193561,
+        "Technology"
+      ]
+    ]
+  },
+  "companions": {
+    "te_base": 0.03775,
+    "te_arm": 0.03755,
+    "turnover_ratio": 1.0099,
+    "active_share_base": 0.20594,
+    "active_share_arm": 0.2048,
+    "realized_beta_base": 1.0527019766723615,
+    "realized_beta_arm": 1.0529686726180905,
+    "active_return_base": 0.0644953552220866,
+    "active_return_arm": 0.06572378062701367,
+    "max_drawdown_base": -0.319745094092048,
+    "max_drawdown_arm": -0.3198449123944992,
+    "solver_counts_arm": {
+      "ECOS": 186
+    },
+    "elapsed_sec_arm": 1253.5
+  }
+}
