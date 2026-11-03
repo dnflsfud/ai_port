@@ -10601,3 +10601,26 @@ ffill 이 되살린 §S25 F1 과 같은 결함(대부분 금융·보험: 정의 
   `outputs/s27_1_sector_risk_cap`). **'OM-PIT' 1.708662580837287 은퇴 — 이후 arm 비교에 혼용 금지.**
 - 롤백 = yaml 1줄 삭제(default-OFF; `tests/test_s27_1_sector_risk_cap.py` 가 느슨한 캡·OFF 바이트 동일을 인증). 발효 = 다음 평일 11:30 스케줄 런 — 기대: `sector_active_risk_ok`
   회복, 남는 HOLD 요인 `data_as_of_fresh_ok`(Bloomberg 재인출 → 워크북 재생성, 다음 격자 리밸 2026-11-04 이후 권장).
+
+## S27.2 — ① 라이브 구현 정합: paper 원장 + paper 북 기준 w_prev (2026-11-03 15:00~15:40, 사용자 답변 "paper · 리밸일 목표 전량 추종" · 운영 계층 · 백테스트 산출 불변 · 인벤토리 비계수)
+
+**무엇**: `scripts/export_operating_data.py --paper-ledger DIR`(opt-in) + `scripts/paper_ledger.py`. production 스케줄 런(`run_and_upload.bat` [6/10])이
+`outputs/paper_ledger/` 에 **append-only `ledger.jsonl`**(런마다 1줄) + **`state.json`**(현재 paper 북)을 남긴다.
+- **규칙**: 첫 런 = init(paper 북 = 그 런의 백테스트 북 @ data_as_of, NAV 1, 마지막 리밸을 이미 보유한 것으로 간주, 거래 없음). 이후 각 런은 (state.as_of, data_as_of] 만
+  **추가**한다(워크북 재생성이 과거를 고쳐도 과거 NAV 는 다시 쓰지 않음). 새 리밸일 R 이 **처음 발행되는 런**(데이터 날짜 D)에서: paper 북을 R 까지 드리프트 →
+  **w_prev = paper 북**으로 production 리밸 경로(`build_expected_rebalance`: 공분산·optvol·TE 캡 승수·신뢰도·부분 집행·투영·종목/섹터 캡)를 R 에 대해 풀어 목표 동결 →
+  D 까지 기존 북 보유 → D 종가에 전량 거래(편도 10bp, 사용자 미기재 → export 기본값). 같은 R 의 재발행은 **거래하지 않고** 동결 목표와의 편도 거리를
+  `republication_jitter_one_way` 로 기록. 게이트(HOLD)와 무관하게 목표를 따르며 export 가드레일 위반 플래그를 함께 기록 — HOLD 준수 변형은 원장에서 재구성 가능.
+- **E0**: 같은 날짜를 백테스트 자신의 진입 북으로 다시 풀어 `res.portfolio_weights[R]` 재현 여부를 매 동결마다 기록. 독립 재현(s27_1 arm pkl = 새 production config,
+  최근 8 리밸 2026-03-06~10-06, 섹터 캡 바인딩일 포함) **L1 6.0~6.4e-9**. export 내부 실행에서는 10-06 이 1.42e-7 — 종목·섹터 캡 재해 루프(최대 12 ECOS)가 BLAS 수준
+  입력 잡음을 증폭한 것으로 판단(풀이 순서 무관 확인) → 원장 E0 허용오차 `PAPER_E0_TOLERANCE` **1e-6**(편도 5e-7, 경제적으로 0; 잘못된 입력·경로는 여전히 검출).
+- **실데이터 건식 실행**(s27_1 arm pkl, 스크래치 디렉터리): (a) 상태를 09-30(last frozen 09-04, 10-06 발행 북)로 둔 동결 경로 — R = 10-06 을 D = 10-20 에 동결,
+  **paper 기준 목표와 시뮬 기준 목표의 편도 차 7.7%**(같은 날 백테스트 리밸 편도 ~3% 의 2.5배 — w_prev 를 paper 북으로 두는 것이 실제로 목표를 바꾼다), 거래 편도 4.8%,
+  E0 1.42e-7. (b) 빈 디렉터리 init 경로 — export 전체 EXIT 0, 원장 init 1줄. 저장소 산출물 잔여 0.
+- **보고서 대비 편차(기록)**: (1) 원장을 저장소 **안** `outputs/paper_ledger/` 에 둔다 — 보고서는 실보유 기밀성 때문에 저장소 밖을 권했으나 paper 는 기밀이 없고,
+  스케줄 런의 커밋·푸시가 원장의 내구성과 변조 불가 이력을 준다. (2) 모듈을 `src/` 가 아닌 `scripts/` 에 둔다 — `src/*.py` 는 백테스트 실행 계약의 코드 지문
+  (`run_integrity.code_fingerprint`)이라, 계산과 무관한 운영 코드가 캐시 pkl 을 무효화하지 않게 한다. (3) 모델 동결은 보류(보고서대로).
+- **(iii) 발행 지연**: 다음 격자 리밸 = **2026-11-04**(export `next_scheduled_rebalance_date`). 사용자 작업 — 11-04 장 마감 이후 Bloomberg 재인출 → 워크북 재생성 → 그 다음
+  스케줄 런이 11-04 목표를 발행·동결한다(현 data_as_of 10-20 이라 `data_as_of_fresh_ok` 도 함께 회복). 재생성 전까지 원장은 `no_new_data` 를 적는다.
+- 테스트 `tests/test_paper_ledger.py` 8(드리프트·비용·init·accrue·freeze 의 w_prev = paper 북 진입값·재발행 무거래+지터·no_new_data·append-only) · **전체 1,007 PASS**.
+  첫 원장 줄 = 2026-11-04 11:30 스케줄 런(init).

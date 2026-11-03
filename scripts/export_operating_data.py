@@ -310,6 +310,81 @@ def _expected_rebalance_selfcheck(expected_target: pd.Series, realized_weights) 
             "ok": bool(l1 <= E0_SELFCHECK_TOLERANCE)}
 
 
+# §S27.2: the ledger re-solves past rebalances through the name/sector risk-share re-solve loop
+# (up to 12 ECOS solves), which amplifies BLAS-level input noise: a standalone re-solve of the last
+# 8 rebalances reproduces res.portfolio_weights at L1 ~6e-9, the in-export solve at 1.4e-7 (2026-10-06).
+# 1e-6 L1 (one-way 5e-7) is economically zero and still catches any wrong input/path.
+PAPER_E0_TOLERANCE = 1e-6
+
+
+def _paper_ledger_step(ledger_dir, *, res, data, cfg, tickers, sector_map, bm_fn, risk_source,
+                       optvol_scale, w_enter, raw_stock_rets, run_info: dict) -> dict:
+    """§S27.2 paper ledger (opt-in ``--paper-ledger``). Each new rebalance target is solved
+    through the production rebalance path (build_expected_rebalance) with w_prev = the paper
+    book entering R; E0 re-solves the same date from the backtest's own entering book and must
+    reproduce ``res.portfolio_weights[R]``. Report-only: a failure is appended to the ledger and
+    never aborts the nightly export."""
+    from src.carry_te_conditioning import build_te_cap_multipliers
+    from scripts.paper_ledger import run as run_paper_ledger
+
+    preds = res.predictions
+    raw_preds = getattr(res, "raw_predictions", None)
+    ic = pd.Series(getattr(res, "ic_series", pd.Series(dtype=float))).dropna()
+    te_mult = build_te_cap_multipliers(getattr(data, "factor_prices", None), cfg)
+    cov_lb = int(getattr(cfg, "cov_lookback", 126))
+
+    def solve(r: pd.Timestamp, prev: pd.Series) -> pd.Series:
+        pos = int(data.returns.index.get_indexer([r])[0])
+        te_m = float(te_mult.asof(r)) if te_mult is not None else float("nan")
+        exp = build_expected_rebalance(
+            as_of=r, tickers=tickers, pred_row=preds.loc[r, tickers],
+            raw_pred_row=(raw_preds.loc[r, tickers]
+                          if isinstance(raw_preds, pd.DataFrame) and r in raw_preds.index else None),
+            prev_weights=prev.reindex(tickers).fillna(0.0),
+            bm_weights=pd.Series(np.asarray(bm_fn(r, tickers, len(tickers)), dtype=float), index=tickers),
+            hist_returns=risk_source.iloc[max(0, pos - cov_lb):pos],
+            ic_history=[float(v) for d, v in ic.items() if pd.Timestamp(d) < r],
+            sector_map=sector_map, cfg=cfg,
+            optvol_scale_row=(optvol_scale.loc[r]
+                              if optvol_scale is not None and r in optvol_scale.index else None),
+            te_cap_multiplier=te_m if np.isfinite(te_m) else None,
+            last_rebalance_date=r, is_rebalance_data_as_of=True,
+        )
+        return pd.Series({row["ticker"]: float(row["target"]) for row in exp["by_ticker"]}).reindex(tickers).fillna(0.0)
+
+    def target_fn(r, prev):
+        r = pd.Timestamp(r)
+        target = solve(r, prev)
+        sim_prev = _expected_rebalance_prev_book(
+            pd.Series(res.daily_weights[r]).reindex(tickers), w_enter.loc[r], raw_stock_rets.loc[r], True)
+        sim_target = solve(r, sim_prev)
+        e0 = _expected_rebalance_selfcheck(sim_target, res.portfolio_weights.get(r))
+        return target, {"e0_l1": e0["l1_diff"],
+                        "e0_ok": None if e0["l1_diff"] is None else bool(e0["l1_diff"] <= PAPER_E0_TOLERANCE),
+                        "e0_tolerance": PAPER_E0_TOLERANCE,
+                        "paper_vs_sim_target_one_way": 0.5 * float((target - sim_target).abs().sum())}
+
+    def sim_target_at(r):
+        w = res.portfolio_weights.get(pd.Timestamp(r))
+        return None if w is None else pd.Series(w).reindex(tickers).fillna(0.0)
+
+    data_as_of = pd.Timestamp(sorted(res.daily_weights)[-1])
+    try:
+        return run_paper_ledger(
+            ledger_dir, run_info=run_info, data_as_of=data_as_of,
+            last_rebalance=pd.Timestamp(sorted(res.portfolio_weights)[-1]),
+            sim_book=pd.Series(res.daily_weights[data_as_of]).reindex(tickers).fillna(0.0),
+            returns=raw_stock_rets, bm_returns=res.benchmark_returns,
+            target_fn=target_fn, sim_target_at=sim_target_at,
+        )
+    except Exception as exc:
+        Path(ledger_dir).mkdir(parents=True, exist_ok=True)
+        rec = {**run_info, "data_as_of": str(data_as_of.date()), "action": "error", "error": repr(exc)}
+        with open(Path(ledger_dir) / "ledger.jsonl", "a", encoding="utf-8") as fh:
+            fh.write(json.dumps(rec, default=str, ensure_ascii=False) + "\n")
+        return rec
+
+
 def _normalise_currency(value) -> Optional[str]:
     if value is None or (isinstance(value, float) and np.isnan(value)):
         return None
@@ -1473,6 +1548,8 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--variant", type=Path, default=DEFAULT_VARIANT)
     parser.add_argument("--operating-dir", type=Path, default=DEFAULT_OPERATING_DIR)
+    parser.add_argument("--paper-ledger", type=Path, default=None,
+                        help="§S27.2: append this run to the paper ledger in DIR (state.json + ledger.jsonl)")
     args = parser.parse_args(argv)
 
     variant = _rooted(args.variant).resolve()
@@ -2258,6 +2335,25 @@ def main(argv=None) -> int:
         expected, open(out / "expected_rebalance.json", "w", encoding="utf-8"),
         indent=2, default=str,
     )
+
+    # ---- paper ledger (§S27.2, opt-in) -------------------------------------
+    if args.paper_ledger is not None:
+        from src.config import _git_hash, data_vintage_fingerprint
+        try:   # report-only: the ledger never aborts the nightly export
+            paper = _paper_ledger_step(
+                _rooted(args.paper_ledger).resolve(), res=res, data=data, cfg=cfg, tickers=tickers,
+                sector_map=sector_map, bm_fn=bm_fn, risk_source=risk_source, optvol_scale=optvol_scale,
+                w_enter=w_enter, raw_stock_rets=raw_stock_rets,
+                run_info={"run_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                          "variant": label, "git_hash": _git_hash(),
+                          "data_vintage": data_vintage_fingerprint(cfg),
+                          "guardrails_breached": {k: v for k, v in risk_guardrails.items()
+                                                  if k.endswith("_breached")}},
+            )
+        except Exception as exc:
+            paper = {"action": "error", "error": repr(exc)}
+        print(f"[export] paper ledger: {paper.get('action')} | nav {paper.get('paper_nav')} | "
+              f"bm {paper.get('bm_nav')} | e0 {paper.get('e0_l1')} | error {paper.get('error')}")
 
     universe_hash = hashlib.sha256("\n".join(tickers).encode("utf-8")).hexdigest()
     model_quality = getattr(res, "model_quality", None) or {}
