@@ -757,6 +757,13 @@ class PipelineConfig:
     # rebalancing cannot bypass it (same pattern as max_te_annual). OFF
     # executes no new code — byte-identical. Decision log §S16.7.
     name_risk_share_cap_enabled: bool = False
+    # S27.1: enforce max_sector_active_risk_share INSIDE the optimiser — the
+    # production gate has tested it (zero tolerance) without a matching
+    # constraint, so every run since 2026-10-02 was HOLD (Technology 0.916).
+    # ON extends the §S16.7 re-solve loop: same-sign contributors of a breached
+    # sector get their symmetric active bounds shrunk, at the MVO target and the
+    # post-execution projection. OFF executes no new code. Decision log §S27.1.
+    sector_risk_share_cap_enabled: bool = False
 
     # ------------------------------------------------------------------
     # Backtest

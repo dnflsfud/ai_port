@@ -10535,3 +10535,40 @@ ffill 이 되살린 §S25 F1 과 같은 결함(대부분 금융·보험: 정의 
   `outputs/s27_om_pit_restamp`). **1.7737993717667202(s26_s0_base)는 은퇴 — 이후 arm 비교에 혼용 금지.** §S26 arm(`s26_stale_fund_mask`)은 OM 재스탬프 이전 기준이라
   그대로 flip 판단에 쓸 수 없다(③에서 새 기준 위 재측정 여부 결정).
 - 롤백 = yaml 1줄 삭제(default-OFF, `tests/test_om_pit_restamp.py` 가 OFF 동일 객체 반환을 인증). 발효 = 다음 평일 11:30 스케줄 런.
+
+## S27.1 — 섹터 액티브 리스크 몫 상한 0.85 옵티마이저 강제 arm 사전등록 (2026-11-03 14:40, 사용자 결정 ① 게이트 "(b) 옵티마이저 강제" · 리스크 규율 트랙 · 인벤토리 478→479 · 측정 전 단독 커밋)
+
+**동기**: production 게이트 `sector_active_risk_ok` 가 10-02 이후 매회 실패(Technology 몫 0.916 > `max_sector_active_risk_share` 0.85, 게이트 허용오차 0) → 09-30 이후 19회
+전부 HOLD. 게이트 자체는 §S25.5 에서 정당 판정(순 Tech 베팅 +7.8%)됐지만 옵티마이저에 대응 제약이 없어 **백테스트가 게이트를 통과할 수 없는 책을 계속 만든다**(보고서 1.7).
+§S25.6 의 볼록 대리 벌점(λ5.0)은 불활성이었다. paper 운용(① 답변)이라 펀드 수익 레버는 아니지만, 발행 책 = 게이트 통과 책이 되어야 paper 원장이 의미를 갖는다.
+
+**arm 정의(단일 사전등록)**: `variants/s27_1_sector_risk_cap.yaml` = 새 production(§S27 flip 후) 바이트 사본 + `sector_risk_share_cap_enabled: true` 한 줄. 캡 = 기존 게이트
+상수 0.85 재사용(신규 자유도 0). overrides diff `{'sector_risk_share_cap_enabled': (None, True)}`, sha256 `334a573bec81a65f09c0a03c8b6f8b47e971c9f208c488cf2eba2c51cf9bf2dd`.
+- **강제 방식**: §S16.7 순차 볼록 재해 루프를 확장 — 섹터 Euler 몫 |Σ_{i∈s} a_i(Σa)_i / aᵀΣa| 가 0.85(허용오차 `SECTOR_RISK_CAP_TOL` 0 = 게이트) 초과인 섹터의 **같은 부호
+  기여 종목**만 대칭 액티브 바운드를 `min(√(cap/share), 0.95)` 배로 축소해 같은 문제를 재해. 미매핑 종목은 게이트 export 와 같이 "Unknown" 으로 묶음. 종목 캡(0.35)과 **같은
+  루프·같은 바운드 사전**(최대 12회, 플로어 0.005 — 구현 상수, 스윕 금지). MVO 타깃과 실행 후 projection 양쪽 적용. 재해 실패·stall 시 마지막 유효 iterate 유지(bm 폴백 금지).
+  진단 `sector_risk_cap_max_share` / `sector_risk_cap_converged`.
+- **신규 코드(default-OFF, OFF 파리티)**: `PipelineConfig.sector_risk_share_cap_enabled=False`, `portfolio_optimizer._sector_index_groups` / `_sector_breach_shrinks`,
+  `_enforce_name_risk_share_cap(…, sector_groups=None)`(None 이면 기존 루프와 산술·순서 동일), 두 호출부는 플래그 OFF 면 기존 조건 그대로. 테스트
+  `tests/test_s27_1_sector_risk_cap.py` 8(OFF 무진단 · ON 강제 · 느슨한 캡 바이트 동일 · 종목 캡 단독 결과 불변 · 종목+섹터 동시 · projection · 스케일 불변 stall) +
+  `tests/test_eval_s27_1_sector_cap_arm.py` 3 · §S16.7 테스트 그대로 PASS · **전체 998 PASS**.
+- **공개된 실패 모드(사전 고지)**: (1) 비-Tech 액티브가 전부 Tech 의 자금 조달용 언더웨이트뿐이면 Tech 바운드를 줄여도 조달이 비례로 줄어 몫이 스케일 불변 → stall,
+  converged=False(toy 재현, 테스트 고정). 실제 책은 비-Tech 양의 알파 종목으로 재배분할 여지가 있어 수렴이 기대되지만 G1 이 실측한다. (2) 종목·섹터 캡이 12회 예산을
+  공유하므로 섹터 stall 이 종목 캡 수렴을 막을 수 있다 → G1 에 종목 게이트 무악화 조건을 넣었다.
+- **사전점검 편차(기록)**: 보고서 ①(iv)(b)는 '§S13.50 오프라인 재현으로 93리밸 재풀이 → 실행가능률 100%·몫 ≤0.85 확인'을 사전점검으로 적었다. §S13.50 재구성 스크립트는
+  08-19 빈티지·당시 플래그 집합에 고정돼 있어(UNSUPPORTED_FLAGS·E0 재현 바) 현 production 경로로 다시 맞추는 비용이 풀런 1회(약 22분)보다 크다 → **arm 런 자체 + §S16.7 과 같은
+  오프라인 G1 재계산**으로 대체한다. 실행가능성은 구조적으로 보장된다(a=0 이 항상 가능해 바운드 추가 재해는 실행 불가가 되지 않음).
+
+**게이트(측정 전 고정, `scripts/eval_s27_1_sector_cap_arm.py` sha256 `5c9acdf129aa5f9c473a1328f86570562f015e3cc2cb01807a6f4b3fd801a1c2`)** — 기준 = 새 S0′ 'OM-PIT'
+`outputs/s27_om_pit_restamp`(IR 1.708662580837287, 같은 빈티지):
+- **G0**: data_vintage 동일 ∧ avg_ic **비트 동일**(0.0038661717445202864 — 옵티마이저 전용 변경 증빙) ∧ base IR 재현 ∧ 플래그 True.
+- **G1(기전/바인딩)**: 실행 북 리밸일별 최대 섹터 Euler 몫(게이트와 같은 방법: raw-return cov + optvol 대각) **≤ 0.85 준수율 ≥ 90% ∧ 마지막 리밸일(라이브 북) ≤ 0.85** ∧
+  종목 게이트 무악화(라이브 북 최대 종목 몫 ≤ 0.36 ∧ 종목 준수율 ≥ 기준 북). 기준 북 준수율 병기.
+- **G2**: TE ≤ 4.5% · |ΔAS| ≤ 3%p · 회전율 ≤ 1.25× · fallback 0 · 퇴화율 동일(모델 경로 비접촉).
+- **flip 후보 = G0 ∧ G1 ∧ G2 ∧ ΔIR > −0.36**(§S16.7 리스크 규율 프레임). formal E1 · 쌍대 NW t · 보고서 ③ 제안 무해성은 병기만.
+- **사전 명시 기대**: ΔIR 0 ~ −0.1(보고서), Tech 순베팅 축소·비-Tech 오버웨이트 확대. 통과·flip 시 다음 스케줄 런의 `sector_active_risk_ok` 회복이 기대되며, 남는 HOLD
+  요인은 `data_as_of_fresh_ok`(워크북 재생성 = Bloomberg 인출, 사용자 작업)뿐이다.
+- **실행** = `outputs/s27_1_register_arm_task.ps1`(schtasks `s27_1_sector_cap_arm`) → `outputs/s27_1_run_arm.bat` → `run_variant_task.ps1 -Label s27_1_sector_risk_cap`.
+- **다중성**: 이 축 arm 1건(cap 0.85 단일, 기존 상수). 인벤토리 478→479(`experiment_inventory.json` notes). 이 절·src·tests·variant·판정 스크립트·bat·인벤토리를 **측정 전 단독 커밋**한다.
+- **① 나머지(별도)**: paper 원장(i)·실보유 w_prev(ii)는 이 arm 판정 뒤 구현한다 — `build_expected_rebalance(prev_weights=…)` 가 실보유(=paper 북) 기준 목표 산출의 진입점,
+  E0 = paper 상태를 같은 런의 드리프트 시뮬 북으로 두면 목표가 expected_rebalance 와 L1 ≤ 1e-9 로 일치.

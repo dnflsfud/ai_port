@@ -626,10 +626,13 @@ def project_portfolio_weights(
             diag["fallback_reason"] = "non_finite_projection"
         return fallback
 
-    if getattr(config, "name_risk_share_cap_enabled", False):
+    sector_cap_on = getattr(config, "sector_risk_share_cap_enabled", False)
+    if getattr(config, "name_risk_share_cap_enabled", False) or sector_cap_on:
         projected = _enforce_name_risk_share_cap(
             projected, w, objective, constraints, cov_matrix, bm_weights,
             config, diag,
+            sector_groups=(_sector_index_groups(list(expected_returns.index), sector_map)
+                           if sector_cap_on else None),
         )
     return projected
 
@@ -725,6 +728,31 @@ NAME_RISK_CAP_MAX_ITER = 12
 NAME_RISK_CAP_TOL = 0.01
 NAME_RISK_CAP_MIN_SHRINK = 0.95
 NAME_RISK_CAP_MIN_BOUND = 0.005
+# S27.1: the production gate tests the top sector share with zero tolerance.
+SECTOR_RISK_CAP_TOL = 0.0
+
+
+def _sector_index_groups(tickers, sector_map) -> Dict[str, np.ndarray]:
+    """sector -> ticker positions; unmapped names pool under "Unknown", as in
+    the gate's risk export (scripts/export_operating_data.py)."""
+    groups: Dict[str, List[int]] = {}
+    for i, ticker in enumerate(tickers):
+        groups.setdefault(str((sector_map or {}).get(ticker, "Unknown")), []).append(i)
+    return {s: np.asarray(idx, dtype=int) for s, idx in groups.items()}
+
+
+def _sector_breach_shrinks(shares, sector_groups, cap) -> Dict[int, float]:
+    """S27.1: position -> bound shrink factor for the same-sign contributors
+    of every sector whose Euler share |sum_{i in s} share_i| exceeds ``cap``."""
+    out: Dict[int, float] = {}
+    for idx in sector_groups.values():
+        total = float(shares[idx].sum())
+        if abs(total) <= cap + SECTOR_RISK_CAP_TOL:
+            continue
+        shrink = min(float(np.sqrt(cap / abs(total))), NAME_RISK_CAP_MIN_SHRINK)
+        for i in idx[np.sign(shares[idx]) == np.sign(total)]:
+            out[int(i)] = min(out.get(int(i), 1.0), shrink)
+    return out
 
 
 def _name_risk_shares(weights, bm_weights, cov_matrix):
@@ -746,9 +774,12 @@ def _enforce_name_risk_share_cap(
     bm_weights: np.ndarray,
     config: PipelineConfig,
     diag: Optional[Dict[str, Any]],
+    sector_groups: Optional[Dict[str, np.ndarray]] = None,
 ) -> np.ndarray:
     """Tighten per-name symmetric active bounds until every Euler share is
-    <= max_name_active_risk_share (+ tol).
+    <= max_name_active_risk_share (+ tol) — and, with ``sector_groups``
+    (§S27.1), every sector's summed share is <= max_sector_active_risk_share,
+    by shrinking the bounds of that sector's same-sign contributors.
 
     The share constraint is a nonconvex ratio of quadratics, so it is
     enforced by re-solving the SAME problem with shrinking |w_i - bm_i|
@@ -758,7 +789,11 @@ def _enforce_name_risk_share_cap(
     where the share ratio is scale-invariant) keeps the last good iterate;
     this path never falls back to bm.
     """
-    cap = float(getattr(config, "max_name_active_risk_share", 0.35))
+    if getattr(config, "name_risk_share_cap_enabled", False):
+        cap = float(getattr(config, "max_name_active_risk_share", 0.35))
+    else:
+        cap = np.inf                                   # §S27.1 sector-only mode
+    sector_cap = float(getattr(config, "max_sector_active_risk_share", 0.85))
     cov = np.asarray(cov_matrix, dtype=float)
     best = np.asarray(solved_w, dtype=float)
     allow_scs = getattr(config, "allow_scs_on_ecos_exception", False)
@@ -767,12 +802,20 @@ def _enforce_name_risk_share_cap(
     for _ in range(NAME_RISK_CAP_MAX_ITER):
         shares, _ = _name_risk_shares(best, bm_weights, cov)
         breach = np.flatnonzero(shares > cap + NAME_RISK_CAP_TOL)
-        if breach.size == 0:
+        sector_shrinks = (
+            _sector_breach_shrinks(shares, sector_groups, sector_cap) if sector_groups else {}
+        )
+        if breach.size == 0 and not sector_shrinks:
             break
         active = best - bm_weights
         changed = False
         for i in breach:
             shrink = min(float(np.sqrt(cap / shares[i])), NAME_RISK_CAP_MIN_SHRINK)
+            target = max(abs(float(active[i])) * shrink, NAME_RISK_CAP_MIN_BOUND)
+            if target < bounds.get(i, np.inf) - 1e-12:
+                bounds[i] = target
+                changed = True
+        for i, shrink in sector_shrinks.items():
             target = max(abs(float(active[i])) * shrink, NAME_RISK_CAP_MIN_BOUND)
             if target < bounds.get(i, np.inf) - 1e-12:
                 bounds[i] = target
@@ -801,6 +844,11 @@ def _enforce_name_risk_share_cap(
         diag["name_risk_cap_iterations"] = iterations
         diag["name_risk_cap_max_share"] = max_share
         diag["name_risk_cap_converged"] = bool(max_share <= cap + NAME_RISK_CAP_TOL)
+        if sector_groups:
+            top = max((abs(float(shares[idx].sum())) for idx in sector_groups.values()), default=0.0)
+            top = top if var > 0.0 else 0.0
+            diag["sector_risk_cap_max_share"] = top
+            diag["sector_risk_cap_converged"] = bool(top <= sector_cap + SECTOR_RISK_CAP_TOL)
     return best
 
 
@@ -899,10 +947,13 @@ def optimize_portfolio(
                 diag["used_fallback"] = True
                 diag["fallback_reason"] = "non_finite_solution"
             return bm_weights.copy()
-        if getattr(config, "name_risk_share_cap_enabled", False):
+        sector_cap_on = getattr(config, "sector_risk_share_cap_enabled", False)
+        if getattr(config, "name_risk_share_cap_enabled", False) or sector_cap_on:
             opt_w = _enforce_name_risk_share_cap(
                 opt_w, w, objective, constraints, cov_matrix, bm_weights,
                 config, diag,
+                sector_groups=(_sector_index_groups(list(expected_returns.index), sector_map)
+                               if sector_cap_on else None),
             )
         return opt_w
 
