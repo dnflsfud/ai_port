@@ -10624,3 +10624,36 @@ ffill 이 되살린 §S25 F1 과 같은 결함(대부분 금융·보험: 정의 
   스케줄 런이 11-04 목표를 발행·동결한다(현 data_as_of 10-20 이라 `data_as_of_fresh_ok` 도 함께 회복). 재생성 전까지 원장은 `no_new_data` 를 적는다.
 - 테스트 `tests/test_paper_ledger.py` 8(드리프트·비용·init·accrue·freeze 의 w_prev = paper 북 진입값·재발행 무거래+지터·no_new_data·append-only) · **전체 1,007 PASS**.
   첫 원장 줄 = 2026-11-04 11:30 스케줄 런(init).
+
+## S27.3 — OPER_MARGIN 발표일 재스탬프를 원천(생성기)으로 이동 (2026-11-03 16:50~17:10, 사용자 결정 "A안으로하자" · 데이터 정확성 계층 · 현 빈티지 바이트 동일 · 인벤토리 비계수)
+
+**왜**: §S27 은 로더(`oper_margin_pit_restamp_enabled`)에서만 누수를 막는다. 원천 `ai_signal_data.xlsx` 의 OPER_MARGIN 은 여전히 회계기말 스탬프라,
+같은 워크북을 읽는 다른 소비자(`new_ai_port`, `RL/regime_rl/fundamental_data.py`)는 누수 값을 쓴다. 사용자 질의 "시트를 처음 만들 때 look-ahead 가 되지
+않도록 해야 하는 것 아니냐" → 원천 수정 A안 채택. (정정: 앞서 소비자로 든 `machine/price_ma.py` 는 자체 Bloomberg 수집기(`raw_machine.xlsx`)라 이 수정의 범위 밖 —
+같은 기말 스탬프 문제를 그대로 가진다.)
+
+**설계**:
+- 생성기 `re_study/create_universe_data.py`: `restamp_oper_margin(df_om, earnings, business_days, currency_of)` — §S27 동결 규칙(≤90 영업일 매칭 → 발표 다음 영업일,
+  미매칭 통화별 p90 USD38/EUR51/JPY43/GBP54/CHF45/기타40, 첫 영업일 = 데이터 시작)을 BusinessDays 기준으로 적용하고 달력 인덱스로 되돌린다(비영업일 행 = 직전 영업일 값).
+  접두 마스킹·퇴화 열 정리 **뒤**, S&P500.xlsx `Earnings_Date` 로. 적용했을 때만 `Data_Provenance` 시트(Sheet=OPER_MARGIN, Basis=`announcement_pit_v1`)를 쓴다.
+  `create_ai_signal_data.py` 는 RL_Universe_Data 전 시트를 그대로 복사하고 OPER_MARGIN 을 원천에서 다시 읽지 않음을 확인(수정 0).
+- 로더 `src/data_loader.py`: `Data_Provenance` 를 `SKIP_SHEETS` 에 추가(메타 시트), `_om_pit_restamped_sheet` 는 표식이 있으면 시트를 그대로 두고
+  `data_quality.oper_margin_pit_restamp = {"source_restamped": basis}` 만 남긴다. 표식이 없는 옛 빈티지는 지금과 같다 → **현 워크북 바이트 동일**(표식 부재 시 새 코드 미실행).
+- **이중 재스탬프 가드가 필수인 이유**: 로더 규칙은 "변경일 이후 첫 발표 +1" 이라, 이미 발표 다음 날로 옮긴 변경을 **다음 분기 발표**에 매칭한다(아래 반사실).
+- **배포 순서 제약**: 기존 로더는 `Data_Provenance` 를 데이터 시트로 읽다 `DateParseError` 로 중단한다(테스트로 확인) → 로더 커밋이 재생성 워크북보다 먼저여야 한다.
+  오늘 커밋 → 11-04 11:30 런은 옛 워크북(표식 없음, 로더 재스탬프 = S0′ 경로) → 사용자 11-04 장 마감 후 재생성부터 원천 재스탬프 발효.
+  `.claude/worktrees/*` 의 낡은 로더 사본은 새 워크북을 못 읽는다(운영 무관). `new_ai_port` 는 REQUIRED_SHEETS 만 읽고 Universe_Meta 열 계약이 엄격해 열 대신 시트로 표식(영향 0).
+
+**실데이터 동일성 검증**(현 빈티지 워크북 10-21 14:58, production config, 같은 raw 로 두 경로; `outputs/s27_3_om_source_parity/parity.json`, 382 s):
+- 생성기 진단: 변경 11,362 · 매칭 11,175 · 대체 187 · 표본 내 미공개 6 · 통화 매핑 불일치 0 (로더 10,966/10,914/52 — 생성기는 2014-01-02 부터·상장 전 이력까지 본다).
+- **재스탬프 값(채움 전, 로더 세션 3,204 × 250 = 801,000 셀)**: 양쪽 값이 있는 셀 **불일치 0**. 새 경로만 값이 있는 셀 1,077(33종목: ZS·SNOW·DASH·ABNB·RBLX·WDC·TT·COF·DELL·HPE·TKO·BN 등)
+  = **상장 경계** — 로더는 상장 전 값을 지운 뒤 상장 후 첫 값을 '변경'으로 보고 다음 발표까지 숨겼고, 생성기는 상장 전 이력(S-1·분할 전 재무)이 이어져 상장일부터 보인다. 반대 방향 0.
+- **get_sheet(채움 후)**: 동일 723,482 · 기존 NaN→새 값 **5,474** = §S27 `changed_to_nan_cells` 와 정확히 같은 셀(공개 전 셀: 기존은 NaN → 피처 단계 중앙값, 새 경로는 로더 일반 규칙대로
+  시트 단계 횡단면 중앙값 — §S25 접두 마스킹 셀과 같은 처리) · 값 차이 13,779(2014 년 초 접두 공백·CS 전 구간·LIN 공백 등 **채움 셀만**; 기존 경로의 중앙값은 기말 스탬프 패널에서
+  계산된 값이었다 → 새 경로가 남은 누수 하나를 더 제거).
+- **반사실(표식 없이 로더가 다시 재스탬프)**: 801,000 셀 중 652,681 값 변경, 지연 중앙값 21 → **63 세션(한 분기)** — 가드 필수 확인.
+- 판정: 공개 값 동일성 PASS. 사전에 말한 "패널 동일" 기준과의 차이(상장 경계 1,077 + 채움 셀)는 기록·보고 — 둘 다 원천 데이터가 더 시점 정합적인 방향이며 공개 값 자체는 불변.
+  효과는 다음 재생성 빈티지의 **S0′ 재인증**에 빈티지 변화와 함께 들어간다(분리 측정을 원하면 현 빈티지 패치 워크북 arm 1회 — 미실행).
+
+**테스트**: 생성기 `test_create_universe_data.py` +3(발표 다음 영업일·통화 대체·주말 행, 첫 값 NaN 유지, 정리 뒤 배선·표식·동결 상수) → 생성기 3파일 55 PASS.
+ai_port `tests/test_om_pit_restamp.py` +1(표식 있으면 미재스탬프·메타 시트 제외, 영업일 캘린더 ON/OFF) → **전체 1,008 PASS**. production variant 무변경(플래그는 옛 빈티지용으로 유지).

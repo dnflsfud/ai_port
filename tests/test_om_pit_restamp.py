@@ -103,7 +103,7 @@ _ESSENTIAL = {
 }
 
 
-def _data(monkeypatch, **cfg_kwargs):
+def _data(monkeypatch, extra=None, **cfg_kwargs):
     n = len(DATES)
     prices = pd.DataFrame({"AAA": np.linspace(100.0, 219.0, n), "BBB": np.linspace(50.0, 169.0, n)}, index=DATES)
     meta = pd.DataFrame({"Ticker": ["AAA", "BBB"], "Name": ["Alpha", "Beta"], "Sector": ["Test", "Test"]},
@@ -114,6 +114,7 @@ def _data(monkeypatch, **cfg_kwargs):
            "OPER_MARGIN": om, "Earnings_Date": _events(AAA=[35], BBB=[])}
     for sheet in _ESSENTIAL - set(raw):
         raw[sheet] = pd.DataFrame(1.0, index=DATES, columns=["AAA", "BBB"])
+    raw.update(extra or {})
     monkeypatch.setattr("src.data_loader.load_all_sheets", lambda _path: {k: v.copy() for k, v in raw.items()})
     return UniverseData("unused.xlsx", config=PipelineConfig(fx_source_path="missing.xlsx", **cfg_kwargs))
 
@@ -139,3 +140,19 @@ def test_on_restamps_only_oper_margin_through_get_sheet(monkeypatch):
     dq = data.data_quality["oper_margin_pit_restamp"]
     assert dq["changes"] == 2 and dq["matched"] == 1 and dq["fallback"] == 1
     assert dq["changed_cells"] == (36 - 20) + (first - 10) and dq["changed_to_nan_cells"] == 0
+
+
+def test_source_restamped_workbook_is_not_restamped_again(monkeypatch):
+    """§S27.3: from the 11-04+ vintages the generator (re_study/create_universe_data.py) restamps OPER_MARGIN at the
+    source and records it in a Data_Provenance sheet (index Sheet, column Basis). Restamping again would match each
+    change (already at announcement + 1) to the NEXT quarter's announcement — one quarter late — so the loader keeps
+    the sheet as is. The marker sheet is metadata, never a data sheet (also through the business-day calendar)."""
+    marker = pd.DataFrame({"Basis": ["announcement_pit_v1"]}, index=pd.Index(["OPER_MARGIN"], name="Sheet"))
+    extra = {"Data_Provenance": marker, "BusinessDays": pd.DataFrame({"BusinessDay": DATES})}
+    for calendar in (False, True):
+        data = _data(monkeypatch, extra=extra, oper_margin_pit_restamp_enabled=True,
+                     business_day_calendar_enabled=calendar)
+        assert "Data_Provenance" not in data.sheets
+        assert data.get_sheet("OPER_MARGIN") is data.sheets["OPER_MARGIN"]
+        assert (data.sheets["OPER_MARGIN"]["AAA"].iloc[20:] == 12.0).all()           # untouched stamps
+        assert data.data_quality["oper_margin_pit_restamp"] == {"source_restamped": "announcement_pit_v1"}

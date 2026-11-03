@@ -264,8 +264,12 @@ CALENDAR_EXEMPT_SHEETS = frozenset({
     "SHORT_INT_RATIO",
 })
 
+# §S27.3: sheets the generator already made point-in-time (index Sheet, column Basis).
+SOURCE_PROVENANCE_SHEET = "Data_Provenance"
+
 # 날짜 인덱스가 아닌 메타/요약 시트 (전처리에서 제외)
-SKIP_SHEETS = {"Universe_Meta", "Summary_Stats", "BusinessDays", "Factor_Meta", "Earnings_Timeline"}
+SKIP_SHEETS = {"Universe_Meta", "Summary_Stats", "BusinessDays", "Factor_Meta", "Earnings_Timeline",
+               SOURCE_PROVENANCE_SHEET}
 
 # Factor 시트 (ticker 기반이 아닌 별도 컬럼 구조)
 FACTOR_SHEETS = {"Factor_PX_LAST", "Factor_Returns", "Factor_Meta"}
@@ -1252,6 +1256,16 @@ OM_PIT_FALLBACK_DAYS = {"USD": 38, "EUR": 51, "JPY": 43, "GBP": 54, "CHF": 45}
 OM_PIT_FALLBACK_DAYS_POOLED = 40
 
 
+def _source_pit_basis(raw, sheet_name: str) -> Optional[str]:
+    """§S27.3: the basis the generator recorded for ``sheet_name`` in the
+    Data_Provenance sheet (already point-in-time at the source), else None."""
+    prov = raw.get(SOURCE_PROVENANCE_SHEET) if isinstance(raw, dict) else None
+    if prov is None or "Basis" not in prov.columns:
+        return None
+    basis = dict(zip(prov.index.astype(str).str.strip(), prov["Basis"].astype(str)))
+    return basis.get(sheet_name)
+
+
 def _quarter_end_share(dates: pd.DatetimeIndex, days: int = 3) -> float:
     """Share of ``dates`` within ``days`` calendar days of a calendar quarter end."""
     if len(dates) == 0:
@@ -2084,6 +2098,13 @@ class UniverseData:
         if name in cache:
             return cache[name]
         sheet = self.sheets[name]
+        basis = _source_pit_basis(getattr(self, "raw", None), name)
+        if basis is not None:
+            # §S27.3: already restamped by the generator — a second pass would
+            # match every change to the NEXT announcement (one quarter late).
+            self.__dict__.setdefault("data_quality", {})["oper_margin_pit_restamp"] = {"source_restamped": basis}
+            cache[name] = sheet
+            return sheet
         raw = self._raw_sheet_standardized(name)
         if raw is None:
             cache[name] = sheet
