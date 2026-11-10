@@ -362,11 +362,11 @@
     "zscore_winsor_first_enabled": true
   },
   "data_vintage": {
-    "data_mtime_utc": "2026-10-21T05:58:08Z",
+    "data_mtime_utc": "2026-11-06T05:47:54Z",
     "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
-    "data_size_bytes": 378940470,
-    "fx_mtime_utc": "2026-10-26T02:14:37Z",
-    "fx_size_bytes": 97794440,
+    "data_size_bytes": 380182438,
+    "fx_mtime_utc": "2026-11-09T06:24:30Z",
+    "fx_size_bytes": 98098919,
     "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx"
   },
   "extra": {
@@ -3578,21 +3578,31 @@
         "2026-10-15T00:00:00",
         "2026-10-16T00:00:00",
         "2026-10-19T00:00:00",
-        "2026-10-20T00:00:00"
+        "2026-10-20T00:00:00",
+        "2026-10-21T00:00:00",
+        "2026-10-22T00:00:00",
+        "2026-10-23T00:00:00",
+        "2026-10-26T00:00:00",
+        "2026-10-27T00:00:00",
+        "2026-10-28T00:00:00",
+        "2026-10-29T00:00:00",
+        "2026-10-30T00:00:00",
+        "2026-11-02T00:00:00",
+        "2026-11-03T00:00:00"
       ],
       "inputs": {
         "code_sha256": "223955b2620645ab0d0125feefe5085635824793c81cccf28b7556da74cf7900",
         "data": {
-          "mtime_ns": 1792562288256748200,
+          "mtime_ns": 1793944074839159700,
           "path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
-          "sha256": "76515f14009eeecb519c39d5d92cc75157d78d6e68cee60c2a9689b08ae271f5",
-          "size": 378940470
+          "sha256": "a0d85d4837fabebc1b321cf70379488e5e4d9608b9164666114b9d41f03838d0",
+          "size": 380182438
         },
         "fx": {
-          "mtime_ns": 1792980877629045300,
+          "mtime_ns": 1794205470836344500,
           "path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx",
-          "sha256": "8cf6a4a4b5f075cb88af4a893bf82e6864b653e1162e7c1ea43c83e4170e8eb7",
-          "size": 97794440
+          "sha256": "c7786ebca5055e14f290b83e2c9cc244524e34801035c68a76204f6187832db5",
+          "size": 98098919
         }
       },
       "schema_version": 1,
@@ -3853,6 +3863,6 @@
     "variant_label": "codex_causal_rank_65"
   },
   "git_dirty": false,
-  "git_hash": "82bcb0f6a39d58f7e3a81def2da1d630587a4022",
-  "timestamp_utc": "2026-11-04T03:34:32Z"
+  "git_hash": "bd002782250c0cdc6bcbbf17ede3c2fb9446c67c",
+  "timestamp_utc": "2026-11-10T03:31:48Z"
 }
