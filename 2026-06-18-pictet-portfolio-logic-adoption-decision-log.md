@@ -10859,3 +10859,22 @@ BEST_CALCULATED_FCF · BEST_GROSS_MARGIN · OPER_MARGIN · BEST_CAPEX · BEST_RO
 - **flip 후보 = G0 ∧ G1 ∧ G2**(§S17.1 arm A 선례: 정확성 트랙은 IR 채택 바를 쓰지 않는다). 병기: avg_ic·IC 3분할, 퇴화 수.
 - **사전 명시 기대**: IC 소폭 상승(T-01 선례), ΔIR 잡음대. 마스킹이 횡단면 z 재표준화로 전 종목에 전파되므로 변경 셀 수는 마스킹 셀 수보다 훨씬 크다(T-01 과 같은 현상, 의도된 범위).
 - **범위 밖(기록)**: 셀사이드·옵션·수급 시트의 같은 채움, M10(`_accel` 정의·VTG 조건), M11(UMG 상장일 셀).
+
+### §S28.1 사전등록 보정 — 11-06 워크북을 보존본에서 읽는다 (2026-11-10, 측정 전 · arm 정의·게이트·판정 스크립트 불변 · 인벤토리 480 불변)
+
+**사유**: 사전등록 커밋(2d69bdc) 직후인 13:20 에 데이터 파이프라인(`re_study/run_data_pipeline.bat` — 이 작업이 기동한 것이 아니다)이 시작됐다. 3단계
+`create_ai_signal_data.py` 가 기본 경로 `ai_signal_data.xlsx` 를 새 빈티지로 덮어쓰고, 4런 체인은 생성기가 끝난 뒤에야 돌 수 있다(메모리). 그래서 덮어쓰기 전에 11-06 14:47 워크북을
+`re_study/ai_signal_data_1106_1447.xlsx` 로 보존했다 — 380,182,438 바이트 · mtime 2026-11-06T05:47:54Z 유지 · sha256 원본과 동일
+(`a0d85d4837fabebc1b321cf70379488e5e4d9608b9164666114b9d41f03838d0`). 10-21 보존본(`ai_signal_data_1021_1458.xlsx`)과 같은 방식이다.
+
+**변경**: 11-06 빈티지의 두 variant 끝에 `data_path`(보존본) 1줄 + 주석. 10-21 빈티지 두 variant · `scripts/eval_s28_1_kfold_arm.py` · 체인 bat · arm 정의 · 게이트 임계는 바이트 불변.
+
+| 라벨 | overrides diff vs production | variant sha256 (보정 뒤, 작업 사본 CRLF 기준) |
+|---|---|---|
+| `s28_s0_1106` (대조) | `{data_path}` | 6b513275d7423bd482ef389b6c464397dbc8d2bef7d23f70a734767672c92454 |
+| `s28_1_kfold_refit_1106` (arm) | `{data_path, kfold_capacity_refit_enabled: True}` | 29cb23497466d4fd2cb67244383adbc5640bf28c37eae426502bcf50d3c65f47 |
+
+- G0 의 `parity_1106`(대조가 §S28 표의 production 런 IR·avg_ic·회전·TE 를 비트 동일 재현)은 그대로이며, 이제 "보존본으로 읽어도 같다"까지 함께 인증한다.
+  `data_vintage.data_path` 문자열은 production 런과 달라지지만 G0 의 빈티지 동일성은 같은 빈티지의 arm·대조 사이에서만 본다(둘 다 보존본).
+- §S28.2 의 기준 런과 arm variant 도 같은 `data_path` 를 물려받는다.
+- 새 워크북(11-10 생성분)의 S0′ 는 다음 스케줄 런 뒤 따로 재인증한다. 이 arm 의 판정에는 쓰지 않는다(사전등록한 두 빈티지 유지).

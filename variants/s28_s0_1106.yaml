@@ -489,3 +489,6 @@ overrides:
   # S28.1 (2026-11-10) control: production overrides, byte-identical, re-run under the code
   # landed for S28.1/S28.2 (all new flags OFF) on the 2026-11-06 workbook. G0 parity = this run
   # reproduces the pre-landing production run bit for bit. Decision log S28.1. Frozen.
+  # S28.1 amendment (2026-11-10, before measurement): the data pipeline regenerated ai_signal_data.xlsx
+  # during preparation, so the 2026-11-06 14:47 workbook is read from its preserved byte copy.
+  data_path: C:/Users/westl/PycharmProjects/pythonProject/venv_vf_new/machine/re_study/ai_signal_data_1106_1447.xlsx
