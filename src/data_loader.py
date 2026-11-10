@@ -399,6 +399,15 @@ def restrict_to_business_days(
         if len(px_dates):
             price_last_date = px_dates.max()
             tail = px_dates[px_dates > business_days.max()]
+            if len(tail):
+                # §S28 H5: the sheets sit on a calendar-day index, so a cutoff
+                # on a weekend / US market holiday leaves forward-fill rows
+                # after the last BusinessDay that this function drops by
+                # design. Only XNYS sessions are rows a stale sheet would lose.
+                from src.trading_calendar import exchange_sessions
+                tail = tail[tail.isin(exchange_sessions(
+                    tail.min().strftime("%Y-%m-%d"), tail.max().strftime("%Y-%m-%d")
+                ))]
             tail_rows_dropped = int(len(tail))
             tail_dropped_from = tail.min() if len(tail) else None
 

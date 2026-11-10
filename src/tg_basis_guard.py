@@ -30,16 +30,20 @@ def _read(path):
 
 def _save(path, state):
     path.parent.mkdir(parents=True, exist_ok=True)
-    with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent,
-                                     prefix=path.name, suffix=".tmp", delete=False) as fh:
-        tmp = Path(fh.name)
-        json.dump(state, fh, indent=2, sort_keys=True, allow_nan=False)
-        fh.flush()
-        os.fsync(fh.fileno())
+    tmp = None
     try:
+        # §S28: the write itself can fail (disk full at flush, 2026-11-09) —
+        # the temp file must not outlive any failure, not only os.replace's.
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent,
+                                         prefix=path.name, suffix=".tmp", delete=False) as fh:
+            tmp = Path(fh.name)
+            json.dump(state, fh, indent=2, sort_keys=True, allow_nan=False)
+            fh.flush()
+            os.fsync(fh.fileno())
         os.replace(tmp, path)
     finally:
-        tmp.unlink(missing_ok=True)
+        if tmp is not None:
+            tmp.unlink(missing_ok=True)
 
 
 def annotate_basis_guard(out_dir, data_quality, threshold=0.25):

@@ -10769,3 +10769,15 @@ avg_ic 가 B-05(라벨 실행 지연) 이후 예측·라벨 한 행 어긋남(�
 - **테스트**: `tests/test_paper_ledger.py`(비용·합집합·지터·원자 교체 4건 갱신/추가) · 신규 `tests/test_s28_ops_fixes.py` 5(게이트 2 · 래퍼 시작 줄 · 디스크 가드 · 원장 복원(미스테이징·스테이징)) ·
   `tests/test_portfolio_automation.py` 의 `"%PY%"` 단계 수 7 → 8. 전체 스위트 1047 PASS(§S28.1·§S28.2 코드까지 있는 작업 트리에서 측정 — 커밋별 단독 실행은 아님).
 - **남긴 것(기록)**: 원장 오류가 여전히 export 를 중단시키지 않는다(§S27.2 의 report-only 설계 유지). init 이전에 만들어진 미추적 원장 파일은 복원 대상이 아니다.
+
+### §S28 `src/` 산출 불변 수정 — H5 꼬리 가드 · 임시 파일 누수 (2026-11-10, 정상 경로 바이트 동일 · 인벤토리 비계수)
+
+`src/` 를 건드리므로 코드 지문이 바뀐다. 정상 경로는 새 코드를 실행하지 않으며, OFF 파리티는 §S28.1 G0 의 `s28_s0_1106` 이 풀런으로 인증한다.
+
+- **H5** `data_loader.restrict_to_business_days` — 마지막 BusinessDay 뒤의 PX_LAST 행 가운데 **XNYS 거래일만** 꼬리 절단으로 센다(`trading_calendar.exchange_sessions`,
+  꼬리가 비어 있지 않을 때만 호출). 주말·미 휴장일의 달력 채움 행은 이 함수가 설계상 버리는 행이다. 낡은 BusinessDays 시트가 실제 거래일을 버리는 경우(§S22 A-05 의 원래 목적)는
+  그대로 `ValueError`. 설치된 캘린더가 모르는 임시 휴장은 여전히 거래일로 세어 중단한다(fail-closed).
+- **임시 파일 누수** `tg_basis_guard._save` — 쓰기·flush·fsync 실패에서도 임시 파일을 지운다(기존은 `os.replace` 실패만 정리 → 11-09 의 0바이트 tmp). 성공 경로의 바이트는 같다.
+  잔존 파일 `outputs/codex_causal_rank_65/tg_basis_state.jsonos2cpog4.tmp` 삭제.
+- **테스트**: 신규 `tests/test_s28_src_fixes.py` 5(쓰기 실패 시 tmp 0·기존 상태 보존 · 성공 경로 왕복 · 일요일 컷오프 통과 · 추수감사절 컷오프 통과 · 실제 거래일 누락은 여전히 중단).
+  기존 A-05 테스트 불변 PASS.
