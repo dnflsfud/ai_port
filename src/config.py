@@ -456,6 +456,22 @@ class PipelineConfig:
     # (12,14,15,20,28,30,48,50,58,[67],76,106,114,129,131,132,149,177,253).
     # Preregistered single value — sweeping it is a §2.4 violation.
     degenerate_fresh_trees: int = 67
+    # S28.1 (2026-11-10, decision log §S28 H2·H3 / §S28.1 preregistration):
+    # purged K-fold capacity selection + full-window refit. The causal split
+    # stops each retrain on ONE val_window block; ~30% of the retrains land
+    # under min_model_trees and that set flips between data vintages (1-6 of
+    # 31 slots on every same-config vintage pair), and the training rows end
+    # val_window + 2 x horizon sessions before the prediction date. ON scores
+    # every capacity 1..n_estimators on kfold_n_splits contiguous validation
+    # blocks covering the whole label-realised window (training rows purged by
+    # the label horizon on both sides of each block, no early stopping), takes
+    # the first argmax of the fold-mean eval curve and refits one fixed-
+    # capacity model (the S16.3 fixed_trees path) on the whole window. The
+    # degenerate rule and its fallback are unchanged. Requires the causal rank
+    # pipeline. Single preregistered K — no sweep. OFF (default) executes none
+    # of the new code.
+    kfold_capacity_refit_enabled: bool = False
+    kfold_n_splits: int = 5
 
     # ------------------------------------------------------------------
     # EWMA Feature Importance

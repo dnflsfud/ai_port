@@ -228,6 +228,7 @@ def prepare_rank_data(
     feature_names: List[str],
     dates: pd.DatetimeIndex,
     relevance_levels: int = 10,
+    return_group_dates: bool = False,
 ) -> Tuple[np.ndarray, np.ndarray, List[int]]:
     """Build deterministic date-grouped data for ``LGBMRanker``.
 
@@ -235,6 +236,10 @@ def prepare_rank_data(
     to integer cross-sectional relevance labels in ``[0, levels - 1]``.  The
     stable date/ticker ordering makes the group vector auditable and keeps
     repeated runs deterministic.
+
+    §S28.1: ``return_group_dates=True`` appends the date of every group (a
+    ``DatetimeIndex`` aligned with ``groups``) so K-fold blocks can be cut
+    from one prepared window. The default return is unchanged.
     """
     mask = panel.index.get_level_values("date").isin(dates)
     X_panel = panel.loc[mask, feature_names].sort_index()
@@ -248,6 +253,7 @@ def prepare_rank_data(
     x_parts: List[np.ndarray] = []
     y_parts: List[np.ndarray] = []
     groups: List[int] = []
+    group_dates: List[pd.Timestamp] = []
     for _date, x_group in X_valid.groupby(level="date", sort=True):
         if len(x_group) < 2:
             continue
@@ -259,14 +265,19 @@ def prepare_rank_data(
         x_parts.append(x_group.to_numpy())
         y_parts.append(relevance)
         groups.append(int(len(x_group)))
+        group_dates.append(_date)
 
     if not x_parts:
-        return (
+        out = (
             np.empty((0, len(feature_names)), dtype=float),
             np.empty((0,), dtype=np.int32),
             [],
         )
-    return np.vstack(x_parts), np.concatenate(y_parts), groups
+    else:
+        out = (np.vstack(x_parts), np.concatenate(y_parts), groups)
+    if return_group_dates:
+        return out + (pd.DatetimeIndex(group_dates),)
+    return out
 
 
 def prepare_symmetric_rank_data(
@@ -379,6 +390,137 @@ def build_walk_forward_split(
             "forward_horizon": int(forward_horizon),
             "causal_validation_ok": bool(causal_ok),
         },
+    }
+
+
+def build_purged_kfold_splits(
+    all_dates: pd.DatetimeIndex,
+    prediction_idx: int,
+    train_window: int,
+    forward_horizon: int,
+    n_splits: int,
+) -> dict:
+    """§S28.1: purged K-fold over the whole label-realised window of one retrain.
+
+    The window is ``[prediction_idx - train_window, prediction_idx - H]`` — the
+    last row's label finishes ON the prediction date, the same causal bound as
+    the last validation row of ``build_walk_forward_split``. It is cut into
+    ``n_splits`` contiguous validation blocks; each fold trains on the rest
+    minus ``H`` rows on both sides of its block, so no training label window
+    overlaps a validation label window (the single-window split's embargo).
+    """
+    n_splits = int(n_splits)
+    if n_splits < 2:
+        raise ValueError(f"purged K-fold needs n_splits >= 2, got n_splits={n_splits}")
+    start = max(0, prediction_idx - train_window)
+    end = prediction_idx - forward_horizon + 1          # exclusive
+    blocks = (
+        np.array_split(np.arange(start, end), n_splits) if end > start else []
+    )
+    folds = []
+    for block in blocks:
+        if len(block) == 0:
+            folds = []
+            break
+        v0, v1 = int(block[0]), int(block[-1]) + 1
+        train_idx = np.concatenate([
+            np.arange(start, max(start, v0 - forward_horizon)),
+            np.arange(min(end, v1 + forward_horizon), end),
+        ])
+        if len(train_idx) == 0:
+            folds = []
+            break
+        folds.append({
+            "train_dates": all_dates[train_idx],
+            "val_dates": all_dates[v0:v1],
+        })
+    if len(folds) != n_splits:
+        raise ValueError(
+            "insufficient history for purged K-fold: "
+            f"t={prediction_idx}, window=[{start},{end}), "
+            f"n_splits={n_splits}, H={forward_horizon}"
+        )
+    latest_realization_idx = end - 1 + forward_horizon
+    return {
+        "window_dates": all_dates[start:end],
+        "folds": folds,
+        "audit": {
+            "prediction_date": str(all_dates[prediction_idx].date()),
+            "train_start": str(all_dates[start].date()),
+            "train_end": str(all_dates[end - 1].date()),
+            "latest_train_label_realization": str(
+                all_dates[latest_realization_idx].date()
+            ),
+            "embargo_days": int(forward_horizon),
+            "forward_horizon": int(forward_horizon),
+            "kfold_n_splits": n_splits,
+            "causal_validation_ok": bool(latest_realization_idx <= prediction_idx),
+        },
+    }
+
+
+def capacity_from_fold_curves(curves) -> int:
+    """§S28.1: 1-based first argmax of the fold-mean validation curve."""
+    if len(curves) == 0 or len({len(c) for c in curves}) != 1 or len(curves[0]) == 0:
+        raise ValueError("fold curves must be non-empty and share one length")
+    return int(np.argmax(np.mean(np.asarray(curves, dtype=float), axis=0))) + 1
+
+
+def select_capacity_by_kfold(
+    panel: pd.DataFrame,
+    targets: pd.DataFrame,
+    feature_names: List[str],
+    kfold: dict,
+    config: PipelineConfig,
+    feature_scale: Optional[np.ndarray] = None,
+) -> Tuple[int, dict]:
+    """§S28.1: fit one fixed-length ranker per purged fold (no early stopping),
+    record its validation eval curve and return the capacity that maximises
+    the fold mean, with the diagnostics stored in ``split_audit``.
+    """
+    levels = int(getattr(config, "rank_relevance_levels", 10))
+    X, y, groups, group_dates = prepare_rank_data(
+        panel, targets, feature_names, kfold["window_dates"], levels,
+        return_group_dates=True,
+    )
+    if feature_scale is not None:
+        X = X * feature_scale[np.newaxis, :]
+    groups = np.asarray(groups, dtype=int)
+    eval_at = tuple(int(k) for k in config.rank_eval_at)
+    params = dict(config.lgbm_params)
+    params["objective"] = "rank_xendcg"
+    params["metric"] = "ndcg"
+    mono_vec = _monotone_constraints_vector(config, feature_names)
+    if mono_vec is not None:
+        params["monotone_constraints"] = mono_vec
+
+    curves = []
+    for fold in kfold["folds"]:
+        train_g = group_dates.isin(fold["train_dates"])
+        val_g = group_dates.isin(fold["val_dates"])
+        train_rows, val_rows = np.repeat(train_g, groups), np.repeat(val_g, groups)
+        model = lgb.LGBMRanker(**params)
+        model.fit(
+            X[train_rows], y[train_rows],
+            group=groups[train_g],
+            eval_set=[(X[val_rows], y[val_rows])],
+            eval_group=[groups[val_g]],
+            eval_at=eval_at,
+            callbacks=[lgb.log_evaluation(0)],
+        )
+        curves.append(list(model.evals_result_["valid_0"][f"ndcg@{eval_at[0]}"]))
+
+    n_star = capacity_from_fold_curves(curves)
+    mean_curve = np.mean(np.asarray(curves, dtype=float), axis=0)
+    return n_star, {
+        "n_star": n_star,
+        "n_folds": len(curves),
+        "max_rounds": int(len(mean_curve)),
+        "capped": bool(n_star == len(mean_curve)),
+        "fold_argmax": [int(np.argmax(c)) + 1 for c in curves],
+        "mean_eval_at_star": float(mean_curve[n_star - 1]),
+        "mean_eval_first": float(mean_curve[0]),
+        "mean_eval_last": float(mean_curve[-1]),
     }
 
 
@@ -672,6 +814,16 @@ def walk_forward_train(
             f"unknown degenerate_fallback_mode={fallback_mode!r} "
             "(expected 'reuse_prev' or 'fresh_fixed')"
         )
+    # §S28.1: purged K-fold capacity selection + full-window refit (default-OFF).
+    kfold_refit = bool(getattr(config, "kfold_capacity_refit_enabled", False))
+    if kfold_refit and not (
+        getattr(config, "causal_validation_enabled", False)
+        and getattr(config, "model_objective", "regression") == "cross_sectional_rank"
+    ):
+        raise ValueError(
+            "kfold_capacity_refit_enabled requires causal_validation_enabled=True "
+            "and model_objective='cross_sectional_rank'"
+        )
 
     # OOS hold-out enforcement: during tuning, prevent predictions beyond
     # the reserved OOS window so accidental peeking can't contaminate the
@@ -742,7 +894,18 @@ def walk_forward_train(
 
         # 재훈련 시점인지 확인
         if t_idx - last_train_idx >= retrain_freq or current_model is None:
-            if getattr(config, "causal_validation_enabled", False):
+            if kfold_refit:
+                kfold = build_purged_kfold_splits(
+                    all_dates=all_dates,
+                    prediction_idx=t_idx,
+                    train_window=train_window,
+                    forward_horizon=effective_label_horizon(config),
+                    n_splits=int(config.kfold_n_splits),
+                )
+                # The refit uses every label-realised row; nothing is held out.
+                train_dates = kfold["window_dates"]
+                val_dates = train_dates[:0]
+            elif getattr(config, "causal_validation_enabled", False):
                 split = build_walk_forward_split(
                     all_dates=all_dates,
                     prediction_idx=t_idx,
@@ -805,8 +968,18 @@ def walk_forward_train(
             prev_features = current_features
             prev_fw = current_fw
 
-            new_model = train_model(panel, targets, candidate_features, train_dates, val_dates,
-                                    config=config, feature_scale=candidate_fw)
+            if kfold_refit:
+                n_star, kfold["audit"]["kfold"] = select_capacity_by_kfold(
+                    panel, targets, candidate_features, kfold, config,
+                    feature_scale=candidate_fw,
+                )
+                split_audit.append(kfold["audit"])
+                new_model = train_model(panel, targets, candidate_features, train_dates, val_dates,
+                                        config=config, feature_scale=candidate_fw,
+                                        fixed_trees=n_star)
+            else:
+                new_model = train_model(panel, targets, candidate_features, train_dates, val_dates,
+                                        config=config, feature_scale=candidate_fw)
 
             # Degenerate model fallback: too few trees means the retrain did
             # not materially learn. Reuse the prior model/features if possible.

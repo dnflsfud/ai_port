@@ -10781,3 +10781,49 @@ avg_ic 가 B-05(라벨 실행 지연) 이후 예측·라벨 한 행 어긋남(�
   잔존 파일 `outputs/codex_causal_rank_65/tg_basis_state.jsonos2cpog4.tmp` 삭제.
 - **테스트**: 신규 `tests/test_s28_src_fixes.py` 5(쓰기 실패 시 tmp 0·기존 상태 보존 · 성공 경로 왕복 · 일요일 컷오프 통과 · 추수감사절 컷오프 통과 · 실제 거래일 누락은 여전히 중단).
   기존 A-05 테스트 불변 PASS.
+
+## S28.1 — purged K-fold 용량 선택 + 전체 창 재적합 arm 사전등록 (2026-11-10, 사용자 승인 "그렇게 진행해줘" — §S16.3 이 실행 없이 닫은 용량 축의 재개 승인 포함 · 기전·무해성 트랙 · 인벤토리 479→480 · 측정 전 단독 커밋)
+
+**동기(§S28 H2·H3)**: 재학습마다 용량(트리 수)을 **단일 126일 검증창**의 ndcg@20 조기종료로 정한다. 그 결과 (i) 재학습의 ~30% 가 `min_model_trees`(10) 미만으로
+끝나 폐기되고, 그 집합이 데이터 빈티지마다 1~6 슬롯씩 뒤바뀌며(같은 config 6쌍 전부), (ii) 학습 행은 예측일 −168세션에서 끝난다(검증 126 + 엠바고 21×2).
+Pictet 자료 31쪽("모델 복잡도를 고르는 새 검증 절차")·34쪽("K-fold 교차검증")이 같은 문제를 다룬다. 결정 로그에 K-fold·전체 창 재적합 기록은 없다.
+
+**§S16.3 과의 관계(축 재개 고지)**: §S16.3 은 "퇴화 슬롯만 고정 67그루로 재적합"(`fresh_fixed`)을 IR 채택 바로 판정해 불채택했고(ΔIR +0.016, IC +14.1%), 상호배타 선언으로
+"조기종료 제거 + 고정 용량"을 실행 없이 닫았다. 이 arm 은 그 축을 다시 연다 — 다만 (a) 용량을 고정하지 않고 창 전체의 K-fold 로 고르고, (b) 검증 보류분 없이 최신 행까지 적합하며,
+(c) **IR 이 아니라 기전(퇴화율·빈티지 쌍 북 거리)과 무해성으로 판정**한다. §S16.3 의 "스테일 비용은 IR 에 없다"는 결론은 그대로 받아들인다(사전 기대 ΔIR ≈ 0).
+
+**arm 정의(단일 사전등록)**: `kfold_capacity_refit_enabled: true`(`kfold_n_splits` 5 — 스윕 금지). 재학습 시점 t, H = 라벨 실현 지평(`effective_label_horizon` = 21):
+- **창** = 행 [t − 1260, t − H] — 마지막 행의 라벨이 예측일 t 에 실현되는, 기존 분할의 마지막 검증 행과 같은 인과 한계.
+- **폴드** = 창을 연속 5블록으로 분할(`np.array_split`). 각 폴드의 학습 행 = 창에서 그 블록과 블록 양쪽 H행을 뺀 나머지(라벨 실현창 비중첩, 기존 엠바고와 같은 규약).
+- **용량** = 폴드마다 production 과 같은 `LGBMRanker` 파라미터로 `n_estimators`(800) 까지 조기종료 없이 적합하고 블록의 ndcg@20 곡선을 기록 → **폴드 평균 곡선의 첫 argmax** = n*.
+- **최종 모델** = 창 전체를 n* 그루 고정 용량으로 적합(§S16.3 `fixed_trees` 경로 재사용). 퇴화 판정(n* < 10)과 `reuse_prev` 폴백·EWMA 피처 선택·예측 EMA 는 그대로.
+- **신규 코드(default-OFF)**: `PipelineConfig.kfold_capacity_refit_enabled=False`·`kfold_n_splits=5`, `model_trainer.build_purged_kfold_splits` / `capacity_from_fold_curves` /
+  `select_capacity_by_kfold`, `prepare_rank_data(…, return_group_dates=False)`(기본 반환 불변), `walk_forward_train` 의 분기 2곳(OFF 면 기존 문장 그대로 실행).
+  `split_audit` 행은 `prediction_date`·`train_start/end`·`causal_validation_ok` 를 유지하고 `kfold`(n*·폴드별 argmax·상한 도달 여부·평균 곡선 값)를 더한다.
+  테스트 `tests/test_s28_1_kfold_refit.py` 12(기본값 · 블록이 창을 분할 · 양쪽 H행 purge(최소 간격 H+1) · audit 인과 · 이력 부족 · 첫 argmax · 곡선 길이 검증 · 그룹 날짜 ·
+  OFF 불변 · ON = 창 전체 고정 용량 적합과 예측 동일 · 퇴화 규칙 유지 · causal rank 파이프라인 요구) + `tests/test_eval_s28_1_kfold_arm.py` 5.
+- **공개된 한계(사전 고지)**: (1) K-fold 는 검증 블록 **뒤** 행으로도 학습한다. 모두 예측일에 알려진 정보이고 라벨 중첩은 purge 하지만, 롤링 피처(예: 252d 변화율)에 담긴
+  겹침은 제거하지 않는다(표준 purged K-fold 의 한계) — 검증 ndcg **수준**을 올릴 수 있으나 여기서는 용량 argmax 에만 쓴다. (2) n* 는 창의 ~4/5 로 고르고 창 전체에 보정 없이
+  적용한다. (3) 계산량: 재학습당 5 × 800 그루(기존은 best + 100 에서 정지).
+
+**런(같은 코드·같은 Index.xlsx 구간, `outputs/s28_1_run_chain.bat` → schtasks `s28_1_kfold_chain`)**:
+
+| 라벨 | 워크북 | overrides diff vs production | variant sha256 |
+|---|---|---|---|
+| `s28_s0_1106` (대조) | 11-06 14:47 | `{}` | 9a9491e3b0eed541eaf92cefd04b4c2557b68f01bd13f5f2fdcd369242073e4f |
+| `s28_1_kfold_refit_1106` (arm) | 11-06 14:47 | `{kfold_capacity_refit_enabled: True}` | ccb854d78824b5deb6548901223a311f5d724c6b2e25565de11df5bab8a5de3e |
+| `s28_ctl_1021` (대조) | 보존 10-21 14:58 | `{data_path}` | 282393d84ac34367cb97ed4952323547e29ccb4ed13842ce5d2572fcd80bf990 |
+| `s28_1_kfold_refit_1021` (arm) | 보존 10-21 14:58 | `{data_path, kfold_capacity_refit_enabled: True}` | 01e83004dec2db0d726de96de67fec80190cab74e28fea6830abcf63b06e6bc5 |
+
+**게이트(측정 전 고정, `scripts/eval_s28_1_kfold_arm.py` sha256 `743887610a1762016ece64797a32974fba30d904d81bc9f60b4d586dd64c8413` — 작업 사본 CRLF 기준, variant 도 같다)**:
+- **G0**: 빈티지별로 arm·대조 `data_vintage` 동일 ∧ arm 플래그 True·대조 플래그 없음 ∧ **대조 `s28_s0_1106` 이 코드 착지 전 production 런(같은 워크북, §S28 표)을 비트 동일 재현**
+  (IR·avg_ic·회전·TE — `REFERENCE_PROD_1106`). 이 런이 §S28.1·§S28.2·산출 불변 수정 전체의 OFF 파리티 인증을 겸한다.
+- **G1(기전)**: (a) 두 빈티지 모두 퇴화 재학습 **≤ 1**; (b) **빈티지 쌍 북 거리 비 D(arm)/D(대조) ≤ 0.6** — D = 네 런 공통 리밸일에서 10-21 북과 11-06 북(목표 북
+  `portfolio_weights`)의 편도 L1 거리 평균. 병기(판정 아님): 라이브 모델 학습 종료일, 고유 모델 수, n* 분포·상한(800) 도달 횟수, 빈티지 간 퇴화 슬롯 뒤바뀜 수.
+- **G2(무해성)**: 빈티지별 TE ≤ 4.5% · |ΔAS| ≤ 3%p · 회전율 ≤ 1.25× · fallback 0 ∧ **두 빈티지 평균 ΔIR > −0.10 ∧ 각 빈티지 쌍대 NW t > −1**(보고서 ③ 무해성 규칙을 두 쌍에 적용).
+- **flip 후보 = G0 ∧ G1 ∧ G2.** formal E1(ΔIR > +0.36 ∧ 부호 일관)은 병기만 — 통과해도 성과 근거로 쓰지 않는다(§2.4, 큐레이션 유니버스 헤드라인 IR 은 잣대가 아님).
+- **사전 명시 기대**: ΔIR ≈ 0(§S16.3 선례), 퇴화 0~1, 라이브 학습 종료 = 데이터 끝 − 21세션. 거리 비는 모른다 — 0.6 을 넘으면 "조기종료 칼날이 빈티지 잡음의 주 기전"이라는
+  §S28 가설이 기각되고 arm 은 불채택이다.
+- **기각 시**: default `reuse_prev`·단일 검증창 유지, H2·H3 은 운영 리스크로 기록만 한다. §S28.2 는 현 기준선 위에서 진행.
+- **다중성**: 용량 축의 3번째 등록(§S16.3 다중성 2 + 이 arm), K·규칙 단일. 인벤토리 479→480(`experiment_inventory.json` notes). 이 절·src·tests·variant 4개·판정 스크립트·체인 bat·
+  인벤토리를 **측정 전 단독 커밋**한다. flip 은 측정 결과 상신 뒤 사용자 별도 승인.
