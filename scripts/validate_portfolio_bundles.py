@@ -764,6 +764,13 @@ def evaluate_production(record: dict, as_of_utc=None) -> dict:
         as_of_utc if as_of_utc is not None else datetime.now(timezone.utc),
         record.get("rebalance_calendar") or "XNYS",
     )
+    # §S28 M8: the next grid rebalance is rows_until_next_rebalance sessions
+    # after data_as_of; once that many sessions have CLOSED it is due in real
+    # time but its target is not in the bundle (rebalance_overdue is row-count
+    # based and data_as_of_fresh_ok tolerates 3 sessions). Fail-closed on missing.
+    rows_until = record.get("rows_until_next_rebalance")
+    if isinstance(rows_until, bool) or not isinstance(rows_until, int) or rows_until < 1:
+        rows_until = None
 
     checks = {
         "estimated_te_ok": _not_breached("estimated_te_breached"),
@@ -805,6 +812,9 @@ def evaluate_production(record: dict, as_of_utc=None) -> dict:
             else latest_turnover <= turnover_cap + 1e-6
         ),
         "data_as_of_fresh_ok": None if data_age is None else data_age <= MAX_DATA_AGE_SESSIONS,
+        "rebalance_schedule_current_ok": (
+            None if data_age is None or rows_until is None else data_age < rows_until
+        ),
     }
     # Fail-closed (2026-07-21): PRODUCTION requires every check explicitly
     # True — a missing input (None) is not evidence of passing. S16.3 report-
@@ -834,6 +844,7 @@ def evaluate_production(record: dict, as_of_utc=None) -> dict:
         "data_as_of": data_as_of if isinstance(data_as_of, str) else None,
         "data_age_sessions": data_age,
         "max_data_age_sessions": MAX_DATA_AGE_SESSIONS,
+        "rows_until_next_rebalance": rows_until,
     }
     return {"status": status, "checks": checks, "values": values}
 

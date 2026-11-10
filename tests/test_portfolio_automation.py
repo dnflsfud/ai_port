@@ -53,7 +53,7 @@ def test_primary_bat_python_steps_fail_on_any_nonzero_exit():
     # NTSTATUS exit code) was treated as success.
     lines = (ROOT / "run_and_upload.bat").read_text(encoding="utf-8").splitlines()
     steps = [i for i, line in enumerate(lines) if line.startswith('"%PY%"')]
-    assert len(steps) == 7
+    assert len(steps) == 8
     for i in steps:
         assert lines[i + 1].startswith("if !errorlevel! neq 0 ("), lines[i + 1]
 
@@ -69,7 +69,8 @@ def test_primary_bat_guard_blocks_dirty_repo_and_ignores_outputs(tmp_path):
                        cwd=repo, check=True, capture_output=True)
 
     def run_bat():
-        env = dict(os.environ, AI_PORT_NO_DASHBOARD="1")
+        # §S28 H1: the free-disk guard is tested in test_s28_ops_fixes; keep this test off it
+        env = dict(os.environ, AI_PORT_NO_DASHBOARD="1", AI_PORT_MIN_FREE_GB="0")
         return subprocess.run(["cmd", "/c", str(repo / "run_and_upload.bat")], cwd=repo,
                               capture_output=True, text=True, env=env, timeout=300)
 

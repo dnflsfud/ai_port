@@ -8,12 +8,16 @@ run that publishes R (the real publication delay), with w_prev = the drifted PAP
 book entering R — not the backtest's simulated path — and drifts with daily returns
 in between. Past NAV is never rewritten when a workbook regeneration revises history:
 each run only appends the dates (state.as_of, data_as_of]. Re-publications of an
-already-frozen R never trade; their one-way distance to the frozen target is logged
-as re-publication jitter.
+already-frozen R never trade; the one-way distance between the run's simulated
+(backtest) target at R and the simulated target stored when R was frozen is logged
+as re-publication jitter (§S28: like-for-like — 0 when nothing was re-published).
+A trade is charged the two-way L1 turnover x ONE_WAY_COST_BPS, the backtest's
+``tc_cost = turnover * one_way_tc`` convention (§S28).
 """
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Callable, Optional, Tuple
 
@@ -42,9 +46,10 @@ def advance_book(weights: pd.Series, nav: float, bm_nav: float, returns: pd.Data
 
 def apply_trade(weights: pd.Series, target: pd.Series, nav: float,
                 cost_bps: float = ONE_WAY_COST_BPS) -> Tuple[pd.Series, float, float]:
-    target = target.reindex(weights.index).fillna(0.0)
-    one_way = 0.5 * float(np.abs(target.to_numpy() - weights.to_numpy()).sum())
-    return target.copy(), nav * (1.0 - one_way * cost_bps / 1e4), one_way
+    index = weights.index.union(target.index, sort=False)       # §S28: a new name enters the book
+    target = target.reindex(index).fillna(0.0)
+    one_way = 0.5 * float(np.abs(target.to_numpy() - weights.reindex(index).fillna(0.0).to_numpy()).sum())
+    return target.copy(), nav * (1.0 - 2.0 * one_way * cost_bps / 1e4), one_way
 
 
 def update(state: Optional[dict], *, data_as_of, last_rebalance, sim_book: pd.Series,
@@ -62,12 +67,11 @@ def update(state: Optional[dict], *, data_as_of, last_rebalance, sim_book: pd.Se
                     "note": "paper book starts as the backtest book at data_as_of (no trade)"}
     rec: dict = {}
     last_frozen = pd.Timestamp(state["last_frozen_rebalance"])
-    frozen = state["frozen"].get(str(last_frozen.date()))
+    stored_sim = (state["frozen"].get(str(last_frozen.date())) or {}).get("sim_target")
     sim_at_frozen = sim_target_at(last_frozen)
-    if frozen is not None and sim_at_frozen is not None:
-        ft = pd.Series(frozen["target"], dtype=float)
+    if stored_sim is not None and sim_at_frozen is not None:
         rec["republication_jitter_one_way"] = 0.5 * float(
-            np.abs(sim_at_frozen.reindex(ft.index).fillna(0.0) - ft).sum())
+            sim_at_frozen.sub(pd.Series(stored_sim, dtype=float), fill_value=0.0).abs().sum())
     S = pd.Timestamp(state["as_of"])
     if D <= S:
         rec["action"] = "no_new_data"
@@ -84,6 +88,9 @@ def update(state: Optional[dict], *, data_as_of, last_rebalance, sim_book: pd.Se
         new["frozen"][str(R.date())] = {"published_data_as_of": str(D.date()),
                                         "target": {k: float(v) for k, v in target.items()},
                                         "one_way_turnover": one_way, **info}
+        sim_target = sim_target_at(R)
+        if sim_target is not None:
+            new["frozen"][str(R.date())]["sim_target"] = {k: float(v) for k, v in sim_target.items()}
         new["last_frozen_rebalance"] = str(R.date())
         rec.update({"action": "freeze", "rebalance": str(R.date()), "trade_data_date": str(D.date()),
                     "one_way_turnover": one_way, "days": n1 + n2, **info})
@@ -97,8 +104,10 @@ def update(state: Optional[dict], *, data_as_of, last_rebalance, sim_book: pd.Se
 
 
 def run(ledger_dir, *, run_info: dict, **kwargs) -> dict:
-    """Load ``state.json``, apply :func:`update`, rewrite the state and append one line to
-    ``ledger.jsonl`` (the ledger is append-only; the state is the current paper book)."""
+    """Load ``state.json``, apply :func:`update`, append one line to ``ledger.jsonl`` and then
+    replace the state atomically (the ledger is append-only; the state is the current paper book).
+    §S28: ledger first — a crash in between leaves the OLD state plus one extra audit line (the
+    next run redoes the step), never an advanced or torn state without its audit line."""
     ledger_dir = Path(ledger_dir)
     ledger_dir.mkdir(parents=True, exist_ok=True)
     state_path = ledger_dir / "state.json"
@@ -106,7 +115,17 @@ def run(ledger_dir, *, run_info: dict, **kwargs) -> dict:
     new_state, rec = update(state, **kwargs)
     record = {**run_info, "data_as_of": str(pd.Timestamp(kwargs["data_as_of"]).date()),
               "last_rebalance": str(pd.Timestamp(kwargs["last_rebalance"]).date()), **rec}
-    state_path.write_text(json.dumps(new_state, indent=1, default=str), encoding="utf-8")
     with open(ledger_dir / "ledger.jsonl", "a", encoding="utf-8") as fh:
         fh.write(json.dumps(record, default=str, ensure_ascii=False) + "\n")
+        fh.flush()
+        os.fsync(fh.fileno())
+    tmp_path = ledger_dir / "state.json.tmp"
+    try:
+        with open(tmp_path, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps(new_state, indent=1, default=str))
+            fh.flush()
+            os.fsync(fh.fileno())
+        os.replace(tmp_path, state_path)
+    finally:
+        tmp_path.unlink(missing_ok=True)
     return record

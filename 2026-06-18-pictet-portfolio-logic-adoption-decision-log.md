@@ -10747,3 +10747,25 @@ avg_ic 가 B-05(라벨 실행 지연) 이후 예측·라벨 한 행 어긋남(�
 4. §S28.1 측정(보존 워크북 10-21·11-06, 2런 + 대조 2런) → 통과 시 flip 은 별도 승인.
 5. §S28.2 측정(A 판정 뒤의 기준선 위에서 1런) → flip 은 별도 승인.
 6. B(섹터·스타일 중립 라벨)·C(폭 구성 paper 그림자 북)는 "시점 t 대형주 한정" 잣대 결정 뒤. M6·M9·M10·M11·낮음 항목은 미처리(후속).
+
+### §S28 운영 계층 수정 — H1·M7·M8 (2026-11-10, `src/` 밖 · 백테스트 산출 불변 · 인벤토리 비계수)
+
+코드 지문(`run_integrity.code_fingerprint` = `src/*.py`) 밖의 변경만 담는다. 전부 실패 테스트를 먼저 확인한 뒤 고쳤다.
+
+- **H1 스케줄 런 가시성** — `run_and_upload_scheduled.bat` 가 런 **전에** `<ts> start log=…` 줄을 이력에 쓴다(끝난 뒤 `exit=` 줄은 그대로). 시작 줄만 있고 종료 줄이 없으면
+  죽은 런이다(11-09 는 이력 줄이 하나도 없었다). `run_and_upload.bat` [1/10] 은 저장소 드라이브 여유가 `AI_PORT_MIN_FREE_GB`(기본 10) GB 미만이면 시작하지 않는다.
+  디스크 부족의 근본 원인은 여전히 미확정 — 이 가드는 "낮은 여유로 시작"만 막는다.
+- **M7 paper 원장 4건**(`scripts/paper_ledger.py`):
+  (a) `apply_trade` 가 북·목표의 **합집합** 종목으로 거래 → 유니버스에 새로 들어온 종목을 담을 수 있다.
+  (b) 발행 확정 전 변경: `run()` 은 원장 줄을 먼저 추가(fsync)한 뒤 `state.json` 을 임시 파일 + `os.replace` 로 **원자 교체**한다 — 중간에 죽으면 옛 상태 + 감사 줄 1개가 남고
+  다음 런이 같은 단계를 다시 한다(찢어진 state 불가). 그리고 `run_and_upload.bat` 이 더티 점검 직후 `git checkout HEAD -- outputs/paper_ledger` 로 **발행되지 않은 원장 변경을 버린다**
+  (검증·커밋에서 실패한 런이 동결한 리밸은 발행된 것이 아니다; `git add` 뒤·`git commit` 전에 죽은 경우까지 HEAD 기준으로 복원).
+  (c) `republication_jitter_one_way` 재정의 — 동결 시 그 런의 시뮬 목표(`sim_target_at(R)`)를 `state.frozen[R].sim_target` 에 저장하고, 이후 런의 시뮬 목표와 비교한다
+  (같은 빈티지면 0). 기존 정의(시뮬 목표 vs paper 목표)로 기록된 줄은 원장에 없다(init 1줄뿐).
+  (d) 비용 = 양방향 L1 × 10bp(백테스트 `tc_cost = turnover * one_way_tc` 와 같은 관례; 기존은 그 절반).
+- **M8 게이트** — `evaluate_production` 에 구속 체크 `rebalance_schedule_current_ok` = `data_age_sessions < rows_until_next_rebalance`(입력 누락 → None → HOLD).
+  데이터 날짜 뒤로 그만큼의 세션이 **마감**됐으면 격자 리밸일이 실시간으로 지났는데 번들에 그 목표가 없다 → HOLD. 정상 주기(매일 인출, 나이 0)에서는 발화하지 않는다.
+  현 번들(data_as_of 11-03, 다음 격자 리밸까지 1행)은 신선도와 함께 이 체크로도 HOLD 다.
+- **테스트**: `tests/test_paper_ledger.py`(비용·합집합·지터·원자 교체 4건 갱신/추가) · 신규 `tests/test_s28_ops_fixes.py` 5(게이트 2 · 래퍼 시작 줄 · 디스크 가드 · 원장 복원(미스테이징·스테이징)) ·
+  `tests/test_portfolio_automation.py` 의 `"%PY%"` 단계 수 7 → 8. 전체 스위트 1047 PASS(§S28.1·§S28.2 코드까지 있는 작업 트리에서 측정 — 커밋별 단독 실행은 아님).
+- **남긴 것(기록)**: 원장 오류가 여전히 export 를 중단시키지 않는다(§S27.2 의 report-only 설계 유지). init 이전에 만들어진 미추적 원장 파일은 복원 대상이 아니다.

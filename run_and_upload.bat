@@ -18,6 +18,11 @@ echo [1/10] Environment check...
 if not exist "%PY%" (echo ERROR: python not found: %PY% & exit /b 1)
 "%PY%" -c "import cvxpy; assert 'ECOS' in cvxpy.installed_solvers(), 'ECOS missing'"
 if !errorlevel! neq 0 (echo ERROR: cvxpy/ECOS check failed & exit /b 1)
+REM S28 H1: the 2026-11-09 run died mid-backtest on a full disk; refuse to
+REM start with less than AI_PORT_MIN_FREE_GB (default 10) free on the repo drive.
+if not defined AI_PORT_MIN_FREE_GB set "AI_PORT_MIN_FREE_GB=10"
+"%PY%" -c "import shutil,sys; sys.exit(0 if shutil.disk_usage('.').free >= float(sys.argv[1])*2**30 else 1)" %AI_PORT_MIN_FREE_GB%
+if !errorlevel! neq 0 (echo ERROR: less than %AI_PORT_MIN_FREE_GB% GB free on the repo drive - aborting before the run & exit /b 1)
 REM S22 D-01: production is computed from the working tree and step 8 stages
 REM the whole tree, so code outside outputs\ must be committed before the run.
 REM Same pathspec as src/config.py _git_dirty (the manifest's git_dirty).
@@ -28,6 +33,11 @@ if defined DIRTY (
   git status --short -- . ":(exclude)outputs"
   exit /b 1
 )
+REM S28 M7(b): a rebalance is frozen by the first run that PUBLISHES it, so
+REM discard paper-ledger changes left by a previous run that failed before its
+REM commit (HEAD, not the index: a run can die between git add and git commit).
+REM A missing path (no ledger yet) is not an error.
+git checkout HEAD -- outputs/paper_ledger >nul 2>&1
 
 REM S22 D-05: `if errorlevel 1` means >= 1 and passes a native crash
 REM (negative NTSTATUS exit code) as success; test for any non-zero code.
