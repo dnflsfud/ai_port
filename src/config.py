@@ -1191,6 +1191,31 @@ class PipelineConfig:
     stale_run_fund_max_days: int = 126
 
     # ------------------------------------------------------------------
+    # S28.2 (2026-11-10) — pre-coverage mask for consensus sheets (decision
+    # log §S28 H4 / §S28.2 preregistration). After listing but before analyst
+    # coverage starts, the loader's _fill_missing (ffill -> per-date cross-
+    # sectional MEDIAN of the level) fills a ticker's consensus cells with
+    # OTHER names' levels: safe_pct_change(raw, w) is then a spurious
+    # "median -> actual" jump for the first w rows after coverage starts
+    # (252 rows for chg_252d) and level / rank features sit on a fake level.
+    # §S17 T-01 fixed this for two sheets inside sellside.py; ON generalises
+    # it through the get_sheet hook: for the listed sheets every cell before
+    # the ticker's first observed raw value is re-NaNed (cells from the first
+    # observation on keep the loader's fill), on top of whatever the stale-
+    # run / OPER_MARGIN-restamp dispatch returns. Downstream the panel
+    # builder's per-date median imputes the FEATURE — NOT the native-NaN
+    # path that §S13.6 showed to be harmful. Single preregistered sheet set
+    # (accounting.ACCOUNTING_BASE + VALUATION_SHEETS), no sweep. OFF
+    # (default) returns the untouched sheet object.
+    # ------------------------------------------------------------------
+    pre_coverage_mask_enabled: bool = False
+    pre_coverage_mask_sheets: tuple = (
+        "BEST_EPS", "BEST_SALES", "BEST_CALCULATED_FCF", "BEST_GROSS_MARGIN",
+        "OPER_MARGIN", "BEST_CAPEX", "BEST_ROE",
+        "BEST_PE_RATIO", "BEST_PEG_RATIO", "BEST_PX_BPS_RATIO", "BEST_EV_TO_BEST_EBITDA",
+    )
+
+    # ------------------------------------------------------------------
     # S27 (2026-11-03) — OPER_MARGIN point-in-time restamp (decision log
     # §S27 preregistration). The workbook stamps each OPER_MARGIN change at
     # the fiscal period END, not at the release: 98.5% of the 11,113 changes

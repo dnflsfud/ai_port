@@ -2137,6 +2137,43 @@ class UniverseData:
         cache[name] = out
         return out
 
+    def _pre_coverage_masked_sheet(self, name: str) -> pd.DataFrame:
+        """§S28.2: the sheet ``get_sheet`` would otherwise return, with every
+        cell before the ticker's first observed raw value re-NaNed.
+
+        ``_fill_missing`` fills the listing -> coverage-start stretch with the
+        per-date cross-sectional median of OTHER names' levels; cells from
+        the first observation on keep the loader's fill (interior gaps stay
+        forward-filled). Same rule as sellside ``_mask_pre_coverage`` (§S17
+        T-01). Sheets without a raw counterpart are returned untouched.
+        Cached per sheet; a per-sheet count lands in ``data_quality``.
+        """
+        cache = self.__dict__.setdefault("_pre_coverage_cache", {})
+        if name in cache:
+            return cache[name]
+        sheet = self._sheet_before_pre_coverage_mask(name)
+        observed = self.raw_sheet_observed_mask(name)
+        if observed is None:
+            cache[name] = sheet
+            return sheet
+        observed = (
+            observed.reindex(index=sheet.index, columns=sheet.columns)
+            .fillna(False)
+            .astype(bool)
+        )
+        covered = observed.cummax(axis=0)
+        masked = sheet.where(covered)
+        per_ticker = (sheet.notna() & ~covered).sum()
+        dq = self.__dict__.setdefault("data_quality", {})
+        dq.setdefault("pre_coverage_mask", {})[name] = {
+            "masked_cells": int(per_ticker.sum()),
+            "tickers": int((per_ticker > 0).sum()),
+            "never_observed_tickers": int((~observed.any()).sum()),
+            "top": {str(k): int(v) for k, v in per_ticker.sort_values(ascending=False).head(10).items() if v > 0},
+        }
+        cache[name] = masked
+        return masked
+
     def _load_earnings_timeline(self) -> Optional[pd.DataFrame]:
         """Earnings_Timeline 시트 로드 (date × ticker, 발표일=1).
 
@@ -2218,6 +2255,15 @@ class UniverseData:
     def get_sheet(self, name: str) -> pd.DataFrame:
         if name not in self.sheets:
             raise KeyError(f"시트 '{name}'을 찾을 수 없습니다. 사용 가능: {list(self.sheets.keys())}")
+        if (
+            getattr(self.config, "pre_coverage_mask_enabled", False)
+            and name in set(getattr(self.config, "pre_coverage_mask_sheets", ()))
+        ):
+            return self._pre_coverage_masked_sheet(name)   # §S28.2, default-OFF
+        return self._sheet_before_pre_coverage_mask(name)
+
+    def _sheet_before_pre_coverage_mask(self, name: str) -> pd.DataFrame:
+        """The pre-§S28.2 get_sheet dispatch (stale-run masks / OPER_MARGIN restamp / plain sheet)."""
         if (
             getattr(self.config, "stale_run_mask_enabled", False)
             and name in set(getattr(self.config, "stale_run_mask_sheets", ()))

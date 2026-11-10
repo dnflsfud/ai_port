@@ -10827,3 +10827,35 @@ Pictet 자료 31쪽("모델 복잡도를 고르는 새 검증 절차")·34쪽("K
 - **기각 시**: default `reuse_prev`·단일 검증창 유지, H2·H3 은 운영 리스크로 기록만 한다. §S28.2 는 현 기준선 위에서 진행.
 - **다중성**: 용량 축의 3번째 등록(§S16.3 다중성 2 + 이 arm), K·규칙 단일. 인벤토리 479→480(`experiment_inventory.json` notes). 이 절·src·tests·variant 4개·판정 스크립트·체인 bat·
   인벤토리를 **측정 전 단독 커밋**한다. flip 은 측정 결과 상신 뒤 사용자 별도 승인.
+
+## S28.2 — 커버리지 시작 전 셀 마스크를 컨센서스 11개 시트로 확장하는 arm 사전등록 (2026-11-10, 사용자 승인 "그렇게 진행해줘" · 정확성 트랙(§S17 T-01 일반화) · 인벤토리 비계수(480 불변) · 측정 전 단독 커밋)
+
+**결함(§S28 H4)**: 로더 `_fill_missing` 은 시트를 ffill 한 뒤 남은 공백을 **그 날짜의 횡단면 중앙값 레벨**로 채운다. 상장 뒤 애널리스트 커버리지가 시작되기 전 구간이 그렇게
+채워지면 (i) `safe_pct_change(raw, w)` 는 커버리지 시작 뒤 w행(252d 변화율이면 1년) 동안 "남의 중앙값 → 자기 값" 가짜 변화율이 되고, (ii) 레벨·순위·`vs_median` 피처는
+가짜 레벨 위에 선다. §S17 T-01 이 `Factset_TG_Price`·`Factset_Fwd_OpCashflow` 두 시트만 고쳤고(IC +20.4%, 3분할 전부 상승, flip), §S25 는 나머지를 "1회 블립"으로 잘못 수용했다.
+상장 **전** 셀은 로더의 2차 상장 마스크(`listing_mask_enabled`, `data_loader.py` 2차 재마스크)가 이미 NaN 으로 두므로, 남은 결함은 **상장일 ≤ t < 첫 관측** 구간뿐이다.
+
+**arm 정의(단일 사전등록)**: `pre_coverage_mask_enabled: true`. 대상 = `pre_coverage_mask_sheets` 11개(`accounting.ACCOUNTING_BASE` ∪ `VALUATION_SHEETS`: BEST_EPS · BEST_SALES ·
+BEST_CALCULATED_FCF · BEST_GROSS_MARGIN · OPER_MARGIN · BEST_CAPEX · BEST_ROE · BEST_PE_RATIO · BEST_PEG_RATIO · BEST_PX_BPS_RATIO · BEST_EV_TO_BEST_EBITDA — 시트 선택 스윕 금지).
+- **방식**: `UniverseData.get_sheet` 가 기존 분기(동결 구간 마스크·OPER_MARGIN 재스탬프·원본)의 결과에 덧씌운다 — 채움 전 관측 마스크(`raw_sheet_observed_mask`)의 열별 누적 최댓값이
+  False 인 셀(= 그 종목의 첫 관측 이전)을 NaN 으로. 첫 관측 뒤의 내부 공백은 로더 채움 그대로. 한 번도 관측되지 않은 종목은 전 구간 NaN.
+- **하류**: NaN 은 피처 단계에서 패널 빌더의 날짜별 **피처** 중앙값으로 대체된다(`assembly.py` per_date_median) — 모델에 NaN 을 넘기는 §S13.6 경로(실패)가 아니다.
+- **신규 코드(default-OFF)**: `PipelineConfig.pre_coverage_mask_enabled=False`·`pre_coverage_mask_sheets`, `get_sheet` 후처리 + 시트별 캐시 + 진단
+  `data_quality.pre_coverage_mask[sheet] = {masked_cells, tickers, never_observed_tickers, top}`(`masked_cells` 는 상장 뒤·첫 관측 전 셀만 센다). OFF 면 `get_sheet` 는
+  지금과 같은 객체를 돌려준다(기존 분기 본문은 `_sheet_before_pre_coverage_mask` 로 옮겼을 뿐 문장 불변). 테스트 `tests/test_s28_2_pre_coverage_mask.py` 7(기본값 · OFF 동일 객체 ·
+  ON 첫 관측 전 NaN·내부 공백 유지·미관측 종목 전 구간 NaN·대상 밖 시트 불변·진단 수치 · 상장 뒤 셀만 변경(늦은 상장 종목 핀) · 동결 구간 마스크와 합성 · 관측 마스크 없는 셸 ·
+  변화율 결과: OFF 는 커버리지 시작 행에서 가짜 변화율(예 −0.92), ON 은 w행 NaN) + `tests/test_eval_s28_2_pre_coverage_arm.py` 3.
+- **적용 범위(사전 고지)**: 훅이 `get_sheet` 라 회계 피처(`accounting.py`) 외의 소비자에도 같은 마스크가 걸린다 — `assembly.py` 합성·은행 피처, `sellside.py` FCF,
+  **growth tilt 의 BEST_EPS·BEST_SALES 입력**(`backtest.py`, `growth_tilt_weight` 0.25), `negative_equity_mask`(NaN → False). 동결 구간 마스크(§S25.4·§S26)와 같은 범위이며,
+  같은 가짜 레벨이 틸트에도 들어가고 있었으므로 의도된 범위다.
+
+**게이트(측정 전 고정)** — 기준 = §S28.1 판정 뒤의 production overrides 를 같은 코드로 돌린 11-06 빈티지 런(§S28.1 flip 이면 그 arm 런, 아니면 `s28_s0_1106`). arm variant 는
+그 overrides 바이트 사본 + 1줄이며 §S28.1 판정 뒤·측정 전에 만들어 이 절에 추가 기록한다. 판정은 `scripts/eval_s28_2_pre_coverage_arm.py --arm … --base …`(sha256 `35dd4ac14e429ca94eb8a8d046267ba4fb423582cf905e185366e1a4b3b7756b`, 작업 사본 CRLF 기준;
+쌍대 NW t = `eval_s27_om_pit_arm.paired_nw_t`, E2 = `eval_s17_arm.evaluate_e2` 재사용).
+- **G0**: `data_vintage` 동일 ∧ arm overrides = 기준 overrides + 플래그 1줄(정확히). (OFF 파리티는 §S28.1 G0 의 `s28_s0_1106` 이 인증)
+- **G1(기전)**: `data_quality.pre_coverage_mask` 의 마스킹 셀 합계 > 0 ∧ 시트별 `masked_cells`·`tickers` 기록(감사 추정: GROSS_MARGIN 53종목·EV/EBITDA 41종목 수준).
+  커버리지 시작 뒤 w행의 변화율이 NaN 이 되는 것은 단위 테스트가 인증한다.
+- **G2(무해성, 보고서 ③ 정확성 규칙)**: ΔIR > −0.10 ∧ 쌍대 NW t > −1 ∧ TE ≤ 4.5% · |ΔAS| ≤ 3%p · 회전율 ≤ 1.25× · fallback 0.
+- **flip 후보 = G0 ∧ G1 ∧ G2**(§S17.1 arm A 선례: 정확성 트랙은 IR 채택 바를 쓰지 않는다). 병기: avg_ic·IC 3분할, 퇴화 수.
+- **사전 명시 기대**: IC 소폭 상승(T-01 선례), ΔIR 잡음대. 마스킹이 횡단면 z 재표준화로 전 종목에 전파되므로 변경 셀 수는 마스킹 셀 수보다 훨씬 크다(T-01 과 같은 현상, 의도된 범위).
+- **범위 밖(기록)**: 셀사이드·옵션·수급 시트의 같은 채움, M10(`_accel` 정의·VTG 조건), M11(UMG 상장일 셀).
