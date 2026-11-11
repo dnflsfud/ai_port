@@ -106,6 +106,8 @@
     "index_eps_features_enabled": false,
     "index_revision_feature_enabled": false,
     "interaction_features_enabled": false,
+    "kfold_capacity_refit_enabled": false,
+    "kfold_n_splits": 5,
     "label_execution_lag_enabled": false,
     "lgbm_params": {
       "colsample_bytree": 0.8,
@@ -227,6 +229,20 @@
     "pead_max_days": 21,
     "peer_earnings_cascade_feature_enabled": false,
     "portfolio_style": "core_satellite",
+    "pre_coverage_mask_enabled": false,
+    "pre_coverage_mask_sheets": [
+      "BEST_EPS",
+      "BEST_SALES",
+      "BEST_CALCULATED_FCF",
+      "BEST_GROSS_MARGIN",
+      "OPER_MARGIN",
+      "BEST_CAPEX",
+      "BEST_ROE",
+      "BEST_PE_RATIO",
+      "BEST_PEG_RATIO",
+      "BEST_PX_BPS_RATIO",
+      "BEST_EV_TO_BEST_EBITDA"
+    ],
     "prediction_ema_alpha": 0.5,
     "projection_fallback_mode": "target",
     "putcall_features_enabled": false,
@@ -356,9 +372,9 @@
     "zscore_winsor_first_enabled": false
   },
   "data_vintage": {
-    "data_mtime_utc": "2026-11-06T05:47:54Z",
+    "data_mtime_utc": "2026-11-10T04:59:16Z",
     "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
-    "data_size_bytes": 380182438,
+    "data_size_bytes": 380599089,
     "fx_mtime_utc": "2026-11-09T06:24:30Z",
     "fx_size_bytes": 98098919,
     "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx"
@@ -367,7 +383,7 @@
     "description": "PRODUCTION. iter15_65tkr_reb21 + post-prediction value-trap gate. The value-trap gate zeroes score for (cheap PE z<-0.5) & (momentum_252d<-0.5) & (oper_margin_accel>+0.5). CS-DR-Alpha is OFF (2026-06-10): the original validation had two confounds (walk-forward fold-skip kept DR inactive for the first ~5y of the backtest; the 2-pass path skipped the prediction EMA, so passthrough regions traded the un-smoothed raw LGBM signal). After fixing both, the honest 2x2 ablation (outputs/dr_ablation_2x2, data vintage 2026-06-05) shows DR's marginal contribution is decisively negative: dIR -0.71 (no-EMA pair) / -0.58 (EMA pair) vs the matching baseline, in every sub-period including fully-trained P3. Lower turnover (-0.16~-0.23) does not compensate. See docs/RL_DR_ALPHA_RESULTS.md (2026-06-10 re-validation) before re-enabling.\n",
     "manifest_path": "variants\\iter15_65tkr_reb21_vtg.yaml",
     "run_contract": {
-      "config_sha256": "e89669a50a53e4293701850d77b36297d146cdb6cd3b7302559f1c4cff806fca",
+      "config_sha256": "eb015ddd9e31bbd4611106ab7f95a9f2da5a69449eabef34be7ac6a683a96930",
       "data_dates": [
         "2014-01-24T00:00:00",
         "2014-01-27T00:00:00",
@@ -3582,15 +3598,18 @@
         "2026-10-29T00:00:00",
         "2026-10-30T00:00:00",
         "2026-11-02T00:00:00",
-        "2026-11-03T00:00:00"
+        "2026-11-03T00:00:00",
+        "2026-11-04T00:00:00",
+        "2026-11-05T00:00:00",
+        "2026-11-06T00:00:00"
       ],
       "inputs": {
-        "code_sha256": "223955b2620645ab0d0125feefe5085635824793c81cccf28b7556da74cf7900",
+        "code_sha256": "69d3b4e9e4fc4d77ed72c4d792e3b0646bf8344b1f061ec21238b7797dac9313",
         "data": {
-          "mtime_ns": 1793944074839159700,
+          "mtime_ns": 1794286756305048500,
           "path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
-          "sha256": "a0d85d4837fabebc1b321cf70379488e5e4d9608b9164666114b9d41f03838d0",
-          "size": 380182438
+          "sha256": "d2475db6a5927f8190c93ae3905d0ad1d11cdc7ff0daf844e13cf880fca4af03",
+          "size": 380599089
         },
         "fx": {
           "mtime_ns": 1794205470836344500,
@@ -3857,6 +3876,6 @@
     "variant_label": "iter15_65tkr_reb21_vtg"
   },
   "git_dirty": false,
-  "git_hash": "bd002782250c0cdc6bcbbf17ede3c2fb9446c67c",
-  "timestamp_utc": "2026-11-10T02:56:36Z"
+  "git_hash": "779991cf52cbfe2af82880e2b7ca2eb3de82af4a",
+  "timestamp_utc": "2026-11-11T02:51:07Z"
 }

@@ -106,6 +106,8 @@
     "index_eps_features_enabled": false,
     "index_revision_feature_enabled": false,
     "interaction_features_enabled": false,
+    "kfold_capacity_refit_enabled": false,
+    "kfold_n_splits": 5,
     "label_execution_lag_enabled": true,
     "lgbm_params": {
       "colsample_bytree": 0.8,
@@ -227,6 +229,20 @@
     "pead_max_days": 21,
     "peer_earnings_cascade_feature_enabled": false,
     "portfolio_style": "core_satellite",
+    "pre_coverage_mask_enabled": false,
+    "pre_coverage_mask_sheets": [
+      "BEST_EPS",
+      "BEST_SALES",
+      "BEST_CALCULATED_FCF",
+      "BEST_GROSS_MARGIN",
+      "OPER_MARGIN",
+      "BEST_CAPEX",
+      "BEST_ROE",
+      "BEST_PE_RATIO",
+      "BEST_PEG_RATIO",
+      "BEST_PX_BPS_RATIO",
+      "BEST_EV_TO_BEST_EBITDA"
+    ],
     "prediction_ema_alpha": 0.5,
     "projection_fallback_mode": "target",
     "putcall_features_enabled": false,
@@ -362,9 +378,9 @@
     "zscore_winsor_first_enabled": true
   },
   "data_vintage": {
-    "data_mtime_utc": "2026-11-06T05:47:54Z",
+    "data_mtime_utc": "2026-11-10T04:59:16Z",
     "data_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
-    "data_size_bytes": 380182438,
+    "data_size_bytes": 380599089,
     "fx_mtime_utc": "2026-11-09T06:24:30Z",
     "fx_size_bytes": 98098919,
     "fx_source_path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\Data\\Index.xlsx"
@@ -373,7 +389,7 @@
     "description": "Fixed-250 causal production portfolio. Uses date-grouped LightGBM rank_xendcg, purged/embargoed validation, and a one-trading-day execution signal lag. The legacy label/output path is retained for automation compatibility; the universe is the validated 250-name Universe_Meta set (decision log \u00a7S14.2). The adopted four-feature forward-sales-slope block is enabled per S13.25; benchmark, overlays, optimizer and transaction-cost assumptions remain pinned to the canonical iter15_65tkr_reb21_vtg portfolio design.\n",
     "manifest_path": "variants\\codex_causal_rank_65.yaml",
     "run_contract": {
-      "config_sha256": "191db9eae2cbb7fe1259b541793483704aa3cf6ede08a6aabe8d735e2849d11f",
+      "config_sha256": "dde7c7b6d4d2614950fa47c1317f05becf80fe2b39ae56b9630f87630285b6e5",
       "data_dates": [
         "2014-01-24T00:00:00",
         "2014-01-27T00:00:00",
@@ -3588,15 +3604,18 @@
         "2026-10-29T00:00:00",
         "2026-10-30T00:00:00",
         "2026-11-02T00:00:00",
-        "2026-11-03T00:00:00"
+        "2026-11-03T00:00:00",
+        "2026-11-04T00:00:00",
+        "2026-11-05T00:00:00",
+        "2026-11-06T00:00:00"
       ],
       "inputs": {
-        "code_sha256": "223955b2620645ab0d0125feefe5085635824793c81cccf28b7556da74cf7900",
+        "code_sha256": "69d3b4e9e4fc4d77ed72c4d792e3b0646bf8344b1f061ec21238b7797dac9313",
         "data": {
-          "mtime_ns": 1793944074839159700,
+          "mtime_ns": 1794286756305048500,
           "path": "C:\\Users\\westl\\PycharmProjects\\pythonProject\\venv_vf_new\\machine\\re_study\\ai_signal_data.xlsx",
-          "sha256": "a0d85d4837fabebc1b321cf70379488e5e4d9608b9164666114b9d41f03838d0",
-          "size": 380182438
+          "sha256": "d2475db6a5927f8190c93ae3905d0ad1d11cdc7ff0daf844e13cf880fca4af03",
+          "size": 380599089
         },
         "fx": {
           "mtime_ns": 1794205470836344500,
@@ -3863,6 +3882,6 @@
     "variant_label": "codex_causal_rank_65"
   },
   "git_dirty": false,
-  "git_hash": "bd002782250c0cdc6bcbbf17ede3c2fb9446c67c",
-  "timestamp_utc": "2026-11-10T03:31:48Z"
+  "git_hash": "779991cf52cbfe2af82880e2b7ca2eb3de82af4a",
+  "timestamp_utc": "2026-11-11T03:29:34Z"
 }
